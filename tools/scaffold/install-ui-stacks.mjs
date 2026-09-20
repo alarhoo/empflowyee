@@ -1,12 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
-
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+import { runPnpm } from './run-pnpm.mjs';
 
 function run(args) {
-  console.log(`\n> pnpm ${args.join(' ')}`);
-  const result = spawnSync(pnpm, args, { stdio: 'inherit' });
-  if (result.status !== 0) process.exit(result.status ?? 1);
+  runPnpm(args);
 }
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));

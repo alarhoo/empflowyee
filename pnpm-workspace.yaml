@@ -2,8 +2,14 @@ packages:
   - 'apps/**'
   - 'libs/**'
   - 'tools/**'
+
+# pnpm 11+ blocks dependency lifecycle/build scripts unless explicitly reviewed.
+# Keep this allowlist narrow and version-controlled. New packages that require
+# install scripts must be reviewed instead of enabling all dependency builds.
 allowBuilds:
-  '@parcel/watcher': set this to true or false
-  esbuild: set this to true or false
-  nx: set this to true or false
-  unrs-resolver: set this to true or false
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  nx: true
+  sharp: true
+  unrs-resolver: true

@@ -1,17 +1,14 @@
-import { spawnSync } from 'node:child_process';
+import { runPnpm } from './run-pnpm.mjs';
 
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+console.log('empFLOWyee scaffold starting...');
+console.log(`Node: ${process.version}`);
+console.log(`Platform: ${process.platform} ${process.arch}`);
 
-function run(args) {
-  const result = spawnSync(pnpm, args, { stdio: 'inherit', env: { ...process.env, NX_INTERACTIVE: 'false' } });
-  if (result.status !== 0) process.exit(result.status ?? 1);
-}
-
-run(['scaffold:projects']);
-run(['scaffold:ui']);
-run(['architecture:check']);
-run(['docs:check']);
-run(['exec', 'nx', 'format:write']);
+runPnpm(['scaffold:projects']);
+runPnpm(['scaffold:ui']);
+runPnpm(['architecture:check']);
+runPnpm(['docs:check']);
+runPnpm(['exec', 'nx', 'format:write']);
 
 console.log('\nempFLOWyee foundation scaffold complete.');
 console.log('Next: inspect `pnpm graph`, commit the baseline, then build the HCM shell/UX foundation.');

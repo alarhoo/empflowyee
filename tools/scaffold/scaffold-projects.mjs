@@ -1,16 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+import { runPnpm } from './run-pnpm.mjs';
 
 function runNx(args) {
-  console.log(`\n> nx ${args.join(' ')}`);
-  const result = spawnSync(pnpm, ['exec', 'nx', ...args], {
-    stdio: 'inherit',
-    env: { ...process.env, NX_INTERACTIVE: 'false' },
+  runPnpm(['exec', 'nx', ...args], {
+    label: `nx ${args.join(' ')}`,
+    env: { NX_INTERACTIVE: 'false' },
   });
-  if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
 function generateIfMissing(projectJson, args) {
