@@ -1,0 +1,47 @@
+{
+  "name": "empflowyee",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@12.5.1",
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
+  "scripts": {
+    "scaffold": "node tools/scaffold/scaffold.mjs",
+    "scaffold:projects": "node tools/scaffold/scaffold-projects.mjs",
+    "scaffold:ui": "node tools/scaffold/install-ui-stacks.mjs",
+    "architecture:check": "node tools/architecture/verify.mjs",
+    "docs:check": "node tools/documentation/verify.mjs",
+    "graph": "nx graph",
+    "format": "nx format:write",
+    "format:check": "nx format:check",
+    "lint": "nx run-many -t lint",
+    "test": "nx run-many -t test",
+    "build": "nx run-many -t build",
+    "affected": "nx affected -t lint,test,build",
+    "dev:marketing": "nx dev marketing-web --port=4200",
+    "dev:account": "nx serve account-web --port=4300",
+    "dev:hcm": "nx serve hcm-web --port=4302",
+    "dev:console": "nx serve console-web --port=4301",
+    "dev:account-api": "nx serve account-api",
+    "dev:hcm-api": "nx serve hcm-api",
+    "dev:console-api": "nx serve console-api"
+  },
+  "devDependencies": {
+    "@nx/angular": "23.2.1",
+    "@nx/devkit": "23.2.1",
+    "@nx/eslint": "23.2.1",
+    "@nx/eslint-plugin": "23.2.1",
+    "@nx/js": "23.2.1",
+    "@nx/nest": "23.2.1",
+    "@nx/next": "23.2.1",
+    "@nx/node": "23.2.1",
+    "@nx/playwright": "23.2.1",
+    "@nx/react": "23.2.1",
+    "@nx/storybook": "23.2.1",
+    "@nx/vitest": "23.2.1",
+    "eslint": "^9.39.4",
+    "nx": "23.2.1",
+    "prettier": "^3.6.2"
+  }
+}
