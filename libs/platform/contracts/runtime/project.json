@@ -1,0 +1,16 @@
+{
+	"name": "platform-runtime-contract",
+	"$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "library",
+	"sourceRoot": "libs/platform/contracts/runtime/src",
+	"tags": ["product:platform", "runtime:universal", "domain:runtime", "type:contract"],
+	"targets": {
+		"test": {
+			"executor": "nx:run-commands",
+			"cache": true,
+			"options": {
+				"command": "vitest run --config tools/containers/vitest.config.mts libs/platform/contracts/runtime"
+			}
+		}
+	}
+}

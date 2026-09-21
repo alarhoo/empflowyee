@@ -6,6 +6,13 @@
 	"engines": {
 		"node": ">=24.15.0 <25"
 	},
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": "24.21.0",
+			"onFail": "download"
+		}
+	},
 	"scripts": {
 		"scaffold": "node tools/scaffold/scaffold.mjs",
 		"scaffold:projects": "node tools/scaffold/scaffold-projects.mjs",
@@ -42,6 +49,7 @@
 		"@next/eslint-plugin-next": "^16.1.6",
 		"@nx/angular": "23.2.1",
 		"@nx/devkit": "23.2.1",
+		"@nx/docker": "23.2.1",
 		"@nx/eslint": "23.2.1",
 		"@nx/eslint-plugin": "23.2.1",
 		"@nx/js": "23.2.1",

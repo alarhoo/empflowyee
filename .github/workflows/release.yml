@@ -66,7 +66,7 @@ jobs:
           fi
 
           # These build inputs sit outside application roots in the Nx graph.
-          if git diff --name-only "$BASE" "$GITHUB_SHA" -- .dockerignore ci/deployables.json .github/workflows/release.yml .github/workflows/_reusable-build-image.yml tools/ci | grep -q .; then
+          if git diff --name-only "$BASE" "$GITHUB_SHA" -- .dockerignore ci/deployables.json containers tools/containers .github/workflows/release.yml .github/workflows/_reusable-build-image.yml tools/ci | grep -q .; then
             BUILD_ALL=true
           fi
 

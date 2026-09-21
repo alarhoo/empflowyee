@@ -153,8 +153,9 @@ test('release retry reuses an existing digest without building or pushing', /** 
 	assert.equal(result.reused, true)
 	assert.equal(
 		calls.some(
-			/** Identify Docker invocations in the recorded release commands. */ ([command]) =>
-				command === 'docker',
+			/** Identify image build or publication invocations in the recorded release commands. */ ([
+				command,
+			]) => command === 'docker' || command === 'pnpm',
 		),
 		false,
 	)
@@ -165,18 +166,20 @@ test('first release builds and pushes once and then resolves its digest', /** Ve
 	const result = releaseImage(env, config, execute)
 	assert.equal(result.reused, false)
 	assert.equal(result.digest, digest)
-	assert.deepEqual(
-		calls
-			.filter(
-				/** Select Docker commands from the mixed command log. */ ([command]) =>
-					command === 'docker',
-			)
-			.map(
-				/** Extract the Docker operation name for build/push ordering assertions. */ (call) =>
-					call[1],
-			),
-		['build', 'push'],
+	const builds = calls.filter(
+		/** Select image builds routed through the Nx task graph. */ ([command]) => command === 'pnpm',
 	)
+	assert.equal(builds.length, 1)
+	assert.deepEqual(builds[0].slice(0, 5), ['pnpm', 'exec', 'nx', 'run', 'hcm-web:docker:build'])
+	assert.ok(builds[0].includes(`REVISION=${sha}`))
+	assert.ok(builds[0].includes(`RELEASE_ID=${sha}`))
+	const pushes = calls.filter(
+		/** Select Docker publication commands after the Nx build. */ ([command]) =>
+			command === 'docker',
+	)
+	assert.equal(pushes.length, 1)
+	assert.equal(pushes[0][1], 'push')
+	assert.ok(calls.indexOf(builds[0]) < calls.indexOf(pushes[0]))
 })
 
 test('registry permission failures and mutable tags never trigger a build', /** Verify unsafe registry configuration and lookup errors cannot trigger image creation. */ () => {
@@ -190,7 +193,7 @@ test('registry permission failures and mutable tags never trigger a build', /** 
 			calls.some(
 				/** Identify Docker invocations that would incorrectly rebuild after a registry error. */ ([
 					command,
-				]) => command === 'docker',
+				]) => command === 'docker' || command === 'pnpm',
 			),
 			false,
 		)
@@ -208,7 +211,7 @@ test('promotion and rollback use the same digest in all environments without reb
 		assert.equal(
 			calls.some(
 				/** Identify any Docker invocation that would rebuild during promotion. */ ([command]) =>
-					command === 'docker',
+					command === 'docker' || command === 'pnpm',
 			),
 			false,
 		)
@@ -241,7 +244,7 @@ test('missing artifacts, missing services and pinned traffic fail without a depl
 		assert.equal(
 			calls.some(
 				/** Detect Docker invocations that would rebuild a failed deployment. */ ([command]) =>
-					command === 'docker',
+					command === 'docker' || command === 'pnpm',
 			),
 			false,
 		)

@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://empflowyee.com/schemas/runtime-config.base.schema.json",
+	"title": "empFLOWyee browser runtime configuration base",
+	"type": "object",
+	"additionalProperties": true,
+	"required": ["environment", "releaseId", "apiBaseUrl"],
+	"properties": {
+		"environment": {
+			"type": "string",
+			"enum": ["local", "dev", "qa", "prod"]
+		},
+		"releaseId": {
+			"type": "string",
+			"minLength": 1
+		},
+		"apiBaseUrl": {
+			"type": "string",
+			"minLength": 1
+		}
+	}
+}

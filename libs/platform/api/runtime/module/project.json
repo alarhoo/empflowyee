@@ -1,0 +1,8 @@
+{
+	"name": "platform-api-runtime-module",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "library",
+	"sourceRoot": "libs/platform/api/runtime/module/src",
+	"tags": ["product:platform", "runtime:api", "domain:runtime", "type:module"],
+	"targets": {}
+}

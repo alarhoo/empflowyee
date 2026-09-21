@@ -1,0 +1,5 @@
+{
+	"environment": "local",
+	"releaseId": "local",
+	"apiBaseUrl": "http://localhost:4401/api"
+}

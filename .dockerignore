@@ -1,5 +1,7 @@
 .git
 .github
+.tmp
+.container-output
 **/node_modules
 **/dist
 **/coverage

@@ -1,0 +1,37 @@
+# Verified Marketing standalone layout; re-inspect output after Nx/Next upgrades.
+# Build from the repository root; deployment configuration is supplied only at runtime.
+FROM node:24.21.0-bookworm-slim AS build
+WORKDIR /workspace
+ENV CI=true NX_DAEMON=false
+RUN corepack enable
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/account/api/package.json ./apps/account/api/package.json
+COPY apps/hcm/api/package.json ./apps/hcm/api/package.json
+COPY apps/console/api/package.json ./apps/console/api/package.json
+RUN pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm nx build marketing-web
+RUN pnpm exec tsc --project tools/containers/tsconfig.runtime.json
+
+# Preserve the verified monorepo-relative standalone layout, including public/static assets.
+FROM node:24.21.0-bookworm-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=8080
+COPY --from=build --chown=node:node /workspace/apps/marketing/web/.next/standalone/ ./
+COPY --from=build --chown=node:node /workspace/apps/marketing/web/.next/static/ ./apps/marketing/web/.next/static/
+COPY --from=build --chown=node:node /workspace/apps/marketing/web/public/ ./apps/marketing/web/public/
+COPY containers/node/healthcheck.mjs /healthcheck.mjs
+COPY --from=build /workspace/.container-output/runtime/index.js ./runtime-contract.cjs
+COPY containers/next/entrypoint.mjs ./entrypoint.mjs
+ARG REVISION=local
+ARG BUILD_DATE
+ARG RELEASE_ID=local
+LABEL org.opencontainers.image.source="https://github.com/alarhoo/empflowyee" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="marketing-web" \
+      org.opencontainers.image.version="${RELEASE_ID}"
+USER node
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s CMD ["node", "/healthcheck.mjs"]
+CMD ["node", "entrypoint.mjs"]

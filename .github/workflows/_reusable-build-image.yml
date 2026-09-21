@@ -52,7 +52,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      # The release helper uses Node built-ins and does not need a workspace install.
+      # Nx executes the official Docker target using the pinned repository toolchain.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -60,6 +60,10 @@ jobs:
       # Require a production Dockerfile and a build SHA matching this workflow commit.
       - name: Validate release and prerequisites before authentication
         run: node tools/ci/release.mjs validate
+      - uses: pnpm/action-setup@v6
+      # Install before cloud authentication; package build hooks receive no cloud credentials.
+      - name: Install the Nx toolchain
+        run: pnpm install --frozen-lockfile
       # Obtain short-lived credentials for the central artifact publishing identity.
       - uses: google-github-actions/auth@v3
         with:

@@ -87,6 +87,17 @@ Do not invent missing business behavior.
 - AI-generated and scaffolded code must meet the same requirement before a change is complete.
 - Maintained YAML also requires explanatory comments: document each file's purpose, every workflow job, and significant triggers, permissions, inputs, gates and side effects. Follow the YAML policy in `docs/platform/engineering/code-style.md`; generated lockfiles are exempt.
 
+## Containers and runtime configuration
+
+- Follow `docs/platform/adr/ADR-container-runtime-strategy.md` and the runtime-specific standards under `docs/platform/engineering/`.
+- Use official Nx Docker targets and inspect actual build outputs before changing Dockerfiles.
+- Browser runtime configuration is public; keep secrets in Secret Manager and environment-specific endpoints out of compiled bundles.
+- Nest services must validate configuration before listening on `PORT` and `0.0.0.0`, and enable graceful shutdown.
+- Health endpoints must disclose no sensitive diagnostics. Liveness must not depend on databases or external providers.
+- Tenant branding, locale, entitlements and authentication setup belong to product data, not Cloud Run environment variables.
+- Never run schema migrations implicitly during ordinary API startup; migration orchestration needs an explicit deployment design.
+- Prove one image per runtime class locally, including two runtime configurations of the same image, before extending its pattern to the remaining deployables.
+
 ## Git and release engineering
 
 - `main` is the only long-lived branch. All changes reach it through a pull request; never push directly to `main`.

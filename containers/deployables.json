@@ -1,0 +1,12 @@
+{
+	"version": 1,
+	"deployables": [
+		{ "project": "marketing-web", "path": "apps/marketing/web", "runtime": "next" },
+		{ "project": "account-web", "path": "apps/account/web", "runtime": "angular-static" },
+		{ "project": "account-api", "path": "apps/account/api", "runtime": "nest-node" },
+		{ "project": "hcm-web", "path": "apps/hcm/web", "runtime": "angular-static" },
+		{ "project": "hcm-api", "path": "apps/hcm/api", "runtime": "nest-node" },
+		{ "project": "console-web", "path": "apps/console/web", "runtime": "angular-static" },
+		{ "project": "console-api", "path": "apps/console/api", "runtime": "nest-node" }
+	]
+}

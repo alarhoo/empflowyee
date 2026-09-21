@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "../../libs/platform/contracts/runtime/src",
+		"outDir": "../../.container-output/runtime",
+		"module": "commonjs",
+		"types": [],
+		"sourceMap": false
+	},
+	"files": ["../../libs/platform/contracts/runtime/src/index.ts"],
+	"include": []
+}

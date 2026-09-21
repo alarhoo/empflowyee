@@ -1,62 +1,61 @@
-# Next steps after the cloud foundation
+# Next steps
 
-## Phase 1 — Container and runtime configuration standard
+## Phase 1 — integrate and prove the runtime foundation
 
-The cloud foundation source is now present. First review and execute its [bootstrap and Terraform plans](docs/platform/engineering/gcp-bootstrap.md) in the intended account; a source commit does not prove live provisioning. Container work can proceed once those prerequisites are understood.
+Completed in this checkout; all seven images passed local runtime checks. Evidence and commands are in `docs/platform/engineering/container-validation.md`. The sequence below remains the checklist for future runtime changes.
 
-Create production-grade container patterns for all seven deployables:
+1. Install `@nx/docker` through `nx add`.
+2. Generate the real project inventory.
+3. Add typed Angular runtime config loading.
+4. Add NestJS validated runtime config + health contract.
+5. Add Next.js runtime config contract.
+6. Create Dockerfiles from the supplied templates.
+7. Prove `hcm-web`, `hcm-api`, and `marketing-web` locally.
+8. Roll the validated pattern to the remaining four deployables.
 
-- Angular web: account-web, hcm-web, console-web
-- Next.js: marketing-web
-- NestJS: account-api, hcm-api, console-api
+## Phase 2 — Cloud Run Terraform module
 
-Decide and implement:
+Create one reusable module supporting:
 
-- multi-stage Docker builds
-- non-root runtime users
-- Angular `/assets/config.json` runtime injection
-- Next.js runtime environment handling
-- NestJS runtime configuration validation
-- `/health/live` and `/health/ready`
-- image metadata/version labels
-- local Docker Compose/dev validation where useful
+- exact image digest
+- runtime service account
+- non-secret environment variables
+- Secret Manager version references
+- startup/liveness probes
+- min/max instances
+- concurrency
+- CPU/memory
+- ingress policy
+- labels
+- deletion protection policy
 
-## Phase 2 — Cloud Run Terraform module + first DEV deployment
+Deploy DEV first.
 
-- reusable Cloud Run module
-- service-specific runtime identities
-- environment configuration injection
-- Secret Manager references
-- min/max instances and concurrency
-- deploy exact Artifact Registry digest
+## Phase 3 — HCM shell foundation
 
-Start with DEV only.
-
-## Phase 3 — HCM shell architecture
+Document and implement:
 
 - tenant hostname context
 - session/user context
 - entitlements
 - authorization
-- application catalog
+- application catalogue
 - Spaces / Pages
-- lazy-loaded features
+- lazy-loaded feature registration
 - locale/preferences
 
-## Phase 4 — HCM theme engine and Theme Lab
+## Phase 4 — HCM theme engine + Theme Lab
 
-Create the first visual/dummy implementation:
+Build representative dummy screens for:
 
 - Horizon Light
 - Horizon Dark
 - HER Light
 - HER Dark
-- tenant primary-color overlay
-- tenant logo/branding
-- locale/date/time/number preference controls
-- representative Object Page
+- tenant primary-colour overlay
+- logo/branding
+- locale/date/time/number preferences
+- Object Page
 - Flexible Column layout
-- List Report/table example
-- complex form example
-
-This becomes the proving ground for the UI architecture before business modules are implemented.
+- list/table
+- complex form

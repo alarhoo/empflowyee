@@ -71,10 +71,15 @@ jobs:
       - name: Validate deployment manifest
         run: node tools/ci/validate-deployables.mjs
 
+      # Keep Docker roots, runtime versions and prune targets aligned with the seven-app manifest.
+      - name: Validate container foundation
+        run: pnpm exec node tools/containers/verify-foundation.mjs
+
       # Root tooling is outside Nx app lint targets, so enforce its rules explicitly.
       - name: Lint tooling and test function-documentation policy
         run: |
           pnpm lint:tooling
+          pnpm exec eslint "containers/**/*.{js,ts,mjs}" --max-warnings=0
           pnpm test:lint-policy
           node --test tools/ci/*.test.mjs
 

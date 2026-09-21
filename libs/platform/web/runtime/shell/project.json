@@ -1,0 +1,16 @@
+{
+	"name": "platform-web-runtime-shell",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "library",
+	"sourceRoot": "libs/platform/web/runtime/shell/src",
+	"tags": ["product:platform", "runtime:web", "domain:runtime", "type:shell"],
+	"targets": {
+		"test": {
+			"executor": "nx:run-commands",
+			"cache": true,
+			"options": {
+				"command": "vitest run --config tools/containers/vitest.config.mts libs/platform/web/runtime/shell"
+			}
+		}
+	}
+}

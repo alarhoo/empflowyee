@@ -18,7 +18,8 @@ module.exports = {
 			assets: ['./src/assets'],
 			optimization: false,
 			outputHashing: 'none',
-			generatePackageJson: true,
+			// Dedicated prune targets own deployment dependency metadata.
+			generatePackageJson: false,
 			sourceMap: true,
 		}),
 	],

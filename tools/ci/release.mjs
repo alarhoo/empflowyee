@@ -100,18 +100,20 @@ export function releaseImage(env, config, execute = run) {
 	const reused = digest !== null
 	if (!digest) {
 		execute('gcloud', ['auth', 'configure-docker', `${env.AR_REGION}-docker.pkg.dev`, '--quiet'])
-		execute('docker', [
-			'build',
+		execute('pnpm', [
+			'exec',
+			'nx',
+			'run',
+			`${env.DEPLOYABLE}:docker:build`,
 			'--pull',
-			'--label',
-			`org.opencontainers.image.revision=${env.RELEASE_SHA}`,
-			'--label',
-			`com.empflowyee.nx-project=${env.DEPLOYABLE}`,
-			'--file',
-			config.dockerfile,
+			'--build-arg',
+			`REVISION=${env.RELEASE_SHA}`,
+			'--build-arg',
+			`RELEASE_ID=${env.RELEASE_SHA}`,
+			'--build-arg',
+			`BUILD_DATE=${new Date().toISOString()}`,
 			'--tag',
 			tag,
-			config.context,
 		])
 		execute('docker', ['push', tag])
 		digest = resolveDigest(tag, execute)

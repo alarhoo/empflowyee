@@ -1,0 +1,12 @@
+# Recommended root .dockerignore additions
+.git
+.github
+.nx/cache
+node_modules
+dist
+coverage
+.tmp
+*.log
+.env
+.env.*
+!.env.example

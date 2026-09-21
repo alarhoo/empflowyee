@@ -13,7 +13,11 @@
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
 		"strict": true,
-		"paths": {}
+		"paths": {
+			"@empflowyee/platform-runtime-contract": ["./libs/platform/contracts/runtime/src/index.ts"],
+			"@empflowyee/platform-web-runtime-shell": ["./libs/platform/web/runtime/shell/src/index.ts"],
+			"@empflowyee/platform-api-runtime-module": ["./libs/platform/api/runtime/module/src/index.ts"]
+		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]
 }
