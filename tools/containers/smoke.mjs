@@ -2,10 +2,15 @@ import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { setTimeout } from 'node:timers/promises'
+import { parseArgs } from 'node:util'
 
 const manifest = JSON.parse(readFileSync('containers/deployables.json', 'utf8'))
-const projects = process.argv.slice(2)
+const { values, positionals: projects } = parseArgs({
+	allowPositionals: true,
+	options: { image: { type: 'string' } },
+})
 if (!projects.length) throw new Error('Pass the Nx projects whose images have already been built')
+if (values.image && projects.length !== 1) throw new Error('--image requires exactly one project')
 
 /** Execute Docker with separate arguments and capture bounded diagnostic output. */
 function docker(...args) {
@@ -32,13 +37,20 @@ for (const project of projects) {
 			item.project === project,
 	)
 	assert.ok(deployable, `Unknown deployable: ${project}`)
-	const image = deployable.path.replaceAll('/', '-')
+	const image = values.image ?? deployable.path.replaceAll('/', '-')
+	const releaseId = docker(
+		'image',
+		'inspect',
+		'--format',
+		'{{index .Config.Labels "org.opencontainers.image.version"}}',
+		image,
+	)
+	assert.ok(releaseId && releaseId !== '<no value>', 'Image must record its release identity')
 	const imageId = docker('image', 'inspect', '--format', '{{.Id}}', image)
 	const user = docker('image', 'inspect', '--format', '{{.Config.User}}', image)
 	assert.ok(user && user !== 'root' && user !== '0', 'Images must run as a non-root user')
 	for (const environment of ['dev', 'qa']) {
 		const port = deployable.runtime === 'angular-static' ? 8080 : 9090
-		const releaseId = 'smoke-release'
 		const args = [
 			'run',
 			'--detach',
@@ -48,8 +60,6 @@ for (const project of projects) {
 			`PORT=${port}`,
 			'--env',
 			`APP_ENVIRONMENT=${environment}`,
-			'--env',
-			`RELEASE_ID=${releaseId}`,
 		]
 		if (deployable.runtime === 'angular-static')
 			args.push('--env', `API_BASE_URL=https://${environment}.example.test/api`)
@@ -83,6 +93,7 @@ for (const project of projects) {
 			} else {
 				assert.equal((await fetch(`${baseUrl}/api`)).status, 200)
 				assert.ok(docker('logs', container).includes(`"environment":"${environment}"`))
+				assert.ok(docker('logs', container).includes(`"releaseId":"${releaseId}"`))
 			}
 			docker('stop', '--time', '10', container)
 			const exitCode = Number(docker('inspect', '--format', '{{.State.ExitCode}}', container))

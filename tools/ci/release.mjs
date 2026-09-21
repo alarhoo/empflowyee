@@ -115,6 +115,8 @@ export function releaseImage(env, config, execute = run) {
 			'--tag',
 			tag,
 		])
+		// Prove the exact image starts with its embedded release identity before publishing it.
+		execute('node', ['tools/containers/smoke.mjs', env.DEPLOYABLE, '--image', tag])
 		execute('docker', ['push', tag])
 		digest = resolveDigest(tag, execute)
 	}

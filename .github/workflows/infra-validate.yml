@@ -8,6 +8,7 @@ on:
       - 'infra/**'
       - '.terraform-version'
       - '.github/workflows/infra-*.yml'
+      - 'tools/cloud-run/**'
 # Read-only repository access is sufficient; no cloud identity or state access is granted.
 permissions:
   contents: read
@@ -18,7 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        root: [shared, environments/dev, environments/qa, environments/prod]
+        root:
+          [
+            shared,
+            environments/dev,
+            environments/qa,
+            environments/prod,
+            cloud-run/dev,
+            cloud-run/qa,
+            cloud-run/prod,
+          ]
     # Execute Terraform inside the selected root so its lockfile and tests are used.
     defaults:
       run:
@@ -37,6 +47,9 @@ jobs:
           terraform_version: ${{ steps.terraform.outputs.version }}
       # Check formatting and provider-locked configuration without connecting to the state backend.
       - run: terraform fmt -check -recursive
+      # Shared modules sit outside each root, so check their formatting explicitly too.
+      - run: terraform fmt -check -recursive ../modules
+        working-directory: infra/terraform/cloud-run
       - run: terraform init -backend=false -input=false -lockfile=readonly
       - run: terraform validate
       # Exercise plan invariants using mocked providers instead of real GCP resources.
@@ -56,3 +69,5 @@ jobs:
           package-manager-cache: false
       - run: shellcheck infra/bootstrap/*.sh
       - run: node --test infra/bootstrap/*.test.mjs
+      # Compare the Cloud Run catalog with the release/container manifests without cloud credentials.
+      - run: node tools/cloud-run/verify-foundation.mjs

@@ -1,20 +1,20 @@
 # Terraform operating standard
 
-Infrastructure roots are under `infra/terraform/shared` and
-`infra/terraform/environments/{dev,qa,prod}`. The old `infra/environments`
+Infrastructure roots are under `infra/terraform/shared`,
+`infra/terraform/environments/{dev,qa,prod}` and `infra/terraform/cloud-run/{dev,qa,prod}`. The old `infra/environments`
 directories are pointers only. Use the Terraform version in `.terraform-version`
 and commit each root's `.terraform.lock.hcl`.
 
 ## State and initial ownership
 
 Remote state lives in the protected bucket in `empflowyee-cicd`. Each root uses
-its own prefix: `shared`, `environments/dev`, `environments/qa`, or
-`environments/prod`. Prefixes separate state files; they are not IAM boundaries.
+its own prefix: `shared`, `environments/<environment>` or `cloud-run/<environment>`.
+Prefixes separate state files; they are not IAM boundaries.
 
 Stage 0 owns folders, project placement, billing linkage and the state bucket.
 Do not also declare those resources in Terraform without an explicit ownership
-and import plan. The four roots own the API, registry and identity resources
-declared in their source. Existing Terraform-managed resources require imports
+and import plan. The shared/environment roots own API, registry and identity resources;
+Cloud Run roots own the service resources declared in their source. Existing resources require imports
 before the first apply; do not recreate or overwrite their IAM blindly.
 
 Never commit local state, plans, `backend.hcl`, `terraform.tfvars` or
@@ -43,6 +43,10 @@ successful DEV apply. Emergency console changes must be reconciled into source.
 
 Each environment root is fixed to its environment/project pair. Copying PROD
 variables into DEV must fail validation.
+
+Cloud Run roots also reject a foreign foundation prefix or a remote state missing
+the matching project's seven dedicated runtime identities. Complete the shared
+and environment foundations before planning Cloud Run. See the [current DEV readiness record](cloud-run-readiness.md).
 
 ## Offline review and PR checks
 

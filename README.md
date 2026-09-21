@@ -1,41 +1,9 @@
-# empFLOWyee container & runtime configuration foundation
+# empFLOWyee platform foundation
 
-The container/runtime foundation is applied to all seven deployable Nx applications.
+One Nx/pnpm monorepo contains seven deployables across Marketing, Account, HCM and Console. The container/runtime foundation is implemented and tested locally; see [local run commands](docs/platform/engineering/local-development.md) and [container validation](docs/platform/engineering/container-validation.md).
 
-Per-project Dockerfiles use the official Nx Docker targets. Shared platform libraries own runtime configuration and API startup behavior. See [local verification and commands](docs/platform/engineering/container-validation.md) for the tested workflow.
+The Cloud Run Terraform foundation adds one reusable service module and separate DEV, QA and PROD service states. Each deployable has its own runtime identity, private invocation, zero minimum instances and explicit scale caps. Terraform owns service configuration; release workflows promote immutable images and serialize mutations by environment.
 
-## Deployable classes
+The shared and DEV foundations are applied with no drift, including the approved folder placement, immutable registry, restricted federation and seven DEV runtime identities. The Cloud Run DEV plan is reviewed with seven additions and no updates or deletions, but no Cloud Run services have been applied. GitHub environment setup and the first real application deployment remain in [DEV readiness](docs/platform/engineering/cloud-run-readiness.md).
 
-| Deployable    | Runtime class           | UI/API         |
-| ------------- | ----------------------- | -------------- |
-| marketing-web | Next.js on Node         | public web     |
-| account-web   | Angular static on NGINX | customer web   |
-| account-api   | NestJS on Node          | customer API   |
-| hcm-web       | Angular static on NGINX | tenant HCM web |
-| hcm-api       | NestJS on Node          | tenant HCM API |
-| console-web   | Angular static on NGINX | operator web   |
-| console-api   | NestJS on Node          | operator API   |
-
-## Architectural decisions
-
-- Images are built once and promoted by immutable digest.
-- Environment-specific values are injected at runtime, not compiled into the image.
-- Browser runtime configuration is public-by-definition and must never contain secrets.
-- Secrets live in Google Secret Manager and are exposed only to the runtime identity that needs them.
-- Angular applications receive `/assets/config.json` at container startup.
-- Next.js environment-varying values are read at server runtime; environment-varying values must not be compiled into `NEXT_PUBLIC_*` variables.
-- NestJS reads process environment at startup and must fail fast if required configuration is invalid.
-- Cloud Run's injected `PORT` is authoritative for Node services.
-- NestJS must bind to `0.0.0.0`.
-- Static web containers listen on `8080`.
-- Every deployable has health endpoints.
-- APIs handle `SIGTERM` gracefully.
-- Nx remains responsible for project graph/build orchestration; Docker is integrated with Nx rather than operated as an unrelated script island.
-
-## Apply
-
-Read `APPLY-TO-REPO.md` first.
-
-## Next phase
-
-After this foundation is integrated and the three runtime classes are proven locally, create the reusable Cloud Run Terraform module and deploy one representative service of each class to DEV.
+Start with [the apply guide](APPLY-TO-REPO.md), [validation results](VALIDATION.md) and [next steps](NEXT-STEPS.md). Product and architecture truth remains under [docs/](docs/README.md).

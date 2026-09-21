@@ -1,0 +1,4 @@
+# No secrets belong here.
+# Cloud Run services are created PRIVATE by default.
+project_id = "empflowyee-prd"
+region     = "asia-south1"

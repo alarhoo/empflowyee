@@ -29,9 +29,9 @@ jobs:
     # GitHub environment protection and variables determine the destination and identity.
     environment:
       name: ${{ inputs.environment }}
-    # Serialize deployments to this service/environment without cancelling an in-flight update.
+    # Serialize the whole environment with future Cloud Run Terraform applies; never cancel an active update.
     concurrency:
-      group: cloud-run-${{ inputs.environment }}-${{ inputs.deployable }}
+      group: cloud-run-${{ inputs.environment }}
       cancel-in-progress: false
     # These are release-helper inputs; Terraform owns the application runtime configuration.
     env:
