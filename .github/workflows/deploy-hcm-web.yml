@@ -1,5 +1,7 @@
 # Manually promote a published hcm-web image to DEV, QA or PROD without rebuilding it.
 name: Deploy Hcm Web
+# Show the target and immutable release in manual deployment history.
+run-name: Deploy hcm-web to ${{ inputs.environment }} (${{ inputs.release_sha }})
 
 # Dispatch selects both the existing release commit and the target environment.
 on:
