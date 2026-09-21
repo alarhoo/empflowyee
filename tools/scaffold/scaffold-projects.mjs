@@ -1,47 +1,50 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { runPnpm } from './run-pnpm.mjs';
+import { nxProjectExistsAt, runNx } from './run-nx.mjs';
 
-function runNx(args) {
-  runPnpm(['exec', 'nx', ...args], {
-    label: `nx ${args.join(' ')}`,
-    env: { NX_INTERACTIVE: 'false' },
-  });
-}
-
-function generateIfMissing(projectJson, args) {
-  if (existsSync(projectJson)) {
-    console.log(`Skipping existing project: ${projectJson}`);
+function generateProject({ name, root, args }) {
+  // Nx project configuration may live in project.json, package.json, or be
+  // inferred by a plugin. Checking only for project.json is therefore wrong.
+  // Query Nx's resolved project graph instead.
+  if (nxProjectExistsAt(name, root)) {
+    console.log(`Skipping existing Nx project: ${name} (${root})`);
     return;
   }
+
+  console.log(`\nGenerating Nx project: ${name} -> ${root}`);
   runNx(args);
+
+  if (!nxProjectExistsAt(name, root)) {
+    throw new Error(`Generator completed but Nx cannot resolve ${name} at ${root}.`);
+  }
 }
 
-const angularApps = [
-  ['account', 4300, 'ef-account'],
-  ['hcm', 4302, 'ef-hcm'],
-  ['console', 4301, 'ef-console'],
-];
-
-// Marketing: one Next.js deployment.
-generateIfMissing(
-  join('apps', 'marketing', 'web', 'project.json'),
-  [
-    'g', '@nx/next:application', 'apps/marketing/web',
-    '--name=marketing-web',
-    '--appDir=true',
-    '--style=css',
-    '--e2eTestRunner=playwright',
-    '--tags=product:marketing,runtime:web,domain:marketing,type:app',
-  ],
-);
-
-// Angular frontends. Zone.js is intentionally retained for third-party UI compatibility.
-for (const [product, port, prefix] of angularApps) {
-  generateIfMissing(
-    join('apps', product, 'web', 'project.json'),
-    [
-      'g', '@nx/angular:application', `apps/${product}/web`,
+const projects = [
+  {
+    name: 'marketing-web',
+    root: 'apps/marketing/web',
+    args: [
+      'g',
+      '@nx/next:application',
+      'apps/marketing/web',
+      '--name=marketing-web',
+      '--appDir=true',
+      '--style=css',
+      '--e2eTestRunner=playwright',
+      '--tags=product:marketing,runtime:web,domain:marketing,type:app',
+    ],
+  },
+  ...[
+    ['account', 4300, 'ef-account'],
+    ['hcm', 4302, 'ef-hcm'],
+    ['console', 4301, 'ef-console'],
+  ].map(([product, port, prefix]) => ({
+    name: `${product}-web`,
+    root: `apps/${product}/web`,
+    args: [
+      'g',
+      '@nx/angular:application',
+      `apps/${product}/web`,
       `--name=${product}-web`,
       '--routing=true',
       '--standalone=true',
@@ -55,31 +58,41 @@ for (const [product, port, prefix] of angularApps) {
       `--prefix=${prefix}`,
       `--tags=product:${product},runtime:web,domain:shell,type:app`,
     ],
-  );
-}
-
-// NestJS APIs.
-for (const product of ['account', 'hcm', 'console']) {
-  generateIfMissing(
-    join('apps', product, 'api', 'project.json'),
-    [
-      'g', '@nx/nest:application', `apps/${product}/api`,
+  })),
+  ...['account', 'hcm', 'console'].map((product) => ({
+    name: `${product}-api`,
+    root: `apps/${product}/api`,
+    args: [
+      'g',
+      '@nx/nest:application',
+      `apps/${product}/api`,
       `--name=${product}-api`,
       `--tags=product:${product},runtime:api,domain:bootstrap,type:app`,
     ],
-  );
+  })),
+];
+
+for (const project of projects) {
+  generateProject(project);
 }
 
-// Patch API fallback ports after generation. Cloud Run will still provide PORT in deployment.
+// Patch API fallback ports after generation. Cloud Run will provide PORT in deployment.
 const apiPorts = { account: 4400, console: 4401, hcm: 4402 };
 for (const [product, port] of Object.entries(apiPorts)) {
   const file = join('apps', product, 'api', 'src', 'main.ts');
   if (!existsSync(file)) continue;
+
   let source = readFileSync(file, 'utf8');
   source = source.replace(/process\.env\.PORT\s*\|\|\s*3000/g, `process.env.PORT || ${port}`);
-  source = source.replace(/process\.env\['PORT'\]\s*\|\|\s*3000/g, `process.env['PORT'] || ${port}`);
-  source = source.replace(/await app\.listen\(3000\)/g, `await app.listen(process.env.PORT || ${port})`);
+  source = source.replace(
+    /process\.env\['PORT'\]\s*\|\|\s*3000/g,
+    `process.env['PORT'] || ${port}`,
+  );
+  source = source.replace(
+    /await app\.listen\(3000\)/g,
+    `await app.listen(process.env.PORT || ${port})`,
+  );
   writeFileSync(file, source);
 }
 
-console.log('\nNx projects generated. Run `pnpm install` if your Nx version did not automatically install generated dependencies.');
+console.log('\nNx application projects are present and validated.');

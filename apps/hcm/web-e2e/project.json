@@ -1,0 +1,9 @@
+{
+  "name": "hcm-web-e2e",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/hcm/web-e2e/src",
+  "implicitDependencies": ["hcm-web"],
+  "// targets": "to see all targets run: nx show project hcm-web-e2e --web",
+  "targets": {}
+}

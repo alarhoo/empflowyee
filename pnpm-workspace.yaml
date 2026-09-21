@@ -3,13 +3,33 @@ packages:
   - 'libs/**'
   - 'tools/**'
 
-# pnpm 11+ blocks dependency lifecycle/build scripts unless explicitly reviewed.
-# Keep this allowlist narrow and version-controlled. New packages that require
-# install scripts must be reviewed instead of enabling all dependency builds.
+# pnpm 11+/12 can auto-install when a script sees dependency drift. We want
+# dependency changes to be explicit and reviewable in this repository.
+verifyDepsBeforeRun: warn
+
+# pnpm 12 is fail-closed for dependency lifecycle/build scripts. Every package
+# that declares one must be explicitly reviewed as either allowed (true) or
+# denied (false). This list follows the current Nx/Angular toolchain policy for
+# the transitive build-script packages we expect in this workspace.
+#
+# IMPORTANT: do not replace this with a blanket approval. If a new dependency
+# appears in ERR_PNPM_IGNORED_BUILDS later, review it and add an explicit entry.
 allowBuilds:
-  '@parcel/watcher': true
-  '@swc/core': true
-  esbuild: true
+  '@nestjs/core': true
+  '@parcel/watcher': false
+  '@scarf/scarf': false
+  '@swc/core': false
+  '@tailwindcss/oxide': false
+  core-js: false
+  core-js-pure: false
+  cypress: false
+  detox: false
+  dtrace-provider: false
+  es5-ext: false
+  esbuild: false
+  less: false
+  lmdb: false
+  msgpackr-extract: false
   nx: true
-  sharp: true
-  unrs-resolver: true
+  sharp: false
+  unrs-resolver: false

@@ -10,3 +10,11 @@ coverage/
 .DS_Store
 *.log
 .vscode/settings.json
+
+# Next.js
+.next
+out
+
+.angular
+
+__screenshots__/
