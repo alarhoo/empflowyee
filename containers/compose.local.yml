@@ -1,0 +1,69 @@
+# Run the seven images built by Nx for local inspection; this file never builds or pulls images.
+name: empflowyee-local
+
+# Share public local runtime metadata. Application secrets do not belong in this file.
+x-runtime: &runtime
+  pull_policy: never
+  environment: &environment
+    APP_ENVIRONMENT: local
+    RELEASE_ID: local
+    PORT: '8080'
+
+services:
+  # Marketing serves the standalone Next application and its runtime/health routes.
+  marketing-web:
+    <<: *runtime
+    image: apps-marketing-web:latest
+    ports:
+      - '127.0.0.1:4200:8080'
+
+  # Account's browser configuration points to the API port exposed on this machine.
+  account-web:
+    <<: *runtime
+    image: apps-account-web:latest
+    environment:
+      <<: *environment
+      API_BASE_URL: http://localhost:4400/api
+    ports:
+      - '127.0.0.1:4300:8080'
+
+  # Account API exposes its existing /api and /health routes only on loopback.
+  account-api:
+    <<: *runtime
+    image: apps-account-api:latest
+    ports:
+      - '127.0.0.1:4400:8080'
+
+  # Console uses its own API endpoint, preserving the product boundary locally.
+  console-web:
+    <<: *runtime
+    image: apps-console-web:latest
+    environment:
+      <<: *environment
+      API_BASE_URL: http://localhost:4401/api
+    ports:
+      - '127.0.0.1:4301:8080'
+
+  # Console API retains the same internal port and image used in other environments.
+  console-api:
+    <<: *runtime
+    image: apps-console-api:latest
+    ports:
+      - '127.0.0.1:4401:8080'
+
+  # HCM remains one Angular application, configured with its local HCM API endpoint.
+  hcm-web:
+    <<: *runtime
+    image: apps-hcm-web:latest
+    environment:
+      <<: *environment
+      API_BASE_URL: http://localhost:4402/api
+    ports:
+      - '127.0.0.1:4302:8080'
+
+  # HCM API is reachable directly for API and health checks without exposing it to the LAN.
+  hcm-api:
+    <<: *runtime
+    image: apps-hcm-api:latest
+    ports:
+      - '127.0.0.1:4402:8080'

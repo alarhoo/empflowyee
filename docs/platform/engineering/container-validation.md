@@ -22,6 +22,8 @@ pnpm exec node tools/containers/smoke.mjs hcm-web hcm-api marketing-web
 
 After the representative images pass, build and smoke-test Account and Console the same way. The Nx plugin's local image names follow project paths, for example `apps-hcm-web` and `apps-account-api`. Local tags are development conveniences; release publishing uses immutable commit tags and promotion uses digests.
 
+To leave all seven apps running together for browser inspection, use the [local Compose commands and URLs](local-development.md#run-all-seven-container-images). Compose starts the Nx-built images with local runtime values and publishes only loopback ports.
+
 Required deployed values:
 
 | Runtime     | Required values                                 | Listener             |
@@ -41,6 +43,8 @@ Use `dev`, `qa` or `prod` as the deployed environment. Local development support
 - Architecture, documentation, container-foundation, workflow syntax/ShellCheck, runtime-contract and release-helper checks passed.
 - An HCM web source change selected only `hcm-web` and `hcm-web-e2e` through Nx affected analysis.
 - A tagged validation build preserved all repeated Nx `--build-arg` values in the OCI revision, release and creation labels.
+- `docker compose -f containers/compose.local.yml up -d --wait --wait-timeout 120` started all seven apps together, and every container became healthy. All fourteen live/ready endpoints returned HTTP 200, and all three `/api` routes returned the expected greeting.
+- Headless Chromium loaded all four local web apps, verified their visible welcome headings, checked public runtime metadata and matching local API URLs, and opened a page disclosure. No console errors, uncaught exceptions, failed resource requests or HTTP error responses were recorded.
 
 The existing generated Angular welcome components still emit stylesheet budget warnings, and Angular's explicit ESLint executor emits an Nx deprecation warning. They do not fail the checks. Marketing build artifact caching is disabled because Windows rejects Nx's standalone symlink copies without additional privileges; Docker dependency caching remains enabled.
 
