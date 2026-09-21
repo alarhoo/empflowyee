@@ -1,5 +1,3 @@
 # DEV infrastructure root
 
-Terraform for `dev` will live here.
-
-Do not add `.tf` files until Terraform state and the GCP bootstrap design are approved.
+The canonical root is [infra/terraform/environments/dev](../../terraform/environments/dev/README.md). This legacy directory contains no Terraform state or resources.

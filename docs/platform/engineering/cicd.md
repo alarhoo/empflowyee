@@ -53,7 +53,7 @@ full SHA-256 digest, and updates an existing service's image. See the
 `infra-apply.yml` is manual and environment-gated.
 
 It runs from `main` only and checks for a Terraform root and required variables
-before authenticating. The current `infra/` directories contain documentation only.
+before authenticating. Terraform roots now live under `infra/terraform/`. PR CI validates all four roots and runs mocked plan tests without cloud credentials. Automated apply remains guarded by `INFRA_PIPELINE_ENABLED` until a separate Terraform identity and state-access design is approved; see [Terraform operations](terraform.md).
 
 ## Why dedicated deploy entry workflows
 

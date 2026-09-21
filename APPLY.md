@@ -8,7 +8,7 @@ are in [AGENTS.md](AGENTS.md), and credential/state exclusions are in
 
 1. Review the [accepted delivery ADR](docs/platform/adr/ADR-CICD-001-single-main-build-once-promote-many.md).
 2. Configure the [GitHub ruleset, Environments and variables](docs/platform/engineering/github-setup.md).
-3. Implement the [GCP bootstrap plan](docs/platform/engineering/gcp-bootstrap.md), including remote Terraform state and WIF.
+3. Review and execute the [GCP bootstrap plan](docs/platform/engineering/gcp-bootstrap.md), including remote Terraform state and WIF. Source is present; live provisioning remains a separate step.
 4. Provision central Artifact Registry with immutable tags and the existing Cloud Run services through reviewed IaC.
 5. Add and validate production Dockerfiles for all seven deployables.
 6. Enable `RELEASE_PIPELINE_ENABLED=true` only after these prerequisites are verified.

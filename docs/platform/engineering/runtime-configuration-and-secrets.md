@@ -8,7 +8,7 @@ Contains no environment secrets and must not bake DEV/QA/PROD-specific values in
 
 ## Non-secret environment configuration
 
-Owned by IaC under `infra/environments/<environment>/` and applied to Cloud Run.
+Owned by IaC under `infra/terraform/environments/<environment>/` and applied to Cloud Run.
 
 ## Secrets
 

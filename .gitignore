@@ -32,3 +32,8 @@ tfplan
 *.tfvars.json
 !*.tfvars.example
 crash.log
+
+# Local cloud bootstrap and backend configuration
+infra/bootstrap/foundation.env
+**/backend.hcl
+crash.*.log

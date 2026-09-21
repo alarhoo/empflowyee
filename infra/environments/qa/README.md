@@ -1,5 +1,3 @@
 # QA infrastructure root
 
-Terraform for `qa` will live here.
-
-Do not add `.tf` files until Terraform state and the GCP bootstrap design are approved.
+The canonical root is [infra/terraform/environments/qa](../../terraform/environments/qa/README.md). This legacy directory contains no Terraform state or resources.

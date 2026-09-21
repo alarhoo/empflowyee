@@ -1,39 +1,49 @@
 name: Infrastructure Validate
-
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'infra/**'
+      - '.terraform-version'
       - '.github/workflows/infra-*.yml'
-
 permissions:
   contents: read
 
 jobs:
   terraform-validate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        root: [shared, environments/dev, environments/qa, environments/prod]
+    defaults:
+      run:
+        working-directory: infra/terraform/${{ matrix.root }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Read Terraform version
+        id: terraform
+        working-directory: .
+        run: echo "version=$(cat .terraform-version)" >> "$GITHUB_OUTPUT"
       - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ steps.terraform.outputs.version }}
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false -lockfile=readonly
+      - run: terraform validate
+      - name: Test plans with mocked providers
+        run: terraform test
 
-      - name: Terraform formatting
-        run: terraform fmt -check -recursive infra
-
-      - name: Validate environment roots that contain Terraform
-        shell: bash
-        run: |
-          found=0
-          for directory in infra/environments/*; do
-            if compgen -G "$directory/*.tf" > /dev/null; then
-              found=1
-              echo "Validating $directory"
-              terraform -chdir="$directory" init -backend=false
-              terraform -chdir="$directory" validate
-            fi
-          done
-
-          if [[ "$found" == "0" ]]; then
-            echo "No Terraform environment roots exist yet; formatting check completed."
-          fi
+  bootstrap-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - run: shellcheck infra/bootstrap/*.sh
+      - run: node --test infra/bootstrap/*.test.mjs

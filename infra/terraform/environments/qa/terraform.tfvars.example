@@ -1,0 +1,4 @@
+project_id        = "empflowyee-qa"
+cicd_project_id   = "empflowyee-cicd"
+region            = "asia-south1"
+github_repository_id = "YOUR_NUMERIC_REPOSITORY_ID"

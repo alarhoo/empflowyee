@@ -1,67 +1,62 @@
-# Next steps after CI/CD foundation
+# Next steps after the cloud foundation
 
-The CI/CD design is the final major repository-foundation topic before returning to the HCM product foundation.
+## Phase 1 — Container and runtime configuration standard
 
-## Phase 1 — Bootstrap delivery infrastructure
+The cloud foundation source is now present. First review and execute its [bootstrap and Terraform plans](docs/platform/engineering/gcp-bootstrap.md) in the intended account; a source commit does not prove live provisioning. Container work can proceed once those prerequisites are understood.
 
-Plan and provision:
+Create production-grade container patterns for all seven deployables:
 
-1. GCP project layout:
-   - `empflowyee-cicd`
-   - `empflowyee-dev`
-   - `empflowyee-qa`
-   - `empflowyee-prod`
-2. Artifact Registry in the CICD project.
-3. GitHub OIDC / Workload Identity Federation.
-4. Per-environment deployer service accounts.
-5. Per-environment Cloud Run runtime service accounts.
-6. Base Cloud Run services for the seven deployables.
-7. Secret Manager stores.
-8. Cloud SQL environment plan.
-9. Terraform state strategy.
-10. GitHub Environments and protection rules.
+- Angular web: account-web, hcm-web, console-web
+- Next.js: marketing-web
+- NestJS: account-api, hcm-api, console-api
 
-This should be documented and implemented before release workflows are enabled.
+Decide and implement:
 
-## Phase 2 — HCM UX/platform foundation
+- multi-stage Docker builds
+- non-root runtime users
+- Angular `/assets/config.json` runtime injection
+- Next.js runtime environment handling
+- NestJS runtime configuration validation
+- `/health/live` and `/health/ready`
+- image metadata/version labels
+- local Docker Compose/dev validation where useful
 
-Return to the HCM architecture and produce:
+## Phase 2 — Cloud Run Terraform module + first DEV deployment
 
-- HCM shell TDD.
-- tenant context.
-- authenticated session/user context.
-- roles and permissions.
-- subscription/app entitlements.
-- Application Catalog.
-- Spaces / Pages / Feature registration.
-- lazy-loading convention.
-- localization/preferences resolver.
-- HCM theme service.
+- reusable Cloud Run module
+- service-specific runtime identities
+- environment configuration injection
+- Secret Manager references
+- min/max instances and concurrency
+- deploy exact Artifact Registry digest
 
-## Phase 3 — Theme laboratory / dummy screens
+Start with DEV only.
 
-Before implementing real HCM domains, create a documented **UX Theme Lab** using dummy data.
+## Phase 3 — HCM shell architecture
 
-It should prove:
+- tenant hostname context
+- session/user context
+- entitlements
+- authorization
+- application catalog
+- Spaces / Pages
+- lazy-loaded features
+- locale/preferences
 
-- UI5 Horizon Light.
-- UI5 Horizon Dark.
-- HER Light.
-- HER Dark.
-- runtime theme switching.
-- tenant primary-color overlay.
-- automatic accessible derived colors.
-- logo/brand preview.
-- locale/date/number/time preference switching.
-- one or more approved floorplans.
-- representative forms.
-- representative client-side and server-style table states.
-- responsive behavior.
+## Phase 4 — HCM theme engine and Theme Lab
 
-The Theme Lab is a development/reference feature, not a customer production feature.
+Create the first visual/dummy implementation:
 
-## Phase 4 — First real domain slice
+- Horizon Light
+- Horizon Dark
+- HER Light
+- HER Dark
+- tenant primary-color overlay
+- tenant logo/branding
+- locale/date/time/number preference controls
+- representative Object Page
+- Flexible Column layout
+- List Report/table example
+- complex form example
 
-Only after the shell and theme architecture is proven, select a representative domain feature and run the complete documentation-first lifecycle:
-
-FDD -> TDD -> Nx libraries -> implementation -> tests -> review -> traceability.
+This becomes the proving ground for the UI architecture before business modules are implemented.

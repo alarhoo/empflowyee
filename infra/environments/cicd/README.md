@@ -1,5 +1,3 @@
 # CICD infrastructure root
 
-Terraform for `cicd` will live here.
-
-Do not add `.tf` files until Terraform state and the GCP bootstrap design are approved.
+The canonical shared root is [infra/terraform/shared](../../terraform/shared/README.md). This legacy directory contains no Terraform state or resources.

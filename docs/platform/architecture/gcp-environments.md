@@ -11,7 +11,7 @@ empflowyee-cicd
           |
           +-- empflowyee-dev
           +-- empflowyee-qa
-          +-- empflowyee-prod
+          +-- empflowyee-prd
 ```
 
 Each environment project hosts the seven Cloud Run deployment units independently.

@@ -62,7 +62,7 @@ jobs:
 
       - name: Lint and test CI helpers
         run: |
-          pnpm exec eslint tools/ci --max-warnings=0
+          pnpm exec eslint tools/ci infra/bootstrap/*.mjs --max-warnings=0
           node --test tools/ci/*.test.mjs
 
       - name: Validate GitHub workflows

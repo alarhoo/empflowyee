@@ -1,48 +1,59 @@
-# GCP bootstrap plan
+# GCP bootstrap runbook
 
-## Projects
+Follow the approved [cloud foundation](../architecture/gcp-cloud-foundation.md).
+The production environment is named `prod`; its GCP project ID is
+`empflowyee-prd`.
 
-Create:
+## Stage 0 — hierarchy and remote state
 
-```text
-empflowyee-cicd
-empflowyee-dev
-empflowyee-qa
-empflowyee-prod
+The scripts in [infra/bootstrap](../../../infra/bootstrap/README.md) create the
+folder hierarchy, create the CICD project if missing, reconcile the existing
+DEV/QA/PROD projects, link billing, and protect the remote-state bucket.
+
+The three runtime projects must already exist in the approved organization.
+Bootstrap verifies this before creating folders or moving projects. Existing
+projects outside that organization require a separate reviewed migration.
+Review inherited IAM and organization policies before authorizing a folder move.
+
+This hierarchy/state bootstrap is the explicit exception to Terraform ownership.
+Do not run it merely as part of a source review.
+
+## Stage 1 — Terraform
+
+Initialize, validate, review a real plan, and apply each root separately:
+
+1. `infra/terraform/shared`
+2. `infra/terraform/environments/dev`
+3. `infra/terraform/environments/qa`
+4. `infra/terraform/environments/prod`
+
+See the [Terraform standard](terraform.md) and
+[GitHub federation setup](github-gcp-wif.md). Validate DEV/QA before PROD.
+
+## Local setup
+
+```bash
+gcloud auth login
+gcloud auth application-default login
+terraform version
 ```
 
-Projects provide IAM, quota, audit and blast-radius isolation. Resource sizing, especially stateful infrastructure, is the main cost concern; DEV and QA can be smaller.
+Use the Terraform version in `.terraform-version`. Do not download service-account
+keys for local Terraform. GitHub infrastructure apply remains disabled pending a
+separate Terraform identity and state-access design.
 
-## CICD project
+## Release activation prerequisites
 
-Owns Artifact Registry, Workload Identity Pool/provider, CI build identity and shared delivery tooling.
+- Central Artifact Registry enforces immutable tags; retain release digests needed
+  for promotion and rollback.
+- All seven production Dockerfiles must be implemented and tested.
+- Provision Cloud Run services through reviewed IaC. The deployment workflow only
+  updates existing services.
+- Route 100% of traffic to the latest revision; image-only deployments reject pinned
+  or split traffic.
+- Terraform must ignore deployment-owned image changes so an infrastructure apply
+  cannot revert a promoted release.
+- Configure GitHub Environments and WIF from Terraform outputs, and verify the
+  enabled policies in GCP before enabling release builds.
 
-## Environment projects
-
-Each owns Cloud Run, runtime identities, Secret Manager, Cloud SQL/database resources, logging/monitoring and environment IAM.
-
-## Workload Identity Federation
-
-Use GitHub OIDC. Restrict trust to the empFLOWyee repository and owner IDs,
-`refs/heads/main`, the intended environment, and the approved workflow identities.
-Account for `job_workflow_ref` when authorizing reusable workflows. Do not grant
-trust to arbitrary branch workflows in the repository.
-
-Use separate deployer service accounts for DEV, QA and PROD. DEV deployment identity must not carry PROD permissions.
-
-## Artifact and service prerequisites
-
-- Enable immutable Docker tags on the central Artifact Registry repository. A
-  release SHA must never be moved to another digest. Preserve tags/digests needed
-  for promotion and rollback in the retention policy.
-- Provision each Cloud Run service through IaC before deploying an image. The
-  deployment workflow uses `gcloud run services update` and cannot create services.
-- Configure services to send 100% of traffic to the latest revision. The image-only
-  workflow rejects pinned revisions or split traffic; it does not change routing.
-- Terraform must own runtime configuration while ignoring deployment-managed image
-  changes, so a later infrastructure apply cannot silently revert a promoted image.
-- Establish a remote Terraform backend with locking before adding runnable roots.
-  Initial CICD project/state/WIF bootstrap is a separate reviewed bootstrap step;
-  `infra-apply.yml` currently operates only on DEV/QA/PROD roots.
-
-These are activation prerequisites, not resources already provisioned by this repository.
+Cloud Run, Cloud SQL, ingress, DNS changes and application secrets remain deferred.

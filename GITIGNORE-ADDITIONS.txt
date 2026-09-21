@@ -1,0 +1,11 @@
+# GCP/Terraform local configuration
+infra/bootstrap/foundation.env
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/backend.hcl
+**/terraform.tfvars
+**/*.auto.tfvars
+*.tfplan
+crash.log
+crash.*.log

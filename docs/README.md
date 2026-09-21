@@ -61,4 +61,7 @@ A feature must not silently contradict any of the three.
 - [CI/CD architecture](platform/engineering/cicd.md)
 - [GitHub setup](platform/engineering/github-setup.md)
 - [GCP bootstrap](platform/engineering/gcp-bootstrap.md)
+- [Cloud foundation](platform/architecture/gcp-cloud-foundation.md)
+- [Terraform operations](platform/engineering/terraform.md)
+- [GitHub federation](platform/engineering/github-gcp-wif.md)
 - [Delivery ADR](platform/adr/ADR-CICD-001-single-main-build-once-promote-many.md)

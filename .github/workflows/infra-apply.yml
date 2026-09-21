@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   apply:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && vars.INFRA_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
@@ -26,6 +26,9 @@ jobs:
       GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       WIF_PROVIDER: ${{ vars.DEPLOY_WIF_PROVIDER }}
       TERRAFORM_SERVICE_ACCOUNT: ${{ vars.TERRAFORM_SERVICE_ACCOUNT }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      TF_VAR_github_repository_id: ${{ github.repository_id }}
+      TF_IN_AUTOMATION: 'true'
     steps:
       - uses: actions/checkout@v7
         with:
@@ -37,23 +40,33 @@ jobs:
             dev|qa|prod) ;;
             *) echo "Unsupported environment"; exit 1 ;;
           esac
-          DIR="infra/environments/$TARGET_ENVIRONMENT"
+          DIR="infra/terraform/environments/$TARGET_ENVIRONMENT"
           compgen -G "$DIR/*.tf" > /dev/null || {
             echo "No Terraform root exists yet at $DIR. This workflow is foundation-only."
             exit 1
           }
-          for key in GCP_PROJECT_ID WIF_PROVIDER TERRAFORM_SERVICE_ACCOUNT; do
+          for key in GCP_PROJECT_ID WIF_PROVIDER TERRAFORM_SERVICE_ACCOUNT TF_STATE_BUCKET TF_VAR_github_repository_id; do
             [[ -n "${!key}" ]] || { echo "Missing $key"; exit 1; }
           done
+          expected_project="empflowyee-$TARGET_ENVIRONMENT"
+          if [[ "$TARGET_ENVIRONMENT" == prod ]]; then expected_project=empflowyee-prd; fi
+          [[ "$GCP_PROJECT_ID" == "$expected_project" ]] || { echo 'Project does not match the Terraform root'; exit 1; }
+      - name: Read Terraform version
+        id: terraform
+        run: echo "version=$(cat .terraform-version)" >> "$GITHUB_OUTPUT"
       - uses: google-github-actions/auth@v3
         with:
           project_id: ${{ vars.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ vars.DEPLOY_WIF_PROVIDER }}
           service_account: ${{ vars.TERRAFORM_SERVICE_ACCOUNT }}
       - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ steps.terraform.outputs.version }}
       - name: Terraform init
-        run: terraform -chdir="infra/environments/$TARGET_ENVIRONMENT" init
+        run: >-
+          terraform -chdir="infra/terraform/environments/$TARGET_ENVIRONMENT" init -input=false -lockfile=readonly
+          -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="prefix=environments/$TARGET_ENVIRONMENT"
       - name: Terraform plan
-        run: terraform -chdir="infra/environments/$TARGET_ENVIRONMENT" plan -out=tfplan
+        run: terraform -chdir="infra/terraform/environments/$TARGET_ENVIRONMENT" plan -input=false -out=tfplan
       - name: Terraform apply
-        run: terraform -chdir="infra/environments/$TARGET_ENVIRONMENT" apply -auto-approve tfplan
+        run: terraform -chdir="infra/terraform/environments/$TARGET_ENVIRONMENT" apply -auto-approve tfplan

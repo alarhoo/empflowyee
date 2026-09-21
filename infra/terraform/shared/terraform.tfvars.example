@@ -1,0 +1,5 @@
+cicd_project_id  = "empflowyee-cicd"
+region           = "asia-south1"
+github_repository = "YOUR_GITHUB_OWNER/empflowyee"
+github_repository_id = "YOUR_NUMERIC_REPOSITORY_ID"
+github_owner_id = "YOUR_NUMERIC_OWNER_ID"

@@ -20,3 +20,5 @@
 **/*.tfvars
 **/*.tfvars.json
 !**/*.tfvars.example
+infra/bootstrap/foundation.env
+**/backend.hcl

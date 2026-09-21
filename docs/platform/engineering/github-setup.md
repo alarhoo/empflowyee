@@ -38,6 +38,7 @@ GCP_REGION
 DEPLOY_WIF_PROVIDER
 DEPLOY_SERVICE_ACCOUNT
 TERRAFORM_SERVICE_ACCOUNT
+TF_STATE_BUCKET
 AR_PROJECT_ID
 AR_REGION
 AR_REPOSITORY
@@ -57,9 +58,15 @@ Start with:
 
 ```text
 RELEASE_PIPELINE_ENABLED=false
+INFRA_PIPELINE_ENABLED=false
 ```
 
 Change to `true` only after GCP infrastructure, WIF, Artifact Registry and all production Dockerfiles exist.
+
+That activation applies to `RELEASE_PIPELINE_ENABLED`. Leave infrastructure apply
+disabled until a separate Terraform identity, workflow trust and state-access
+design is approved. The foundation intentionally does not create that identity.
+See [GitHub-to-GCP setup](github-gcp-wif.md) for exact Terraform output mappings.
 
 ## Protection
 

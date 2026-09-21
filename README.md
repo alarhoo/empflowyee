@@ -115,3 +115,18 @@ Release activation still requires production Dockerfiles and reviewed GCP/IaC
 bootstrap. Start with [APPLY.md](APPLY.md) and the
 [foundation plan](docs/platform/engineering/ci-cd-foundation-plan.md).
 Local verification is documented in [VALIDATION.md](VALIDATION.md).
+
+## Cloud foundation
+
+The [approved GCP foundation](docs/platform/architecture/gcp-cloud-foundation.md)
+uses the alarwind organization, Mumbai region, a shared CICD project and isolated
+DEV/QA/PROD projects. The production project is named `empflowyee-prd`.
+
+The source now includes hierarchy/state bootstrap scripts and four Terraform roots
+for Artifact Registry, WIF, APIs and identities. Follow the
+[bootstrap runbook](docs/platform/engineering/gcp-bootstrap.md) and
+[Terraform standard](docs/platform/engineering/terraform.md).
+
+These files do not create cloud resources until explicitly executed. Cloud Run
+services, Cloud SQL, ingress, DNS changes, application secrets and container
+production builds remain [deferred](docs/platform/architecture/deferred-cloud-decisions.md).
