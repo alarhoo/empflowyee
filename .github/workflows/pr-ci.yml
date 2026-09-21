@@ -1,24 +1,30 @@
+# Validate pull requests before merge; this workflow never deploys or authenticates to GCP.
 name: PR CI
 
+# Recheck title edits as well as code updates on pull requests targeting main.
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited, ready_for_review]
     branches:
       - main
 
+# Validation only needs read access to the repository.
 permissions:
   contents: read
 
+# Superseded PR checks may be cancelled because they do not publish or deploy anything.
 concurrency:
   group: pr-ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
+  # Enforce the Conventional Commit title that will describe the eventual squash merge.
   validate-pr-title:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
       - name: Validate Conventional Commit-style PR title
+        # Pass untrusted PR text as data, rather than interpolating it into executable source.
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
@@ -32,15 +38,18 @@ jobs:
           }
           NODE
 
+  # Check repository policies, then lint/test/build only projects affected by this PR.
   affected-quality:
     name: Nx affected quality
     runs-on: ubuntu-latest
     steps:
+      # Nx needs the base/head history; later commands do not need persisted Git credentials.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
 
+      # Use the pinned Node runtime and let pnpm handle the declared package-manager version.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -48,9 +57,11 @@ jobs:
 
       - uses: pnpm/action-setup@v6
 
+      # Frozen installation rejects dependency changes that were not recorded in the lockfile.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Verify project identities, source-of-truth documents and the seven-deployable manifest.
       - name: Validate repository architecture
         run: node tools/architecture/verify.mjs
 
@@ -60,11 +71,14 @@ jobs:
       - name: Validate deployment manifest
         run: node tools/ci/validate-deployables.mjs
 
-      - name: Lint and test CI helpers
+      # Root tooling is outside Nx app lint targets, so enforce its rules explicitly.
+      - name: Lint tooling and test function-documentation policy
         run: |
-          pnpm exec eslint tools/ci infra/bootstrap/*.mjs --max-warnings=0
+          pnpm lint:tooling
+          pnpm test:lint-policy
           node --test tools/ci/*.test.mjs
 
+      # Verify the pinned actionlint download before checking YAML, expressions and shell steps.
       - name: Validate GitHub workflows
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,6 +90,7 @@ jobs:
           tar -xzf "$RUNNER_TEMP/actionlint/actionlint_1.7.12_linux_amd64.tar.gz" -C "$RUNNER_TEMP/actionlint"
           "$RUNNER_TEMP/actionlint/actionlint"
 
+      # Use the PR's exact base/head SHAs for formatting and affected-project selection.
       - name: Check formatting for changed files
         run: pnpm nx format:check --base="${{ github.event.pull_request.base.sha }}" --head="${{ github.event.pull_request.head.sha }}"
 

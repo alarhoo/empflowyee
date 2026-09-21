@@ -14,7 +14,10 @@ const requiredScaffoldFiles = [
 	'tools/documentation/verify.mjs',
 ]
 
-const missingFiles = requiredScaffoldFiles.filter((file) => !existsSync(join(process.cwd(), file)))
+const missingFiles = requiredScaffoldFiles.filter(
+	/** Identify scaffold bundle files missing from the current repository root. */ (file) =>
+		!existsSync(join(process.cwd(), file)),
+)
 if (missingFiles.length) {
 	console.error(
 		`\nempFLOWyee scaffold ${SCAFFOLD_VERSION} cannot start because the scaffold installation is incomplete.`,
@@ -34,6 +37,10 @@ console.log(`empFLOWyee scaffold ${SCAFFOLD_VERSION} starting...`)
 console.log(`Node: ${process.version}`)
 console.log(`Platform: ${process.platform} ${process.arch}`)
 
+/**
+ * Run a scaffold stage with the current Node runtime and inherited output.
+ * Throw on launch or exit failure so later stages cannot run after a partial scaffold.
+ */
 function runNodeScript(relativePath, label) {
 	console.log(`\n> ${label}`)
 	const result = spawnSync(process.execPath, [join(process.cwd(), relativePath)], {

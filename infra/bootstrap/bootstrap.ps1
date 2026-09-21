@@ -28,6 +28,12 @@ $StateBucket = if ($env:TF_STATE_BUCKET) { $env:TF_STATE_BUCKET } else { "empflo
 if (-not (Get-Command gcloud -ErrorAction SilentlyContinue)) { throw "gcloud is required." }
 
 $GcloudCommand = (Get-Command gcloud -ErrorAction Stop).Source
+<#
+.SYNOPSIS
+Run gcloud with forwarded arguments and preserve its output.
+.DESCRIPTION
+Throw on a nonzero exit code so discovery or mutation failures stop bootstrap.
+#>
 function Invoke-Gcloud {
     & $GcloudCommand @args
     if ($LASTEXITCODE -ne 0) { throw "gcloud failed with exit code $LASTEXITCODE. Bootstrap stopped." }
@@ -55,6 +61,12 @@ if ($env:BOOTSTRAP_CONFIRM -ne "YES") {
     if ($answer -ne "YES") { Write-Host "Cancelled."; exit 0 }
 }
 
+<#
+.SYNOPSIS
+Return the ID of the named organization folder, creating it when absent.
+.DESCRIPTION
+Reject duplicate active names and propagate gcloud failures before returning an ID.
+#>
 function Get-OrCreateFolderUnderOrg([string]$Name) {
     $id = Invoke-Gcloud resource-manager folders list --organization=$OrgId --filter="displayName=$Name AND lifecycleState=ACTIVE" --format="value(name)"
     if (@($id).Count -gt 1) { throw "Ambiguous folder: $Name" }
@@ -64,6 +76,12 @@ function Get-OrCreateFolderUnderOrg([string]$Name) {
     return ($id -replace '^folders/', '')
 }
 
+<#
+.SYNOPSIS
+Return the ID of the named child beneath Parent, creating it when absent.
+.DESCRIPTION
+Reject duplicate active names and propagate gcloud failures before returning an ID.
+#>
 function Get-OrCreateFolderUnderFolder([string]$Parent, [string]$Name) {
     $id = Invoke-Gcloud resource-manager folders list --folder=$Parent --filter="displayName=$Name AND lifecycleState=ACTIVE" --format="value(name)"
     if (@($id).Count -gt 1) { throw "Ambiguous folder: $Name" }
@@ -86,6 +104,13 @@ $CicdParent = Invoke-Gcloud projects describe $CicdProject --format="value(paren
 if ($CicdParent -ne $SharedFolder) { Invoke-Gcloud beta projects move $CicdProject --folder=$SharedFolder --quiet }
 Invoke-Gcloud billing projects link $CicdProject --billing-account=$BillingAccountId | Out-Null
 
+<#
+.SYNOPSIS
+Reconcile an existing project's parent folder, billing and Terraform bootstrap APIs.
+.DESCRIPTION
+Move only when the parent differs, then link billing and enable prerequisite APIs.
+Moving changes inherited IAM and organization policies; any gcloud failure stops bootstrap.
+#>
 function Move-Project([string]$ProjectId, [string]$FolderId) {
     Invoke-Gcloud projects describe $ProjectId | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "Project $ProjectId was not found." }

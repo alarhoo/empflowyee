@@ -1,4 +1,6 @@
+# Validate infrastructure changes with mock providers and fake gcloud commands; no live apply.
 name: Infrastructure Validate
+# Run only when infrastructure code, Terraform version or infrastructure workflows change.
 on:
   pull_request:
     branches: [main]
@@ -6,15 +8,18 @@ on:
       - 'infra/**'
       - '.terraform-version'
       - '.github/workflows/infra-*.yml'
+# Read-only repository access is sufficient; no cloud identity or state access is granted.
 permissions:
   contents: read
 
 jobs:
+  # Validate and test each independently deployed Terraform root.
   terraform-validate:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         root: [shared, environments/dev, environments/qa, environments/prod]
+    # Execute Terraform inside the selected root so its lockfile and tests are used.
     defaults:
       run:
         working-directory: infra/terraform/${{ matrix.root }}
@@ -22,6 +27,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # Read the single version pin from the repository root before installing Terraform.
       - name: Read Terraform version
         id: terraform
         working-directory: .
@@ -29,12 +35,15 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ steps.terraform.outputs.version }}
+      # Check formatting and provider-locked configuration without connecting to the state backend.
       - run: terraform fmt -check -recursive
       - run: terraform init -backend=false -input=false -lockfile=readonly
       - run: terraform validate
+      # Exercise plan invariants using mocked providers instead of real GCP resources.
       - name: Test plans with mocked providers
         run: terraform test
 
+  # Check shell syntax and verify bootstrap guards through isolated fake-cloud regression tests.
   bootstrap-checks:
     runs-on: ubuntu-latest
     steps:

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { runPnpm } from './run-pnpm.mjs'
 
+/** Install the requested UI dependency group through the cross-platform pnpm launcher. */
 function run(args) {
 	runPnpm(args)
 }

@@ -2,14 +2,16 @@ import { TestBed } from '@angular/core/testing'
 import { App } from './app'
 import { NxWelcome } from './nx-welcome'
 
-describe('App', () => {
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			imports: [App, NxWelcome],
-		}).compileComponents()
-	})
+describe('App', /** Group rendering checks for the hcm application root. */ () => {
+	beforeEach(
+		/** Compile the standalone application and welcome components in a fresh Angular test module. */ async () => {
+			await TestBed.configureTestingModule({
+				imports: [App, NxWelcome],
+			}).compileComponents()
+		},
+	)
 
-	it('should render title', () => {
+	it('should render title', /** Render the application and verify the hcm welcome heading. */ () => {
 		const fixture = TestBed.createComponent(App)
 		fixture.detectChanges()
 		const compiled = fixture.nativeElement as HTMLElement

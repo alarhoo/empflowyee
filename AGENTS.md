@@ -80,6 +80,13 @@ Stop and propose an ADR before introducing:
 
 Do not invent missing business behavior.
 
+## Function documentation
+
+- Every JavaScript/TypeScript function implementation must have a meaningful JSDoc description, including methods, constructors, accessors, callbacks, tests and tooling.
+- Follow the authoritative scope, examples and checks in `docs/platform/engineering/code-style.md`. Update comments when behavior changes; do not bypass documentation lint rules or insert placeholder descriptions.
+- AI-generated and scaffolded code must meet the same requirement before a change is complete.
+- Maintained YAML also requires explanatory comments: document each file's purpose, every workflow job, and significant triggers, permissions, inputs, gates and side effects. Follow the YAML policy in `docs/platform/engineering/code-style.md`; generated lockfiles are exempt.
+
 ## Git and release engineering
 
 - `main` is the only long-lived branch. All changes reach it through a pull request; never push directly to `main`.

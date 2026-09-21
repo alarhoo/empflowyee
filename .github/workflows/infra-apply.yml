@@ -1,4 +1,6 @@
+# Manually apply one environment's infrastructure after the separately approved activation prerequisites.
 name: Infrastructure Apply
+# Environment selection is explicit; pull requests and pushes cannot start an apply.
 on:
   workflow_dispatch:
     inputs:
@@ -8,19 +10,24 @@ on:
         type: choice
         options: [dev, qa, prod]
 
+# OIDC supplies a short-lived Terraform identity; no service-account key is stored here.
 permissions:
   contents: read
   id-token: write
 
 jobs:
+  # Keep disabled until the Terraform identity, workflow trust and state-access design is approved.
   apply:
     if: github.ref == 'refs/heads/main' && vars.INFRA_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
+    # Apply GitHub environment protection and read only that environment's variables.
     environment:
       name: ${{ inputs.environment }}
+    # Serialize state mutations per environment and never cancel an active apply.
     concurrency:
       group: terraform-${{ inputs.environment }}
       cancel-in-progress: false
+    # Pass infrastructure inputs to Terraform; runtime application secrets stay in Secret Manager.
     env:
       TARGET_ENVIRONMENT: ${{ inputs.environment }}
       GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
@@ -33,6 +40,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # Reject missing roots/configuration and a project/environment mismatch before cloud login.
       - name: Validate prerequisites before authentication
         shell: bash
         run: |
@@ -51,9 +59,11 @@ jobs:
           expected_project="empflowyee-$TARGET_ENVIRONMENT"
           if [[ "$TARGET_ENVIRONMENT" == prod ]]; then expected_project=empflowyee-prd; fi
           [[ "$GCP_PROJECT_ID" == "$expected_project" ]] || { echo 'Project does not match the Terraform root'; exit 1; }
+      # Install exactly the repository-pinned Terraform runtime.
       - name: Read Terraform version
         id: terraform
         run: echo "version=$(cat .terraform-version)" >> "$GITHUB_OUTPUT"
+      # Federation must authorize the dedicated Terraform service account before activation.
       - uses: google-github-actions/auth@v3
         with:
           project_id: ${{ vars.GCP_PROJECT_ID }}
@@ -62,11 +72,14 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ steps.terraform.outputs.version }}
+      # Isolate state by environment and preserve reviewed provider versions from the lockfile.
       - name: Terraform init
         run: >-
           terraform -chdir="infra/terraform/environments/$TARGET_ENVIRONMENT" init -input=false -lockfile=readonly
           -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="prefix=environments/$TARGET_ENVIRONMENT"
+      # Save the plan locally so apply executes these exact planned changes.
       - name: Terraform plan
         run: terraform -chdir="infra/terraform/environments/$TARGET_ENVIRONMENT" plan -input=false -out=tfplan
+      # The manual dispatch/environment gate authorizes execution of the saved plan.
       - name: Terraform apply
         run: terraform -chdir="infra/terraform/environments/$TARGET_ENVIRONMENT" apply -auto-approve tfplan

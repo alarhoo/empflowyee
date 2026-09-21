@@ -73,3 +73,11 @@ See [GitHub-to-GCP setup](github-gcp-wif.md) for exact Terraform output mappings
 For the current one-person team, manual workflow dispatch is the human gate. Add independent required reviewers when the team grows.
 
 Google Secret Manager remains authoritative for runtime application secrets.
+
+## Editor validation of reusable workflows
+
+Local calls such as `uses: ./.github/workflows/_reusable-deploy-cloud-run.yml` resolve from the repository root. Keep the target file under `.github/workflows/` with its `workflow_call` trigger. Run `actionlint` from the root to validate paths, inputs and expressions independently of the editor.
+
+The GitHub Actions VS Code extension can report **Unable to find reusable workflow** when it cannot associate the workspace with a GitHub repository. The inspected 0.32.3 extension derives the local file-provider root from its recognized GitHub repositories. This checkout originally had no remote; `origin` is now configured as `https://github.com/alarhoo/empflowyee.git` and GitHub access has been verified. With that repository context, the installed language server returns zero diagnostics for all 13 workflow files, including the eight reusable-workflow callers.
+
+After adding or correcting a remote, run **Developer: Reload Window** in the VS Code window opened at this repository root. The extension's initialized language server can retain its earlier repository context until reload. If resolution still fails, verify `git remote -v`, GitHub sign-in and access to the repository in that VS Code profile. Do not change a valid workflow path or suppress validation to clear this editor diagnostic. Similar local-reference diagnostics are tracked in [the extension's issue tracker](https://github.com/github/vscode-github-actions/issues/254).

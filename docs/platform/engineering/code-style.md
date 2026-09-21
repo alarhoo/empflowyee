@@ -25,4 +25,34 @@ Shared warning-level preferences remain warnings; correctness and architectural 
 
 ## Checks
 
-Run `pnpm nx run-many -t lint test build` for project validation. Use `pnpm nx run-many -t lint --fix` to apply available lint fixes and `pnpm exec prettier --write <files>` for formatting. Root configuration and tooling can also be checked with `pnpm exec eslint eslint.config.mjs "tools/**/*.mjs"`.
+Run `pnpm nx run-many -t lint test build` for project validation and `pnpm lint:tooling` for root configuration, tooling and infrastructure JavaScript/TypeScript. Use `pnpm nx run-many -t lint --fix` to apply available lint fixes and `pnpm exec prettier --write <files>` for formatting. Run `pnpm test:lint-policy` after changing documentation enforcement. PR CI runs the tooling checks and policy tests in addition to affected Nx project validation.
+
+## Mandatory function documentation
+
+Every maintained JavaScript/TypeScript function implementation requires a `/** ... */` JSDoc description immediately before the declaration, method or callback. This includes all apps and libraries, framework lifecycle methods, constructors, getters/setters, arrow functions, nested functions, tests, configuration and repository tooling. Empty functions and one-line callbacks are included. Upstream scaffold output becomes maintained source when committed and must be documented before the change is complete.
+
+Describe the purpose and observable behavior in plain language. Explain significant inputs, return values, errors, side effects and constraints when they are not obvious from the signature. Small callbacks can use a single sentence. Larger functions may use multiple sentences and `@param`, `@returns` or `@throws` where useful; TypeScript comments should not duplicate type annotations already enforced by the compiler. Comments must match the implementation and be updated in the same change as behavior. Avoid placeholder text or merely restating the function name.
+
+```ts
+/** Return whether the current user can see this navigation entry. */
+function canShowEntry(entry: NavigationEntry): boolean {
+	return entry.visible
+}
+
+const visibleEntries = entries.filter(
+	/** Keep entries permitted by the navigation visibility policy. */
+	(entry) => canShowEntry(entry),
+)
+```
+
+Place method documentation above Angular/Nest decorators. Explain dependency injection in constructor comments, and document the scenario/assertion in test callbacks. Function types, interface signatures and ambient declarations have no implementation and are outside this rule; generated build output and `next-env.d.ts` remain excluded. Intentionally undocumented source strings in lint-policy tests are negative fixtures, not application implementations. Other embedded script functions should be documented in their source strings as well.
+
+The root `sharedRules` uses `eslint-plugin-jsdoc` to make missing documentation and empty descriptions **errors**. Automatic insertion of empty comments is disabled. Do not suppress these rules to accept undocumented code. Lint checks presence and non-empty descriptions; review must still check their accuracy and usefulness.
+
+Shell and PowerShell helper functions also need adjacent purpose comments explaining significant mutations, outputs and failure behavior, using their native comment syntax.
+
+## Mandatory YAML documentation
+
+Every maintained `.yml` and `.yaml` file must start with a purpose comment. GitHub Actions workflows must also explain each job immediately above its job key. Document significant trigger choices, permissions, input/output contracts, environment selection, activation and approval gates, concurrency behavior, reusable-workflow calls and steps with external effects. Explain why a setting exists and what it controls; do not simply repeat the key or add a comment to every obvious scalar.
+
+Keep comments adjacent to the relevant block and update them whenever behavior changes. This applies to AI-authored workflows and pnpm workspace configuration. Generated files such as `pnpm-lock.yaml` are exempt because pnpm owns their contents. Use `actionlint` to validate workflows and Prettier to check YAML formatting after edits. Review must verify that comments match the actual trigger, job and permission behavior.

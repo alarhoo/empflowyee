@@ -2,10 +2,19 @@ import { execFileSync } from 'node:child_process'
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
+/**
+ * Run an executable synchronously without a shell and return trimmed stdout.
+ * Subprocess failures propagate to stop the release; output is limited to 64 MiB.
+ */
 export function run(command, args) {
 	return execFileSync(command, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).trim()
 }
 
+/**
+ * Validate workflow inputs, required configuration and main-branch ancestry before cloud authentication.
+ * Return the selected manifest entry or throw on invalid input or failed Git checks.
+ * The injected executor and file lookup let tests validate these guards without external commands.
+ */
 export function validateRelease(env, manifest, execute = run, fileExists = existsSync) {
 	if (env.GITHUB_REF !== 'refs/heads/main') throw new Error('Run this workflow from main only')
 	if (!/^[0-9a-f]{40}$/.test(env.RELEASE_SHA ?? '')) {
@@ -34,6 +43,7 @@ export function validateRelease(env, manifest, execute = run, fileExists = exist
 	return config
 }
 
+/** Read Artifact Registry configuration and reject repositories that do not enforce immutable Docker tags. */
 export function requireImmutableRegistry(env, execute = run) {
 	const repository = JSON.parse(
 		execute('gcloud', [
@@ -51,6 +61,11 @@ export function requireImmutableRegistry(env, execute = run) {
 	}
 }
 
+/**
+ * Resolve a release tag to a validated SHA-256 digest.
+ * Return null only when allowMissing is enabled and the registry reports NOT_FOUND;
+ * authorization failures, malformed digests and other lookup errors propagate.
+ */
 export function resolveDigest(tag, execute = run, allowMissing = false) {
 	let digest
 	try {
@@ -71,6 +86,12 @@ export function resolveDigest(tag, execute = run, allowMissing = false) {
 	return digest
 }
 
+/**
+ * Build and publish a missing commit image, or reuse its existing immutable digest.
+ * Deployment mode only updates an existing Cloud Run service image and verifies the ready revision;
+ * it rejects missing artifacts and traffic configurations not owned by the latest revision.
+ * Return the image reference, digest, reuse flag and optional deployed revision. Commands mutate cloud state.
+ */
 export function releaseImage(env, config, execute = run) {
 	requireImmutableRegistry(env, execute)
 	const image = `${env.AR_REGION}-docker.pkg.dev/${env.AR_PROJECT_ID}/${env.AR_REPOSITORY}/${config.image}`

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-describe('GET /api', () => {
-	it('should return a message', async () => {
+describe('GET /api', /** Group the account API root-endpoint smoke checks. */ () => {
+	it('should return a message', /** Request the running API and verify its successful scaffold response. */ async () => {
 		const res = await axios.get('/api')
 
 		expect(res.status).toBe(200)

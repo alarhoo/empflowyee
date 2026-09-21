@@ -19,7 +19,10 @@ const required = [
 	'docs/hcm/ux/COMPONENT-CAPABILITY-MATRIX.md',
 ]
 
-const missing = required.filter((path) => !existsSync(path))
+const missing = required.filter(
+	/** Select required source-of-truth documents missing from the working tree. */ (path) =>
+		!existsSync(path),
+)
 if (missing.length) {
 	console.error('Missing required architecture documentation:')
 	for (const path of missing) console.error(` - ${path}`)

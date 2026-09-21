@@ -22,6 +22,10 @@ const requiredBuildPolicy = {
 	'unrs-resolver': false,
 }
 
+/**
+ * Read boolean package decisions from the workspace allowBuilds YAML block.
+ * This intentionally handles the simple policy mapping used here, not arbitrary YAML.
+ */
 function readAllowBuilds(yaml) {
 	const lines = yaml.split(/\r?\n/)
 	const result = new Map()
@@ -47,6 +51,7 @@ function readAllowBuilds(yaml) {
 
 const allowBuilds = readAllowBuilds(workspacePolicy)
 const badBuildPolicy = Object.entries(requiredBuildPolicy).filter(
+	/** Find lifecycle-script permissions that differ from the approved scaffold policy. */
 	([name, expected]) => allowBuilds.get(name) !== expected,
 )
 if (badBuildPolicy.length) {

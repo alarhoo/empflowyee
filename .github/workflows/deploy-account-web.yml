@@ -1,5 +1,7 @@
+# Manually promote a published account-web image to DEV, QA or PROD without rebuilding it.
 name: Deploy Account Web
 
+# Dispatch selects both the existing release commit and the target environment.
 on:
   workflow_dispatch:
     inputs:
@@ -16,14 +18,19 @@ on:
           - qa
           - prod
 
+# Allow repository reads and short-lived OIDC authentication in the called workflow.
 permissions:
   contents: read
   id-token: write
 
 jobs:
+  # Keep this product entry point thin; the shared job validates and deploys the immutable image.
   deploy:
+    # Only main may supply workflow code, even when promoting an older release SHA.
     if: github.ref == 'refs/heads/main'
+    # Resolve the reusable workflow from this repository at the caller commit.
     uses: ./.github/workflows/_reusable-deploy-cloud-run.yml
+    # Fix the deployable identity here; pass only the operator-selected release and environment.
     with:
       deployable: account-web
       release_sha: ${{ inputs.release_sha }}

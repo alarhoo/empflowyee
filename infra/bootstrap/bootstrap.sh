@@ -63,6 +63,7 @@ if [[ "${BOOTSTRAP_CONFIRM:-NO}" != "YES" ]]; then
   fi
 fi
 
+# Print active folder IDs matching $1 under ORG_ID; discovery failures propagate.
 folder_id_under_org() {
   local name="$1"
   gcloud resource-manager folders list \
@@ -71,6 +72,7 @@ folder_id_under_org() {
     --format='value(name)' | sed 's#folders/##'
 }
 
+# Print active folder IDs named $2 directly beneath parent folder $1.
 folder_id_under_folder() {
   local parent="$1"
   local name="$2"
@@ -80,6 +82,7 @@ folder_id_under_folder() {
     --format='value(name)' | sed 's#folders/##'
 }
 
+# Reuse or create folder $1 under ORG_ID and print its ID; reject duplicate matches.
 ensure_folder_org() {
   local name="$1"
   local id
@@ -91,6 +94,7 @@ ensure_folder_org() {
   echo "${id}"
 }
 
+# Reuse or create child $2 beneath folder $1 and print its ID; reject duplicate matches.
 ensure_folder_child() {
   local parent="$1"
   local name="$2"
@@ -124,6 +128,8 @@ fi
 
 gcloud billing projects link "${CICD_PROJECT_ID}" --billing-account="${BILLING_ACCOUNT_ID}"
 
+# Move existing project $1 into folder $2 only when its parent differs.
+# Stop on lookup/move failure; moving changes inherited IAM and organization policies.
 move_project_if_needed() {
   local project_id="$1"
   local target_folder="$2"

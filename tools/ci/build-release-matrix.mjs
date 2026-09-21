@@ -1,17 +1,28 @@
 import { readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
+/**
+ * Convert comma-separated affected Nx projects into a deduplicated GitHub matrix of manifest deployables.
+ * Libraries, end-to-end projects and unknown names are omitted; no matches produce an empty include array.
+ */
 export function releaseMatrix(manifest, projects) {
 	const include = [
 		...new Set(
 			projects
 				.split(',')
-				.map((item) => item.trim())
+				.map(/** Normalize whitespace around an affected Nx project name. */ (item) => item.trim())
 				.filter(Boolean),
 		),
 	]
-		.filter((project) => Object.hasOwn(manifest.deployables, project))
-		.map((project) => ({ project: project }))
+		.filter(
+			/** Keep only project names explicitly owned by the deployment manifest. */ (project) =>
+				Object.hasOwn(manifest.deployables, project),
+		)
+		.map(
+			/** Create the project entry consumed by the reusable build workflow matrix. */ (
+				project,
+			) => ({ project: project }),
+		)
 	return { include }
 }
 

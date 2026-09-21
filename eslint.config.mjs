@@ -1,8 +1,30 @@
 import nx from '@nx/eslint-plugin'
 import stylistic from '@stylistic/eslint-plugin'
+import jsdoc from 'eslint-plugin-jsdoc'
 
 // Stylistic maintains the former ESLint formatting rules and supports TypeScript.
 export const sharedRules = {
+	'jsdoc/require-jsdoc': [
+		'error',
+		{
+			enableFixer: false,
+			checkAllFunctionExpressions: true,
+			checkConstructors: true,
+			checkGetters: true,
+			checkSetters: true,
+			exemptEmptyConstructors: false,
+			exemptEmptyFunctions: false,
+			// A selector covers inline callbacks and returned arrows, which the default skips.
+			contexts: ['ArrowFunctionExpression[body]'],
+			require: {
+				FunctionDeclaration: true,
+				FunctionExpression: true,
+				ArrowFunctionExpression: false,
+				MethodDefinition: true,
+			},
+		},
+	],
+	'jsdoc/require-description': ['error', { exemptedBy: [] }],
 	'@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: true }],
 	'consistent-this': 'error',
 	'no-div-regex': 'error',
@@ -188,7 +210,15 @@ export default [
 	},
 	{
 		files: ['**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}'],
-		plugins: { '@stylistic': stylistic },
+		plugins: { '@stylistic': stylistic, jsdoc },
+		settings: {
+			jsdoc: {
+				ignoreReplacesDocs: false,
+				overrideReplacesDocs: false,
+				augmentsExtendsReplacesDocs: false,
+				implementsReplacesDocs: false,
+			},
+		},
 		rules: sharedRules,
 	},
 	{
@@ -366,7 +396,11 @@ export default [
 		},
 	},
 	// Imported configs are otherwise matched relative to each application's config.
-	...productRestrictions.map((config) => ({ ...config, basePath: import.meta.dirname })),
+	...productRestrictions.map(
+		/** Anchor product import restrictions to the repository root when app configs import this shared configuration. */ (
+			config,
+		) => ({ ...config, basePath: import.meta.dirname }),
+	),
 	{
 		files: ['**/eslint.config.{js,mjs,cjs}'],
 		// Tooling configs deliberately compose the root config outside any Nx project.

@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app/app.module'
 
+/** Start the console Nest application under /api, using PORT or its local fallback; reject if startup fails. */
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
 	const globalPrefix = 'api'
@@ -16,7 +17,11 @@ async function bootstrap() {
 	Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`)
 }
 
-bootstrap().catch((error: unknown) => {
-	Logger.error(error, 'Bootstrap')
-	process.exitCode = 1
-})
+bootstrap().catch(
+	/** Log the startup failure and mark the process unsuccessful for the runtime supervisor. */ (
+		error: unknown,
+	) => {
+		Logger.error(error, 'Bootstrap')
+		process.exitCode = 1
+	},
+)

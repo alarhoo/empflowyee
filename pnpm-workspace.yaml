@@ -1,3 +1,5 @@
+# Define the Nx monorepo package boundaries and explicitly reviewed dependency build-script policy.
+# pnpm discovers application, library and repository-tool packages beneath these roots.
 packages:
   - 'apps/**'
   - 'libs/**'
@@ -15,7 +17,9 @@ verifyDepsBeforeRun: warn
 # IMPORTANT: do not replace this with a blanket approval. If a new dependency
 # appears in ERR_PNPM_IGNORED_BUILDS later, review it and add an explicit entry.
 allowBuilds:
+  # Permit the reviewed Nest and Nx lifecycle hooks required by the workspace toolchain.
   '@nestjs/core': true
+  # Deny unneeded native builds, browser downloads, telemetry and other dependency install hooks.
   '@parcel/watcher': false
   '@scarf/scarf': false
   '@swc/core': false
@@ -30,6 +34,7 @@ allowBuilds:
   less: false
   lmdb: false
   msgpackr-extract: false
+  # Nx prepares its native workspace tooling during installation.
   nx: true
   sharp: false
   unrs-resolver: false

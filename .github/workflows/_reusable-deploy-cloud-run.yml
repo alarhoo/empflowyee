@@ -1,29 +1,39 @@
+# Promote an existing image digest; Terraform continues to own service configuration.
 name: _ Reusable - Deploy Cloud Run
+# Called by product deployment entry points, rather than triggered by a push.
 on:
   workflow_call:
     inputs:
       deployable:
+        description: Deployable key identifying the image and Cloud Run service in ci/deployables.json.
         required: true
         type: string
       release_sha:
+        description: Full lowercase mainline commit SHA whose image was already published.
         required: true
         type: string
       environment:
+        description: Target GitHub environment (dev, qa or prod) supplying deployment identity and variables.
         required: true
         type: string
+# Exchange a GitHub OIDC token for the selected environment deployment identity.
 permissions:
   contents: read
   id-token: write
 
 jobs:
+  # Validate mainline ancestry, resolve the existing digest and update only the service image.
   deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # GitHub environment protection and variables determine the destination and identity.
     environment:
       name: ${{ inputs.environment }}
+    # Serialize deployments to this service/environment without cancelling an in-flight update.
     concurrency:
       group: cloud-run-${{ inputs.environment }}-${{ inputs.deployable }}
       cancel-in-progress: false
+    # These are release-helper inputs; Terraform owns the application runtime configuration.
     env:
       RELEASE_MODE: deploy
       RELEASE_SHA: ${{ inputs.release_sha }}
@@ -37,21 +47,27 @@ jobs:
       AR_REGION: ${{ vars.AR_REGION }}
       AR_REPOSITORY: ${{ vars.AR_REPOSITORY }}
     steps:
+      # Full history lets preflight prove the release commit is reachable from origin/main.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
+      # Run the dependency-free release helper with the repository-pinned Node version.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           package-manager-cache: false
+      # Reject malformed inputs and missing configuration before acquiring cloud credentials.
       - name: Validate release and prerequisites before authentication
         run: node tools/ci/release.mjs validate
+      # Use federation instead of storing a service-account key in GitHub.
       - uses: google-github-actions/auth@v3
         with:
           project_id: ${{ vars.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ vars.DEPLOY_WIF_PROVIDER }}
           service_account: ${{ vars.DEPLOY_SERVICE_ACCOUNT }}
+      # Install the CLI used to inspect Artifact Registry and update Cloud Run.
       - uses: google-github-actions/setup-gcloud@v3
+      # Fail on a missing image/service or incompatible traffic; verify the ready revision afterward.
       - name: Update existing Cloud Run service to the exact release digest
         run: node tools/ci/release.mjs

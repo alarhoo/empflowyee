@@ -2,6 +2,7 @@
    are inline SVGs, which have no tag to swap the role for. */
 import styles from './page.module.css'
 
+/** Render the scaffold marketing landing page with Nx learning and development links. */
 export default function Index() {
 	/*
 	 * Replace the elements below with your own.

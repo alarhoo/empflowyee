@@ -1,4 +1,6 @@
+# Build immutable release artifacts after merge or manual dispatch; deployments remain separate.
 name: Build Release Artifacts
+# Manual build_all dispatch also supports a complete release when affected selection is insufficient.
 on:
   push:
     branches: [main]
@@ -10,25 +12,31 @@ on:
         default: false
         type: boolean
 
+# Preparation is read-only; only the image-building job receives OIDC permission.
 permissions:
   contents: read
 
+# Serialize attempts for one commit and let an active publication complete.
 concurrency:
   group: release-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
+  # Gate activation, validate deployables and produce the affected-app build matrix.
   prepare:
     if: github.ref == 'refs/heads/main' && vars.RELEASE_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
+    # The count lets downstream jobs skip an empty matrix without a workflow error.
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       count: ${{ steps.matrix.outputs.count }}
     steps:
+      # A full checkout supplies the push base or parent commit used by Nx affected.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
+      # Install the pinned Node/pnpm toolchain for dependency-aware Nx project selection.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
@@ -37,6 +45,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Validate deployment manifest
         run: node tools/ci/validate-deployables.mjs
+      # Fall back to all deployables on an initial commit or shared container-build input changes.
       - name: Determine affected deployable projects
         id: affected
         shell: bash
@@ -67,32 +76,38 @@ jobs:
             PROJECTS="$(pnpm nx show projects --affected --type app --base="$BASE" --head="$GITHUB_SHA" --sep=",")"
           fi
           printf 'projects=%s\n' "$PROJECTS" >> "$GITHUB_OUTPUT"
+      # Filter libraries/e2e projects and duplicate names out of the GitHub matrix.
       - name: Build release matrix
         id: matrix
         env:
           AFFECTED_PROJECTS: ${{ steps.affected.outputs.projects }}
         run: node tools/ci/build-release-matrix.mjs >> "$GITHUB_OUTPUT"
 
+  # Invoke the shared publisher once per selected app; independent builds can finish after a peer fails.
   build:
     name: Build ${{ matrix.project }}
     needs: prepare
     if: needs.prepare.outputs.count != '0'
+    # The called publisher needs this token permission for the CICD workload identity.
     permissions:
       contents: read
       id-token: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    # Resolve the local reusable workflow at the same commit as this release.
     uses: ./.github/workflows/_reusable-build-image.yml
     with:
       project_name: ${{ matrix.project }}
       release_sha: ${{ github.sha }}
 
+  # Report success, failure or an empty selection even if a preceding build job failed.
   summary:
     name: Release summary
     needs: [prepare, build]
     if: always() && github.ref == 'refs/heads/main' && vars.RELEASE_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
+    # Pass status values as shell data and point operators to the immutable digest summaries.
     env:
       PREPARE_RESULT: ${{ needs.prepare.result }}
       BUILD_RESULT: ${{ needs.build.result }}

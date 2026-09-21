@@ -30,6 +30,22 @@ deployment is performed by these checks. Provider downloads and mock plans requi
 no GCP credentials. See [Terraform operations](docs/platform/engineering/terraform.md)
 for the separate live plan-review procedure.
 
+## Function documentation enforcement — 2026-09-21
+
+- Full Nx lint/test/build passed all 24 tasks across 14 projects without cache hits.
+- Sixteen lint-policy tests cover documented and undocumented function forms, decorators, injection and empty descriptions.
+- Tooling lint passed with zero warnings; all 16 release/bootstrap tests passed.
+- Application and tooling syntax trees match the prior implementation apart from comments and formatting; embedded bootstrap fixture comments were checked by its regression tests.
+- Actionlint with ShellCheck, bootstrap shell/PowerShell syntax, formatting, architecture, documentation and deployable-manifest checks passed.
+- The reusable deploy workflow exists at the referenced path and passes actionlint. The VS Code repository-context limitation is documented in [GitHub setup](docs/platform/engineering/github-setup.md#editor-validation-of-reusable-workflows).
+
+## YAML documentation and editor resolution — 2026-09-21
+
+- All 14 maintained YAML files now describe their purpose; workflow jobs, release gates, permissions, inputs, concurrency and consequential steps have adjacent explanations. The generated pnpm lockfile is exempt.
+- Configured the user-supplied `origin` as `https://github.com/alarhoo/empflowyee.git` and verified repository access with GitHub CLI.
+- The installed GitHub Actions 0.32.3 language server validates all 13 workflow files, including all eight local reusable-workflow callers, with zero diagnostics when initialized with this repository context.
+- Actionlint with ShellCheck and YAML formatting pass. Existing VS Code windows need **Developer: Reload Window** to refresh their cached repository context.
+
 ## Repeat the checks
 
 Run from the repository root with the Node version in `.node-version` and the
@@ -39,7 +55,8 @@ pnpm version declared in `package.json`:
 node tools/architecture/verify.mjs
 node tools/documentation/verify.mjs
 node tools/ci/validate-deployables.mjs
-pnpm exec eslint tools/ci --max-warnings=0
+pnpm lint:tooling
+pnpm test:lint-policy
 node --test tools/ci/*.test.mjs
 node --test infra/bootstrap/*.test.mjs
 actionlint
@@ -47,7 +64,7 @@ pnpm nx format:check --base=main --head=HEAD
 pnpm nx run-many -t lint test build
 ```
 
-PR CI runs the architecture/documentation/manifest checks, CI-helper lint/tests,
+PR CI runs the architecture/documentation/manifest checks, tooling lint, function-documentation policy tests, CI-helper tests,
 actionlint 1.7.12, changed-file formatting and Nx affected lint/test/build. The
 full run-many command is available for repository-wide verification.
 
@@ -74,5 +91,6 @@ rollback with the same digest as listed in the
 [foundation plan](docs/platform/engineering/ci-cd-foundation-plan.md).
 
 Keep `INFRA_PIPELINE_ENABLED` unset or false pending the separate Terraform
-identity, state-access and plan-approval design. No Git remote is configured, so
-the intended repository identity must also be supplied before WIF provisioning.
+identity, state-access and plan-approval design. The Git remote is configured;
+the numeric repository and owner IDs still need to be set in reviewed Terraform
+configuration before WIF provisioning.

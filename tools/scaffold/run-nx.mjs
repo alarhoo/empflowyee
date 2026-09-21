@@ -81,6 +81,10 @@ export function runNx(args, { capture = false, allowFailure = false, env = {} } 
 	return result
 }
 
+/**
+ * Read the resolved Nx project configuration, returning null when Nx cannot find the project.
+ * Throw if Nx reports success but its configuration output is not valid JSON.
+ */
 export function getNxProject(projectName) {
 	const result = runNx(['show', 'project', projectName, '--json'], {
 		capture: true,
@@ -98,6 +102,10 @@ export function getNxProject(projectName) {
 	}
 }
 
+/**
+ * Check whether an Nx project exists at the expected normalized root.
+ * Return false for a missing project and throw on a name collision at a different root.
+ */
 export function nxProjectExistsAt(projectName, expectedRoot) {
 	const project = getNxProject(projectName)
 	if (!project) return false
