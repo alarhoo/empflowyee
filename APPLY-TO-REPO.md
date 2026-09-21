@@ -28,9 +28,9 @@ The mocked tests never apply real resources. Offline initialization does not pro
 
 ## Live DEV sequence
 
-The shared and DEV environment foundations are applied, their approved folder placement and IAM migration are complete, and fresh live plans show no changes. The DEV remote state contains all seven runtime identities. The Cloud Run DEV plan now succeeds with seven additions and no updates or deletions; it has not been applied. See the readiness record for the applied resources and remaining release prerequisites.
+Shared, DEV environment and DEV Cloud Run foundations are applied. All seven real images have been promoted through GitHub and verified, and fresh live plans show no changes. See [deployment evidence and URLs](docs/platform/engineering/dev-deployment.md).
 
-Local `backend.hcl` and `terraform.tfvars` files have already been prepared for this checkout. Do not overwrite them with example files. On a fresh checkout, copy each example only when the local file is absent, then supply real reviewed values.
+Local `backend.hcl`, `terraform.tfvars` and `api-endpoints.auto.tfvars.json` files are prepared for this checkout. Do not overwrite them with examples. On a fresh checkout, copy each example only when absent, supply reviewed values, and restore the three Angular API endpoints using the instructions in the deployment record before planning. An empty endpoint map would remove deployed runtime configuration.
 
 To repeat the DEV validation and refresh the Cloud Run plan:
 

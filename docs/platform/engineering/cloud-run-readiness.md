@@ -19,21 +19,21 @@
 
 The temporary organization-level `roles/resourcemanager.folderCreator` grant to the operator was removed and its absence verified. Google assigned the creating operator Folder Admin/Editor on the new folders. QA and PROD still belong directly to organization `242771450903`; neither project was moved or provisioned. The full Stage 0 bootstrap also reconciles those projects, so do not run it as an incidental DEV-only step.
 
-## Applied foundations and reviewed service plan
+## Applied foundations and services
 
-| Root               | Result                                                          | Follow-up verification                                        |
-| ------------------ | --------------------------------------------------------------- | ------------------------------------------------------------- |
-| `shared`           | Applied: 12 additions, 0 updates, 0 deletions                   | Fresh live plan: no changes                                   |
-| `environments/dev` | Applied: 1 import, 28 additions, 1 metadata update, 0 deletions | Fresh live plan: no changes; exactly seven runtime identities |
-| `cloud-run/dev`    | Planned only: 7 additions, 0 updates, 0 deletions               | Saved plan reviewed; no services applied                      |
+| Root               | Result                                                              | Follow-up verification                                        |
+| ------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `shared`           | Applied: 12 additions, 0 updates, 0 deletions                       | Fresh live plan: no changes                                   |
+| `environments/dev` | Applied: 1 import, 28 additions, 1 metadata update, 0 deletions     | Fresh live plan: no changes; exactly seven runtime identities |
+| `cloud-run/dev`    | Applied: 7 additions, then 3 API configuration updates, 0 deletions | Seven real apps deployed; fresh live plan: no changes         |
 
 The shared foundation owns the immutable Docker repository `asia-south1-docker.pkg.dev/empflowyee-cicd/apps`, required APIs, GitHub WIF pool/provider and builder identity. Federation requires the verified repository/owner IDs, main branch, and the approved reusable workflows/environment pairs.
 
 The DEV foundation adopted the existing `github-deployer` account and updated only its descriptive metadata. It now owns the seven dedicated runtime accounts, Cloud Run service-agent resource, API enablement resources, scoped act-as bindings, deployment federation and central-registry read grants. No database was created; API enablement is not database provisioning.
 
-The DEV Cloud Run plan is saved locally at `infra/terraform/cloud-run/dev/tfplan`, with human-readable output at `.tmp/cloud-run-dev-plan.txt`. It proposes seven authenticated service shells in `asia-south1`, each using its matching `${deployable}@empflowyee-dev.iam.gserviceaccount.com` identity, 1 CPU, 512 MiB memory, minimum 0 and maximum 2 instances. All use the pinned Google hello digest, HTTP startup/liveness probes and 100% latest-revision traffic. No public IAM binding is proposed. DEV currently has **zero Cloud Run services**.
+DEV has seven authenticated Cloud Run services in `asia-south1`, each using its matching `${deployable}@empflowyee-dev.iam.gserviceaccount.com` identity, 1 CPU, 512 MiB memory, minimum 0 and maximum 2 instances. The initial pinned Google hello image was replaced through the manual release workflows with each app's immutable image from release `09e146c24830720d89692194307c2cfe837dec77`. HTTP startup/liveness probes and 100% latest-revision traffic remain Terraform-owned. No public IAM binding was added.
 
-Cloud Run apply was excluded from the initial foundation task. The operator has now authorized the first DEV deployment of all seven apps. Re-plan and review before applying; saved plans are time-sensitive and Git-ignored.
+All seven app responses and health endpoints were verified with authenticated HTTP requests; unauthenticated requests return HTTP 403. All applied roots show no drift. See [service URLs, revision evidence and access instructions](dev-deployment.md). Re-plan before future infrastructure changes; saved plans are time-sensitive and Git-ignored.
 
 ## Completed IAM migration
 
@@ -49,18 +49,15 @@ Live verification confirms:
 
 The old DEV pool/provider were retained; removing their deployer binding was sufficient for this approved migration. No authoritative whole-project IAM replacement was used.
 
-## Next execution sequence
+## Next product work
 
-1. Review the infrastructure source through the repository's PR process. Refresh the DEV Cloud Run plan, then apply the service shells only when that next step is authorized.
-2. Configure GitHub `cicd` and `dev` environments with main-only branch protection and their Terraform output variables as described below.
-3. Complete the release/runtime configuration handoff below before activating release builds. Publish an immutable application image through the approved CI path, manually promote one service to DEV and prove health with authenticated access.
-4. Return to HCM Shell and Theme Lab design using the existing product/UX documents. Additional edge, database or authentication infrastructure is outside this validation task.
+The runnable DEV foundation is complete. Return to HCM Shell and Theme Lab using the existing product/UX documents. These deployed apps are scaffolds; business workflows and browser/API authentication integration remain product/design work. Additional edge, database or authentication infrastructure is outside this deployment task.
 
 QA and PROD have only offline configuration checks; no remote initialization, plan, apply or deployment was requested for them. Keep `INFRA_PIPELINE_ENABLED` disabled pending the separate Terraform automation identity design.
 
 ## GitHub deployment handoff
 
-The repository's existing default branch was renamed to `main` without changing its commit. Main now requires PRs and passing title/quality checks, including for administrators, and forbids force pushes/deletion. The `cicd` and `dev` environments are configured with exact-main branch policies and their applied Terraform output variables. Release builds remain disabled until the reviewed deployment source reaches main; infrastructure automation remains disabled. QA/PROD environments were not configured.
+The repository's existing default branch was renamed to `main` without changing its commit. Main requires PRs and passing title/quality checks, including for administrators, and forbids force pushes/deletion. The `cicd` and `dev` environments have exact-main branch policies and their applied Terraform output variables. Release builds are enabled and proven; infrastructure automation remains disabled. QA/PROD environments were not configured.
 
 The applied foundations provide the exact non-secret environment values:
 
@@ -71,16 +68,16 @@ terraform -chdir=infra/terraform/environments/dev output -json github_environmen
 
 The first output belongs to `cicd`, the second to `dev`. Both reference the central `apps` registry in Mumbai and WIF provider `projects/20790310244/locations/global/workloadIdentityPools/github-actions/providers/github`. Builder and deployer identities remain separate. Follow [GitHub setup](github-setup.md) and [the WIF variable mapping](github-gcp-wif.md); do not enable infrastructure automation or reuse the deployer as a Terraform administrator.
 
-## Before the first real application image
+## Verified runtime configuration handoff
 
 The seven real Dockerfiles and local browser/API smoke checks are already complete. They must not be repeated as an unimplemented milestone.
 
-Two configuration gaps remain between the new service-shell overlay and the working containers:
+The first deployment closed both configuration gaps between the service shells and real containers:
 
-- Every real image requires `RELEASE_ID`. The Dockerfiles now expose the release build argument as an environment default, and publication smoke tests verify the exact image without a release-ID override. The first live release will verify this handoff in GCP.
-- Angular also requires `API_BASE_URL`. The service roots now accept `api_base_urls`; populate the three Angular entries from the actual private DEV API service URLs after shell creation. This configuration supports the current scaffold and does not establish browser authentication or public API access.
+- Every real image exposes its build's `RELEASE_ID` as an environment default. Publication smoke tests verify it without an override, and live browser runtime metadata matches the published SHA.
+- Terraform supplies the three Angular `API_BASE_URL` values from the actual private DEV API service URLs through `api_base_urls`. Preserve the ignored endpoint variable file on subsequent plans; the deployment record explains how to restore it on a fresh checkout. This supports the scaffold without establishing browser authentication or public access.
 
-`hcm-api` can be the first private deployment proof because it already provides `/api`, `/health/live` and `/health/ready` without external application dependencies. Its image must still receive the correct release identity. A successful Google hello shell is not evidence that the real application deployment works.
+`hcm-api` was promoted first and returned its real `/api` greeting. All other deployables subsequently passed their application and health checks. None remains on the Google hello placeholder.
 
 ## Validation performed
 

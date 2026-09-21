@@ -12,10 +12,13 @@ Validated locally on 2026-09-22 with Terraform 1.16.3 and locked Google provider
 - Shared apply completed: 12 additions, 0 updates, 0 deletions. A fresh live plan reports no changes.
 - DEV foundation apply completed: 1 import, 28 additions, 1 descriptive metadata update, 0 deletions. A fresh live plan reports no changes.
 - DEV remote-state outputs contain exactly the seven expected runtime identities.
-- The real Cloud Run DEV plan succeeds: 7 additions, 0 updates, 0 deletions. Reviewed private invocation, dedicated identities, Mumbai region, 0–2 instances, 1 CPU/512 MiB, pinned bootstrap image, HTTP health probes and latest-revision traffic for every service.
+- DEV Cloud Run apply created seven private services, then updated only three Angular API endpoint configurations. All use dedicated identities, Mumbai region, 0–2 instances, 1 CPU/512 MiB, HTTP health probes and latest-revision traffic.
 - Approved shared/DEV folder placement and IAM cleanup are verified; the temporary organization Folder Creator grant is absent, as are the four legacy deployer roles and old federation binding.
-- DEV currently has zero Cloud Run services. QA/PROD project parents are unchanged.
+- GitHub PR CI passed, including all seven Terraform roots on Linux after adding their signed provider package checksums. All 12 CI helper tests pass.
+- Seven real images passed publication smoke tests and all seven manual DEV promotions succeeded for release `09e146c24830720d89692194307c2cfe837dec77`.
+- All seven latest revisions match the published digests. Authenticated application and health requests pass; unauthenticated requests return HTTP 403. Browser runtime metadata has the correct release and API URLs.
+- Fresh shared, DEV environment and DEV Cloud Run plans report no changes after image promotion. QA/PROD project parents and resources are unchanged.
 
-Only shared and DEV environment foundations were applied. Cloud Run apply and application deployment remain pending. The operator created the shared project; this task created its protected state bucket and completed the approved prerequisites. QA/PROD had only offline Terraform checks. GitHub now has a protected main branch and configured `cicd`/`dev` environments; release and infrastructure activation flags remain false. See [readiness, IAM verification and the next steps](docs/platform/engineering/cloud-run-readiness.md).
+Shared and DEV foundations and the first DEV application release are complete. QA/PROD had only offline Terraform checks. GitHub has a protected main branch and configured `cicd`/`dev` environments. Release builds are enabled; infrastructure automation remains disabled. See [deployment evidence and access instructions](docs/platform/engineering/dev-deployment.md) and [foundation readiness](docs/platform/engineering/cloud-run-readiness.md).
 
 Repeat commands are in [APPLY-TO-REPO.md](APPLY-TO-REPO.md). Prior application/container verification remains recorded in [container validation](docs/platform/engineering/container-validation.md).
