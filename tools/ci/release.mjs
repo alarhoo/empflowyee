@@ -78,7 +78,9 @@ export function resolveDigest(tag, execute = run, allowMissing = false) {
 			'--format=value(image_summary.digest)',
 		])
 	} catch (error) {
-		if (allowMissing && /\bNOT_FOUND\b/.test(String(error.stderr))) return null
+		const missingImage =
+			/\bNOT_FOUND\b|^ERROR: \(gcloud\.artifacts\.docker\.images\.describe\) Image not found\.\s*$/m
+		if (allowMissing && missingImage.test(String(error.stderr))) return null
 		throw error
 	}
 	if (!/^sha256:[0-9a-f]{64}$/.test(digest))

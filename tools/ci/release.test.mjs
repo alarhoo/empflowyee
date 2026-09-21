@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
-import { releaseImage, validateRelease } from './release.mjs'
+import { releaseImage, resolveDigest, validateRelease } from './release.mjs'
 
 const manifest = JSON.parse(
 	readFileSync(new URL('../../ci/deployables.json', import.meta.url), 'utf8'),
@@ -26,6 +26,34 @@ const env = {
 	DEPLOY_SERVICE_ACCOUNT: 'deployer',
 }
 const config = manifest.deployables['hcm-web']
+
+test('recognizes gcloud missing-image output only for first-publication lookups', /** Accept the SDK's absent-image message while keeping deployment and permission failures fatal. */ () => {
+	for (const message of [
+		'NOT_FOUND: requested entity was not found',
+		'ERROR: (gcloud.artifacts.docker.images.describe) Image not found.\n\nA valid container image can be referenced by tag or digest.',
+		'PERMISSION_DENIED: cannot read this image',
+		'ERROR: connection timed out',
+	]) {
+		/** Simulate the unmodified SDK error text returned by a registry lookup. */
+		const execute = () => {
+			const error = new Error('Registry lookup failed')
+			error.stderr = message
+			throw error
+		}
+		if (message.startsWith('NOT_FOUND') || message.includes('Image not found.')) {
+			assert.equal(resolveDigest('image:release', execute, true), null)
+		} else {
+			assert.throws(
+				/** Preserve operational failures instead of misclassifying them as missing images. */
+				() => resolveDigest('image:release', execute, true),
+			)
+		}
+		assert.throws(
+			/** Deployment must never proceed without an existing artifact regardless of error wording. */
+			() => resolveDigest('image:release', execute),
+		)
+	}
+})
 
 /**
  * Create an in-memory registry and Cloud Run command double for release success and failure scenarios.
