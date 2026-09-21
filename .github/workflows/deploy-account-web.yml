@@ -1,5 +1,7 @@
 # Manually promote a published account-web image to DEV, QA or PROD without rebuilding it.
 name: Deploy Account Web
+# Show the target and immutable release in manual deployment history.
+run-name: Deploy account-web to ${{ inputs.environment }} (${{ inputs.release_sha }})
 
 # Dispatch selects both the existing release commit and the target environment.
 on:

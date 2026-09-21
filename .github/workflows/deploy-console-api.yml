@@ -1,5 +1,7 @@
 # Manually promote a published console-api image to DEV, QA or PROD without rebuilding it.
 name: Deploy Console Api
+# Show the target and immutable release in manual deployment history.
+run-name: Deploy console-api to ${{ inputs.environment }} (${{ inputs.release_sha }})
 
 # Dispatch selects both the existing release commit and the target environment.
 on:
