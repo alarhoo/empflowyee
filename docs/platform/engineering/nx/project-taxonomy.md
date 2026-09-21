@@ -22,7 +22,7 @@ type:feature
 
 ## Naming
 
-Use:
+Web and API implementation libraries use:
 
 ```text
 <product>-<runtime>-<domain>-<type>-<feature?>
@@ -38,8 +38,25 @@ hcm-api-leave-application
 hcm-api-leave-infrastructure
 hcm-api-leave-transport
 hcm-api-leave-module
+```
+
+Runtime-neutral contract libraries deliberately omit the runtime from their name:
+
+```text
+<product>-<domain>-contract
 hcm-leave-contract
 ```
+
+For example, `hcm-leave-contract` lives at `libs/hcm/contracts/leave` and must carry
+`product:hcm`, `runtime:universal`, `domain:leave`, and `type:contract`. The omitted
+runtime is a naming exception, not an exemption from runtime tagging or boundaries.
+Do not name this library `hcm-web-leave-contract`, `hcm-api-leave-contract`, or
+`hcm-universal-leave-contract`.
+
+Deployable application names are the seven fixed `<product>-<web|api>` names in
+`AGENTS.md`; they do not use the library pattern. Their end-to-end test projects
+append `-e2e` to the application name. Names describe projects; the four Nx tags
+remain authoritative for dependency enforcement.
 
 ## Frontend types
 
