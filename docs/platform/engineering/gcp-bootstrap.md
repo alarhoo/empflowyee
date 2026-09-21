@@ -56,4 +56,4 @@ separate Terraform identity and state-access design.
 - Configure GitHub Environments and WIF from Terraform outputs, and verify the
   enabled policies in GCP before enabling release builds.
 
-The Cloud Run module is implemented. Shared and DEV environment foundations are applied, and the DEV service plan is reviewed but not applied. See [DEV readiness](cloud-run-readiness.md) for verified scope and the next deployment prerequisites. Cloud SQL, ingress, DNS changes and application secrets remain separate work.
+The Cloud Run module and shared/DEV foundations are applied. All seven real apps are deployed privately to DEV with verified health and no Terraform drift; see [the deployment record](dev-deployment.md) and [DEV readiness](cloud-run-readiness.md). Cloud SQL, ingress, DNS changes and application secrets remain separate work.
