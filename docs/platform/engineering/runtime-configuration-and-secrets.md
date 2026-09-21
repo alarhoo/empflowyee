@@ -8,7 +8,13 @@ Contains no environment secrets and must not bake DEV/QA/PROD-specific values in
 
 ## Non-secret environment configuration
 
-Owned by IaC under `infra/terraform/environments/<environment>/` and applied to Cloud Run.
+Owned by the service IaC under `infra/terraform/cloud-run/<environment>/` and applied to Cloud Run. The separate `environments/<environment>` root owns identities and IAM.
+
+## Release identity
+
+The release workflow supplies the commit SHA as the Docker `RELEASE_ID` build argument. Every final image stage exposes it as an environment default and an OCI label. This identifies the artifact, so it stays the same when the digest moves between environments. Terraform does not override it with a stale release SHA.
+
+Before publication, the image smoke check starts the exact image in DEV and QA configurations without supplying `RELEASE_ID`, verifies its embedded identity and health, and rejects missing required environment configuration. This local QA configuration test creates no QA cloud resources.
 
 ## Secrets
 

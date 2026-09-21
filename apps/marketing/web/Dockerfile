@@ -25,6 +25,8 @@ COPY containers/next/entrypoint.mjs ./entrypoint.mjs
 ARG REVISION=local
 ARG BUILD_DATE
 ARG RELEASE_ID=local
+# The build identity travels with the immutable image through every environment.
+ENV RELEASE_ID=${RELEASE_ID}
 LABEL org.opencontainers.image.source="https://github.com/alarhoo/empflowyee" \
       org.opencontainers.image.revision="${REVISION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \

@@ -7,6 +7,17 @@ mock_provider "google" {
 }
 mock_provider "google-beta" {}
 
+# Simulate the already-existing deployer adopted by imports.tf without reading live IAM.
+override_resource {
+  target = google_service_account.github_deployer
+  values = {
+    name       = "projects/empflowyee-dev/serviceAccounts/github-deployer@empflowyee-dev.iam.gserviceaccount.com"
+    email      = "github-deployer@empflowyee-dev.iam.gserviceaccount.com"
+    account_id = "github-deployer"
+    project    = "empflowyee-dev"
+  }
+}
+
 variables { github_repository_id = "123456789" }
 
 run "environment_isolation" {

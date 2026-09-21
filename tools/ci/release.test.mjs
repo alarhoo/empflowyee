@@ -38,6 +38,7 @@ function cloud({
 	traffic = true,
 	serviceMissing = false,
 	invalidDigest = false,
+	smokeFailure = false,
 } = {}) {
 	const calls = []
 	let published = !missing
@@ -45,6 +46,7 @@ function cloud({
 	/** Record each requested command and simulate registry publication or Cloud Run image updates. */
 	function execute(command, args) {
 		calls.push([command, ...args])
+		if (command === 'node' && smokeFailure) throw new Error('Container smoke test failed')
 		if (args[1] === 'repositories')
 			return JSON.stringify({ format: 'DOCKER', dockerConfig: { immutableTags: immutable } })
 		if (args[1] === 'docker') {
@@ -180,6 +182,35 @@ test('first release builds and pushes once and then resolves its digest', /** Ve
 	assert.equal(pushes.length, 1)
 	assert.equal(pushes[0][1], 'push')
 	assert.ok(calls.indexOf(builds[0]) < calls.indexOf(pushes[0]))
+	const smoke = calls.find(
+		/** Locate the runtime verification of the exact image that will be published. */
+		([command]) => command === 'node',
+	)
+	assert.deepEqual(smoke, [
+		'node',
+		'tools/containers/smoke.mjs',
+		'hcm-web',
+		'--image',
+		pushes[0][2],
+	])
+	assert.ok(calls.indexOf(builds[0]) < calls.indexOf(smoke))
+	assert.ok(calls.indexOf(smoke) < calls.indexOf(pushes[0]))
+})
+
+test('failed container startup prevents publication', /** Keep broken runtime images out of the immutable release registry. */ () => {
+	const { calls, execute } = cloud({ missing: true, smokeFailure: true })
+	assert.throws(
+		/** Simulate runtime validation failing after a successful image build. */
+		() => releaseImage(env, config, execute),
+		/Container smoke test failed/,
+	)
+	assert.equal(
+		calls.some(
+			/** Detect any publication that would bypass a failed runtime check. */
+			([command, action]) => command === 'docker' && action === 'push',
+		),
+		false,
+	)
 })
 
 test('registry permission failures and mutable tags never trigger a build', /** Verify unsafe registry configuration and lookup errors cannot trigger image creation. */ () => {

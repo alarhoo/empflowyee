@@ -9,10 +9,11 @@ PR validation may build affected applications but does not publish or deploy pro
 1. Determine affected deployables through Nx.
 2. For each affected deployable, run its Nx build/container target.
 3. Tag with the immutable release/commit identifier for traceability.
-4. Push to central Artifact Registry.
-5. Resolve and record the registry digest.
-6. Record the digest in workflow outputs and the job summary; Artifact Registry's immutable commit tag remains the durable lookup.
-7. Do not deploy automatically.
+4. Smoke-test the exact image with two runtime configurations and its embedded release identity. A failure prevents publication.
+5. Push to central Artifact Registry.
+6. Resolve and record the registry digest.
+7. Record the digest in workflow outputs and the job summary; Artifact Registry's immutable commit tag remains the durable lookup.
+8. Do not deploy automatically.
 
 ## Manual promotion
 

@@ -33,8 +33,10 @@ Obtain the IDs from the intended repository, for example:
 gh api repos/OWNER/REPOSITORY --jq '{repository: .full_name, repository_id: .id, owner_id: .owner.id}'
 ```
 
-This repository currently has no configured Git remote; supply the intended
-repository explicitly during bootstrap. Do not copy IDs from another repository.
+This checkout's `origin` is `https://github.com/alarhoo/empflowyee.git`. The shared
+foundation uses repository ID `1379942971` and owner ID `26132460`, verified against
+that repository. Recheck the intended repository during bootstrap; do not copy IDs
+from another repository.
 
 ## Workflow variables
 
