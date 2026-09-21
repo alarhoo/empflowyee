@@ -6,11 +6,11 @@ Project: `empflowyee-dev`. Region: `asia-south1`. Application release: `09e146c2
 
 All seven images were built and smoke-tested in [release run 35644695629](https://github.com/alarhoo/empflowyee/actions/runs/35644695629), then published to the immutable `asia-south1-docker.pkg.dev/empflowyee-cicd/apps` repository. Each image embeds the release SHA and was tested with DEV and QA runtime settings locally on its CI runner; no QA cloud resource was deployed.
 
-Terraform created seven private service shells and configured the three Angular API endpoints. The manual GitHub workflows promote only the published image digests, sequentially within DEV. QA and PROD remain unchanged; infrastructure automation remains disabled.
+Terraform initially created seven private service shells and configured the three Angular API endpoints. The four web services now have a direct browser-access configuration under [ADR: DEV web browser access](../adr/ADR-dev-web-browser-access.md); the three APIs remain IAM-protected. The manual GitHub workflows promote only the published image digests, sequentially within DEV. QA and PROD remain unchanged; infrastructure automation remains disabled.
 
 ## Service URLs
 
-These URLs require Google IAM authentication. The browser apps are the current scaffold screens; the APIs expose the scaffold greeting at `/api`. This milestone does not implement product authentication or browser-to-private-API authentication.
+Open the four **Web** URLs directly in a browser. The three **API** URLs require Google IAM authentication. The browser apps are current scaffold screens; the APIs expose the scaffold greeting at `/api`. This milestone does not implement product authentication or browser-to-private-API authentication.
 
 | App           | URL                                             |
 | ------------- | ----------------------------------------------- |
@@ -22,9 +22,9 @@ These URLs require Google IAM authentication. The browser apps are the current s
 | Console Web   | https://console-web-bf3q2l4gtq-el.a.run.app     |
 | Console API   | https://console-api-bf3q2l4gtq-el.a.run.app/api |
 
-## Verification
+## Initial release verification
 
-All seven manual promotions succeeded. Each latest created revision is ready, receives 100% traffic and uses its own runtime identity and the exact published digest. Authenticated `/health/live` and `/health/ready` requests returned HTTP 200 for every app; unauthenticated requests returned HTTP 403.
+All seven manual promotions succeeded. Each latest created revision is ready, receives 100% traffic and uses its own runtime identity and the exact published digest. During the initial private deployment, authenticated `/health/live` and `/health/ready` requests returned HTTP 200 for every app; unauthenticated requests returned HTTP 403. Those checks proved container health but did not satisfy browser access. The subsequent web-access correction requires anonymous browser and asset checks for all four web apps, while preserving IAM checks on the APIs.
 
 The three APIs returned their real `Hello API` response. Marketing served its Next.js page and the expected DEV/release runtime metadata. Each Angular service served its HTML, compiled JavaScript and uncached runtime configuration with the correct release SHA and matching private API URL. These are scaffold checks, not product workflow or browser-authentication acceptance tests.
 
@@ -40,22 +40,17 @@ Fresh plans for `shared`, `environments/dev` and `cloud-run/dev` report no chang
 | `console-web`   | `console-web-00003-nsn`   | [Run 35646335725](https://github.com/alarhoo/empflowyee/actions/runs/35646335725) |
 | `console-api`   | `console-api-00002-dbt`   | [Run 35645777349](https://github.com/alarhoo/empflowyee/actions/runs/35645777349) |
 
-## Opening private services
+## Browser access and private API diagnostics
 
-A normal browser request without a Google identity token receives HTTP 403. Use an authenticated local Cloud Run proxy to inspect a private UI, as described in [Google's developer authentication guide](https://docs.cloud.google.com/run/docs/authenticating/developers):
+The four web apps must open at the HTTPS URLs above without a proxy, a Google IAM token or a local process. Their HTML, JavaScript, CSS and public runtime configuration are part of that browser-access contract. Application sign-in and authorization are separate product work.
+
+The three APIs still require Google IAM authentication. For private API diagnostics, use an authenticated Cloud Run proxy as described in [Google's developer authentication guide](https://docs.cloud.google.com/run/docs/authenticating/developers):
 
 ```bash
-gcloud run services proxy hcm-web --project=empflowyee-dev --region=asia-south1 --port=8080
+gcloud run services proxy hcm-api --project=empflowyee-dev --region=asia-south1 --port=8080
 ```
 
-Then open `http://localhost:8080`. The CLI requires its `cloud-run-proxy` component. This Windows machine also has a standalone proxy 0.5.1 downloaded from Google's SDK component distribution and verified against its published SHA-256:
-
-```powershell
-& "$env:LOCALAPPDATA\Programs\GoogleCloudRunProxy\0.5.1\bin\cloud-run-proxy.exe" `
-  -host https://hcm-web-bf3q2l4gtq-el.a.run.app -bind 127.0.0.1:8080
-```
-
-Use the corresponding service URL and a different loopback port for each additional proxy. It uses the operator's existing Google login; no token belongs in Git or a URL. No preview proxy was started during this task; live verification used authenticated direct HTTP requests.
+Then open `http://localhost:8080/api`. The CLI requires its `cloud-run-proxy` component and uses the operator's existing Google login. This is an optional API diagnostic path, not a prerequisite for opening the web apps. No token belongs in Git or a URL.
 
 ## Reproducing runtime endpoint configuration
 
@@ -76,4 +71,4 @@ Keep the backend and variable files ignored. Plan immediately before infrastruct
 
 ## Next product milestone
 
-Return to HCM Shell and Theme Lab work using the approved HCM architecture and UI specifications. Public access, production edge routing, browser/API authentication, secrets and databases require their separate designs; they are not prerequisites for verifying these private scaffold services.
+Return to HCM Shell and Theme Lab work using the approved HCM architecture and UI specifications. The four DEV web apps have an approved public delivery path. Production edge routing, browser/API authentication, secrets and databases remain separate design work. Before adding business operations, implement the product authentication and authorization contracts; public frontend delivery does not provide them.

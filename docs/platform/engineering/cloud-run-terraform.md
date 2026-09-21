@@ -29,7 +29,7 @@ Each root validates its fixed environment/project/region and foundation prefix. 
 3. Initialize the matching Cloud Run service stack.
 4. Run `terraform fmt -check`, `terraform validate`, and `terraform plan`.
 5. Review before apply.
-6. Apply manually when you intentionally want the private service shells created.
+6. Apply manually after reviewing service creation and the root's explicit access policy. DEV web services are public; DEV APIs and QA/PROD services remain private.
 7. Promote real application image digests through the manual release workflows.
 
 ## Configuration ownership
@@ -40,4 +40,4 @@ Release-specific values such as commit/release identity belong to the release wo
 
 Secret **values** live only in Secret Manager. Terraform may later reference secret names/versions; never commit secret values to `.tf`, `.tfvars`, GitHub YAML or application source.
 
-Release images embed the build's `RELEASE_ID`; Terraform leaves that artifact identity unchanged. Before promoting Angular images, populate the root's `api_base_urls` map for `account-web`, `hcm-web` and `console-web` using the matching API service URLs plus `/api`. The map is empty during bootstrap and accepts only HTTPS API URLs without credentials or query strings. Setting a URL grants no invocation permission: the initial services remain private, and browser/API authentication integration is still deferred. See [DEV readiness](cloud-run-readiness.md).
+Release images embed the build's `RELEASE_ID`; Terraform leaves that artifact identity unchanged. Before promoting Angular images, populate the root's `api_base_urls` map for `account-web`, `hcm-web` and `console-web` using the matching API service URLs plus `/api`. The map is empty during bootstrap and accepts only HTTPS API URLs without credentials or query strings. Setting a URL grants no invocation permission: the APIs remain private, and browser/API authentication integration is still deferred. The four DEV web services are public under [the approved access decision](../adr/ADR-dev-web-browser-access.md). See [DEV readiness](cloud-run-readiness.md).

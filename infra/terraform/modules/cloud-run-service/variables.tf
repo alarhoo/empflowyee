@@ -48,11 +48,14 @@ variable "ingress" {
 
 variable "allow_unauthenticated" {
   type        = bool
-  description = "Disable the Cloud Run invoker IAM check. Keep false until an approved edge/security design allows public invocation."
+  description = "Disable the Cloud Run invoker IAM check only for the approved DEV web surfaces. See ADR-dev-web-browser-access."
   default     = false
   validation {
-    condition     = !var.allow_unauthenticated
-    error_message = "This foundation is private; public invocation requires an approved access design."
+    condition = !var.allow_unauthenticated || (
+      var.project_id == "empflowyee-dev" &&
+      contains(["marketing-web", "account-web", "hcm-web", "console-web"], var.service_name)
+    )
+    error_message = "Public invocation is approved only for the four DEV web services; APIs and other environments remain IAM-protected."
   }
 }
 
