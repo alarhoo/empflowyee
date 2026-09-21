@@ -1,0 +1,59 @@
+name: Infrastructure Apply
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Infrastructure environment to apply.
+        required: true
+        type: choice
+        options: [dev, qa, prod]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  apply:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    concurrency:
+      group: terraform-${{ inputs.environment }}
+      cancel-in-progress: false
+    env:
+      TARGET_ENVIRONMENT: ${{ inputs.environment }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      WIF_PROVIDER: ${{ vars.DEPLOY_WIF_PROVIDER }}
+      TERRAFORM_SERVICE_ACCOUNT: ${{ vars.TERRAFORM_SERVICE_ACCOUNT }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate prerequisites before authentication
+        shell: bash
+        run: |
+          case "$TARGET_ENVIRONMENT" in
+            dev|qa|prod) ;;
+            *) echo "Unsupported environment"; exit 1 ;;
+          esac
+          DIR="infra/environments/$TARGET_ENVIRONMENT"
+          compgen -G "$DIR/*.tf" > /dev/null || {
+            echo "No Terraform root exists yet at $DIR. This workflow is foundation-only."
+            exit 1
+          }
+          for key in GCP_PROJECT_ID WIF_PROVIDER TERRAFORM_SERVICE_ACCOUNT; do
+            [[ -n "${!key}" ]] || { echo "Missing $key"; exit 1; }
+          done
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.DEPLOY_WIF_PROVIDER }}
+          service_account: ${{ vars.TERRAFORM_SERVICE_ACCOUNT }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        run: terraform -chdir="infra/environments/$TARGET_ENVIRONMENT" init
+      - name: Terraform plan
+        run: terraform -chdir="infra/environments/$TARGET_ENVIRONMENT" plan -out=tfplan
+      - name: Terraform apply
+        run: terraform -chdir="infra/environments/$TARGET_ENVIRONMENT" apply -auto-approve tfplan

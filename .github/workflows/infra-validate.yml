@@ -1,0 +1,39 @@
+name: Infrastructure Validate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infra-*.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform formatting
+        run: terraform fmt -check -recursive infra
+
+      - name: Validate environment roots that contain Terraform
+        shell: bash
+        run: |
+          found=0
+          for directory in infra/environments/*; do
+            if compgen -G "$directory/*.tf" > /dev/null; then
+              found=1
+              echo "Validating $directory"
+              terraform -chdir="$directory" init -backend=false
+              terraform -chdir="$directory" validate
+            fi
+          done
+
+          if [[ "$found" == "0" ]]; then
+            echo "No Terraform environment roots exist yet; formatting check completed."
+          fi

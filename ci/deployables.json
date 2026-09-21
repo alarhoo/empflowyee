@@ -1,0 +1,60 @@
+{
+	"deployables": {
+		"marketing-web": {
+			"product": "marketing",
+			"runtime": "web",
+			"dockerfile": "apps/marketing/web/Dockerfile",
+			"context": ".",
+			"image": "marketing-web",
+			"service": "marketing-web"
+		},
+		"account-web": {
+			"product": "account",
+			"runtime": "web",
+			"dockerfile": "apps/account/web/Dockerfile",
+			"context": ".",
+			"image": "account-web",
+			"service": "account-web"
+		},
+		"account-api": {
+			"product": "account",
+			"runtime": "api",
+			"dockerfile": "apps/account/api/Dockerfile",
+			"context": ".",
+			"image": "account-api",
+			"service": "account-api"
+		},
+		"hcm-web": {
+			"product": "hcm",
+			"runtime": "web",
+			"dockerfile": "apps/hcm/web/Dockerfile",
+			"context": ".",
+			"image": "hcm-web",
+			"service": "hcm-web"
+		},
+		"hcm-api": {
+			"product": "hcm",
+			"runtime": "api",
+			"dockerfile": "apps/hcm/api/Dockerfile",
+			"context": ".",
+			"image": "hcm-api",
+			"service": "hcm-api"
+		},
+		"console-web": {
+			"product": "console",
+			"runtime": "web",
+			"dockerfile": "apps/console/web/Dockerfile",
+			"context": ".",
+			"image": "console-web",
+			"service": "console-web"
+		},
+		"console-api": {
+			"product": "console",
+			"runtime": "api",
+			"dockerfile": "apps/console/api/Dockerfile",
+			"context": ".",
+			"image": "console-api",
+			"service": "console-api"
+		}
+	}
+}

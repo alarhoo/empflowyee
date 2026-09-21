@@ -6,12 +6,12 @@ It is intentionally architecture-first and documentation-first. The repository c
 
 ## Product topology
 
-| Product | Frontend | Backend | Production identity |
-| --- | --- | --- | --- |
-| Marketing | Next.js | none | `https://empflowyee.com` |
-| Account | Angular + Spartan | NestJS | `https://account.empflowyee.com` |
-| HCM | Angular + Fundamental NGX / UI5 Web Components | NestJS | `https://{tenant}.empflowyee.com` |
-| Console | Angular + PrimeNG | NestJS | `https://console.empflowyee.com` |
+| Product   | Frontend                                       | Backend | Production identity               |
+| --------- | ---------------------------------------------- | ------- | --------------------------------- |
+| Marketing | Next.js                                        | none    | `https://empflowyee.com`          |
+| Account   | Angular + Spartan                              | NestJS  | `https://account.empflowyee.com`  |
+| HCM       | Angular + Fundamental NGX / UI5 Web Components | NestJS  | `https://{tenant}.empflowyee.com` |
+| Console   | Angular + PrimeNG                              | NestJS  | `https://console.empflowyee.com`  |
 
 The HCM frontend is one deployment. Tenant subdomains resolve to the same HCM runtime; the backend resolves and authorizes tenant context.
 
@@ -46,13 +46,12 @@ Then:
 
 ```bash
 corepack enable
-pnpm install
-pnpm scaffold
+pnpm install --frozen-lockfile
 ```
 
-The scaffold command uses official Nx generators to materialize the seven applications with the approved project names, tags, ports, test runners, and Angular compatibility settings.
+The seven applications are already materialized. The scaffold scripts document their generator setup; they are not required for an ordinary checkout.
 
-After generation:
+Validate the checkout:
 
 ```bash
 pnpm architecture:check
@@ -99,3 +98,20 @@ This foundation intentionally does **not** yet implement:
 - final AI agents/skills/workflows
 
 Those are subsequent controlled layers. This repository establishes the boundaries they must respect.
+
+## Git and delivery
+
+Use a short-lived branch and a Conventional Commit-style PR title. See the
+[Git strategy](docs/platform/engineering/git-strategy.md),
+[commit convention](docs/platform/engineering/commit-convention.md), and
+[branch protection](docs/platform/engineering/branch-protection.md).
+
+The [CI/CD foundation](docs/platform/engineering/cicd.md) validates pull requests,
+builds affected deployables on main when enabled, and provides separate manual
+promotion workflows for DEV, QA and PROD. Promotion reuses immutable image digests.
+Runtime configuration and secrets remain outside build artifacts.
+
+Release activation still requires production Dockerfiles and reviewed GCP/IaC
+bootstrap. Start with [APPLY.md](APPLY.md) and the
+[foundation plan](docs/platform/engineering/ci-cd-foundation-plan.md).
+Local verification is documented in [VALIDATION.md](VALIDATION.md).

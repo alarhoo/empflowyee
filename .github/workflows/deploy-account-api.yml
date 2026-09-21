@@ -1,0 +1,30 @@
+name: Deploy Account Api
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full 40-character commit SHA built by release.yml.
+        required: true
+        type: string
+      environment:
+        description: Target deployment environment.
+        required: true
+        type: choice
+        options:
+          - dev
+          - qa
+          - prod
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/_reusable-deploy-cloud-run.yml
+    with:
+      deployable: account-api
+      release_sha: ${{ inputs.release_sha }}
+      environment: ${{ inputs.environment }}

@@ -53,3 +53,12 @@ Do not duplicate the same rule in multiple locations. Link to the canonical docu
 - ADR: why a consequential architectural decision was made.
 
 A feature must not silently contradict any of the three.
+
+## Platform engineering entry points
+
+- [Nx project taxonomy](platform/engineering/nx/project-taxonomy.md)
+- [Git strategy](platform/engineering/git-strategy.md)
+- [CI/CD architecture](platform/engineering/cicd.md)
+- [GitHub setup](platform/engineering/github-setup.md)
+- [GCP bootstrap](platform/engineering/gcp-bootstrap.md)
+- [Delivery ADR](platform/adr/ADR-CICD-001-single-main-build-once-promote-many.md)

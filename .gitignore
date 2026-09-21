@@ -18,3 +18,17 @@ out
 .angular
 
 __screenshots__/
+
+# Temporary Google authentication credentials
+gha-creds-*.json
+
+# Terraform local state, plans and variable values
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+crash.log

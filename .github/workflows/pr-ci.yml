@@ -1,0 +1,83 @@
+name: PR CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate-pr-title:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Conventional Commit-style PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          node - <<'NODE'
+          const title = process.env.PR_TITLE ?? '';
+          const pattern = /^(feat|fix|docs|refactor|perf|test|build|ci|chore|revert)\([a-z0-9-]+\)!?: \S[^\r\n]*$/;
+          if (!pattern.test(title)) {
+            console.error(`Invalid PR title: ${title}`);
+            console.error('Expected example: feat(hcm-leave): add leave application flow');
+            process.exit(1);
+          }
+          NODE
+
+  affected-quality:
+    name: Nx affected quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - uses: pnpm/action-setup@v6
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate repository architecture
+        run: node tools/architecture/verify.mjs
+
+      - name: Validate documentation
+        run: node tools/documentation/verify.mjs
+
+      - name: Validate deployment manifest
+        run: node tools/ci/validate-deployables.mjs
+
+      - name: Lint and test CI helpers
+        run: |
+          pnpm exec eslint tools/ci --max-warnings=0
+          node --test tools/ci/*.test.mjs
+
+      - name: Validate GitHub workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/actionlint"
+          gh release download v1.7.12 --repo rhysd/actionlint --dir "$RUNNER_TEMP/actionlint" \
+            --pattern 'actionlint_1.7.12_linux_amd64.tar.gz' --pattern 'actionlint_1.7.12_checksums.txt'
+          (cd "$RUNNER_TEMP/actionlint" && sha256sum --check --ignore-missing actionlint_1.7.12_checksums.txt)
+          tar -xzf "$RUNNER_TEMP/actionlint/actionlint_1.7.12_linux_amd64.tar.gz" -C "$RUNNER_TEMP/actionlint"
+          "$RUNNER_TEMP/actionlint/actionlint"
+
+      - name: Check formatting for changed files
+        run: pnpm nx format:check --base="${{ github.event.pull_request.base.sha }}" --head="${{ github.event.pull_request.head.sha }}"
+
+      - name: Lint, test and build affected projects
+        run: pnpm nx affected -t lint test build --base="${{ github.event.pull_request.base.sha }}" --head="${{ github.event.pull_request.head.sha }}" --parallel=3

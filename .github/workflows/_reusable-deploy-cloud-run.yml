@@ -1,0 +1,57 @@
+name: _ Reusable - Deploy Cloud Run
+on:
+  workflow_call:
+    inputs:
+      deployable:
+        required: true
+        type: string
+      release_sha:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    concurrency:
+      group: cloud-run-${{ inputs.environment }}-${{ inputs.deployable }}
+      cancel-in-progress: false
+    env:
+      RELEASE_MODE: deploy
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      DEPLOYABLE: ${{ inputs.deployable }}
+      DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      DEPLOY_WIF_PROVIDER: ${{ vars.DEPLOY_WIF_PROVIDER }}
+      DEPLOY_SERVICE_ACCOUNT: ${{ vars.DEPLOY_SERVICE_ACCOUNT }}
+      AR_PROJECT_ID: ${{ vars.AR_PROJECT_ID }}
+      AR_REGION: ${{ vars.AR_REGION }}
+      AR_REPOSITORY: ${{ vars.AR_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Validate release and prerequisites before authentication
+        run: node tools/ci/release.mjs validate
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.DEPLOY_WIF_PROVIDER }}
+          service_account: ${{ vars.DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Update existing Cloud Run service to the exact release digest
+        run: node tools/ci/release.mjs

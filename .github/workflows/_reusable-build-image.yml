@@ -1,0 +1,58 @@
+name: _ Reusable - Build Container Image
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        required: true
+        type: string
+      release_sha:
+        required: true
+        type: string
+    outputs:
+      image_ref:
+        description: Immutable Artifact Registry image reference.
+        value: ${{ jobs.build.outputs.image_ref }}
+      image_digest:
+        description: Immutable image digest.
+        value: ${{ jobs.build.outputs.image_digest }}
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main' && vars.RELEASE_PIPELINE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: cicd
+    env:
+      RELEASE_MODE: build
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      DEPLOYABLE: ${{ inputs.project_name }}
+      AR_PROJECT_ID: ${{ vars.AR_PROJECT_ID }}
+      AR_REGION: ${{ vars.AR_REGION }}
+      AR_REPOSITORY: ${{ vars.AR_REPOSITORY }}
+      CICD_WIF_PROVIDER: ${{ vars.CICD_WIF_PROVIDER }}
+      CICD_BUILD_SERVICE_ACCOUNT: ${{ vars.CICD_BUILD_SERVICE_ACCOUNT }}
+    outputs:
+      image_ref: ${{ steps.image.outputs.ref }}
+      image_digest: ${{ steps.image.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Validate release and prerequisites before authentication
+        run: node tools/ci/release.mjs validate
+      - uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.AR_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.CICD_WIF_PROVIDER }}
+          service_account: ${{ vars.CICD_BUILD_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Build or reuse immutable release image
+        id: image
+        run: node tools/ci/release.mjs

@@ -79,3 +79,17 @@ Stop and propose an ADR before introducing:
 - a new authentication trust boundary
 
 Do not invent missing business behavior.
+
+## Git and release engineering
+
+- `main` is the only long-lived branch. All changes reach it through a pull request; never push directly to `main`.
+- Use short-lived, granular branches and Conventional Commit-style PR titles. Squash merge is preferred.
+- Follow `docs/platform/engineering/git-strategy.md` and `docs/platform/engineering/commit-convention.md` for branch and commit conventions.
+- PR CI never deploys. Merges may build artifacts but must not deploy automatically.
+- DEV, QA and PROD are environments, not branches. Promotion is explicit and manual.
+- Build artifacts once; promote the same immutable image digest. Never rebuild for promotion or deploy `latest`.
+- Keep runtime environment values and secrets out of compiled artifacts. Application secrets belong in Google Secret Manager; infrastructure configuration belongs in IaC; tenant configuration belongs in application data.
+- Use Workload Identity Federation for GitHub-to-GCP authentication, never service-account key JSON in GitHub.
+- Deployment workflows update images only. IaC owns Cloud Run configuration, IAM, environment variables and secret bindings.
+- Infrastructure changes live in `infra/` and require review through a PR.
+- Delivery architecture and activation prerequisites are authoritative in `docs/platform/engineering/cicd.md` and `docs/platform/engineering/github-setup.md`.
