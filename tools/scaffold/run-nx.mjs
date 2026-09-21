@@ -1,9 +1,9 @@
-import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, normalize, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname, normalize, resolve } from 'node:path'
 
-const require = createRequire(import.meta.url);
+const require = createRequire(import.meta.url)
 
 /**
  * Resolve the workspace-local Nx CLI from Nx's own package.json `bin` field.
@@ -13,38 +13,38 @@ const require = createRequire(import.meta.url);
  * future Nx package-layout changes and to pnpm's virtual-store layout.
  */
 export function resolveNxCli() {
-  let nxPackageJsonPath;
-  try {
-    nxPackageJsonPath = require.resolve('nx/package.json');
-  } catch (error) {
-    throw new Error(
-      'Cannot resolve the workspace-local Nx package. Run `pnpm install` from the repository root first.',
-      { cause: error },
-    );
-  }
+	let nxPackageJsonPath
+	try {
+		nxPackageJsonPath = require.resolve('nx/package.json')
+	} catch (error) {
+		throw new Error(
+			'Cannot resolve the workspace-local Nx package. Run `pnpm install` from the repository root first.',
+			{ cause: error },
+		)
+	}
 
-  const nxPackage = JSON.parse(readFileSync(nxPackageJsonPath, 'utf8'));
-  const binEntry = typeof nxPackage.bin === 'string' ? nxPackage.bin : nxPackage.bin?.nx;
+	const nxPackage = JSON.parse(readFileSync(nxPackageJsonPath, 'utf8'))
+	const binEntry = typeof nxPackage.bin === 'string' ? nxPackage.bin : nxPackage.bin?.nx
 
-  if (!binEntry || typeof binEntry !== 'string') {
-    throw new Error(
-      `Nx package at ${nxPackageJsonPath} does not declare a usable \`bin.nx\` entry.`,
-    );
-  }
+	if (!binEntry || typeof binEntry !== 'string') {
+		throw new Error(
+			`Nx package at ${nxPackageJsonPath} does not declare a usable \`bin.nx\` entry.`,
+		)
+	}
 
-  const cli = resolve(dirname(nxPackageJsonPath), binEntry);
-  if (!existsSync(cli)) {
-    throw new Error(
-      `Nx package declares its CLI as ${binEntry}, but the resolved file does not exist: ${cli}`,
-    );
-  }
+	const cli = resolve(dirname(nxPackageJsonPath), binEntry)
+	if (!existsSync(cli)) {
+		throw new Error(
+			`Nx package declares its CLI as ${binEntry}, but the resolved file does not exist: ${cli}`,
+		)
+	}
 
-  return {
-    cli,
-    packageJsonPath: nxPackageJsonPath,
-    version: nxPackage.version ?? 'unknown',
-    binEntry,
-  };
+	return {
+		cli,
+		packageJsonPath: nxPackageJsonPath,
+		version: nxPackage.version ?? 'unknown',
+		binEntry,
+	}
 }
 
 /**
@@ -53,64 +53,64 @@ export function resolveNxCli() {
  * using Nx's own declared executable path.
  */
 export function runNx(args, { capture = false, allowFailure = false, env = {} } = {}) {
-  const { cli } = resolveNxCli();
+	const { cli } = resolveNxCli()
 
-  const result = spawnSync(process.execPath, [cli, ...args], {
-    cwd: process.cwd(),
-    stdio: capture ? ['ignore', 'pipe', 'pipe'] : 'inherit',
-    encoding: capture ? 'utf8' : undefined,
-    env: {
-      ...process.env,
-      NX_INTERACTIVE: 'false',
-      NX_DAEMON: 'false',
-      ...env,
-    },
-    shell: false,
-  });
+	const result = spawnSync(process.execPath, [cli, ...args], {
+		cwd: process.cwd(),
+		stdio: capture ? ['ignore', 'pipe', 'pipe'] : 'inherit',
+		encoding: capture ? 'utf8' : undefined,
+		env: {
+			...process.env,
+			NX_INTERACTIVE: 'false',
+			NX_DAEMON: 'false',
+			...env,
+		},
+		shell: false,
+	})
 
-  if (result.error) throw result.error;
+	if (result.error) throw result.error
 
-  if (result.status !== 0 && !allowFailure) {
-    const stdout = capture && result.stdout?.trim() ? `\nstdout:\n${result.stdout.trim()}` : '';
-    const stderr = capture && result.stderr?.trim() ? `\nstderr:\n${result.stderr.trim()}` : '';
-    throw new Error(
-      `Nx command failed (${result.status ?? 'unknown'}): nx ${args.join(' ')}${stdout}${stderr}`,
-    );
-  }
+	if (result.status !== 0 && !allowFailure) {
+		const stdout = capture && result.stdout?.trim() ? `\nstdout:\n${result.stdout.trim()}` : ''
+		const stderr = capture && result.stderr?.trim() ? `\nstderr:\n${result.stderr.trim()}` : ''
+		throw new Error(
+			`Nx command failed (${result.status ?? 'unknown'}): nx ${args.join(' ')}${stdout}${stderr}`,
+		)
+	}
 
-  return result;
+	return result
 }
 
 export function getNxProject(projectName) {
-  const result = runNx(['show', 'project', projectName, '--json'], {
-    capture: true,
-    allowFailure: true,
-  });
+	const result = runNx(['show', 'project', projectName, '--json'], {
+		capture: true,
+		allowFailure: true,
+	})
 
-  if (result.status !== 0) return null;
+	if (result.status !== 0) return null
 
-  try {
-    return JSON.parse(result.stdout);
-  } catch (error) {
-    throw new Error(
-      `Nx reported project ${projectName}, but its JSON configuration could not be parsed: ${error.message}`,
-    );
-  }
+	try {
+		return JSON.parse(result.stdout)
+	} catch (error) {
+		throw new Error(
+			`Nx reported project ${projectName}, but its JSON configuration could not be parsed: ${error.message}`,
+		)
+	}
 }
 
 export function nxProjectExistsAt(projectName, expectedRoot) {
-  const project = getNxProject(projectName);
-  if (!project) return false;
+	const project = getNxProject(projectName)
+	if (!project) return false
 
-  const actualRoot = normalize(project.root ?? '');
-  const wantedRoot = normalize(expectedRoot);
+	const actualRoot = normalize(project.root ?? '')
+	const wantedRoot = normalize(expectedRoot)
 
-  if (actualRoot !== wantedRoot) {
-    throw new Error(
-      `Nx project name collision: ${projectName} already exists at ${actualRoot}, expected ${wantedRoot}. ` +
-        'Do not continue until the collision is resolved.',
-    );
-  }
+	if (actualRoot !== wantedRoot) {
+		throw new Error(
+			`Nx project name collision: ${projectName} already exists at ${actualRoot}, expected ${wantedRoot}. ` +
+				'Do not continue until the collision is resolved.',
+		)
+	}
 
-  return true;
+	return true
 }

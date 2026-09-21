@@ -1,17 +1,17 @@
 {
-  "name": "account-api-e2e",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
-  "implicitDependencies": ["account-api"],
-  "targets": {
-    "e2e": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
-      "dependsOn": ["account-api:build", "account-api:serve"],
-      "options": {
-        "jestConfig": "apps/account/api-e2e/jest.config.cts",
-        "passWithNoTests": true
-      }
-    }
-  }
+	"name": "account-api-e2e",
+	"$schema": "../../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "application",
+	"implicitDependencies": ["account-api"],
+	"targets": {
+		"e2e": {
+			"executor": "@nx/jest:jest",
+			"outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+			"dependsOn": ["account-api:build", "account-api:serve"],
+			"options": {
+				"jestConfig": "apps/account/api-e2e/jest.config.cts",
+				"passWithNoTests": true
+			}
+		}
+	}
 }

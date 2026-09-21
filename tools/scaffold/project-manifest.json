@@ -1,98 +1,63 @@
 {
-  "workspace": "empflowyee",
-  "packageManager": "pnpm",
-  "cloud": "GCP",
-  "projects": [
-    {
-      "name": "marketing-web",
-      "path": "apps/marketing/web",
-      "kind": "web",
-      "technology": "Next.js",
-      "port": 4200,
-      "tags": [
-        "product:marketing",
-        "runtime:web",
-        "domain:marketing",
-        "type:app"
-      ]
-    },
-    {
-      "name": "account-web",
-      "path": "apps/account/web",
-      "kind": "web",
-      "technology": "Angular + Spartan",
-      "port": 4300,
-      "tags": [
-        "product:account",
-        "runtime:web",
-        "domain:shell",
-        "type:app"
-      ]
-    },
-    {
-      "name": "account-api",
-      "path": "apps/account/api",
-      "kind": "api",
-      "technology": "NestJS",
-      "port": 4400,
-      "tags": [
-        "product:account",
-        "runtime:api",
-        "domain:bootstrap",
-        "type:app"
-      ]
-    },
-    {
-      "name": "hcm-web",
-      "path": "apps/hcm/web",
-      "kind": "web",
-      "technology": "Angular + Fundamental NGX/UI5 Web Components",
-      "port": 4302,
-      "tags": [
-        "product:hcm",
-        "runtime:web",
-        "domain:shell",
-        "type:app"
-      ]
-    },
-    {
-      "name": "hcm-api",
-      "path": "apps/hcm/api",
-      "kind": "api",
-      "technology": "NestJS",
-      "port": 4402,
-      "tags": [
-        "product:hcm",
-        "runtime:api",
-        "domain:bootstrap",
-        "type:app"
-      ]
-    },
-    {
-      "name": "console-web",
-      "path": "apps/console/web",
-      "kind": "web",
-      "technology": "Angular + PrimeNG",
-      "port": 4301,
-      "tags": [
-        "product:console",
-        "runtime:web",
-        "domain:shell",
-        "type:app"
-      ]
-    },
-    {
-      "name": "console-api",
-      "path": "apps/console/api",
-      "kind": "api",
-      "technology": "NestJS",
-      "port": 4401,
-      "tags": [
-        "product:console",
-        "runtime:api",
-        "domain:bootstrap",
-        "type:app"
-      ]
-    }
-  ]
+	"workspace": "empflowyee",
+	"packageManager": "pnpm",
+	"cloud": "GCP",
+	"projects": [
+		{
+			"name": "marketing-web",
+			"path": "apps/marketing/web",
+			"kind": "web",
+			"technology": "Next.js",
+			"port": 4200,
+			"tags": ["product:marketing", "runtime:web", "domain:marketing", "type:app"]
+		},
+		{
+			"name": "account-web",
+			"path": "apps/account/web",
+			"kind": "web",
+			"technology": "Angular + Spartan",
+			"port": 4300,
+			"tags": ["product:account", "runtime:web", "domain:shell", "type:app"]
+		},
+		{
+			"name": "account-api",
+			"path": "apps/account/api",
+			"kind": "api",
+			"technology": "NestJS",
+			"port": 4400,
+			"tags": ["product:account", "runtime:api", "domain:bootstrap", "type:app"]
+		},
+		{
+			"name": "hcm-web",
+			"path": "apps/hcm/web",
+			"kind": "web",
+			"technology": "Angular + Fundamental NGX/UI5 Web Components",
+			"port": 4302,
+			"tags": ["product:hcm", "runtime:web", "domain:shell", "type:app"]
+		},
+		{
+			"name": "hcm-api",
+			"path": "apps/hcm/api",
+			"kind": "api",
+			"technology": "NestJS",
+			"port": 4402,
+			"tags": ["product:hcm", "runtime:api", "domain:bootstrap", "type:app"]
+		},
+		{
+			"name": "console-web",
+			"path": "apps/console/web",
+			"kind": "web",
+			"technology": "Angular + PrimeNG",
+			"port": 4301,
+			"tags": ["product:console", "runtime:web", "domain:shell", "type:app"]
+		},
+		{
+			"name": "console-api",
+			"path": "apps/console/api",
+			"kind": "api",
+			"technology": "NestJS",
+			"port": 4401,
+			"tags": ["product:console", "runtime:api", "domain:bootstrap", "type:app"]
+		}
+	]
 }

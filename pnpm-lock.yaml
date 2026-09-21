@@ -341,6 +341,9 @@ importers:
       '@spartan-ng/cli':
         specifier: 1.4.1
         version: 1.4.1(3290b3efd74c31b3058e662b0a70ad45)
+      '@stylistic/eslint-plugin':
+        specifier: 5.10.0
+        version: 5.10.0(eslint@9.39.5(jiti@2.7.0)(supports-color@8.1.1))
       '@swc-node/register':
         specifier: ~1.11.1
         version: 1.11.1(@swc/core@1.15.47(@swc/helpers@0.5.23))(@swc/types@0.1.28)(supports-color@8.1.1)(typescript@6.0.3)
@@ -4060,6 +4063,12 @@ packages:
     resolution: {integrity: sha512-Fxh9vYpX9bQqFeHRiY8h2ApeRGDzRSMLwJwNZ/AIRqnyOKHxRKL+yFe+ctEkVJmuptRE9u1Hrn8ZZNHyfDKKNg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@stylistic/eslint-plugin@5.10.0':
+    resolution: {integrity: sha512-nPK52ZHvot8Ju/0A4ucSX1dcPV2/1clx0kLcH5wDmrE4naKso7TUC/voUyU1O9OTKTrR6MYip6LP0ogEMQ9jPQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: ^9.0.0 || ^10.0.0
 
   '@swc-node/core@1.15.0':
     resolution: {integrity: sha512-WAerrrl087WgenB92XG4Th2t0NQFfMNLYSe0sW2cEMMqM/LQmP4rozsDJl0vuzTrbewjpKQryxFXI+aYig/dBg==}
@@ -13795,6 +13804,16 @@ snapshots:
   '@storybook/icons@2.1.0(react@19.3.0)':
     dependencies:
       react: 19.3.0
+
+  '@stylistic/eslint-plugin@5.10.0(eslint@9.39.5(jiti@2.7.0)(supports-color@8.1.1))':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.10.1(eslint@9.39.5(jiti@2.7.0)(supports-color@8.1.1))
+      '@typescript-eslint/types': 8.70.0
+      eslint: 9.39.5(jiti@2.7.0)(supports-color@8.1.1)
+      eslint-visitor-keys: 4.2.1
+      espree: 10.4.0
+      estraverse: 5.3.0
+      picomatch: 4.0.7
 
   '@swc-node/core@1.15.0(@swc/core@1.15.47(@swc/helpers@0.5.23))(@swc/types@0.1.28)':
     dependencies:

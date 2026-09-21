@@ -1,9 +1,9 @@
 {
-  "name": "marketing-web",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/marketing/web/src",
-  "projectType": "application",
-  "tags": ["product:marketing", "runtime:web", "domain:marketing", "type:app"],
-  "// targets": "to see all targets run: nx show project marketing-web --web",
-  "targets": {}
+	"name": "marketing-web",
+	"$schema": "../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "apps/marketing/web/src",
+	"projectType": "application",
+	"tags": ["product:marketing", "runtime:web", "domain:marketing", "type:app"],
+	"// targets": "to see all targets run: nx show project marketing-web --web",
+	"targets": {}
 }

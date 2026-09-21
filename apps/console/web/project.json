@@ -1,86 +1,86 @@
 {
-  "name": "console-web",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
-  "prefix": "ef-console",
-  "sourceRoot": "apps/console/web/src",
-  "tags": ["product:console", "runtime:web", "domain:shell", "type:app"],
-  "targets": {
-    "build": {
-      "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/apps/console/web",
-        "browser": "apps/console/web/src/main.ts",
-        "polyfills": ["zone.js"],
-        "tsConfig": "apps/console/web/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
-        "assets": [
-          {
-            "glob": "**/*",
-            "input": "apps/console/web/public"
-          }
-        ],
-        "styles": ["apps/console/web/src/styles.scss"]
-      },
-      "configurations": {
-        "production": {
-          "budgets": [
-            {
-              "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
-            },
-            {
-              "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
-              "maximumError": "8kb"
-            }
-          ],
-          "outputHashing": "all"
-        },
-        "development": {
-          "optimization": false,
-          "extractLicenses": false,
-          "sourceMap": true
-        }
-      }
-    },
-    "serve": {
-      "continuous": true,
-      "executor": "@angular/build:dev-server",
-      "defaultConfiguration": "development",
-      "options": {
-        "port": 4301
-      },
-      "configurations": {
-        "production": {
-          "buildTarget": "console-web:build:production"
-        },
-        "development": {
-          "buildTarget": "console-web:build:development"
-        }
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
-    "test": {
-      "executor": "@angular/build:unit-test",
-      "options": {
-        "watch": false
-      }
-    },
-    "serve-static": {
-      "continuous": true,
-      "executor": "@nx/web:file-server",
-      "options": {
-        "buildTarget": "console-web:build",
-        "port": 4301,
-        "staticFilePath": "dist/apps/console/web/browser",
-        "spa": true
-      }
-    }
-  }
+	"name": "console-web",
+	"$schema": "../../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "application",
+	"prefix": "ef-console",
+	"sourceRoot": "apps/console/web/src",
+	"tags": ["product:console", "runtime:web", "domain:shell", "type:app"],
+	"targets": {
+		"build": {
+			"executor": "@angular/build:application",
+			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
+			"options": {
+				"outputPath": "dist/apps/console/web",
+				"browser": "apps/console/web/src/main.ts",
+				"polyfills": ["zone.js"],
+				"tsConfig": "apps/console/web/tsconfig.app.json",
+				"inlineStyleLanguage": "scss",
+				"assets": [
+					{
+						"glob": "**/*",
+						"input": "apps/console/web/public"
+					}
+				],
+				"styles": ["apps/console/web/src/styles.scss"]
+			},
+			"configurations": {
+				"production": {
+					"budgets": [
+						{
+							"type": "initial",
+							"maximumWarning": "500kb",
+							"maximumError": "1mb"
+						},
+						{
+							"type": "anyComponentStyle",
+							"maximumWarning": "4kb",
+							"maximumError": "8kb"
+						}
+					],
+					"outputHashing": "all"
+				},
+				"development": {
+					"optimization": false,
+					"extractLicenses": false,
+					"sourceMap": true
+				}
+			}
+		},
+		"serve": {
+			"continuous": true,
+			"executor": "@angular/build:dev-server",
+			"defaultConfiguration": "development",
+			"options": {
+				"port": 4301
+			},
+			"configurations": {
+				"production": {
+					"buildTarget": "console-web:build:production"
+				},
+				"development": {
+					"buildTarget": "console-web:build:development"
+				}
+			}
+		},
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		},
+		"test": {
+			"executor": "@angular/build:unit-test",
+			"options": {
+				"watch": false
+			}
+		},
+		"serve-static": {
+			"continuous": true,
+			"executor": "@nx/web:file-server",
+			"options": {
+				"buildTarget": "console-web:build",
+				"port": 4301,
+				"staticFilePath": "dist/apps/console/web/browser",
+				"spa": true
+			}
+		}
+	}
 }
