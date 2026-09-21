@@ -36,6 +36,17 @@ run "reject_environment_override" {
   expect_failures = [var.environment]
 }
 
+run "public_web_private_api_access" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for name, service in module.service :
+      service.public_access_enabled == contains(["marketing-web", "account-web", "hcm-web", "console-web"], name)
+    ])
+    error_message = "All four DEV web apps must open without IAM tokens; all three APIs must retain their IAM check."
+  }
+}
+
 run "reject_project_override" {
   command = plan
   variables { project_id = "other-project" }

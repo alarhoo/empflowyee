@@ -37,4 +37,4 @@ cloud-run-prod
 
 ## Deferred
 
-External HTTPS load balancing, serverless NEGs, custom domains, wildcard HCM routing, public invocation, Console IAP, Cloud SQL connectivity and service-to-service authentication are deliberately outside this module.
+External HTTPS load balancing, serverless NEGs, custom domains, wildcard HCM routing, Console IAP, Cloud SQL connectivity and service-to-service authentication remain deferred. [ADR: DEV web browser access](ADR-dev-web-browser-access.md) supersedes the original deferral of public invocation for the four explicitly named DEV web services only.

@@ -6,7 +6,7 @@ resource "google_cloud_run_v2_service" "this" {
   deletion_protection = var.deletion_protection
   ingress             = var.ingress
 
-  # New services remain authenticated until the edge/security design says otherwise.
+  # Access is private unless the root opts into the module's approved DEV web allowlist.
   invoker_iam_disabled = var.allow_unauthenticated
 
   labels = var.labels

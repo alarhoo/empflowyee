@@ -31,9 +31,9 @@ The shared foundation owns the immutable Docker repository `asia-south1-docker.p
 
 The DEV foundation adopted the existing `github-deployer` account and updated only its descriptive metadata. It now owns the seven dedicated runtime accounts, Cloud Run service-agent resource, API enablement resources, scoped act-as bindings, deployment federation and central-registry read grants. No database was created; API enablement is not database provisioning.
 
-DEV has seven authenticated Cloud Run services in `asia-south1`, each using its matching `${deployable}@empflowyee-dev.iam.gserviceaccount.com` identity, 1 CPU, 512 MiB memory, minimum 0 and maximum 2 instances. The initial pinned Google hello image was replaced through the manual release workflows with each app's immutable image from release `09e146c24830720d89692194307c2cfe837dec77`. HTTP startup/liveness probes and 100% latest-revision traffic remain Terraform-owned. No public IAM binding was added.
+DEV has seven Cloud Run services in `asia-south1`, each using its matching `${deployable}@empflowyee-dev.iam.gserviceaccount.com` identity, 1 CPU, 512 MiB memory, minimum 0 and maximum 2 instances. The initial pinned Google hello image was replaced through the manual release workflows with each app's immutable image from release `09e146c24830720d89692194307c2cfe837dec77`. HTTP startup/liveness probes and 100% latest-revision traffic remain Terraform-owned. [ADR: DEV web browser access](../adr/ADR-dev-web-browser-access.md) configures the four web services for public browser access by disabling their invoker IAM check; the three APIs retain that check. No public IAM binding is needed.
 
-All seven app responses and health endpoints were verified with authenticated HTTP requests; unauthenticated requests return HTTP 403. All applied roots show no drift. See [service URLs, revision evidence and access instructions](dev-deployment.md). Re-plan before future infrastructure changes; saved plans are time-sensitive and Git-ignored.
+The initial private deployment verified all seven app responses and health endpoints with authenticated HTTP requests and produced clean drift checks. It did not satisfy normal browser access. The web-access correction requires anonymous HTTP/browser checks on all four web services and continued IAM protection on the APIs. See [service URLs, revision evidence and access instructions](dev-deployment.md). Re-plan before future infrastructure changes; saved plans are time-sensitive and Git-ignored.
 
 ## Completed IAM migration
 
@@ -75,13 +75,13 @@ The seven real Dockerfiles and local browser/API smoke checks are already comple
 The first deployment closed both configuration gaps between the service shells and real containers:
 
 - Every real image exposes its build's `RELEASE_ID` as an environment default. Publication smoke tests verify it without an override, and live browser runtime metadata matches the published SHA.
-- Terraform supplies the three Angular `API_BASE_URL` values from the actual private DEV API service URLs through `api_base_urls`. Preserve the ignored endpoint variable file on subsequent plans; the deployment record explains how to restore it on a fresh checkout. This supports the scaffold without establishing browser authentication or public access.
+- Terraform supplies the three Angular `API_BASE_URL` values from the actual private DEV API service URLs through `api_base_urls`. Preserve the ignored endpoint variable file on subsequent plans; the deployment record explains how to restore it on a fresh checkout. This supports the scaffold without establishing browser-to-API authentication. The web apps' public invocation policy is configured separately.
 
 `hcm-api` was promoted first and returned its real `/api` greeting. All other deployables subsequently passed their application and health checks. None remains on the Google hello placeholder.
 
 ## Validation performed
 
-All three Cloud Run roots initialize with locked Google provider 8.3.0, validate, and pass eleven plan-only mocked tests each. Tests cover seven runtime identities, environment/project/state isolation, foreign identity rejection, private invocation, latest-revision traffic, immutable bootstrap images, rejection of TCP liveness and invalid API configuration. The Google hello bootstrap digest was run locally and both configured health paths returned HTTP 200.
+All three Cloud Run roots initialize with locked Google provider 8.3.0 and validate. The web-access correction passes 15 DEV and 12 each QA/PROD plan-only mocked tests. Tests cover the explicit DEV web/public and API/private split, private QA/PROD services, rejection of unapproved public invocation, seven runtime identities, environment/project/state isolation, foreign identity rejection, latest-revision traffic, immutable bootstrap images, rejection of TCP liveness and invalid API configuration. The original Google hello bootstrap digest was run locally and both configured health paths returned HTTP 200.
 
 The existing DEV foundation's three mocked tests also pass with an explicit override for the imported deployer. Terraform formatting, workflow actionlint/ShellCheck, the structural verifier, tooling ESLint, and architecture/documentation checks pass. Credential files, backend settings, local variables and saved plans are excluded from Git.
 

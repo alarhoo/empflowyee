@@ -2,6 +2,8 @@
 
 Reusable Cloud Run v2 service shell for all seven empFLOWyee deployables.
 
+Access is private by default. `allow_unauthenticated = true` is accepted only for `marketing-web`, `account-web`, `hcm-web` and `console-web` in `empflowyee-dev`, as approved in [ADR: DEV web browser access](../../../../docs/platform/adr/ADR-dev-web-browser-access.md). Other services and environments retain IAM protection. The setting controls network invocation, not application authorization.
+
 ## Ownership boundary
 
 Terraform owns service existence, runtime identity, resource sizing, scaling, timeout, ingress, health probes, stable runtime configuration and deletion protection.

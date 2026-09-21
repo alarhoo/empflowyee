@@ -22,10 +22,48 @@ run "private_latest_revision" {
   }
 }
 
-run "reject_public_invocation" {
+run "reject_public_api_invocation" {
   command = plan
   module { source = "../../modules/cloud-run-service" }
   variables { allow_unauthenticated = true }
+  expect_failures = [var.allow_unauthenticated]
+}
+
+run "allow_approved_dev_web_invocation" {
+  command = plan
+  module { source = "../../modules/cloud-run-service" }
+  variables {
+    service_name            = "hcm-web"
+    runtime_service_account = "hcm-web@empflowyee-dev.iam.gserviceaccount.com"
+    allow_unauthenticated   = true
+  }
+  assert {
+    condition     = google_cloud_run_v2_service.this.invoker_iam_disabled
+    error_message = "The approved DEV web surface must accept ordinary browser requests."
+  }
+}
+
+run "reject_public_qa_web_invocation" {
+  command = plan
+  module { source = "../../modules/cloud-run-service" }
+  variables {
+    project_id              = "empflowyee-qa"
+    service_name            = "hcm-web"
+    runtime_service_account = "hcm-web@empflowyee-qa.iam.gserviceaccount.com"
+    allow_unauthenticated   = true
+  }
+  expect_failures = [var.allow_unauthenticated]
+}
+
+run "reject_public_prod_web_invocation" {
+  command = plan
+  module { source = "../../modules/cloud-run-service" }
+  variables {
+    project_id              = "empflowyee-prd"
+    service_name            = "hcm-web"
+    runtime_service_account = "hcm-web@empflowyee-prd.iam.gserviceaccount.com"
+    allow_unauthenticated   = true
+  }
   expect_failures = [var.allow_unauthenticated]
 }
 

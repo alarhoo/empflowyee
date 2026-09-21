@@ -2,6 +2,8 @@
 
 Authentication is intentionally separate across product surfaces.
 
+Serving a web application's HTML, JavaScript and public runtime configuration does not authenticate a user or authorize business operations. The four DEV web apps are directly browser-accessible under [ADR: DEV web browser access](../adr/ADR-dev-web-browser-access.md). Their APIs retain Cloud Run IAM protection until the application access design is implemented; ordinary frontend delivery must not be confused with successful browser-to-API integration.
+
 ## Account
 
 Customer/buyer/account-administrator identity. Supports empFLOWyee-managed email sign-in and common social/workforce providers such as Google/Microsoft.

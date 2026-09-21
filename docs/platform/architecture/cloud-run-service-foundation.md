@@ -40,4 +40,4 @@ The module permits TCP startup checks but requires HTTP liveness. The initial Go
 
 All services start at `min_instances = 0` to control early-stage cost. Explicit maximum-instance caps limit accidental scale-out. The values are starting guardrails, not capacity guarantees; tune them from load tests and production telemetry.
 
-All services start private. Public exposure is an edge/security decision, not a feature-level decision.
+Services are private by default. The four DEV web services accept ordinary HTTPS browser requests under [ADR: DEV web browser access](../adr/ADR-dev-web-browser-access.md); the three DEV APIs and all QA/PROD services retain IAM protection. Public frontend delivery does not replace application authentication or tenant authorization.

@@ -30,6 +30,14 @@ run "seven_dedicated_identities" {
   }
 }
 
+run "all_services_remain_private" {
+  command = plan
+  assert {
+    condition     = alltrue([for service in module.service : !service.public_access_enabled])
+    error_message = "The DEV web access decision must not expose any PROD service."
+  }
+}
+
 run "reject_environment_override" {
   command = plan
   variables { environment = "other" }

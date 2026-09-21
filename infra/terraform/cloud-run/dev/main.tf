@@ -24,6 +24,9 @@ data "terraform_remote_state" "environment_foundation" {
 locals {
   catalog = jsondecode(file("${path.module}/../service-catalog.json"))
 
+  # ADR-dev-web-browser-access: serve the four browser apps directly; APIs retain IAM checks.
+  public_web_services = toset(["marketing-web", "account-web", "hcm-web", "console-web"])
+
   max_instances = {
     "marketing-web" = 2
     "account-web"   = 2
@@ -49,7 +52,7 @@ module "service" {
   runtime_service_account = local.runtime_service_accounts[each.key]
   bootstrap_image         = var.bootstrap_image
   ingress                 = var.ingress
-  allow_unauthenticated   = false
+  allow_unauthenticated   = contains(local.public_web_services, each.key)
   deletion_protection     = false
   cpu                     = each.value.cpu
   memory                  = each.value.memory
