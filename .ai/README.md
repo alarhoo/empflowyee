@@ -1,6 +1,6 @@
 # AI Engineering Layer
 
-This directory will contain reusable AI procedures, roles, workflows, templates, and evaluations.
+This directory contains reusable AI procedures and reserved locations for roles, workflows, templates, and evaluations.
 
 It must **not** become a duplicate knowledge base.
 
@@ -14,7 +14,15 @@ It must **not** become a duplicate knowledge base.
 └── evals/        # regression tests for AI behavior
 ```
 
-Full implementation is a later scaffold pass. The repository documentation is already the source of truth these artifacts will consume.
+The orchestration scaffold will grow as procedures are adopted. Repository documentation remains the architectural and product source of truth.
+
+## HCM procedures
+
+Use the applicable procedure before changing the shell, catalog or theme engine:
+
+- [Theme changes](skills/hcm-theme-change/SKILL.md): preserve the HER source palette, use governed tokens and validate light/dark variants.
+- [Navigation catalog changes](skills/hcm-navigation-catalog/SKILL.md): retain stable identifiers and separate visibility from authorization.
+- [Floorplan selection](skills/hcm-floorplan-selection/SKILL.md): consult the capability matrix and approved specifications before composing a screen.
 
 ## Code-change procedure
 

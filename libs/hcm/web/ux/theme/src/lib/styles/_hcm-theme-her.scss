@@ -1,0 +1,90 @@
+// HER is a palette for native Horizon controls, not a replacement control skin.
+html[data-hcm-theme-family='her'] {
+  --ef-color-on-accent: #fff9f2;
+  --ef-color-accent-soft: var(--ef-surface-accent);
+  --ef-surface-raised: var(--ef-surface-base);
+  --ef-surface-glass: var(--ef-surface-base);
+  --ef-surface-glass-strong: var(--ef-surface-base);
+  --ef-control-surface: var(--ef-surface-base);
+  --ef-overlay-surface: var(--ef-surface-base);
+  --ef-shell-surface: var(--ef-surface-base);
+  --ef-glass-highlight: transparent;
+  --ef-glass-border: var(--ef-border-subtle);
+  --ef-divider: var(--ef-border-subtle);
+  --ef-scrollbar-thumb: color-mix(in srgb, var(--ef-text-muted) 45%, transparent);
+  --ef-scrollbar-thumb-hover: var(--ef-text-muted);
+  --ef-shadow-control: 0 1px 3px rgb(42 24 20 / 6%);
+  --ef-shadow-surface: 0 3px 14px rgb(42 24 20 / 5%);
+  --ef-shadow-hero: 0 8px 24px rgb(42 24 20 / 8%);
+  --ef-blur-surface: none;
+  --ef-page-canvas: var(--ef-surface-canvas);
+  --ef-object-header-surface: var(--ef-surface-base);
+  --ef-focus-color: var(--ef-color-accent-strong);
+  --ef-radius-control: 0.5rem;
+  --ef-radius-surface: 0.5rem;
+  --ef-radius-hero: 0.75rem;
+}
+
+html[data-hcm-theme-variant='her-light'] {
+  --ef-color-accent: #b74435;
+  --ef-color-accent-strong: #a1372c;
+  --ef-color-accent-hover: #a13a2e;
+  --ef-color-accent-active: #893126;
+  --ef-color-positive: #426747;
+  --ef-text-strong: #382923;
+  --ef-text-muted: #765d52;
+  --ef-text-subtle: #80665a;
+  --ef-surface-canvas: #f5ede1;
+  --ef-surface-base: #fff9f2;
+  --ef-surface-accent: #f6dfd6;
+  --ef-list-hover-surface: #f5e9df;
+  --ef-list-active-surface: #f0d8ce;
+  --ef-border-subtle: #ddccc0;
+  --ef-status-neutral-surface: #eee4da;
+  --ef-status-neutral-border: #ab9484;
+  --ef-status-neutral-text: #5c483c;
+  --ef-status-positive-surface: #e9eee1;
+  --ef-status-positive-border: #8fa383;
+  --ef-status-positive-text: #385e3a;
+  --ef-status-critical-surface: #f9edcf;
+  --ef-status-critical-border: #b99850;
+  --ef-status-critical-text: #765513;
+  --ef-status-negative-surface: #fae0dd;
+  --ef-status-negative-border: #c47a73;
+  --ef-status-negative-text: #9e302c;
+  --ef-status-information-surface: #e7eceb;
+  --ef-status-information-border: #8da8a5;
+  --ef-status-information-text: #3e6266;
+}
+
+html[data-hcm-theme-variant='her-dark'] {
+  --ef-color-accent: #ba4c3d;
+  --ef-color-accent-strong: #ffab95;
+  --ef-color-accent-hover: #a84033;
+  --ef-color-accent-active: #92372c;
+  --ef-color-positive: #afc09c;
+  --ef-text-strong: #f3e7dc;
+  --ef-text-muted: #c9ada4;
+  --ef-text-subtle: #bea398;
+  --ef-surface-canvas: #211c1c;
+  --ef-surface-base: #302626;
+  --ef-surface-accent: #51332f;
+  --ef-list-hover-surface: #40302d;
+  --ef-list-active-surface: #573830;
+  --ef-border-subtle: #624a43;
+  --ef-status-neutral-surface: #403731;
+  --ef-status-neutral-border: #938174;
+  --ef-status-neutral-text: #d9c6b8;
+  --ef-status-positive-surface: #323b2d;
+  --ef-status-positive-border: #849777;
+  --ef-status-positive-text: #c0d2ac;
+  --ef-status-critical-surface: #493d28;
+  --ef-status-critical-border: #af955e;
+  --ef-status-critical-text: #e4c98e;
+  --ef-status-negative-surface: #512f2f;
+  --ef-status-negative-border: #b96d65;
+  --ef-status-negative-text: #ffb3a4;
+  --ef-status-information-surface: #2d3c3d;
+  --ef-status-information-border: #779697;
+  --ef-status-information-text: #b5d2cf;
+}

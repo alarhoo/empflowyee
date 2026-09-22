@@ -1,0 +1,163 @@
+:host {
+	display: block;
+}
+.help-text {
+	color: var(--ef-text-muted);
+	font-size: 0.8rem;
+	line-height: 1.5;
+}
+.mock-session {
+	margin-top: 1rem;
+	padding: 1rem 1.2rem;
+	background: var(--ef-surface-base);
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-surface);
+}
+.mock-session summary {
+	cursor: pointer;
+	font-weight: 700;
+}
+.mock-session p {
+	color: var(--ef-text-muted);
+}
+.session-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+.session-grid fieldset {
+	min-width: 0;
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-control);
+}
+.session-grid ui5-checkbox {
+	display: inline-block;
+	margin-right: 0.5rem;
+}
+.lab {
+	max-width: 1600px;
+	margin: 0 auto;
+	color: var(--ef-text-strong);
+}
+.lab-hero,
+.controls {
+	background: var(--ef-surface-base);
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-hero);
+	box-shadow: var(--ef-shadow-surface);
+}
+.lab-hero {
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: 1.4rem 1.5rem;
+}
+.lab-hero h1 {
+	margin-top: 0;
+}
+.lab-hero p {
+	max-width: 70ch;
+	color: var(--ef-text-muted);
+	margin-bottom: 0;
+}
+.eyebrow {
+	display: block;
+	color: var(--ef-text-subtle);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.09em;
+	margin-bottom: 0.35rem;
+}
+.context-chip {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 999px;
+	border: 1px solid var(--ef-border-subtle);
+	background: var(--ef-status-neutral-surface);
+	color: var(--ef-status-neutral-text);
+	padding: 0.35rem 0.65rem;
+	font-size: 0.78rem;
+	white-space: nowrap;
+}
+.controls {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.65fr);
+	gap: 1.25rem;
+	margin-top: 1rem;
+	padding: 1rem 1.2rem;
+}
+.control-group {
+	min-width: 0;
+}
+.control-label {
+	display: block;
+	font-size: 0.78rem;
+	font-weight: 750;
+	color: var(--ef-text-muted);
+	margin-bottom: 0.5rem;
+}
+.button-row,
+.color-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+}
+.color-picker {
+	width: 2.75rem;
+	height: 2.25rem;
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-control);
+	padding: 0.15rem;
+	background: var(--ef-surface-base);
+}
+.hex-input {
+	min-height: 2.25rem;
+	width: 8rem;
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-control);
+	background: var(--ef-control-surface, var(--ef-surface-base));
+	color: var(--ef-text-strong);
+	padding: 0 0.65rem;
+}
+.error-text {
+	display: block;
+	margin-top: 0.4rem;
+	color: var(--ef-status-negative-text);
+	font-size: 0.78rem;
+}
+.preview-tabs {
+	display: flex;
+	gap: 0.25rem;
+	margin: 1rem 0 0.65rem;
+	overflow-x: auto;
+}
+.preview-tab {
+	appearance: none;
+	border: 0;
+	border-bottom: 0.2rem solid transparent;
+	background: transparent;
+	color: var(--ef-text-muted);
+	padding: 0.7rem 0.9rem;
+	font: inherit;
+	font-weight: 700;
+	white-space: nowrap;
+	cursor: pointer;
+}
+.preview-tab:hover,
+.preview-tab.is-active {
+	color: var(--ef-color-accent-strong);
+	border-bottom-color: var(--ef-color-accent);
+}
+@media (max-width: 1000px) {
+	.controls {
+		grid-template-columns: 1fr;
+	}
+}
+@media (max-width: 640px) {
+	.lab-hero {
+		flex-direction: column;
+	}
+}

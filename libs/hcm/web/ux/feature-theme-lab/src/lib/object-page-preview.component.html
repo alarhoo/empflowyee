@@ -1,0 +1,46 @@
+<section class="preview object-preview" aria-label="Object Page floorplan preview">
+	<div class="object-header">
+		<div class="avatar">AM</div>
+		<div class="object-title">
+			<span class="eyebrow">EMPLOYEE PROFILE</span>
+			<h2>Alex Morgan</h2>
+			<p>Senior Product Engineer · Bengaluru</p>
+		</div>
+		<div class="object-actions">
+			<ui5-button design="Transparent" disabled>More</ui5-button>
+			<ui5-button design="Emphasized" disabled>Edit profile</ui5-button>
+		</div>
+	</div>
+	<div class="object-anchorbar">
+		<a [routerLink]="[]" fragment="personal">Personal</a
+		><a [routerLink]="[]" fragment="employment">Employment</a
+		><a [routerLink]="[]" fragment="documents">Documents</a>
+	</div>
+	<div class="object-content">
+		<section class="content-card" id="personal">
+			<h3>Personal Information</h3>
+			<div class="form-grid">
+				<div class="preview-field">
+					<span>Preferred name</span
+					><ui5-input accessibleName="Preferred name" value="Alex" readonly></ui5-input>
+				</div>
+				<div class="preview-field">
+					<span>Work email</span
+					><ui5-input accessibleName="Work email" value="alex@acme.example" readonly></ui5-input>
+				</div>
+				<div class="preview-field">
+					<span>Phone</span
+					><ui5-input accessibleName="Phone" value="+91 90000 00000" readonly></ui5-input>
+				</div>
+			</div>
+		</section>
+		<section class="content-card" id="employment">
+			<h3>Employment</h3>
+			<p>Position, organisation, work location and lifecycle details belong here.</p>
+		</section>
+		<section class="content-card" id="documents">
+			<h3>Documents</h3>
+			<p>No documents in this fixture.</p>
+		</section>
+	</div>
+</section>

@@ -1,0 +1,25 @@
+<div class="hcm-shell">
+	<ui5-shellbar
+		primary-title="empFLOWyee"
+		secondary-title="workforce streamlined"
+		aria-label="empFLOWyee HCM shell"
+	></ui5-shellbar>
+
+	<nav class="space-nav" aria-label="HCM spaces">
+		@for (space of spaces(); track space.id) {
+			<button
+				type="button"
+				class="space-nav__item"
+				[class.is-active]="activeSpaceId() === space.id"
+				(click)="activeSpaceId.set(space.id)"
+			>
+				{{ space.title }}
+			</button>
+		}
+		<span class="space-nav__tenant">{{ tenantLabel() }}</span>
+	</nav>
+
+	<main class="hcm-shell__content">
+		<router-outlet></router-outlet>
+	</main>
+</div>

@@ -206,6 +206,7 @@ export default [
 			'**/.nx/**',
 			'**/.angular/**',
 			'**/next-env.d.ts',
+			'**/vitest.config.*.timestamp*',
 		],
 	},
 	{

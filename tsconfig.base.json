@@ -16,7 +16,16 @@
 		"paths": {
 			"@empflowyee/platform-runtime-contract": ["./libs/platform/contracts/runtime/src/index.ts"],
 			"@empflowyee/platform-web-runtime-shell": ["./libs/platform/web/runtime/shell/src/index.ts"],
-			"@empflowyee/platform-api-runtime-module": ["./libs/platform/api/runtime/module/src/index.ts"]
+			"@empflowyee/platform-api-runtime-module": [
+				"./libs/platform/api/runtime/module/src/index.ts"
+			],
+			"@empflowyee/hcm-web-runtime-context": ["./libs/hcm/web/runtime/context/src/index.ts"],
+			"@empflowyee/hcm-web-navigation-catalog": ["./libs/hcm/web/navigation/catalog/src/index.ts"],
+			"@empflowyee/hcm-web-ux-theme": ["./libs/hcm/web/ux/theme/src/index.ts"],
+			"@empflowyee/hcm-web-shell": ["./libs/hcm/web/shell/src/index.ts"],
+			"@empflowyee/hcm-web-ux-feature-theme-lab": [
+				"./libs/hcm/web/ux/feature-theme-lab/src/index.ts"
+			]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

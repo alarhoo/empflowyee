@@ -8,7 +8,8 @@
 			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
 			"!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx|mdx)",
 			"!{projectRoot}/.storybook/**/*",
-			"!{projectRoot}/**/test-setup.[jt]s"
+			"!{projectRoot}/**/test-setup.[jt]s",
+			"!{projectRoot}/tsconfig.spec.json"
 		],
 		"sharedGlobals": [
 			"{workspaceRoot}/nx.json",
@@ -51,6 +52,10 @@
 		"@angular/build:unit-test": {
 			"cache": true,
 			"inputs": ["default", "^production"]
+		},
+		"@nx/vitest:test": {
+			"cache": true,
+			"inputs": ["default", "^production"]
 		}
 	},
 	"generators": {
@@ -66,10 +71,11 @@
 			"zoneless": false
 		},
 		"@nx/angular:library": {
-			"standalone": true,
+			"linter": "eslint",
+			"unitTestRunner": "vitest-analog",
 			"strict": true,
-			"style": "scss",
-			"unitTestRunner": "vitest-analog"
+			"standalone": true,
+			"style": "scss"
 		},
 		"@nx/next:application": {
 			"appDir": true,
@@ -80,6 +86,9 @@
 				"style": "css",
 				"linter": "eslint"
 			}
+		},
+		"@nx/angular:component": {
+			"style": "scss"
 		}
 	},
 	"plugins": [

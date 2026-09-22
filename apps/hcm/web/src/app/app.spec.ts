@@ -1,20 +1,14 @@
 import { TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
 import { App } from './app'
-import { NxWelcome } from './nx-welcome'
 
-describe('App', /** Group rendering checks for the hcm application root. */ () => {
-	beforeEach(
-		/** Compile the standalone application and welcome components in a fresh Angular test module. */ async () => {
-			await TestBed.configureTestingModule({
-				imports: [App, NxWelcome],
-			}).compileComponents()
-		},
-	)
-
-	it('should render title', /** Render the application and verify the hcm welcome heading. */ () => {
+describe('App', /** Verify that the application stays a thin routing composition root. */ () => {
+	it('renders a router outlet without the Nx welcome scaffold', /** Bootstrap the minimal root with no feature implementation embedded. */ () => {
+		TestBed.configureTestingModule({ imports: [App], providers: [provideRouter([])] })
 		const fixture = TestBed.createComponent(App)
 		fixture.detectChanges()
-		const compiled = fixture.nativeElement as HTMLElement
-		expect(compiled.querySelector('h1')?.textContent).toContain('Welcome hcm-web')
+		const root = fixture.nativeElement as HTMLElement
+		expect(root.querySelector('router-outlet')).not.toBeNull()
+		expect(root.querySelector('ef-hcm-nx-welcome')).toBeNull()
 	})
 })

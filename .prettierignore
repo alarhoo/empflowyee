@@ -7,3 +7,6 @@ pnpm-lock.yaml
 **/next-env.d.ts
 
 .angular
+
+# Immutable supplied HER palette; verify-bundle.mjs checks both copies by SHA-256.
+**/_hcm-theme-her.scss

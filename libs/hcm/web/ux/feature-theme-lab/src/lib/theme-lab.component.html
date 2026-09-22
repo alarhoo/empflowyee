@@ -1,0 +1,125 @@
+<section class="lab" aria-labelledby="theme-lab-title">
+	<header class="lab-hero">
+		<div>
+			<p class="eyebrow">HCM UX FOUNDATION</p>
+			<h1 id="theme-lab-title">Theme Lab</h1>
+			<p>
+				Validate native Horizon controls, HER palettes, tenant branding and enterprise layout
+				behavior before domain screens are built.
+			</p>
+		</div>
+		<div class="context-chip">{{ currentContextLabel() }}</div>
+	</header>
+
+	<section class="controls" aria-label="Theme controls">
+		<div class="control-group">
+			<span class="control-label">Theme</span>
+			<div class="button-row">
+				@for (item of themes; track item.id) {
+					<ui5-button
+						[design]="theme.variant() === item.id ? 'Emphasized' : 'Default'"
+						[attr.aria-pressed]="theme.variant() === item.id"
+						(click)="selectTheme(item.id)"
+						>{{ item.label }}</ui5-button
+					>
+				}
+			</div>
+		</div>
+
+		<div class="control-group">
+			<label class="control-label" for="tenant-primary">Tenant primary color</label>
+			<div class="color-row">
+				<input
+					#colorPicker
+					id="tenant-primary"
+					class="color-picker"
+					type="color"
+					[value]="theme.tenantPrimary() ?? '#b74435'"
+					(input)="onPrimaryColor(colorPicker.value)"
+				/>
+				<input
+					class="hex-input"
+					type="text"
+					aria-label="Tenant primary color hex"
+					[formField]="colorForm.primary"
+					[attr.aria-invalid]="colorError() ? true : null"
+					aria-describedby="color-help"
+					placeholder="#b74435"
+					(keydown.enter)="onPrimaryColor(colorModel().primary)"
+				/>
+				<ui5-button (click)="onPrimaryColor(colorModel().primary)">Apply color</ui5-button>
+				<ui5-button design="Transparent" (click)="clearPrimary()">Use theme default</ui5-button>
+			</div>
+			<p id="color-help" class="help-text">
+				Optional accent for this demo tenant. Leave blank to use the theme palette.
+			</p>
+			@if (colorError()) {
+				<span class="error-text" role="alert">{{ colorError() }}</span>
+			}
+		</div>
+	</section>
+
+	<details class="mock-session">
+		<summary>Mock session — roles and entitlements</summary>
+		<p>
+			Change fixture visibility in Spaces and Browse apps. These controls do not grant backend
+			access. Theme Lab stays open so every combination can be tested.
+		</p>
+		<div class="session-grid">
+			<fieldset>
+				<legend>Presentation roles</legend>
+				@for (role of roles; track role) {
+					<ui5-checkbox
+						[text]="role"
+						[checked]="runtime.roles().has(role)"
+						(ui5Change)="runtime.toggleRole(role)"
+					></ui5-checkbox>
+				}
+			</fieldset>
+			<fieldset>
+				<legend>Licensed entitlements</legend>
+				@for (entitlement of entitlements; track entitlement) {
+					<ui5-checkbox
+						[text]="entitlement"
+						[checked]="runtime.entitlements().has(entitlement)"
+						(ui5Change)="runtime.toggleEntitlement(entitlement)"
+					></ui5-checkbox>
+				}
+			</fieldset>
+		</div>
+		<ui5-button (click)="runtime.resetFixture()">Reset demo session</ui5-button>
+	</details>
+
+	<nav class="preview-tabs" aria-label="Theme Lab previews">
+		@for (preview of previews; track preview.id) {
+			<button
+				type="button"
+				class="preview-tab"
+				[class.is-active]="activePreview() === preview.id"
+				[attr.aria-pressed]="activePreview() === preview.id"
+				(click)="activePreview.set(preview.id)"
+			>
+				{{ preview.label }}
+			</button>
+		}
+	</nav>
+
+	<p class="help-text">
+		Schematic previews with fictional data. Business actions are disabled; no changes are saved.
+	</p>
+
+	@switch (activePreview()) {
+		@case ('overview') {
+			<ef-hcm-overview-preview />
+		}
+		@case ('object-page') {
+			<ef-hcm-object-page-preview />
+		}
+		@case ('flexible-columns') {
+			<ef-hcm-flexible-columns-preview />
+		}
+		@case ('table-form') {
+			<ef-hcm-table-form-preview />
+		}
+	}
+</section>

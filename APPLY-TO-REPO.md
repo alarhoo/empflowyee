@@ -1,46 +1,24 @@
-# Terraform validation quick reference
+# HCM Shell + Theme Lab materialization
 
-The foundation is integrated into the repository. Start with the [README](README.md) for development and [the maintainer handbook](docs/platform/engineering/maintenance.md) for a new operator's checkout. Read [DEV readiness and reviewed plans](docs/platform/engineering/cloud-run-readiness.md) before a live apply; this page is a repeat-validation reference, not a bootstrap instruction for every clone.
+The supplied milestone has been materialized into five Nx libraries and the existing HCM app. Do not copy the original templates over the implementation or rerun the library generators.
 
-## Toolchain and authentication
+## Run and verify
 
-Use the Terraform version in `.terraform-version` (currently 1.16.3). On the original Windows workstation it was installed in `%LOCALAPPDATA%\Programs\HashiCorp\Terraform\1.16.3` and registered in the user PATH. New workstations need their own installation. Restart an existing terminal's host application to inherit an updated PATH. If using that installation location, refresh only the current PowerShell session from the repository root with:
-
-```powershell
-$tfVersion = (Get-Content .terraform-version -Raw).Trim()
-$env:Path = "$env:LOCALAPPDATA\Programs\HashiCorp\Terraform\$tfVersion;$env:Path"
-terraform version
+```sh
+pnpm install --frozen-lockfile
+pnpm exec node tools/milestones/hcm-shell-theme-lab/verify-bundle.mjs
+pnpm dev:hcm:preview
 ```
 
-Each authorized operator needs their own Application Default Credentials. Configure or refresh them with `gcloud auth application-default login`; consent to the required Cloud Platform permission. Never copy credentials into the repository.
+Open [Theme Lab](http://127.0.0.1:4303/ux/theme-lab). Follow the [maintainer guide](docs/hcm/architecture/shell/README.md) for the validation commands, fixture controls, library map and troubleshooting.
 
-## Structural and offline checks
+## Implementation references
 
-```bash
-pnpm exec node tools/cloud-run/verify-foundation.mjs
-terraform fmt -check -recursive infra/terraform
-terraform -chdir=infra/terraform/cloud-run/dev init -backend=false -input=false -lockfile=readonly
-terraform -chdir=infra/terraform/cloud-run/dev validate
-terraform -chdir=infra/terraform/cloud-run/dev test
-```
+- [Approved prompt](CODEX-IMPLEMENTATION-PROMPT.md)
+- [TDD and actual adaptations](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md)
+- [Verified Nx generator options](tools/milestones/hcm-shell-theme-lab/NX-COMMANDS.md)
+- [HER integrity record](HER-SOURCE-SHA256.txt)
+- [Original source templates](templates/hcm-shell-theme-lab/README.md)
+- [Next milestone](NEXT-STEPS.md)
 
-The mocked tests never apply real resources. Offline initialization does not prove that remote state or runtime service accounts exist.
-
-## Live DEV sequence
-
-Shared, DEV environment and DEV Cloud Run foundations are applied. All seven real images have been promoted through GitHub and verified, and fresh live plans show no changes. See [deployment evidence and URLs](docs/platform/engineering/dev-deployment.md).
-
-Local `backend.hcl`, `terraform.tfvars` and `api-endpoints.auto.tfvars.json` files are prepared for this checkout. Do not overwrite them with examples. On a fresh checkout, copy each example only when absent, supply reviewed values, and restore the three Angular API endpoints using the instructions in the deployment record before planning. An empty endpoint map would remove deployed runtime configuration.
-
-To repeat the DEV validation and refresh the Cloud Run plan:
-
-```bash
-terraform -chdir=infra/terraform/environments/dev output -json runtime_service_accounts
-terraform -chdir=infra/terraform/cloud-run/dev init -backend-config="backend.hcl" -input=false -lockfile=readonly
-terraform fmt -check -recursive infra/terraform
-terraform -chdir=infra/terraform/cloud-run/dev validate
-terraform -chdir=infra/terraform/cloud-run/dev plan -input=false -out="tfplan"
-terraform -chdir=infra/terraform/cloud-run/dev show tfplan
-```
-
-Quote dotted filename arguments in PowerShell as shown. The Cloud Run plan rejects missing or foreign foundation identities. Review a fresh plan and coordinate with deployment runs before any apply. These commands do not apply resources or publish application images.
+The supplied HER palette is unchanged. Reference templates retain the original design shape with repository formatting and function documentation; the working application includes the corrections described by the TDD. Runtime source under `libs/hcm/web` is the implementation to maintain.

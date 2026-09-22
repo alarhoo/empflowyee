@@ -1,0 +1,79 @@
+html[data-hcm-theme-family] {
+	--ef-font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+	--ef-radius-control: 0.5rem;
+	--ef-radius-surface: 0.65rem;
+	--ef-radius-hero: 0.9rem;
+	--ef-shadow-control: 0 1px 3px rgb(0 0 0 / 7%);
+	--ef-shadow-surface: 0 4px 18px rgb(0 0 0 / 8%);
+	--ef-shadow-hero: 0 10px 32px rgb(0 0 0 / 11%);
+	--ef-divider: var(--ef-border-subtle);
+	--ef-page-canvas: var(--ef-surface-canvas);
+	--ef-object-header-surface: var(--ef-surface-base);
+	--ef-focus-color: var(--ef-color-accent-strong);
+}
+
+html[data-hcm-theme-variant='horizon-light'] {
+	--ef-color-accent: var(--sapBrandColor, #0070f2);
+	--ef-color-accent-strong: var(--sapHighlightColor, #0064d9);
+	--ef-color-accent-hover: var(--sapButton_Emphasized_Hover_Background, #005fcc);
+	--ef-color-accent-active: var(--sapButton_Emphasized_Active_Background, #004f9f);
+	--ef-color-on-accent: var(--sapButton_Emphasized_TextColor, #ffffff);
+	--ef-color-positive: var(--sapPositiveColor, #188918);
+	--ef-text-strong: var(--sapTextColor, #1d2d3e);
+	--ef-text-muted: var(--sapContent_LabelColor, #475e75);
+	--ef-text-subtle: var(--sapContent_LabelColor, #5b738b);
+	--ef-surface-canvas: var(--sapBackgroundColor, #f5f6f7);
+	--ef-surface-base: var(--sapGroup_ContentBackground, #ffffff);
+	--ef-surface-accent: color-mix(in srgb, var(--ef-color-accent) 10%, var(--ef-surface-base));
+	--ef-list-hover-surface: var(--sapList_Hover_Background, #f0f7ff);
+	--ef-list-active-surface: var(--sapList_SelectionBackgroundColor, #e5f0fa);
+	--ef-border-subtle: var(--sapList_BorderColor, #d9d9d9);
+	--ef-status-neutral-surface: var(--sapNeutralBackground, #f4f4f4);
+	--ef-status-neutral-border: var(--sapNeutralBorderColor, #758ca4);
+	--ef-status-neutral-text: var(--sapNeutralTextColor, #475e75);
+	--ef-status-positive-surface: var(--sapSuccessBackground, #f1fdf6);
+	--ef-status-positive-border: var(--sapSuccessBorderColor, #188918);
+	--ef-status-positive-text: var(--sapPositiveTextColor, #188918);
+	--ef-status-critical-surface: var(--sapWarningBackground, #fff8e1);
+	--ef-status-critical-border: var(--sapWarningBorderColor, #e76500);
+	--ef-status-critical-text: var(--sapCriticalTextColor, #8d2a00);
+	--ef-status-negative-surface: var(--sapErrorBackground, #ffeaf4);
+	--ef-status-negative-border: var(--sapErrorBorderColor, #aa0808);
+	--ef-status-negative-text: var(--sapNegativeTextColor, #aa0808);
+	--ef-status-information-surface: var(--sapInformationBackground, #eaf7ff);
+	--ef-status-information-border: var(--sapInformationBorderColor, #0070f2);
+	--ef-status-information-text: var(--sapInformativeTextColor, #0064d9);
+}
+
+html[data-hcm-theme-variant='horizon-dark'] {
+	--ef-color-accent: var(--sapBrandColor, #4db1ff);
+	--ef-color-accent-strong: var(--sapHighlightColor, #89d1ff);
+	--ef-color-accent-hover: var(--sapButton_Emphasized_Hover_Background, #71c6ff);
+	--ef-color-accent-active: var(--sapButton_Emphasized_Active_Background, #2f90d7);
+	--ef-color-on-accent: var(--sapButton_Emphasized_TextColor, #00131f);
+	--ef-color-positive: var(--sapPositiveColor, #97dd40);
+	--ef-text-strong: var(--sapTextColor, #f5f6f7);
+	--ef-text-muted: var(--sapContent_LabelColor, #b8c4cf);
+	--ef-text-subtle: var(--sapContent_LabelColor, #9fb0c0);
+	--ef-surface-canvas: var(--sapBackgroundColor, #12171c);
+	--ef-surface-base: var(--sapGroup_ContentBackground, #1d232a);
+	--ef-surface-accent: color-mix(in srgb, var(--ef-color-accent) 13%, var(--ef-surface-base));
+	--ef-list-hover-surface: var(--sapList_Hover_Background, #25384a);
+	--ef-list-active-surface: var(--sapList_SelectionBackgroundColor, #294862);
+	--ef-border-subtle: var(--sapList_BorderColor, #3c4b59);
+	--ef-status-neutral-surface: #29323a;
+	--ef-status-neutral-border: #6f8192;
+	--ef-status-neutral-text: #d5dde5;
+	--ef-status-positive-surface: #26381e;
+	--ef-status-positive-border: #78a94c;
+	--ef-status-positive-text: #bfe68c;
+	--ef-status-critical-surface: #44351d;
+	--ef-status-critical-border: #bd8a42;
+	--ef-status-critical-text: #f3ca8c;
+	--ef-status-negative-surface: #48282d;
+	--ef-status-negative-border: #b56a72;
+	--ef-status-negative-text: #ffb3bb;
+	--ef-status-information-surface: #203746;
+	--ef-status-information-border: #559bc8;
+	--ef-status-information-text: #a9d8f6;
+}

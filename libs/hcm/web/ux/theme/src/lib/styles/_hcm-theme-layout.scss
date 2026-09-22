@@ -1,0 +1,20 @@
+html[data-hcm-theme-family] {
+	background: var(--ef-page-canvas);
+	color: var(--ef-text-strong);
+	font-family: var(--ef-font-family);
+}
+
+body {
+	margin: 0;
+	background: var(--ef-page-canvas);
+	color: var(--ef-text-strong);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+:focus-visible {
+	outline: 2px solid var(--ef-focus-color);
+	outline-offset: 2px;
+}

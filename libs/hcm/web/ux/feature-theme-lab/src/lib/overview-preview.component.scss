@@ -1,0 +1,103 @@
+:host {
+	display: block;
+}
+.preview {
+	background: var(--ef-surface-base);
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-hero);
+	box-shadow: var(--ef-shadow-surface);
+}
+.preview h2,
+.preview h3,
+.preview h4 {
+	margin-top: 0;
+}
+.eyebrow {
+	display: block;
+	color: var(--ef-text-subtle);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.09em;
+	margin-bottom: 0.35rem;
+}
+.status-pill {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 999px;
+	border: 1px solid var(--ef-border-subtle);
+	background: var(--ef-status-neutral-surface);
+	color: var(--ef-status-neutral-text);
+	padding: 0.35rem 0.65rem;
+	font-size: 0.78rem;
+	white-space: nowrap;
+}
+.status-pill.information {
+	background: var(--ef-status-information-surface);
+	border-color: var(--ef-status-information-border);
+	color: var(--ef-status-information-text);
+}
+.preview {
+	padding: 1.25rem;
+	min-height: 34rem;
+}
+.preview-heading {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	align-items: flex-start;
+}
+.tile-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.9rem;
+}
+.tile-grid--dense {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.app-tile {
+	background: var(--ef-surface-base);
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-surface);
+	box-shadow: var(--ef-shadow-control);
+}
+.app-tile {
+	min-height: 10.5rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+}
+.app-tile p {
+	color: var(--ef-text-muted);
+}
+.compact-tile {
+	min-height: 8rem;
+}
+.tile-footer {
+	margin-top: auto;
+	display: flex;
+	justify-content: space-between;
+	color: var(--ef-color-accent-strong);
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+.accent-dot {
+	width: 0.65rem;
+	height: 0.65rem;
+	border-radius: 50%;
+	background: var(--ef-color-accent);
+}
+@media (max-width: 1000px) {
+	.tile-grid,
+	.tile-grid--dense {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+@media (max-width: 640px) {
+	.preview-heading {
+		flex-direction: column;
+	}
+	.tile-grid,
+	.tile-grid--dense {
+		grid-template-columns: 1fr;
+	}
+}

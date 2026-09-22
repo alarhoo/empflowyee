@@ -9,6 +9,7 @@ This README is the starting point for developing, deploying and supporting the r
 - [Current implementation](#current-implementation)
 - [Applications and environments](#applications-and-environments)
 - [Developer setup](#developer-setup)
+- [HCM Shell and Theme Lab](#hcm-shell-and-theme-lab)
 - [Repository structure and architecture](#repository-structure-and-architecture)
 - [Validation and contributions](#validation-and-contributions)
 - [Build and deployment](#build-and-deployment)
@@ -22,14 +23,14 @@ Foundation status recorded on **2026-09-22**:
 
 | Area         | Implemented                                                                                        | Remaining work                                                                   |
 | ------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Applications | Seven runnable scaffold apps; Nx boundaries, linting and function-documentation rules              | Product features, including HCM Shell and Theme Lab                              |
+| Applications | Seven runnable apps; HCM fixture shell, Theme Lab, Nx boundaries and documentation rules           | Production floorplans, authenticated bootstrap and domain features               |
 | Containers   | Seven Dockerfiles; health checks, runtime configuration, image smoke tests and local Compose stack | Business dependencies and migration orchestration                                |
 | Delivery     | Protected `main`, PR checks, immutable image publication and manual per-app deployment             | QA/PROD activation, production rollout validation and further delivery hardening |
 | Google Cloud | Shared delivery foundation and all seven DEV Cloud Run services in Mumbai                          | Separate QA/PROD provisioning and promotion                                      |
 | DEV access   | Four directly accessible web apps; three IAM-protected APIs                                        | Product sign-in, tenant authorization and browser-to-API authentication          |
 | Terraform    | Versioned remote state, provider locks, mocked tests and reviewed local applies                    | Dedicated infrastructure automation identity; automated apply remains disabled   |
 
-The deployed web apps currently display framework welcome screens. APIs return the scaffold greeting at `/api`. A successful deployment proves the runtime foundation; it does not mean business workflows or application authentication are implemented. See the [deployment record](docs/platform/engineering/dev-deployment.md), [foundation readiness](docs/platform/engineering/cloud-run-readiness.md) and [next milestones](NEXT-STEPS.md).
+The last recorded DEV release still displays framework welcome screens. The HCM Shell + Theme Lab implementation described below is available in source; it requires the normal reviewed release and manual promotion before appearing in DEV. APIs return the scaffold greeting at `/api`. A successful deployment proves the runtime foundation; it does not mean business workflows or application authentication are implemented. See the [deployment record](docs/platform/engineering/dev-deployment.md), [foundation readiness](docs/platform/engineering/cloud-run-readiness.md) and [next milestones](NEXT-STEPS.md).
 
 ## Applications and environments
 
@@ -129,6 +130,22 @@ docker compose -f containers/compose.local.yml down
 ```
 
 See the [container strategy ADR](docs/platform/adr/ADR-container-runtime-strategy.md), [Nx Docker integration](docs/platform/engineering/nx-docker-integration.md) and [container validation record](docs/platform/engineering/container-validation.md).
+
+## HCM Shell and Theme Lab
+
+HCM now composes five Nx libraries for fixture runtime context, navigation catalog, theme state, shell and the lazy Theme Lab. The four variants are **Horizon Light/Dark** and **HER Light/Dark**. Tenant branding accepts an optional validated hex accent; HER keeps native Horizon controls and the supplied semantic palette.
+
+Start a source development server alongside the container stack:
+
+```sh
+pnpm nx serve hcm-web --port=4303 --host=127.0.0.1
+```
+
+Open [Theme Lab](http://127.0.0.1:4303/ux/theme-lab). Choose a theme, apply or clear an accent, inspect the four preview layouts, and use **Mock session** plus **Browse apps** to exercise role/entitlement filtering.
+
+The milestone uses fictional in-memory data. It does not implement sign-in, backend calls, preference persistence or business transactions. Navigation visibility is not authorization, and the existing API access policy is unchanged.
+
+Read the [HCM maintainer guide](docs/hcm/architecture/shell/README.md) for the library map, Mermaid composition/theme diagrams, validation commands and troubleshooting. The [TDD](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) records generator choices and deviations from the supplied templates. The [HCM documentation index](docs/hcm/README.md) links the architecture and next floorplan milestone.
 
 ## Repository structure and architecture
 

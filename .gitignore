@@ -39,3 +39,5 @@ crash.log
 infra/bootstrap/foundation.env
 **/backend.hcl
 crash.*.log
+
+vitest.config.*.timestamp*

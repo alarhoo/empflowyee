@@ -1,0 +1,7 @@
+Original uploaded _hcm-theme-her.scss
+SHA-256: f7718d406bb464a6c4909675fca385da1246a13a2c0cf43d57710111f51b89ac
+
+Template copy:
+templates/hcm-shell-theme-lab/hcm-web-ux-theme/src/lib/styles/_hcm-theme-her.scss
+
+The template copy was byte-for-byte identical when this bundle was created.

@@ -1,11 +1,27 @@
-# Next steps
+# After this milestone
 
-The first runnable DEV foundation is complete: all seven apps were built, smoke-tested, published and promoted through GitHub. The four web apps open directly in a browser; the three APIs remain IAM-protected until application authentication is implemented. Browser, asset, runtime-configuration and authorized API checks pass. See [URLs and deployment evidence](docs/platform/engineering/dev-deployment.md).
+The HCM Shell + Theme Lab is implemented locally. Use the [maintainer guide](docs/hcm/architecture/shell/README.md)
+and [TDD](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) for its scope and validation. Promote it to DEV through
+the normal reviewed build/manual deployment process when ready; the historical DEV release still contains the scaffold.
 
-1. Return to product work: HCM shell, tenant/session context, Spaces/Pages and application catalog using the approved business-domain library structure.
-2. Implement the theme engine and Theme Lab using the approved UI5/Fundamental UX specifications, including Horizon/HER light and dark themes and tenant color preferences.
-3. Add the agreed dummy object-page, flexible-column, table and form screens through approved FDD/TDDs. Do not invent missing business behavior.
-4. Implement browser-to-API authentication and authorization through approved product designs before exposing business endpoints. Account, HCM and Console have distinct trust contexts.
-5. For future releases, build once on main and manually promote the existing digest, sequentially per environment. Preserve the [approved DEV public-web/private-API split](docs/platform/security/cloud-run-access-baseline.md).
+The next product milestone is **HCM UX Floorplan Foundation**.
 
-Keep production edge/DNS/wildcard routing, authentication changes and databases as separate architecture work. QA/PROD promotion and infrastructure apply remain explicit. Do not enable the infrastructure pipeline until its dedicated identity and state-access design are approved. See [the delivery roadmap](docs/platform/engineering/ci-cd-foundation-plan.md) for completed and deferred engineering work.
+Sequence:
+
+1. Build the component-capability matrix against current UI5 Web Components / Fundamental NGX.
+2. Create the approved floorplan catalog and production implementations/adapters only where the library does not already provide them.
+3. Add Storybook for HCM UX/floorplan libraries.
+4. Implement and visually test at least:
+   - Dynamic Page
+   - Object Page composition
+   - Flexible Column Layout
+   - List Report
+   - Worklist
+   - Wizard
+   - Overview Page
+   - enterprise form pattern
+   - client/server table pattern
+5. Add responsive/accessibility/empty/loading/error/read-only states.
+6. Only then choose the first real HCM domain feature for an end-to-end FDD → TDD → implementation vertical slice.
+
+Do not jump straight to Payroll/Leave implementation before the UX primitives and shell contract are proven.

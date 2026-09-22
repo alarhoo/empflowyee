@@ -1,0 +1,241 @@
+<section class="lab" aria-labelledby="theme-lab-title">
+	<header class="lab-hero">
+		<div>
+			<p class="eyebrow">HCM UX FOUNDATION</p>
+			<h1 id="theme-lab-title">Theme Lab</h1>
+			<p>
+				Validate native Horizon controls, HER palettes, tenant branding and enterprise layout
+				behavior before domain screens are built.
+			</p>
+		</div>
+		<div class="context-chip">{{ currentContextLabel() }}</div>
+	</header>
+
+	<section class="controls" aria-label="Theme controls">
+		<div class="control-group">
+			<span class="control-label">Theme</span>
+			<div class="button-row">
+				@for (item of themes; track item.id) {
+					<ui5-button
+						[design]="theme.variant() === item.id ? 'Emphasized' : 'Default'"
+						(click)="selectTheme(item.id)"
+						>{{ item.label }}</ui5-button
+					>
+				}
+			</div>
+		</div>
+
+		<div class="control-group">
+			<label class="control-label" for="tenant-primary">Tenant primary color</label>
+			<div class="color-row">
+				<input
+					id="tenant-primary"
+					class="color-picker"
+					type="color"
+					[value]="theme.tenantPrimary() ?? '#b74435'"
+					(input)="onPrimaryColor($any($event.target).value)"
+				/>
+				<input
+					class="hex-input"
+					type="text"
+					aria-label="Tenant primary color hex"
+					[value]="theme.tenantPrimary() ?? ''"
+					placeholder="#b74435"
+					(change)="onPrimaryColor($any($event.target).value)"
+				/>
+				<ui5-button design="Transparent" (click)="clearPrimary()">Use theme default</ui5-button>
+			</div>
+			@if (colorError()) {
+				<span class="error-text">{{ colorError() }}</span>
+			}
+		</div>
+	</section>
+
+	<nav class="preview-tabs" aria-label="Theme Lab previews">
+		@for (preview of previews; track preview.id) {
+			<button
+				type="button"
+				class="preview-tab"
+				[class.is-active]="activePreview() === preview.id"
+				(click)="activePreview.set(preview.id)"
+			>
+				{{ preview.label }}
+			</button>
+		}
+	</nav>
+
+	@switch (activePreview()) {
+		@case ('overview') {
+			<section class="preview overview-preview" aria-label="Overview floorplan preview">
+				<div class="preview-heading">
+					<div>
+						<span class="eyebrow">EMPLOYEE</span>
+						<h2>My Overview</h2>
+						<p>High-frequency self-service, work queue, directory and communication apps.</p>
+					</div>
+					<span class="status-pill information">Theme Lab fixture</span>
+				</div>
+
+				<h3>Quick Actions</h3>
+				<div class="tile-grid">
+					@for (
+						tile of ['My Tasks and Approvals', 'Apply for Leave', 'My Timesheet', 'My Expenses'];
+						track tile
+					) {
+						<article class="app-tile">
+							<h4>{{ tile }}</h4>
+							<p>Representative HCM app tile using semantic surfaces.</p>
+							<div class="tile-footer"><span>Open</span><span class="accent-dot"></span></div>
+						</article>
+					}
+				</div>
+
+				<h3>Information and Service</h3>
+				<div class="tile-grid tile-grid--dense">
+					@for (
+						tile of [
+							'My Profile',
+							'My HR Requests',
+							'Notification Centre',
+							'Employee Directory',
+							'Organisation Chart',
+							'Announcements',
+						];
+						track tile
+					) {
+						<article class="app-tile compact-tile">
+							<h4>{{ tile }}</h4>
+							<p>Reusable feature placement.</p>
+						</article>
+					}
+				</div>
+			</section>
+		}
+
+		@case ('object-page') {
+			<section class="preview object-preview" aria-label="Object Page floorplan preview">
+				<div class="object-header">
+					<div class="avatar">AM</div>
+					<div class="object-title">
+						<span class="eyebrow">EMPLOYEE PROFILE</span>
+						<h2>Alex Morgan</h2>
+						<p>Senior Product Engineer · Bengaluru</p>
+					</div>
+					<div class="object-actions">
+						<ui5-button design="Transparent">More</ui5-button>
+						<ui5-button design="Emphasized">Edit profile</ui5-button>
+					</div>
+				</div>
+				<div class="object-anchorbar">
+					<a href="#personal">Personal</a><a href="#employment">Employment</a
+					><a href="#documents">Documents</a>
+				</div>
+				<div class="object-content">
+					<section class="content-card" id="personal">
+						<h3>Personal Information</h3>
+						<div class="form-grid">
+							<label>Preferred name<ui5-input value="Alex"></ui5-input></label>
+							<label>Work email<ui5-input value="alex@acme.example"></ui5-input></label>
+							<label>Phone<ui5-input value="+91 90000 00000"></ui5-input></label>
+						</div>
+					</section>
+					<section class="content-card" id="employment">
+						<h3>Employment</h3>
+						<p>Position, organisation, work location and lifecycle details belong here.</p>
+					</section>
+				</div>
+			</section>
+		}
+
+		@case ('flexible-columns') {
+			<section class="preview fcl-preview" aria-label="Flexible Column Layout preview">
+				<div class="fcl-column fcl-master">
+					<span class="eyebrow">EMPLOYEES</span>
+					<h2>Directory</h2>
+					@for (person of ['Alex Morgan', 'Maya Rao', 'Jon Bell', 'Priya Shah']; track person) {
+						<button type="button" class="list-row">
+							<span class="mini-avatar">{{ person.slice(0, 1) }}</span
+							><span>{{ person }}</span>
+						</button>
+					}
+				</div>
+				<div class="fcl-column fcl-detail">
+					<span class="eyebrow">PROFILE</span>
+					<h2>Alex Morgan</h2>
+					<p>
+						Primary detail column. On narrower layouts this becomes a navigated view rather than a
+						squeezed desktop layout.
+					</p>
+					<div class="metric-grid">
+						<div><strong>8.4</strong><span>Years service</span></div>
+						<div><strong>12</strong><span>Direct reports</span></div>
+					</div>
+				</div>
+				<div class="fcl-column fcl-extra">
+					<span class="eyebrow">CONTEXT</span>
+					<h3>Position</h3>
+					<p>Senior Product Engineer</p>
+					<h3>Location</h3>
+					<p>Bengaluru</p>
+				</div>
+			</section>
+		}
+
+		@case ('table-form') {
+			<section class="preview table-form-preview" aria-label="Enterprise table and form preview">
+				<div class="table-card">
+					<div class="section-title-row">
+						<div>
+							<span class="eyebrow">WORKFORCE</span>
+							<h2>Employee Directory</h2>
+						</div>
+						<ui5-button design="Emphasized">Add employee</ui5-button>
+					</div>
+					<div class="table-scroll">
+						<table>
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Position</th>
+									<th>Location</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Alex Morgan</td>
+									<td>Senior Product Engineer</td>
+									<td>Bengaluru</td>
+									<td><span class="status-pill positive">Active</span></td>
+								</tr>
+								<tr>
+									<td>Maya Rao</td>
+									<td>HR Business Partner</td>
+									<td>Mumbai</td>
+									<td><span class="status-pill positive">Active</span></td>
+								</tr>
+								<tr>
+									<td>Jon Bell</td>
+									<td>Account Manager</td>
+									<td>London</td>
+									<td><span class="status-pill neutral">Leave</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<aside class="form-card">
+					<span class="eyebrow">QUICK EDIT</span>
+					<h2>Work assignment</h2>
+					<label>Employee<ui5-input value="Alex Morgan"></ui5-input></label>
+					<label>Work location<ui5-input value="Bengaluru"></ui5-input></label>
+					<label>Position<ui5-input value="Senior Product Engineer"></ui5-input></label>
+					<div class="form-actions">
+						<ui5-button design="Transparent">Cancel</ui5-button
+						><ui5-button design="Emphasized">Save</ui5-button>
+					</div>
+				</aside>
+			</section>
+		}
+	}
+</section>

@@ -1,0 +1,5 @@
+Before bootstrapApplication(...), import the UI5 initialization module:
+
+import './ui5-init';
+
+Do not duplicate Assets imports in feature libraries.

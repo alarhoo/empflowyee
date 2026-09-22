@@ -1,0 +1,54 @@
+:host {
+	display: block;
+	min-height: 100%;
+	background: var(--ef-page-canvas);
+	color: var(--ef-text-strong);
+}
+
+.hcm-shell {
+	min-height: 100%;
+}
+
+.space-nav {
+	min-height: 3rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0 1rem;
+	overflow-x: auto;
+	border-bottom: 1px solid var(--ef-border-subtle);
+	background: var(--ef-surface-base);
+}
+
+.space-nav__item {
+	padding: 0.9rem 1rem 0.75rem;
+	color: var(--ef-text-muted);
+	appearance: none;
+	background: transparent;
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	white-space: nowrap;
+	border-bottom: 0.2rem solid transparent;
+	font: inherit;
+	font-weight: 650;
+	cursor: pointer;
+}
+
+.space-nav__item:hover,
+.space-nav__item.is-active {
+	color: var(--ef-color-accent-strong);
+	border-bottom-color: var(--ef-color-accent);
+}
+
+.space-nav__tenant {
+	margin-left: auto;
+	padding-left: 1rem;
+	color: var(--ef-text-subtle);
+	white-space: nowrap;
+	font-size: 0.8rem;
+}
+
+.hcm-shell__content {
+	padding: 1rem;
+}

@@ -60,6 +60,18 @@ remain authoritative for dependency enforcement.
 
 ## Frontend types
 
+### HCM foundation names
+
+The approved [Shell + Theme Lab TDD](../../../hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md)
+retains these explicit foundation names as scoped exceptions to the library name pattern:
+`hcm-web-runtime-context`, `hcm-web-navigation-catalog`, `hcm-web-ux-theme`, and
+`hcm-web-shell`. Their roles remain `type:data-access`, `type:util`, `type:ui`,
+and `type:shell`, respectively. `hcm-web-ux-feature-theme-lab` follows the regular
+pattern. No new Nx type or dependency exemption is introduced. New domain
+features continue to use the general pattern above.
+
+### Allowed roles
+
 - `type:app` — deployable composition root
 - `type:shell` — product shell/navigation/session composition
 - `type:feature` — user-facing lazy-loaded capability

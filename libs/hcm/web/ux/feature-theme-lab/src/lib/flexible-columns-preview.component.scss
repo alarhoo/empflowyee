@@ -1,0 +1,115 @@
+:host {
+	display: block;
+}
+.preview {
+	background: var(--ef-surface-base);
+	border: 1px solid var(--ef-border-subtle);
+	border-radius: var(--ef-radius-hero);
+	box-shadow: var(--ef-shadow-surface);
+}
+.preview h2,
+.preview h3,
+.preview h4 {
+	margin-top: 0;
+}
+.eyebrow {
+	display: block;
+	color: var(--ef-text-subtle);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.09em;
+	margin-bottom: 0.35rem;
+}
+.preview {
+	padding: 1.25rem;
+	min-height: 34rem;
+}
+.fcl-column p {
+	color: var(--ef-text-muted);
+}
+.mini-avatar {
+	display: inline-grid;
+	place-items: center;
+	background: var(--ef-surface-accent);
+	color: var(--ef-color-accent-strong);
+	font-weight: 800;
+	border: 1px solid var(--ef-border-subtle);
+}
+.fcl-preview {
+	display: grid;
+	grid-template-columns: minmax(13rem, 0.75fr) minmax(18rem, 1.4fr) minmax(12rem, 0.8fr);
+	gap: 0;
+	padding: 0;
+	overflow: hidden;
+}
+.fcl-column {
+	padding: 1.1rem;
+	border-right: 1px solid var(--ef-border-subtle);
+	min-width: 0;
+}
+.fcl-column:last-child {
+	border-right: 0;
+}
+.list-row {
+	width: 100%;
+	display: flex;
+	gap: 0.6rem;
+	align-items: center;
+	border: 0;
+	border-bottom: 1px solid var(--ef-border-subtle);
+	background: transparent;
+	color: var(--ef-text-strong);
+	padding: 0.75rem 0.25rem;
+	cursor: pointer;
+	text-align: left;
+}
+.list-row:hover {
+	background: var(--ef-list-hover-surface);
+}
+.mini-avatar {
+	width: 1.8rem;
+	height: 1.8rem;
+	border-radius: 50%;
+}
+.metric-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+.metric-grid > div {
+	background: var(--ef-surface-accent);
+	border-radius: var(--ef-radius-surface);
+	padding: 0.9rem;
+}
+.metric-grid strong,
+.metric-grid span {
+	display: block;
+}
+.metric-grid strong {
+	font-size: 1.5rem;
+	color: var(--ef-color-accent-strong);
+}
+.metric-grid span {
+	color: var(--ef-text-muted);
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+}
+@media (max-width: 1000px) {
+	.fcl-preview {
+		grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.2fr);
+		overflow-x: auto;
+	}
+	.fcl-extra {
+		display: none;
+	}
+}
+@media (max-width: 640px) {
+	.fcl-preview {
+		display: block;
+	}
+	.fcl-column {
+		border-right: 0;
+		border-bottom: 1px solid var(--ef-border-subtle);
+	}
+}

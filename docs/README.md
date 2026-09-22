@@ -28,6 +28,14 @@ Start with the [repository README](../README.md) for setup, application URLs, re
 | Current deployment evidence | [DEV readiness](platform/engineering/cloud-run-readiness.md), [DEV apps and browser access](platform/engineering/dev-deployment.md), [validation record](../VALIDATION.md)                                                                                                                            |
 | Future work                 | [Next steps](../NEXT-STEPS.md), [delivery roadmap](platform/engineering/ci-cd-foundation-plan.md), [deferred cloud decisions](platform/architecture/deferred-cloud-decisions.md), [deferred runtime decisions](platform/architecture/deferred-runtime-decisions.md)                                   |
 
+## HCM frontend milestone
+
+The [HCM index](hcm/README.md) and [Shell + Theme Lab maintainer guide](hcm/architecture/shell/README.md)
+document the implemented fixture, five library boundaries, theme controls, catalog,
+tests and troubleshooting. The [TDD](hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) records actual
+generator options and template adaptations. These source changes do not update the
+historical DEV deployment record until a release is promoted.
+
 ## Architectural decisions
 
 - [Product boundaries](platform/adr/ADR-0001-monorepo-product-boundaries.md)

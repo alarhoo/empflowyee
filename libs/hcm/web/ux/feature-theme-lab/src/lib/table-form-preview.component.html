@@ -1,0 +1,63 @@
+<section class="preview table-form-preview" aria-label="Enterprise table and form preview">
+	<div class="table-card">
+		<div class="section-title-row">
+			<div>
+				<span class="eyebrow">WORKFORCE</span>
+				<h2>Employee Directory</h2>
+			</div>
+			<ui5-button design="Emphasized" disabled>Add employee</ui5-button>
+		</div>
+		<div class="table-scroll">
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Position</th>
+						<th>Location</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Alex Morgan</td>
+						<td>Senior Product Engineer</td>
+						<td>Bengaluru</td>
+						<td><span class="status-pill positive">Active</span></td>
+					</tr>
+					<tr>
+						<td>Maya Rao</td>
+						<td>HR Business Partner</td>
+						<td>Mumbai</td>
+						<td><span class="status-pill positive">Active</span></td>
+					</tr>
+					<tr>
+						<td>Jon Bell</td>
+						<td>Account Manager</td>
+						<td>London</td>
+						<td><span class="status-pill neutral">Leave</span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<aside class="form-card">
+		<span class="eyebrow">QUICK EDIT</span>
+		<h2>Work assignment</h2>
+		<div class="preview-field">
+			<span>Employee</span
+			><ui5-input accessibleName="Employee" value="Alex Morgan" readonly></ui5-input>
+		</div>
+		<div class="preview-field">
+			<span>Work location</span
+			><ui5-input accessibleName="Work location" value="Bengaluru" readonly></ui5-input>
+		</div>
+		<div class="preview-field">
+			<span>Position</span
+			><ui5-input accessibleName="Position" value="Senior Product Engineer" readonly></ui5-input>
+		</div>
+		<div class="form-actions">
+			<ui5-button design="Transparent" disabled>Cancel</ui5-button
+			><ui5-button design="Emphasized" disabled>Save</ui5-button>
+		</div>
+	</aside>
+</section>

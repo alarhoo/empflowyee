@@ -16,6 +16,10 @@ Tenant branding adds a controlled primary-color overlay on top of the selected f
 
 ## Tenant branding flow
 
+The [current Shell + Theme Lab implementation](../architecture/shell/README.md) supports
+the four choices and a validated accent in fixture memory. The persistence/bootstrap
+steps below describe the future production flow; they are not implemented by this milestone.
+
 ```text
 Tenant selects primary color
  -> validate/normalize
@@ -30,4 +34,7 @@ Do not create one CSS theme file per tenant.
 
 ## Custom theme policy
 
-Prefer documented SAP/UI5 theme variables and a coherent custom theme bundle over deep Shadow DOM styling or per-control hacks.
+The accepted [HER overlay ADR](../adr/ADR-0002-her-theme-as-horizon-overlay.md) keeps
+native Horizon controls and permits only the [documented accent bridge](../architecture/shell/theming.md#implemented-accent-bridge).
+A complete custom UI5 theme bundle requires a separate ADR. Deep Shadow DOM styling
+and per-control skinning are prohibited.

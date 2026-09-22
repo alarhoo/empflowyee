@@ -3,7 +3,16 @@ import { nxE2EPreset } from '@nx/playwright/preset'
 import { workspaceRoot } from '@nx/devkit'
 
 // For CI, you may want to set BASE_URL to the deployed application.
-const baseURL = process.env['BASE_URL'] || 'http://localhost:4302'
+// A separate development port avoids accidentally testing the older local Docker image on 4302.
+const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4303'
+
+const localServer = {
+	command: 'pnpm run dev:hcm:preview',
+	url: baseURL,
+	reuseExistingServer: !process.env['CI'],
+	timeout: 120000,
+	cwd: workspaceRoot,
+}
 
 /**
  * Read environment variables from file.
@@ -30,12 +39,7 @@ export default defineConfig({
 		trace: 'on-first-retry',
 	},
 	/* Run your local dev server before starting the tests */
-	webServer: {
-		command: 'pnpm exec nx run hcm-web:serve',
-		url: 'http://localhost:4302',
-		reuseExistingServer: true,
-		cwd: workspaceRoot,
-	},
+	webServer: process.env['BASE_URL'] ? undefined : localServer,
 	projects: [
 		{
 			name: 'chromium',
