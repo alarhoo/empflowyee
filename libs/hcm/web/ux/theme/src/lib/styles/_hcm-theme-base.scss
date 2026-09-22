@@ -1,4 +1,16 @@
 html[data-hcm-theme-family] {
+	--ef-color-accent-soft: var(--ef-surface-accent);
+	--ef-surface-raised: var(--ef-surface-base);
+	--ef-surface-glass: var(--ef-surface-base);
+	--ef-surface-glass-strong: var(--ef-surface-base);
+	--ef-control-surface: var(--ef-surface-base);
+	--ef-overlay-surface: var(--ef-surface-base);
+	--ef-shell-surface: var(--ef-surface-base);
+	--ef-glass-highlight: transparent;
+	--ef-glass-border: var(--ef-border-subtle);
+	--ef-scrollbar-thumb: color-mix(in srgb, var(--ef-text-muted) 45%, transparent);
+	--ef-scrollbar-thumb-hover: var(--ef-text-muted);
+	--ef-blur-surface: none;
 	--ef-font-family: var(--sapFontFamily, '72', Arial, sans-serif);
 	--ef-radius-control: 0.5rem;
 	--ef-radius-surface: 0.65rem;

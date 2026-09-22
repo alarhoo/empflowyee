@@ -1,0 +1,85 @@
+// Local SAP fonts shared by the application and Storybook.
+@font-face {
+	font-family: '72';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Regular-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Bold-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Semibold-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72full';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Regular-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72full';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Bold-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72full';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Semibold-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72-Bold';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Bold-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72-Semibold';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-Semibold-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72-SemiboldDuplex';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-SemiboldDuplex-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72-SemiboldDuplexfull';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72-SemiboldDuplex-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: '72Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/assets/hcm/theming/Base/baseLib/baseTheme/fonts/72Mono-Regular-full.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'SAP-icons';
+	font-style: normal;
+	font-weight: normal;
+	font-display: block;
+	src: url('/assets/hcm/theming/Base/baseLib/sap_horizon/fonts/SAP-icons.woff2') format('woff2');
+}

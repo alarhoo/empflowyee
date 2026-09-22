@@ -28,22 +28,17 @@ The current HER file defines `--ef-*` product semantic tokens. It does not provi
 
 If a future requirement needs every UI5 parameter recolored comprehensively, evaluate SAP Theme Designer/custom theme assets as a separate ADR.
 
-## Implemented accent bridge
+## Native-control theme bridge
 
-`HcmThemeService` owns and clears these public SAP parameters:
+`HcmThemeService` applies the supplied HER semantic palette to public SAP parameters consumed by the actual UI5/Fundamental controls. The mapping lives in `libs/hcm/web/ux/theme/src/lib/hcm-sap-theme-parameters.ts`; emphasized action states remain beside the mapping in the service.
 
-- `--sapBrandColor`, `--sapHighlightColor`, `--sapSelectedColor`
-- `--sapButton_Emphasized_Background`, `--sapButton_Emphasized_BorderColor`
-- `--sapButton_Emphasized_Hover_Background`, `--sapButton_Emphasized_Hover_BorderColor`
-- `--sapButton_Emphasized_Active_Background`, `--sapButton_Emphasized_Active_BorderColor`
-- `--sapButton_Emphasized_TextColor`, `--sapButton_Emphasized_Hover_TextColor`, `--sapButton_Emphasized_Active_TextColor`
-- `--sapContent_FocusColor`
+- HER surfaces cover native page headers, forms, fields, lists and tables.
+- Native text, labels, links, tabs, ordinary actions and the default avatar use the HER palette.
+- Feedback retains semantic success/warning/error/information distinctions from the supplied HER tokens.
+- Tenant branding changes the independent accent and action colors, preserving the selected theme surfaces.
+- Every owned parameter is removed before applying another selection and on teardown. Horizon without tenant branding receives no inline palette overrides.
 
-The bridge reads semantic accent/strong/hover/active/on-accent tokens and applies only
-this list. It runs for HER and for branded Horizon; unbranded Horizon removes it.
-It does not recolor every control or change a UI5 shadow tree. SAP status and ordinary
-control colors remain native. The service awaits serialized `setTheme` calls before
-applying the matching surfaces, skips stale requests, and reports loading errors.
+The previous emphasis-only bridge left native controls visibly on Horizon while their surrounding product surfaces used HER. It did not satisfy the theme requirement. The correction changes public parameters only: no custom control skin, Shadow DOM selectors or modified upstream packages. The family-scoped `_hcm-theme-native.scss` also replaces baked-in field underline/shadow colors through public SAP decoration parameters, retaining native geometry and readonly dashes. These declarations stop applying immediately when the HER family selector is removed.
 
 Tenant color validation accepts only three/six-digit hex, normalizes case/length,
 and leaves the accepted color unchanged on error. WCAG relative luminance selects
@@ -61,3 +56,15 @@ repository root after theme work. Changes to supplied HER values require explici
 design review; the milestone did not rewrite them.
 
 Operational instructions and diagrams are in the [maintainer guide](README.md).
+
+## Native Angular integration and ownership
+
+The corrected foundation uses `provideHcmUx()` in both application and Storybook. `HcmNativeThemeService` coordinates UI5 `setTheme` with Fundamental's maintained `ThemingService`, waits for the local SAP/Fundamental stylesheets, and only then permits semantic palette application. Fonts and native theme assets share `/assets/hcm/` in both hosts; CDN font loading is disabled in their common UI5 initialization.
+
+The developer default is Horizon Light without tenant branding. **No tenant override** clears only the accent. HER selectors remain family/variant scoped; the shared token contract defines surface aliases for Horizon too. The supplied HER file remains byte-for-byte unchanged.
+
+`variant` is the requested choice; `appliedVariant` records the last successful choice. `loading` and `error` are observable. The canvas remains hidden during a pending transition. On teardown, the service invalidates pending palette work, clears its inline overrides, family/variant/loading attributes, color scheme and native stylesheet links. UI5's global asset registry is reused; a subsequent HCM owner always explicitly selects its base theme.
+
+Verify HER-to-Horizon and tenant-overlay removal within one browser document, not only fresh navigations. A failed request must not update `appliedVariant`. The service reports failure so the host can request a new selection or reload.
+
+Preserve the SAP asset directory structure under `/assets/hcm/theming/Base/baseLib/`: the maintained CSS contains relative font URLs. The native loader checks the loaded stylesheet URL, not just `link.sheet`, because Firefox can retain the old sheet while a new href is loading.

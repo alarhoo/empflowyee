@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common'
 import { Injectable, computed, effect, inject, signal, DestroyRef } from '@angular/core'
-import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js'
+import { HcmNativeThemeService } from './hcm-native-theme.service'
+import { SAP_ACCENT_PARAMETERS, SAP_HER_PARAMETERS } from './hcm-sap-theme-parameters'
 import { deriveAccentPalette, normalizeHexColor } from './color-utils'
 import { HCM_THEMES, type HcmThemeDefinition, type HcmThemeVariant } from './hcm-theme.models'
 
@@ -31,13 +32,18 @@ const ACCENT_VARIABLES = [
 @Injectable({ providedIn: 'root' })
 export class HcmThemeService {
 	private readonly document = inject(DOCUMENT)
-	private readonly _variant = signal<HcmThemeVariant>('her-light')
+	private readonly native = inject(HcmNativeThemeService)
+	private readonly _variant = signal<HcmThemeVariant>('horizon-light')
+	private readonly _appliedVariant = signal<HcmThemeVariant | null>(null)
+	private readonly _loading = signal(false)
 	private readonly _tenantPrimary = signal<string | null>(null)
 	private readonly _error = signal<string | null>(null)
 	private pending = Promise.resolve()
 	private revision = 0
 
 	readonly variant = this._variant.asReadonly()
+	readonly appliedVariant = this._appliedVariant.asReadonly()
+	readonly loading = this._loading.asReadonly()
 	readonly tenantPrimary = this._tenantPrimary.asReadonly()
 	readonly error = this._error.asReadonly()
 	readonly definition = computed(
@@ -55,6 +61,12 @@ export class HcmThemeService {
 			/** Invalidate pending work and release overrides on teardown. */ () => {
 				this.revision++
 				this.clearBrandBridge(this.document.documentElement)
+				const root = this.document.documentElement
+				delete root.dataset['hcmThemeFamily']
+				delete root.dataset['hcmThemeVariant']
+				delete root.dataset['hcmThemeLoading']
+				root.style.removeProperty('color-scheme')
+				this.native.clear()
 			},
 		)
 		effect(
@@ -62,14 +74,24 @@ export class HcmThemeService {
 				const definition = this.definition()
 				const primary = this._tenantPrimary()
 				const revision = ++this.revision
+				this._loading.set(true)
+				this.document.documentElement.dataset['hcmThemeLoading'] = 'true'
 				this.pending = this.pending
 					.then(
 						/** Skip superseded requests before and after asynchronous asset loading. */ async () => {
 							if (revision !== this.revision) return
-							await setTheme(definition.ui5Theme)
+							await this.native.apply(definition.ui5Theme)
 							if (revision !== this.revision) return
 							this.applyPalette(definition, primary)
+							this._appliedVariant.set(definition.id)
 							this._error.set(null)
+						},
+					)
+					.finally(
+						/** Reveal only a settled presentation and leave failures visible to the host. */ () => {
+							if (revision !== this.revision) return
+							this._loading.set(false)
+							delete this.document.documentElement.dataset['hcmThemeLoading']
 						},
 					)
 					.catch(
@@ -136,7 +158,11 @@ export class HcmThemeService {
 					root.style.setProperty(name, values[index]),
 			)
 		}
-		if (definition.family === 'her' || tenantPrimary) this.applySapBrandBridge(root)
+		if (definition.family === 'her') this.applySemanticParameters(root, SAP_HER_PARAMETERS)
+		if (definition.family === 'her' || tenantPrimary) {
+			this.applySapBrandBridge(root)
+			this.applySemanticParameters(root, SAP_ACCENT_PARAMETERS)
+		}
 	}
 
 	/** Bridge existing semantic colors into the documented public SAP emphasis parameters. */
@@ -169,9 +195,27 @@ export class HcmThemeService {
 		)
 	}
 
+	/** Resolve semantic palette colors into native-control parameters without changing control markup. */
+	private applySemanticParameters(
+		root: HTMLElement,
+		parameters: Readonly<Record<string, string>>,
+	): void {
+		const style = this.document.defaultView?.getComputedStyle(root)
+		if (!style) return
+		for (const [parameter, semantic] of Object.entries(parameters)) {
+			const value = style.getPropertyValue(semantic).trim()
+			if (value) root.style.setProperty(parameter, value)
+		}
+	}
+
 	/** Remove every parameter owned by the bridge, including stale values after family changes. */
 	private clearBrandBridge(root: HTMLElement): void {
-		for (const name of [...ACCENT_VARIABLES, ...SAP_BRAND_VARIABLES])
+		for (const name of [
+			...ACCENT_VARIABLES,
+			...SAP_BRAND_VARIABLES,
+			...Object.keys(SAP_ACCENT_PARAMETERS),
+			...Object.keys(SAP_HER_PARAMETERS),
+		])
 			root.style.removeProperty(name)
 	}
 }

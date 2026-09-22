@@ -1,3 +1,14 @@
 // Global only: html[data-*] selectors must not be trapped in component encapsulation.
 // Adjust the relative path if the generated workspace uses a different source-root convention.
 @use '../../../../libs/hcm/web/ux/theme/src/lib/styles/hcm-theme';
+
+@use '../../../../libs/hcm/web/ux/theme/src/lib/styles/hcm-fonts';
+
+// Size public Angular layout hosts to the consuming canvas, without styling internal anatomy.
+.hcm-floorplan-canvas fd-dynamic-page {
+	display: block;
+	height: 100%;
+}
+html[data-hcm-theme-loading] .hcm-floorplan-canvas {
+	visibility: hidden;
+}

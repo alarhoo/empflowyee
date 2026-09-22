@@ -10,7 +10,9 @@ empFLOWyee HCM uses UI5 Web Components for enterprise-grade Fiori controls. The 
 
 HER Light and HER Dark will keep UI5 Web Components on native Horizon Light/Dark respectively.
 
-empFLOWyee-owned surfaces use semantic `--ef-*` tokens. A narrow bridge may override documented SAP theme parameters needed for brand/emphasized states. Tenant branding supplies only a validated primary color and derived states.
+The supplied semantic `--ef-*` palette governs both product surfaces and maintained native controls. The public SAP parameter bridge covers page/header surfaces, forms, tables, tabs, text, ordinary/emphasized actions, default avatars and semantic feedback. An emphasis-only bridge is insufficient: HER must be visible on the actual UI5/Fundamental controls. Tenant branding independently supplies a validated primary color and derived accent states; it does not replace the theme surface palette.
+
+This correction supersedes the original emphasis-only restriction. It retains the installed Horizon base assets, native control structures and behavior; it does not introduce a standalone UI5 theme package or private Shadow DOM styling.
 
 ## Rejected
 

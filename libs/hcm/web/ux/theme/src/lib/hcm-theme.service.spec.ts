@@ -1,54 +1,49 @@
 import { TestBed } from '@angular/core/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js'
+import { HcmNativeThemeService } from './hcm-native-theme.service'
 import { HcmThemeService } from './hcm-theme.service'
 
-vi.mock(
-	'@ui5/webcomponents-base/dist/config/Theme.js',
-	/** Isolate theme orchestration from network asset loading. */ () => ({
-		setTheme: vi.fn(/** Simulate a successfully loaded native UI5 theme. */ async () => undefined),
-	}),
-)
-
-describe('HcmThemeService', /** Verify family changes, async ordering and complete accent cleanup. */ () => {
+describe('HcmThemeService', /** Verify applied state, invalidation and document ownership independently of browser assets. */ () => {
+	const apply = vi.fn<(theme: 'sap_horizon' | 'sap_horizon_dark') => Promise<void>>()
+	const clear = vi.fn()
 	beforeEach(
-		/** Reset the DOM and native theme adapter between scenarios. */ () => {
+		/** Give each scenario a fresh root owner and native-loader substitute. */ () => {
 			TestBed.resetTestingModule()
 			document.documentElement.removeAttribute('style')
-			vi.mocked(setTheme).mockReset()
-			vi.mocked(setTheme).mockResolvedValue(undefined)
+			apply.mockReset().mockResolvedValue(undefined)
+			clear.mockReset()
+			TestBed.configureTestingModule({
+				providers: [{ provide: HcmNativeThemeService, useValue: { apply, clear } }],
+			})
 		},
 	)
-	it('switches native themes and clears all branding when returning to Horizon', /** Ensure an invalid color never replaces the accepted overlay. */ async () => {
+	it('starts unbranded Horizon and clears every inline override on family changes', /** Invalid tenant CSS must never replace an accepted color. */ async () => {
 		const service = TestBed.inject(HcmThemeService)
+		expect(service.variant()).toBe('horizon-light')
+		expect(service.appliedVariant()).toBeNull()
 		service.setVariant('her-dark')
 		expect(service.setTenantPrimary('#abc')).toBe(true)
 		TestBed.tick()
 		await service.whenSettled()
-		expect(setTheme).toHaveBeenLastCalledWith('sap_horizon_dark')
-		expect(document.documentElement.dataset['hcmThemeVariant']).toBe('her-dark')
-		expect(
-			document.documentElement.style.getPropertyValue('--sapButton_Emphasized_Background'),
-		).toBe('#aabbcc')
+		expect(apply).toHaveBeenLastCalledWith('sap_horizon_dark')
+		expect(service.appliedVariant()).toBe('her-dark')
+		expect(document.documentElement.style.getPropertyValue('--sapBrandColor')).toBe('#aabbcc')
 		expect(service.setTenantPrimary('red;display:none')).toBe(false)
 		expect(service.tenantPrimary()).toBe('#aabbcc')
 		service.clearTenantPrimary()
 		service.setVariant('horizon-light')
 		TestBed.tick()
 		await service.whenSettled()
-		expect(document.documentElement.style.getPropertyValue('--ef-color-accent')).toBe('')
-		expect(document.documentElement.style.getPropertyValue('--sapBrandColor')).toBe('')
-		expect(
-			document.documentElement.style.getPropertyValue('--sapButton_Emphasized_Hover_TextColor'),
-		).toBe('')
-		expect(document.documentElement.style.colorScheme).toBe('light')
+		expect(document.documentElement.getAttribute('style')).toBe('color-scheme: light;')
+		expect(service.appliedVariant()).toBe('horizon-light')
+		expect(service.loading()).toBe(false)
 	})
-	it('finishes on the latest requested variant during an in-flight theme load', /** Delay the first asset request to expose ordering regressions. */ async () => {
+	it('finishes on the latest request during an in-flight native load', /** Delayed native loading must not apply the superseded semantic palette. */ async () => {
 		let complete: (() => void) | undefined
-		vi.mocked(setTheme).mockImplementationOnce(
-			/** Hold the old native theme request until another selection arrives. */ () =>
+		apply.mockImplementationOnce(
+			/** Hold the first load under test control. */ () =>
 				new Promise<void>(
-					/** Capture completion under test control. */ (resolve) => {
+					/** Capture the deferred completion. */ (resolve) => {
 						complete = resolve
 					},
 				),
@@ -57,22 +52,45 @@ describe('HcmThemeService', /** Verify family changes, async ordering and comple
 		service.setVariant('horizon-dark')
 		TestBed.tick()
 		await Promise.resolve()
+		expect(service.loading()).toBe(true)
 		service.setVariant('her-light')
 		TestBed.tick()
 		complete?.()
 		await service.whenSettled()
-		expect(setTheme).toHaveBeenLastCalledWith('sap_horizon')
+		expect(apply).toHaveBeenLastCalledWith('sap_horizon')
+		expect(service.appliedVariant()).toBe('her-light')
 		expect(document.documentElement.dataset['hcmThemeVariant']).toBe('her-light')
 	})
-	it('reports asset errors and recovers on a later variant', /** Keep loading failures handled and permit a subsequent successful selection. */ async () => {
-		vi.mocked(setTheme).mockRejectedValueOnce(new Error('asset unavailable'))
+	it('reports a failed selection separately from the last applied variant', /** An asset error cannot falsely report a successful theme switch. */ async () => {
 		const service = TestBed.inject(HcmThemeService)
 		TestBed.tick()
 		await service.whenSettled()
+		apply.mockRejectedValueOnce(new Error('asset unavailable'))
+		service.setVariant('her-dark')
+		TestBed.tick()
+		await service.whenSettled()
+		expect(service.variant()).toBe('her-dark')
+		expect(service.appliedVariant()).toBe('horizon-light')
 		expect(service.error()).toContain('Theme assets')
+		expect(service.loading()).toBe(false)
 		service.setVariant('horizon-dark')
 		TestBed.tick()
 		await service.whenSettled()
 		expect(service.error()).toBeNull()
+		expect(service.appliedVariant()).toBe('horizon-dark')
+	})
+	it('releases family selectors and owned styles when destroyed', /** Story remounts must not inherit an orphaned HER palette. */ async () => {
+		const service = TestBed.inject(HcmThemeService)
+		service.setVariant('her-light')
+		service.setTenantPrimary('#123456')
+		TestBed.tick()
+		await service.whenSettled()
+		TestBed.resetTestingModule()
+		const root = document.documentElement
+		expect(root.dataset['hcmThemeFamily']).toBeUndefined()
+		expect(root.dataset['hcmThemeVariant']).toBeUndefined()
+		expect(root.dataset['hcmThemeLoading']).toBeUndefined()
+		expect(root.style.length).toBe(0)
+		expect(clear).toHaveBeenCalledOnce()
 	})
 })

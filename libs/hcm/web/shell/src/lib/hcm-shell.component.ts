@@ -38,7 +38,7 @@ export class HcmShellComponent {
 			/** Apply user-over-tenant theme resolution and the optional tenant accent. */ () => {
 				const tenant = this.runtime.tenant()
 				const preferences = this.runtime.preferences()
-				this.theme.setVariant(preferences.theme ?? tenant.defaultTheme ?? 'her-light')
+				this.theme.setVariant(preferences.theme ?? tenant.defaultTheme ?? 'horizon-light')
 				this.theme.setTenantPrimary(tenant.primaryColor ?? null)
 			},
 		)

@@ -6,7 +6,7 @@ const DEMO_CONTEXT: HcmRuntimeContext = {
 		tenantId: 'tenant-acme-demo',
 		slug: 'acme',
 		displayName: 'Acme Corporation',
-		defaultTheme: 'her-light',
+		defaultTheme: 'horizon-light',
 		defaultLocale: 'en-IN',
 		defaultTimezone: 'Asia/Kolkata',
 		defaultDateFormat: 'DD/MM/YYYY',

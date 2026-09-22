@@ -1,0 +1,9 @@
+// Public SAP field decorations contain baked-in Horizon colors. Retain their
+// native geometry and readonly dashes while resolving colors from HER tokens.
+html[data-hcm-theme-family='her'] {
+	--sapField_BackgroundStyle: 0 100% / 100% .0625rem no-repeat linear-gradient(0deg, var(--ef-text-muted), var(--ef-text-muted)) border-box;
+	--sapField_Hover_BackgroundStyle: 0 100% / 100% .0625rem no-repeat linear-gradient(0deg, var(--ef-color-accent-strong), var(--ef-color-accent-strong)) border-box;
+	--sapField_ReadOnly_BackgroundStyle: 0 100% / .375rem .0625rem repeat-x linear-gradient(90deg, var(--ef-text-muted) 0, var(--ef-text-muted) .25rem, transparent .25rem) border-box;
+	--sapField_Shadow: inset 0 0 0 .0625rem color-mix(in srgb, var(--ef-text-muted) 25%, transparent);
+	--sapField_Hover_Shadow: inset 0 0 0 .0625rem color-mix(in srgb, var(--ef-color-accent-strong) 50%, transparent);
+}
