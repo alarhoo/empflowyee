@@ -6,112 +6,170 @@
 		[readOnly]="readOnly()"
 		[actions]="actions()"
 		(action)="handleAction($event)"
-		(retry)="recovered.set(true)"
-	>
-		<fd-avatar hcmImage label="Alex Morgan" size="l" ariaLabel="Alex Morgan" [circle]="true" />
-		<span hcmKeyInfo fd-object-status status="positive" label="Active employee"></span>
+		(retry)="recovered.set(true)">
+		<fd-avatar
+			hcmImage
+			label="Alex Morgan"
+			size="l"
+			ariaLabel="Alex Morgan"
+			[circle]="true" />
+		<span
+			hcmKeyInfo
+			fd-object-status
+			status="positive"
+			label="Active employee"></span>
 		<div hcmHeader>
-			<fd-avatar label="Alex Morgan" size="m" ariaLabel="Alex Morgan" [circle]="true" />
-			<ui5-form accessibleName="Employee summary" layout="S1 M2 L3 XL3">
-				<ui5-form-item
-					><ui5-label slot="labelContent">Team</ui5-label
-					><span>People Operations</span></ui5-form-item
-				>
-				<ui5-form-item
-					><ui5-label slot="labelContent">Manager</ui5-label><span>Jordan Lee</span></ui5-form-item
-				>
-				<ui5-form-item
-					><ui5-label slot="labelContent">Location</ui5-label
-					><span>{{ saved().location }}</span></ui5-form-item
-				>
+			<fd-avatar
+				label="Alex Morgan"
+				size="m"
+				ariaLabel="Alex Morgan"
+				[circle]="true" />
+			<ui5-form
+				accessibleName="Employee summary"
+				layout="S1 M2 L3 XL3">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Team</ui5-label>
+					<span>People Operations</span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Manager</ui5-label>
+					<span>Jordan Lee</span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Location</ui5-label>
+					<span>{{ saved().location }}</span>
+				</ui5-form-item>
 			</ui5-form>
 			@if (notice()) {
 				<ui5-message-strip [hideCloseButton]="true">{{ notice() }}</ui5-message-strip>
 			}
 		</div>
-		<ng-template efHcmObjectSection="personal" label="Personal information">
-			<ui5-form accessibleName="Personal information" layout="S1 M2 L2 XL2">
-				<ui5-form-group headerText="Identity" headerLevel="H3">
-					<ui5-form-item
-						><ui5-label slot="labelContent">Preferred name</ui5-label
-						><span>Alex Morgan</span></ui5-form-item
-					>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Employee ID</ui5-label
-						><span>DEMO-042</span></ui5-form-item
-					>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Display language</ui5-label
-						><span>English</span></ui5-form-item
-					>
+		<ng-template
+			efHcmObjectSection="personal"
+			label="Personal information">
+			<ui5-form
+				accessibleName="Personal information"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-group
+					headerText="Identity"
+					headerLevel="H3">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Preferred name</ui5-label>
+						<span>Alex Morgan</span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employee ID</ui5-label>
+						<span>DEMO-042</span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Display language</ui5-label>
+						<span>English</span>
+					</ui5-form-item>
 				</ui5-form-group>
-				<ui5-form-group headerText="Work contact" headerLevel="H3">
-					<ui5-form-item
-						><ui5-label slot="labelContent">Email</ui5-label
-						><span>alex.morgan&#64;example.com</span></ui5-form-item
-					>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Office</ui5-label
-						><span>Bengaluru / Central campus</span></ui5-form-item
-					>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Time zone</ui5-label
-						><span>Asia/Kolkata</span></ui5-form-item
-					>
+				<ui5-form-group
+					headerText="Work contact"
+					headerLevel="H3">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Email</ui5-label>
+						<span>alex.morgan&#64;example.com</span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Office</ui5-label>
+						<span>Bengaluru / Central campus</span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Time zone</ui5-label>
+						<span>Asia/Kolkata</span>
+					</ui5-form-item>
 				</ui5-form-group>
 			</ui5-form>
 		</ng-template>
-		<ng-template efHcmObjectSection="employment" label="Employment">
-			<ui5-form accessibleName="Employment details" accessibleMode="Edit" layout="S1 M2 L2 XL2">
-				<ui5-form-group headerText="Assignment" headerLevel="H3">
-					<ui5-form-item
-						><ui5-label slot="labelContent" for="profile-job">Job title</ui5-label
-						><ui5-input id="profile-job" accessibleName="Job title" [formField]="fields.jobTitle"
-					/></ui5-form-item>
-					<ui5-form-item
-						><ui5-label slot="labelContent" for="profile-location">Location</ui5-label
-						><ui5-input
+		<ng-template
+			efHcmObjectSection="employment"
+			label="Employment">
+			<ui5-form
+				accessibleName="Employment details"
+				accessibleMode="Edit"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-group
+					headerText="Assignment"
+					headerLevel="H3">
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="profile-job">
+							Job title
+						</ui5-label>
+						<ui5-input
+							id="profile-job"
+							accessibleName="Job title"
+							[formField]="fields.jobTitle" />
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="profile-location">
+							Location
+						</ui5-label>
+						<ui5-input
 							id="profile-location"
 							accessibleName="Location"
-							[formField]="fields.location"
-					/></ui5-form-item>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Manager</ui5-label
-						><span>Jordan Lee</span></ui5-form-item
-					>
+							[formField]="fields.location" />
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Manager</ui5-label>
+						<span>Jordan Lee</span>
+					</ui5-form-item>
 				</ui5-form-group>
-				<ui5-form-group headerText="Employment terms" headerLevel="H3">
-					<ui5-form-item
-						><ui5-label slot="labelContent">Start date</ui5-label
-						><span>15 June 2025</span></ui5-form-item
-					>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Employment type</ui5-label
-						><span>Permanent / Full time</span></ui5-form-item
-					>
-					<ui5-form-item
-						><ui5-label slot="labelContent">Working hours</ui5-label
-						><span>40 hours per week</span></ui5-form-item
-					>
+				<ui5-form-group
+					headerText="Employment terms"
+					headerLevel="H3">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Start date</ui5-label>
+						<span>15 June 2025</span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employment type</ui5-label>
+						<span>Permanent / Full time</span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Working hours</ui5-label>
+						<span>40 hours per week</span>
+					</ui5-form-item>
 				</ui5-form-group>
 			</ui5-form>
 		</ng-template>
-		<ng-template efHcmObjectSection="history" label="History">
-			<ui5-table accessibleName="Employment history" overflowMode="Popin">
-				<ui5-table-header-row slot="headerRow"
-					><ui5-table-header-cell [importance]="50" minWidth="9rem" popinText="Date"
-						>Date</ui5-table-header-cell
-					><ui5-table-header-cell [importance]="100" minWidth="14rem">Event</ui5-table-header-cell
-					><ui5-table-header-cell [importance]="10" minWidth="14rem" popinText="Details"
-						>Details</ui5-table-header-cell
-					></ui5-table-header-row
-				>
+		<ng-template
+			efHcmObjectSection="history"
+			label="History">
+			<ui5-table
+				accessibleName="Employment history"
+				overflowMode="Popin">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="9rem"
+						popinText="Date">
+						Date
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="14rem">
+						Event
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="10"
+						minWidth="14rem"
+						popinText="Details">
+						Details
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
 				@for (entry of history; track entry.date) {
-					<ui5-table-row
-						><ui5-table-cell>{{ entry.date }}</ui5-table-cell
-						><ui5-table-cell>{{ entry.event }}</ui5-table-cell
-						><ui5-table-cell>{{ entry.detail }}</ui5-table-cell></ui5-table-row
-					>
+					<ui5-table-row>
+						<ui5-table-cell>{{ entry.date }}</ui5-table-cell>
+						<ui5-table-cell>{{ entry.event }}</ui5-table-cell>
+						<ui5-table-cell>{{ entry.detail }}</ui5-table-cell>
+					</ui5-table-row>
 				}
 			</ui5-table>
 		</ng-template>
@@ -120,8 +178,11 @@
 <ui5-dialog
 	headerText="Employee reference"
 	[open]="referenceOpen()"
-	(ui5Close)="referenceOpen.set(false)"
->
+	(ui5Close)="referenceOpen.set(false)">
 	<p>Employee reference: DEMO-042.</p>
-	<ui5-button slot="footer" (click)="referenceOpen.set(false)">Close</ui5-button>
+	<ui5-button
+		slot="footer"
+		(click)="referenceOpen.set(false)">
+		Close
+	</ui5-button>
 </ui5-dialog>

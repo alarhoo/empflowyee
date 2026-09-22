@@ -7,18 +7,16 @@ import {
 	output,
 } from '@angular/core'
 import { NgTemplateOutlet } from '@angular/common'
-import {
-	DynamicPageComponent,
-	DynamicPageHeaderComponent,
-	DynamicPageSubheaderComponent,
-	DynamicPageContentComponent,
-	DynamicPageGlobalActionsComponent,
-	DynamicPageTitleContentComponent,
-} from '@fundamental-ngx/core/dynamic-page'
-import { IconTabBarComponent, IconTabBarTabComponent } from '@fundamental-ngx/platform/icon-tab-bar'
-import { FacetComponent } from '@fundamental-ngx/core/facets'
-import { ButtonComponent } from '@fundamental-ngx/core/button'
-import { ToolbarComponent, ToolbarItemDirective } from '@fundamental-ngx/core/toolbar'
+import { DynamicPage } from '@fundamental-ngx/ui5-webcomponents-fiori/dynamic-page'
+import { DynamicPageTitle } from '@fundamental-ngx/ui5-webcomponents-fiori/dynamic-page-title'
+import { DynamicPageHeader } from '@fundamental-ngx/ui5-webcomponents-fiori/dynamic-page-header'
+import { TabContainer } from '@fundamental-ngx/ui5-webcomponents/tab-container'
+import { Tab } from '@fundamental-ngx/ui5-webcomponents/tab'
+import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
+import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { Toolbar } from '@fundamental-ngx/ui5-webcomponents/toolbar'
+import { ToolbarButton } from '@fundamental-ngx/ui5-webcomponents/toolbar-button'
 import { BusyIndicator } from '@fundamental-ngx/ui5-webcomponents/busy-indicator'
 import { IllustratedMessage } from '@fundamental-ngx/ui5-webcomponents-fiori/illustrated-message'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
@@ -30,28 +28,28 @@ import { HcmObjectSection } from './object-section.directive'
 export interface HcmObjectAction {
 	id: string
 	label: string
+	icon?: string
 	mutates?: boolean
 	emphasized?: boolean
 	disabled?: boolean
 }
 
-/** Project object sections into maintained Platform navigation without implementing a scroll engine. */
+/** Compose native UI5 DynamicPage and tabs into a reusable, domain-agnostic object detail floorplan. */
 @Component({
+	standalone: true,
 	selector: 'ef-hcm-object-page',
 	imports: [
-		DynamicPageComponent,
-		DynamicPageHeaderComponent,
-		DynamicPageSubheaderComponent,
-		DynamicPageContentComponent,
-		DynamicPageGlobalActionsComponent,
-		DynamicPageTitleContentComponent,
-		IconTabBarComponent,
-		IconTabBarTabComponent,
-		FacetComponent,
+		DynamicPage,
+		DynamicPageTitle,
+		DynamicPageHeader,
+		TabContainer,
+		Tab,
+		Button,
+		Title,
+		Text,
+		Toolbar,
+		ToolbarButton,
 		NgTemplateOutlet,
-		ButtonComponent,
-		ToolbarComponent,
-		ToolbarItemDirective,
 		BusyIndicator,
 		IllustratedMessage,
 		MessageStrip,
@@ -67,6 +65,7 @@ export class HcmObjectPage {
 		'content',
 	)
 	readonly readOnly = input(false)
+	readonly showFooter = input(false)
 	readonly actions = input<readonly HcmObjectAction[]>([])
 	readonly errorMessage = input('This object could not be loaded. Try again.')
 	readonly action = output<string>()

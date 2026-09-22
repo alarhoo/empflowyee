@@ -14,8 +14,7 @@
 				[value]="query().search"
 				type="Search"
 				placeholder="Search results"
-				(ui5Input)="search($event.target.value)"
-			/>
+				(ui5Input)="search($event.target.value)" />
 			<span role="status">{{ page().total }} results</span>
 		</div>
 		@if (state() === 'error') {
@@ -27,22 +26,20 @@
 				overflowMode="Popin"
 				[loading]="state() === 'loading'"
 				[loadingDelay]="0"
-				noDataText="No matching results"
-			>
+				noDataText="No matching results">
 				<ui5-table-header-row slot="headerRow">
 					@for (column of columns(); track column.id) {
 						<ui5-table-header-cell
 							[importance]="column.importance ?? 0"
 							[popinText]="column.label"
-							[sortIndicator]="sortIndicator(column.id)"
-						>
+							[sortIndicator]="sortIndicator(column.id)">
 							@if (column.sortable) {
 								<ui5-button
 									design="Transparent"
 									[accessibleName]="'Sort by ' + column.label"
-									(click)="sort(column)"
-									>{{ column.label }}</ui5-button
-								>
+									(click)="sort(column)">
+									{{ column.label }}
+								</ui5-button>
 							} @else {
 								{{ column.label }}
 							}
@@ -59,18 +56,20 @@
 					}
 				}
 			</ui5-table>
-			<nav class="pagination" aria-label="Result pages">
+			<nav
+				class="pagination"
+				aria-label="Result pages">
 				<ui5-button
 					[disabled]="page().page === 0 || state() === 'loading'"
-					(click)="goToPage(page().page - 1)"
-					>Previous page</ui5-button
-				>
+					(click)="goToPage(page().page - 1)">
+					Previous page
+				</ui5-button>
 				<span>Page {{ page().page + 1 }} of {{ pageCount() }}</span>
 				<ui5-button
 					[disabled]="page().page + 1 >= pageCount() || state() === 'loading'"
-					(click)="goToPage(page().page + 1)"
-					>Next page</ui5-button
-				>
+					(click)="goToPage(page().page + 1)">
+					Next page
+				</ui5-button>
 			</nav>
 		}
 	}

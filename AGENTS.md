@@ -51,7 +51,7 @@ If sources conflict, do not silently choose one. Report the conflict and identif
 ## HCM UX composition and workshop
 
 - Follow the platform floorplan catalog and selection standard. The TDD names the approved floorplan ID and its NATIVE or COMPOSED implementation mode.
-- Inspect installed Fundamental NGX/UI5 APIs before coding. Consume native floorplans directly; never create a wrapper solely to rename them.
+- Inspect installed Fundamental NGX/UI5 APIs before coding. Consume native floorplans directly or through a thin empFLOWyee naming wrapper that preserves native behavior, slots and accessibility. Never imitate native controls with custom HTML/CSS.
 - `type:floorplan` owns domain-agnostic layout and composition only. It may consume approved UX UI/util/contract libraries, but never features, data access or business-domain implementations.
 - Reusable HCM UX additions require Storybook stories with relevant content, loading, empty, error, unavailable, read-only and action states. Verify the four Horizon/HER variants, a tenant accent and responsive sizes.
 - Storybook belongs to `hcm-web`, uses deterministic fictional fixtures and never calls product APIs. Follow `docs/hcm/ux/storybook.md` and the applicable procedures under `.ai/skills/`.
@@ -59,6 +59,7 @@ If sources conflict, do not silently choose one. Report the conflict and identif
 - Evaluate exact installed UI5 wrappers, Fundamental Platform and Core capabilities before composition. Absence of a component name is not proof of a capability gap. Record imports and evidence; React APIs are not Angular evidence.
 - Canonical approval requires meaningful native interactions, all four themes, tenant-overlay removal, responsive and accessibility checks. A directory count or passing build does not approve a floorplan. Deferred candidates stay outside canonical discovery.
 - New forms use Signal Forms. Tables declare client/server data ownership; feature/data-access code owns queries and HTTP. Follow the HCM form/table standards.
+- Every HCM screen and FCL content column must use native Page, DynamicPage or an approved page-backed floorplan, with a header and optional native footer. ToolPageLayout/FCL are layout containers, not substitutes for a content page. Apply the shared centered HCM canvas (90rem maximum, responsive side gutters) once at the application/Storybook boundary. Follow `docs/hcm/ux/page-layout.md`; CI checks page headers and FCL column structure.
 
 ## Angular change detection baseline
 
@@ -104,6 +105,7 @@ Do not invent missing business behavior.
 - Every JavaScript/TypeScript function implementation must have a meaningful JSDoc description, including methods, constructors, accessors, callbacks, tests and tooling.
 - Follow the authoritative scope, examples and checks in `docs/platform/engineering/code-style.md`. Update comments when behavior changes; do not bypass documentation lint rules or insert placeholder descriptions.
 - AI-generated and scaffolded code must meet the same requirement before a change is complete.
+- Format maintained HTML with the repository Prettier configuration: one attribute per line for multi-attribute tags, complete closing tags and same-line closing brackets. Do not use XML formatters for Angular templates or suppress unknown-component diagnostics with schemas.
 - Maintained YAML also requires explanatory comments: document each file's purpose, every workflow job, and significant triggers, permissions, inputs, gates and side effects. Follow the YAML policy in `docs/platform/engineering/code-style.md`; generated lockfiles are exempt.
 
 ## Containers and runtime configuration

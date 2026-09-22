@@ -3,11 +3,11 @@ import { nxE2EPreset } from '@nx/playwright/preset'
 import { workspaceRoot } from '@nx/devkit'
 
 // For CI, you may want to set BASE_URL to the deployed application.
-// The optional preview server is separate from the primary pnpm dev:hcm server on 4302.
-const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4303'
+// Reuse the documented HCM developer server on 4302; BASE_URL targets an existing preview.
+const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4302'
 
 const localServer = {
-	command: 'pnpm run dev:hcm:preview',
+	command: 'pnpm run dev:hcm --host=127.0.0.1',
 	url: baseURL,
 	reuseExistingServer: !process.env['CI'],
 	timeout: 120000,

@@ -12,9 +12,10 @@ export { loadRuntimeConfig } from './loader'
 export async function bootstrapWithRuntimeConfig(
 	root: Type<unknown>,
 	config: ApplicationConfig,
+	parseConfig?: (value: unknown) => Readonly<BrowserRuntimeConfig>,
 ): Promise<ApplicationRef | undefined> {
 	try {
-		const runtimeConfig = await loadRuntimeConfig()
+		const runtimeConfig = await loadRuntimeConfig(undefined, parseConfig)
 		return await bootstrapApplication(root, {
 			...config,
 			providers: [...config.providers, { provide: RUNTIME_CONFIG, useValue: runtimeConfig }],

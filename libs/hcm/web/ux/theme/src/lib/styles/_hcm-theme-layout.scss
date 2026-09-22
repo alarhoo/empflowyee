@@ -18,3 +18,12 @@ body {
 	outline: 2px solid var(--ef-focus-color);
 	outline-offset: 2px;
 }
+
+// One HCM application/workshop canvas owns the width; nested FCL pages use its available space.
+.hcm-app-canvas {
+	display: block;
+	inline-size: calc(100% - 2 * clamp(0.5rem, 2vw, 2rem));
+	max-inline-size: 90rem;
+	min-inline-size: 0;
+	margin-inline: auto;
+}

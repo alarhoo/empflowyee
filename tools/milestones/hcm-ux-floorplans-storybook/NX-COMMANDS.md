@@ -100,3 +100,13 @@ pnpm nx g @nx/angular:library libs/hcm/web/ux/floorplans/dynamic-page --name=hcm
 ```
 
 Scaffold code was replaced with the production contract and focused tests. The earlier commands above are historical; their output count does not establish canonical approval.
+
+## ToolPageLayout reusable pilot
+
+Both prerequisite inspectors and generator help were read before generating the native NavigationLayout integration. Object Page reused its existing library and changed its composition to native UI5 DynamicPage and TabContainer.
+
+```sh
+pnpm nx g @nx/angular:library libs/hcm/web/ux/floorplans/tool-page-layout --name=hcm-web-ux-floorplan-tool-page-layout --importPath=@empflowyee/hcm-web-ux-floorplan-tool-page-layout --tags=product:hcm,runtime:web,domain:ux,type:floorplan --selector=ef-hcm-tool-page-layout --style=scss --unitTestRunner=vitest-analog --skipTests --skipFormat --skipPackageJson
+```
+
+The generated selector policy was aligned to the existing `ef` prefix, the scaffold replaced with native slot projection, and a native-state/resize integration test added. Unrelated generator formatting changes were discarded. Both pilots are consumed by Theme Lab; Storybook renders the same production implementations.

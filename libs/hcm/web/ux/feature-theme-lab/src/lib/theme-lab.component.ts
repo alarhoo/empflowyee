@@ -1,72 +1,111 @@
-import { DynamicPageExample } from './dynamic-page-example.component'
-import { ObjectPageExample } from './object-page-example.component'
-import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core'
-import { form, FormField } from '@angular/forms/signals'
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
+import { ShellBarBranding } from '@fundamental-ngx/ui5-webcomponents-fiori/shell-bar-branding'
+import { BusyIndicator } from '@fundamental-ngx/ui5-webcomponents/busy-indicator'
+import { Avatar } from '@fundamental-ngx/ui5-webcomponents/avatar'
+import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
-import { CheckBox } from '@fundamental-ngx/ui5-webcomponents/check-box'
-import { HcmRuntimeStore, HCM_ROLES, HCM_ENTITLEMENTS } from '@empflowyee/hcm-web-runtime-context'
-import { HCM_THEMES, HcmThemeService, type HcmThemeVariant } from '@empflowyee/hcm-web-ux-theme'
-
-type PreviewId = 'dynamic-page' | 'object-page'
-
+import { Card } from '@fundamental-ngx/ui5-webcomponents/card'
+import { CardHeader } from '@fundamental-ngx/ui5-webcomponents/card-header'
+import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
+import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
+import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
+import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
+import { ListItemStandard } from '@fundamental-ngx/ui5-webcomponents/list-item-standard'
+import { List } from '@fundamental-ngx/ui5-webcomponents/list'
+import { Menu } from '@fundamental-ngx/ui5-webcomponents/menu'
+import { MenuItemGroup } from '@fundamental-ngx/ui5-webcomponents/menu-item-group'
+import { MenuItem } from '@fundamental-ngx/ui5-webcomponents/menu-item'
+import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
+import { Page } from '@fundamental-ngx/ui5-webcomponents-fiori/page'
+import { ResponsivePopover } from '@fundamental-ngx/ui5-webcomponents/responsive-popover'
+import { ShellBar } from '@fundamental-ngx/ui5-webcomponents-fiori/shell-bar'
+import { Tab } from '@fundamental-ngx/ui5-webcomponents/tab'
+import { TabContainer } from '@fundamental-ngx/ui5-webcomponents/tab-container'
+import { Tag } from '@fundamental-ngx/ui5-webcomponents/tag'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
+import { Toast } from '@fundamental-ngx/ui5-webcomponents/toast'
+import { HCM_THEMES } from '@empflowyee/hcm-web-ux-theme'
+import { LabSettingsStore } from './lab-settings.store'
+import { LabDemoComponent } from './lab-demo.component'
+import { LabSettingsComponent } from './lab-settings.component'
+import { LAB_CONTROL_COUNT } from './lab-coverage'
 @Component({
 	selector: 'ef-hcm-theme-lab',
-	imports: [Button, CheckBox, FormField, DynamicPageExample, ObjectPageExample, Input],
+	providers: [LabSettingsStore],
+	imports: [
+		BusyIndicator,
+		ShellBarBranding,
+		Avatar,
+		Bar,
+		Button,
+		Card,
+		CardHeader,
+		Form,
+		FormItem,
+		Input,
+		Label,
+		ListItemStandard,
+		List,
+		Menu,
+		MenuItem,
+		MenuItemGroup,
+		MessageStrip,
+		Page,
+		ResponsivePopover,
+		ShellBar,
+		Tab,
+		TabContainer,
+		Tag,
+		Text,
+		Title,
+		Toast,
+		LabDemoComponent,
+		LabSettingsComponent,
+	],
 	templateUrl: './theme-lab.component.html',
-	styleUrl: './theme-lab.component.scss',
+	styleUrl: './lab.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ThemeLabComponent {
-	readonly theme = inject(HcmThemeService)
-	readonly runtime = inject(HcmRuntimeStore)
+	readonly settings = inject(LabSettingsStore)
 	readonly themes = HCM_THEMES
-	readonly roles = HCM_ROLES
-	readonly entitlements = HCM_ENTITLEMENTS
-	readonly activePreview = signal<PreviewId>('dynamic-page')
-	readonly colorError = signal<string | null>(null)
-	readonly colorModel = signal({ primary: '' })
-	readonly colorForm = form(this.colorModel)
-	readonly currentContextLabel = computed(
-		/** Identify the active tenant and mock user. */ () =>
-			`${this.runtime.tenant().displayName} · ${this.runtime.principal().displayName}`,
-	)
-	readonly previews: readonly { id: PreviewId; label: string }[] = [
-		{ id: 'dynamic-page', label: 'Dynamic Page' },
-		{ id: 'object-page', label: 'Object Page' },
-	]
-
-	/** Synchronize the editable branding field when accepted fixture branding changes. */
-	constructor() {
-		effect(
-			/** Reflect reset and clear actions without discarding an invalid draft on keystrokes. */ () => {
-				this.colorModel.set({ primary: this.runtime.tenant().primaryColor ?? '' })
-				this.colorError.set(null)
-			},
-		)
+	readonly mainTab = signal('home')
+	readonly profileAnchor = signal<HTMLElement | null>(null)
+	readonly notificationAnchor = signal<HTMLElement | null>(null)
+	readonly toastOpen = signal(false)
+	readonly navigation = signal<{ area: 'Employee' | 'Leave' | 'Projects'; query: string }>({
+		area: 'Employee',
+		query: '',
+	})
+	readonly controlCount = LAB_CONTROL_COUNT
+	/** Ignore bubbled profile-tab events so nested section changes cannot reset the workspace. */
+	selectMainTab(tab: string | null): void {
+		if (tab) this.mainTab.set(tab)
 	}
-
-	/** Set a user presentation override so session edits do not reset the chosen theme. */
-	selectTheme(variant: HcmThemeVariant): void {
-		this.runtime.updatePreferences({ theme: variant })
+	/** Open an area from the landing page without recreating its native layout. */
+	openArea(area: 'Employee' | 'Leave' | 'Projects'): void {
+		this.mainTab.set('demo')
+		this.navigation.set({ area, query: '' })
 	}
-
-	/** Validate branding through the theme engine before storing it in fixture context. */
-	onPrimaryColor(value: string): void {
-		const ok = this.theme.setTenantPrimary(value)
-		this.colorError.set(ok ? null : 'Use a three- or six-digit hex color, such as #b74435.')
-		if (ok) {
-			const primary = this.theme.tenantPrimary() ?? undefined
-			this.runtime.setPrimaryColor(primary)
-			this.colorModel.set({ primary: primary ?? '' })
+	/** Route shell search to the relevant local demo and apply an employee query when supplied. */
+	searchLab(value: string): void {
+		const query = value.trim().toLowerCase()
+		if (query === 'leave') this.openArea('Leave')
+		else if (query === 'projects') this.openArea('Projects')
+		else {
+			this.openArea('Employee')
+			this.navigation.set({ area: 'Employee', query: value })
 		}
 	}
-
-	/** Clear the draft and tenant accent together, preserving the selected variant. */
-	clearPrimary(): void {
-		this.runtime.setPrimaryColor(undefined)
-		this.theme.clearTenantPrimary()
-		this.colorModel.set({ primary: '' })
-		this.colorError.set(null)
+	/** Use native profile-menu actions for settings and a session-information toast. */
+	profileAction(label: string): void {
+		this.profileAnchor.set(null)
+		const theme = this.themes.find(
+			/** Resolve a theme selected through the avatar menu. */ (preset) => preset.label === label,
+		)
+		if (theme) this.settings.selectTheme(theme.id)
+		else if (label === 'Presentation settings') this.mainTab.set('settings')
+		else this.toastOpen.set(true)
 	}
 }

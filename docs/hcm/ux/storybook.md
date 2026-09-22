@@ -14,7 +14,7 @@ pnpm nx storybook hcm-web
 
 Open [localhost:6006](http://localhost:6006). Run `pnpm dev:hcm` and open [/ux/theme-lab](http://localhost:4302/ux/theme-lab) for the application consumer. On Windows worker-start failures, set `NX_DAEMON=false` and `NX_ISOLATE_PLUGINS=false` in the current terminal.
 
-The current correction is deliberately limited to Dynamic Page and Object Page. Other previously generated patterns are deferred and excluded from story discovery. Their source presence does not approve production use. See the [validation record](floorplans/validation.md) for evidence and limits.
+The current Theme Lab pilots are Object Page and ToolPageLayout. Storybook exposes those shared implementations alongside the earlier Dynamic Page proof. Other previously generated patterns are deferred and excluded from story discovery. Their source presence does not approve production use. See the [validation record](floorplans/validation.md) for evidence and limits.
 
 ## Production ownership
 
@@ -22,6 +22,7 @@ The current correction is deliberately limited to Dynamic Page and Object Page. 
 flowchart TD
   Native["Maintained UI5 / Fundamental components"] --> Floorplans["Production HCM floorplan libraries"]
   Floorplans --> Examples["Shared production example hosts in Theme Lab feature"]
+  Floorplans --> Stories
   Examples --> App["HCM application / Theme Lab"]
   Examples --> Stories["Curated Storybook"]
   Theme["Production theme service and local assets"] --> App
@@ -40,9 +41,11 @@ Floorplans own domain-neutral regions and presentation contracts. Examples own f
 
 This is a target taxonomy, not a requirement to populate empty sections. Raw controls belong in upstream documentation unless HCM adds meaningful behavior.
 
-Both floorplans are visible in the ordinary catalog: **Floorplans / Native / Dynamic Page** and **Floorplans / Composed / Object Page**. Object Page carries a visible notice about unresolved native accessibility findings. Discovery does not conceal incomplete acceptance, and the notice does not introduce a separate implementation.
+The ordinary catalog includes **Floorplans / Native / Dynamic Page**, **Floorplans / Native / ToolPageLayout** and **Floorplans / Composed / Object Page**. The current pilots carry review notices; historical Core/Platform accessibility evidence does not approve the new UI5 composition. Story fixtures supply data and projected content to production components, never a separate layout implementation.
 
 ## Presentation controls
+
+Compact is the default density. The toolbar can switch to cozy; both use the production density services and supported UI5 density marker.
 
 The initial theme is Horizon Light with **No tenant override**. This branding option clears only the independent accent overlay; it does not change the selected theme. All four Horizon/HER variants remain available, together with Amethyst, Coral and Emerald sample accents, Cozy/Compact density and desktop/tablet/phone viewports.
 

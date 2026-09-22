@@ -4,7 +4,7 @@ A floorplan is a reusable page-level UX pattern. It is not a business feature an
 
 The catalog deliberately separates **behavioral specification** from **technology implementation**. HCM, Account and Console may implement the same platform floorplan with different UI libraries.
 
-A listed ID does not approve a product implementation. Each product records its installed capabilities, implementation choice and acceptance evidence. HCM's current correction is limited to Dynamic Page and Object Page; other generated candidates are deferred.
+A listed ID does not approve a product implementation. Each product records its installed capabilities, implementation choice and acceptance evidence. HCM's current reusable pilots are Object Page and ToolPageLayout; other generated candidates remain deferred.
 
 ## IDs
 
@@ -13,6 +13,7 @@ Floorplan IDs are stable documentation identifiers. FDD/TDD references the ID, n
 | ID                      | Intent                                                        |
 | ----------------------- | ------------------------------------------------------------- |
 | `UX-FP-STANDARD-PAGE`   | Simple page with title/actions/content                        |
+| `UX-FP-TOOL-PAGE`       | Workspace header, side navigation and content                 |
 | `UX-FP-DYNAMIC-PAGE`    | Collapsible/expandable header with persistent title/actions   |
 | `UX-FP-FCL`             | List-detail-detail / master-detail progression in 1–3 columns |
 | `UX-FP-WIZARD`          | Guided multi-step process                                     |

@@ -2,7 +2,7 @@
 
 Use the [capability matrix](component-capability-matrix.md) and [selection standard](../../../platform/ux/floorplans/selection-standard.md) before implementing a feature. A platform catalog ID describes intent; only a reviewed HCM implementation may be selected in a feature TDD.
 
-The current proof covers two floorplans. Other generated libraries are deferred and are not canonical production recommendations.
+The current Theme Lab pilot focuses on Object Page and ToolPageLayout. The earlier Dynamic Page proof remains available. Other generated libraries are deferred and are not canonical production recommendations.
 
 ## Dynamic Page
 
@@ -20,11 +20,11 @@ The HCM responsibility is the action/state contract, not an API alias. Action de
 
 Import `HcmObjectPage` and `HcmObjectSection` from `@empflowyee/hcm-web-ux-floorplan-object-page`.
 
-The implementation composes Fundamental Core DynamicPage with Platform Icon Tab Bar in stacked mode. The Platform DynamicPage proof was rejected because its intermediate DynamicPageContent wrappers force each short section to fill a viewport, creating large blank gaps. Using the supported underlying components removes those wrappers without custom scrolling, private APIs or CSS overrides. There is no installed Angular export literally called ObjectPage. Platform already provides object title/image/key-info regions and section scrolling; the HCM composition projects stable labeled sections and owns the presentation-state/action contract.
+The implementation composes the installed UI5 DynamicPage, DynamicPageTitle, DynamicPageHeader, Toolbar and TabContainer Angular wrappers. Native components own header snapping/pinning, action overflow and keyboard tab navigation. This replaces the earlier Core/Platform stacked section experiment; it does not claim that the Angular ecosystem lacks composition capabilities.
 
 Use it for one object with grouped information and object-level actions. Do not use it for a collection, wizard or list-detail navigation.
 
-Inputs: required `title`, `summary`, `state`, `readOnly`, `actions`, `errorMessage`. Outputs: `action`, `retry`, `sectionChange`. Regions: `[hcmImage]`, `[hcmKeyInfo]`, `[hcmHeader]` and labeled templates:
+Inputs: required `title`, `summary`, `state`, `readOnly`, `actions`, `errorMessage`, `showFooter`. Outputs: `action`, `retry`, `sectionChange`. Regions: `[hcmImage]`, `[hcmKeyInfo]`, `[hcmHeader]`, optional `[hcmFooter]` and labeled templates. Native footer display requires `showFooter` and the content state; features own its actions. All consumers follow the shared [page and width standard](../page-layout.md):
 
 ```html
 <ng-template efHcmObjectSection="employment" label="Employment">
@@ -32,11 +32,21 @@ Inputs: required `title`, `summary`, `state`, `readOnly`, `actions`, `errorMessa
 </ng-template>
 ```
 
-Section IDs must be unique within the page and stable across updates. Native Platform code owns selection, scroll positioning and active-section tracking. Feature routing/deep-link integration is not implemented by this floorplan.
+Section IDs must be unique within the page and stable across updates. Native UI5 TabContainer owns section selection, keyboard navigation and tab overflow. Sections use tabbed content, not stacked anchor scrolling. Feature routing/deep-link integration is not implemented by this floorplan.
+
+## ToolPageLayout
+
+**Floorplan ID:** `UX-FP-TOOL-PAGE`; **HCM implementation:** NATIVE through an empFLOWyee naming integration. Object Page remains `UX-FP-OBJECT-PAGE`, COMPOSED.
+
+Import `HcmToolPageLayout` from `@empflowyee/hcm-web-ux-floorplan-tool-page-layout`. This is a thin integration of native UI5 NavigationLayout with the empFLOWyee name. Use for a workspace with a header, side navigation and a Page or FlexibleColumnLayout body. Do not use it as a replacement for native Page, FCL, Form or Table.
+
+Project a native header element with `slot="header"`, native SideNavigation with `slot="sideContent"`, and default content. Supply a bounded parent height. `mode` supports native `Auto`, `Expanded` and `Collapsed` values and two-way binding. `toggleNavigation()` reads the current native state; `resetNavigation()` returns to Auto. Viewport changes refresh native responsive state. Business routing, permissions and navigation items belong to the consumer.
+
+See the [library usage example](../../../../libs/hcm/web/ux/floorplans/tool-page-layout/README.md).
 
 ## State and security ownership
 
-Both floorplans distinguish content, loading, empty, error/retry, denied and unavailable. Empty means no directory results for Dynamic Page and a missing object for Object Page. Read-only is independent of the content state.
+Dynamic Page and Object Page distinguish content, loading, empty, error/retry, denied and unavailable. Empty means no directory results for Dynamic Page and a missing object for Object Page. Read-only is independent of the content state.
 
 Floorplans make no requests and do not authorize data access. Hidden projected Angular content can still be instantiated; features must gate requests and sensitive data before projection. Do not treat view state as a security control.
 

@@ -232,6 +232,9 @@ importers:
       '@ui5/webcomponents-fiori':
         specifier: ^2.26.0
         version: 2.26.0(react@19.3.0)
+      '@ui5/webcomponents-icons':
+        specifier: 2.26.0
+        version: 2.26.0(react@19.3.0)
       axios:
         specifier: ^1.6.0
         version: 1.18.1(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)

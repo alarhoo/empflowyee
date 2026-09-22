@@ -45,6 +45,9 @@
 			"@empflowyee/hcm-web-ux-tables": ["./libs/hcm/web/ux/tables/src/index.ts"],
 			"@empflowyee/hcm-web-ux-floorplan-dynamic-page": [
 				"./libs/hcm/web/ux/floorplans/dynamic-page/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-floorplan-tool-page-layout": [
+				"./libs/hcm/web/ux/floorplans/tool-page-layout/src/index.ts"
 			]
 		}
 	},

@@ -8,7 +8,11 @@ import { HcmThemeService, type HcmThemeVariant } from '@empflowyee/hcm-web-ux-th
 /** Connect Storybook globals to the production theme service and native content-density provider. */
 @Component({
 	selector: 'ef-hcm-story-frame',
-	host: { '[class.ui5-content-density-compact]': "density() === 'compact'" },
+	host: {
+		class: 'hcm-app-canvas',
+		'[class.ui5-content-density-compact]': "density() === 'compact'",
+		'[attr.data-ui5-compact-size]': "density() === 'compact' ? '' : null",
+	},
 	template:
 		'@if (review()) { <p role="note">{{ review() }}</p> }@if (theme.error()) { <p role="alert">{{ theme.error() }}</p> }<ng-content />',
 	styles: ':host { display: block; min-width: 0; }',
@@ -17,7 +21,7 @@ import { HcmThemeService, type HcmThemeVariant } from '@empflowyee/hcm-web-ux-th
 export class HcmStoryFrame {
 	readonly variant = input<HcmThemeVariant>('horizon-light')
 	readonly brand = input<string | null>(null)
-	readonly density = input<'cozy' | 'compact'>('cozy')
+	readonly density = input<'cozy' | 'compact'>('compact')
 	readonly theme = inject(HcmThemeService)
 	readonly review = input<string | null>(null)
 	private readonly contentDensity = inject(GlobalContentDensityService)

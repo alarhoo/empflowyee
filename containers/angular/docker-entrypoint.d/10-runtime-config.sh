@@ -19,13 +19,21 @@ esac
 TARGET=/usr/share/nginx/html/assets/config.json
 TMP="${TARGET}.tmp"
 
+# Optional public developer-tool switch. Omission preserves the application's PROD-off default.
+case "${HCM_THEME_LAB_ENABLED:-}" in
+  ''|true|false) ;;
+  *) echo 'Invalid HCM_THEME_LAB_ENABLED' >&2; exit 1 ;;
+esac
+
 jq -en \
   --arg environment "$APP_ENVIRONMENT" \
   --arg releaseId "$RELEASE_ID" \
   --arg apiBaseUrl "$API_BASE_URL" \
+  --arg labEnabled "${HCM_THEME_LAB_ENABLED:-}" \
   'if ($releaseId | test("\\S")) and ($releaseId | length) <= 128
       and ($apiBaseUrl | test("^https?://[^/?#@\\s]+(/[^?#\\s]*)?$"))
    then {environment:$environment,releaseId:$releaseId,apiBaseUrl:$apiBaseUrl}
+     + (if $labEnabled == "" then {} else {hcmThemeLabEnabled:($labEnabled == "true")} end)
    else error("Invalid public runtime configuration") end' \
   > "$TMP"
 

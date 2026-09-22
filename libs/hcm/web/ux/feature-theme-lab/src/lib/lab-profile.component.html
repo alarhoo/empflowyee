@@ -1,0 +1,403 @@
+<ef-hcm-object-page
+	[title]="employee().name"
+	[summary]="employee().position + ' · ' + employee().id"
+	[actions]="actions()"
+	(action)="handleAction($event)">
+	<div hcmHeader>
+		<div class="profile-heading">
+			<ui5-avatar
+				[initials]="employee().initials"
+				size="L"
+				[accessibleName]="employee().name" />
+			<div>
+				<ui5-tag design="Positive">{{ employee().status }}</ui5-tag>
+				<ui5-text>{{ employee().department }} · {{ employee().location }}</ui5-text>
+				<ui5-link [href]="'mailto:' + employee().email">{{ employee().email }}</ui5-link>
+			</div>
+		</div>
+		<ui5-form
+			accessibleName="Employment summary"
+			layout="S1 M2 L3 XL3">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Manager</ui5-label>
+				<ui5-text>{{ employee().manager }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Joined</ui5-label>
+				<ui5-text>{{ employee().joined }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Employment</ui5-label>
+				<ui5-text>{{ employee().employmentType }}</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+	</div>
+
+	<ng-template
+		efHcmObjectSection="basic-details"
+		label="Basic details">
+		<div class="section-content">
+			@if (notice()) {
+				<ui5-message-strip [hideCloseButton]="true">{{ notice() }}</ui5-message-strip>
+			}
+			<ui5-form
+				accessibleName="Basic details"
+				[accessibleMode]="editing() ? 'Edit' : 'Display'"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-group headerText="Personal information">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Preferred name</ui5-label>
+						@if (editing()) {
+							<ui5-input
+								accessibleName="Preferred name"
+								[formField]="profileForm.preferred" />
+						} @else {
+							<ui5-text>{{ profile().preferred }}</ui5-text>
+						}
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Date of birth</ui5-label>
+						@if (editing()) {
+							<ui5-date-picker
+								accessibleName="Date of birth"
+								formatPattern="yyyy-MM-dd"
+								[formField]="profileForm.birth" />
+						} @else {
+							<ui5-text>{{ profile().birth }}</ui5-text>
+						}
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Pronouns</ui5-label>
+						@if (editing()) {
+							<ui5-select
+								accessibleName="Pronouns"
+								[formField]="profileForm.pronouns">
+								@for (
+									pronoun of ['Prefer not to say', 'She / her', 'He / him', 'They / them'];
+									track pronoun
+								) {
+									<ui5-option [value]="pronoun">{{ pronoun }}</ui5-option>
+								}
+							</ui5-select>
+						} @else {
+							<ui5-text>{{ profile().pronouns }}</ui5-text>
+						}
+					</ui5-form-item>
+				</ui5-form-group>
+				<ui5-form-group headerText="Work contact">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Work email</ui5-label>
+						@if (editing()) {
+							<ui5-input
+								accessibleName="Work email"
+								type="Email"
+								[formField]="profileForm.email" />
+						} @else {
+							<ui5-link [href]="'mailto:' + profile().email">{{ profile().email }}</ui5-link>
+						}
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Phone</ui5-label>
+						@if (editing()) {
+							<ui5-input
+								accessibleName="Phone"
+								type="Tel"
+								[formField]="profileForm.phone" />
+						} @else {
+							<ui5-text>{{ profile().phone }}</ui5-text>
+						}
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Work location</ui5-label>
+						@if (editing()) {
+							<ui5-combobox
+								accessibleName="Work location"
+								[formField]="profileForm.location">
+								<ui5-cb-item text="Scranton · Pennsylvania" />
+								<ui5-cb-item text="Stamford · Connecticut" />
+								<ui5-cb-item text="Remote" />
+							</ui5-combobox>
+						} @else {
+							<ui5-text>{{ profile().location }}</ui5-text>
+						}
+					</ui5-form-item>
+				</ui5-form-group>
+				<ui5-form-group headerText="About me">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Introduction</ui5-label>
+						@if (editing()) {
+							<ui5-textarea
+								accessibleName="Introduction"
+								[formField]="profileForm.bio" />
+						} @else {
+							<ui5-text>{{ profile().bio }}</ui5-text>
+						}
+					</ui5-form-item>
+				</ui5-form-group>
+			</ui5-form>
+			<ui5-expandable-text
+				text="This fictional profile demonstrates display and edit behavior using native UI5 Form controls. Changes remain in this browser session and never update employee records."
+				[maxCharacters]="100" />
+		</div>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="verification"
+		label="Verification">
+		<div class="section-content">
+			<ui5-message-strip
+				design="Positive"
+				[hideCloseButton]="true">
+				Work email verified. Identity review completed for this fictional employee.
+			</ui5-message-strip>
+			<ui5-form
+				accessibleName="Verification preferences"
+				accessibleMode="Edit"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Directory visibility</ui5-label>
+					<ui5-switch
+						accessibleName="Directory visibility"
+						[checked]="true" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Consent</ui5-label>
+					<ui5-checkbox
+						text="Share work contact with colleagues"
+						[checked]="true" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Preferred contact</ui5-label>
+					<ui5-radio-button
+						name="contact"
+						text="Email"
+						[checked]="true" />
+					<ui5-radio-button
+						name="contact"
+						text="Phone" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Languages</ui5-label>
+					<ui5-multi-combobox accessibleName="Languages">
+						<ui5-mcb-item
+							text="English"
+							[selected]="true" />
+						<ui5-mcb-item text="Spanish" />
+						<ui5-mcb-item text="German" />
+					</ui5-multi-combobox>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Emergency contacts</ui5-label>
+					<ui5-multi-input
+						accessibleName="Emergency contacts"
+						placeholder="Add contact, then Enter"
+						(ui5Change)="addContact($event.currentTarget.value)"
+						(ui5TokenDelete)="removeContact($event.detail.tokens[0]?.text || '')">
+						@for (contact of contacts(); track contact) {
+							<ui5-token
+								slot="tokens"
+								[text]="contact" />
+						}
+					</ui5-multi-input>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Verified credentials</ui5-label>
+					<ui5-tokenizer [readonly]="true">
+						<ui5-token text="Work email" />
+						<ui5-token text="Identity" />
+					</ui5-tokenizer>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Review appointment</ui5-label>
+					<ui5-datetime-picker
+						accessibleName="Review appointment"
+						value="2026-10-12T10:00"
+						formatPattern="yyyy-MM-dd'T'HH:mm" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Preferred callback</ui5-label>
+					<ui5-time-picker
+						accessibleName="Preferred callback"
+						value="10:00"
+						formatPattern="HH:mm" />
+				</ui5-form-item>
+			</ui5-form>
+		</div>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="skills"
+		label="Skills">
+		<div class="section-content">
+			<ui5-title level="H2">Skills &amp; competencies</ui5-title>
+			<ui5-text>Self-assessment for the next development conversation.</ui5-text>
+			<ui5-table
+				accessibleName="Employee skills"
+				overflowMode="Popin">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="10rem">Skill</ui5-table-header-cell>
+					<ui5-table-header-cell minWidth="12rem">Proficiency</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (skill of employee().skills; track skill.name) {
+					<ui5-table-row>
+						<ui5-table-cell>{{ skill.name }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-rating-indicator
+								[accessibleName]="skill.name + ' proficiency'"
+								[value]="skill.rating" />
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-label>Learning plan completion</ui5-label>
+			<ui5-progress-indicator
+				accessibleName="Learning plan completion"
+				[value]="68"
+				displayValue="68% · 4 of 6 learning goals" />
+		</div>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="leave"
+		label="Leave">
+		<div class="section-content">
+			<ui5-title level="H2">Leave balance</ui5-title>
+			<ui5-text>{{ employee().leaveBalance }} days available in the demo allowance.</ui5-text>
+			<ui5-daterange-picker accessibleName="Proposed leave dates" />
+			<ui5-button
+				(ui5Click)="
+					context.emit({
+						title: 'Leave request',
+						description: employee().name + ' · Preview a request and approval history.',
+					})
+				">
+				Open leave detail
+			</ui5-button>
+			<ui5-table
+				accessibleName="Leave history"
+				overflowMode="Popin"
+				noDataText="No requests for this employee.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="10rem">Request</ui5-table-header-cell>
+					<ui5-table-header-cell minWidth="8rem">Status</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (request of employee().leaveRequests; track request.id) {
+					<ui5-table-row>
+						<ui5-table-cell>
+							<ui5-link
+								(ui5Click)="
+									context.emit({
+										title: request.id + ' · ' + request.type,
+										description: request.start + ' to ' + request.end + ' · ' + request.comment,
+									})
+								">
+								{{ request.type }} · {{ request.start }}
+							</ui5-link>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-tag [design]="request.status === 'Approved' ? 'Positive' : 'Critical'">
+								{{ request.status }}
+							</ui5-tag>
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</div>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="history"
+		label="History">
+		<div class="section-content">
+			<ui5-title level="H2">Employment history</ui5-title>
+			<ui5-timeline accessibleName="Employment history">
+				@for (event of employee().employmentHistory; track event.date) {
+					<ui5-timeline-item
+						[titleText]="event.title"
+						[subtitleText]="event.date"
+						name="View event"
+						[nameClickable]="true"
+						icon="employee"
+						(ui5NameClick)="
+							context.emit({
+								title: event.title,
+								description: event.date + ' · ' + event.description,
+							})
+						">
+						{{ event.description }}
+					</ui5-timeline-item>
+				}
+			</ui5-timeline>
+		</div>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="documents"
+		label="Documents">
+		<div class="section-content">
+			<ui5-message-strip [hideCloseButton]="true">
+				Local file names only. File contents are never read or uploaded.
+			</ui5-message-strip>
+			<ui5-file-uploader
+				accessibleName="Add demo documents"
+				[hideInput]="true"
+				[multiple]="true"
+				(ui5Change)="addFiles($event.detail.files || [])">
+				<ui5-button icon="upload">Add documents</ui5-button>
+			</ui5-file-uploader>
+			<ui5-upload-collection
+				accessibleName="Employee documents"
+				[hideDragOverlay]="true"
+				(ui5ItemDelete)="removeDocument($event.detail.item.fileName)">
+				@for (name of documents(); track name) {
+					<ui5-upload-collection-item
+						[fileName]="name"
+						[fileNameClickable]="true"
+						uploadState="Complete"
+						(ui5FileNameClick)="
+							context.emit({
+								title: name,
+								description: 'Fictional document metadata. No binary content is stored.',
+							})
+						">
+						Added to the local preview
+					</ui5-upload-collection-item>
+				}
+			</ui5-upload-collection>
+			@if (!documents().length) {
+				<ui5-illustrated-message
+					name="NoData"
+					titleText="No documents yet"
+					subtitleText="Add a local filename to explore the upload collection." />
+			}
+		</div>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="projects"
+		label="Projects">
+		<div class="section-content">
+			@for (project of employee().projectAssignments; track project.id) {
+				<ui5-card>
+					<ui5-card-header
+						slot="header"
+						[titleText]="project.name"
+						[subtitleText]="project.client" />
+					<div class="section-content">
+						<ui5-progress-indicator
+							[value]="project.progress"
+							[displayValue]="project.progress + '% complete'" />
+						<ui5-button
+							(ui5Click)="
+								context.emit({
+									title: project.name,
+									description: employee().name + ' · Contributor · Target ' + project.target,
+								})
+							">
+							View assignment
+						</ui5-button>
+					</div>
+				</ui5-card>
+			} @empty {
+				<ui5-illustrated-message
+					name="NoData"
+					titleText="No current assignments"
+					subtitleText="This employee has no projects in the local fixture." />
+			}
+		</div>
+	</ng-template>
+</ef-hcm-object-page>

@@ -62,6 +62,8 @@ describe('HcmNativeThemeService', /** Verify failed assets and discarded roots c
 		for (const id of ids) document.getElementById(id)?.dispatchEvent(new Event('load'))
 		await applied
 		expect(completed).toBe(true)
+		await service.apply('sap_horizon_dark')
+		expect(setTheme).toHaveBeenCalledOnce()
 		service.clear()
 	})
 	it('rejects a missing stylesheet instead of reporting successful theme application', /** A native link error must reach the semantic theme owner. */ async () => {

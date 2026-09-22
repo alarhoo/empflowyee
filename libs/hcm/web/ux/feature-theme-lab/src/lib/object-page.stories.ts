@@ -13,7 +13,7 @@ const meta: Meta<ObjectPageExample> = {
 		docs: {
 			description: {
 				component:
-					'Production HcmObjectPage uses Fundamental Core DynamicPage and Platform IconTabBar with stacked sections and maintained anchor navigation. Use for one object with grouped information; use a list floorplan for collections. Local employee data and edits are disposable.',
+					'Production HcmObjectPage composes native UI5 DynamicPage, Toolbar and TabContainer. Native controls own header snapping, pinning, action overflow and keyboard section selection. Use for one object with grouped information; use a list floorplan for collections. Local employee data and edits are disposable.',
 			},
 		},
 	},

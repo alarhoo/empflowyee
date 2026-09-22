@@ -1,0 +1,477 @@
+<ef-hcm-tool-page-layout>
+	<ui5-bar slot="header">
+		<ui5-button
+			slot="startContent"
+			icon="menu2"
+			accessibleName="Toggle demo navigation"
+			(ui5Click)="toolPage()?.toggleNavigation()" />
+		<ui5-breadcrumbs slot="startContent">
+			<ui5-breadcrumbs-item>Demo workspace</ui5-breadcrumbs-item>
+			<ui5-breadcrumbs-item>{{ area() }}</ui5-breadcrumbs-item>
+		</ui5-breadcrumbs>
+		<ui5-tag slot="endContent">Fictional data</ui5-tag>
+	</ui5-bar>
+	<ui5-side-navigation
+		slot="sideContent"
+		accessibleName="Demo areas">
+		<ui5-side-navigation-item
+			text="Employee"
+			icon="employee"
+			[selected]="area() === 'Employee'"
+			(ui5Click)="selectArea('Employee')" />
+		<ui5-side-navigation-item
+			text="Leave"
+			icon="calendar"
+			[selected]="area() === 'Leave'"
+			(ui5Click)="selectArea('Leave')" />
+		<ui5-side-navigation-item
+			text="Projects"
+			icon="project-definition-triangle"
+			[selected]="area() === 'Projects'"
+			(ui5Click)="selectArea('Projects')" />
+	</ui5-side-navigation>
+	<ui5-flexible-column-layout
+		[layout]="layout()"
+		(ui5LayoutChange)="layout.set($event.detail.layout)">
+		<ui5-page
+			slot="startColumn"
+			backgroundDesign="Solid">
+			<ui5-bar slot="header">
+				<ui5-title
+					slot="startContent"
+					level="H1">
+					{{ area() }}
+				</ui5-title>
+				<ui5-button
+					slot="endContent"
+					icon="sort"
+					accessibleName="Sort records"
+					(ui5Click)="sortOpen.set(true)" />
+			</ui5-bar>
+			<div class="list-tools">
+				<ui5-input
+					accessibleName="Search records"
+					[placeholder]="'Search ' + area().toLowerCase()"
+					[formField]="searchForm.query"
+					[showClearIcon]="true" />
+				@if (area() === 'Employee') {
+					<ui5-select
+						accessibleName="Department filter"
+						(ui5Change)="department.set($event.detail.selectedOption.value || '')">
+						<ui5-option value="All">All departments</ui5-option>
+						@for (team of departments; track team) {
+							<ui5-option [value]="team">{{ team }}</ui5-option>
+						}
+					</ui5-select>
+				}
+				@if (area() === 'Leave') {
+					<ui5-segmented-button accessibleName="Leave status">
+						<ui5-segmented-button-item
+							[selected]="!pendingOnly()"
+							(ui5Click)="pendingOnly.set(false)">
+							All requests
+						</ui5-segmented-button-item>
+						<ui5-segmented-button-item
+							[selected]="pendingOnly()"
+							(ui5Click)="pendingOnly.set(true)">
+							Pending
+						</ui5-segmented-button-item>
+					</ui5-segmented-button>
+				}
+			</div>
+			@switch (area()) {
+				@case ('Employee') {
+					<ui5-list
+						accessibleName="Employee directory"
+						selectionMode="Single"
+						noDataText="No employees match this search.">
+						@for (person of employees(); track person.id) {
+							<ui5-li-custom
+								type="Active"
+								[selected]="selectedId() === person.id"
+								(ui5Click)="selectEmployee(person.id)"
+								[accessibleName]="person.name + ', ' + person.position">
+								<div class="employee-row">
+									<ui5-avatar
+										[initials]="person.initials"
+										size="S"
+										[accessibleName]="person.name" />
+									<div class="employee-copy">
+										<ui5-title level="H3">{{ person.name }}</ui5-title>
+										<ui5-text>{{ person.position }}</ui5-text>
+										<ui5-text>{{ person.email }}</ui5-text>
+										<ui5-text>{{ person.id }}</ui5-text>
+										<div class="employee-tags">
+											<ui5-tag design="Positive">{{ person.status }}</ui5-tag>
+											<ui5-tag>{{ person.employmentType }}</ui5-tag>
+										</div>
+									</div>
+								</div>
+							</ui5-li-custom>
+						}
+					</ui5-list>
+				}
+				@case ('Leave') {
+					<ui5-list
+						accessibleName="Leave requests"
+						selectionMode="Single">
+						@for (request of leaveRequests(); track request.id) {
+							<ui5-li
+								type="Active"
+								[selected]="selectedId() === request.id"
+								[description]="request.type + ' · ' + request.start"
+								[additionalText]="request.status"
+								[additionalTextState]="request.status === 'Approved' ? 'Positive' : 'Critical'"
+								(ui5Click)="selectRecord(request.id)">
+								{{ request.name }}
+							</ui5-li>
+						}
+					</ui5-list>
+				}
+				@case ('Projects') {
+					<ui5-list
+						accessibleName="Projects"
+						selectionMode="Single">
+						@for (project of projects(); track project.id) {
+							<ui5-li
+								type="Active"
+								[selected]="selectedId() === project.id"
+								[description]="project.client"
+								[additionalText]="project.progress + '%'"
+								(ui5Click)="selectRecord(project.id)">
+								{{ project.name }}
+							</ui5-li>
+						}
+					</ui5-list>
+				}
+			}
+		</ui5-page>
+		@if (area() === 'Employee' && selectedEmployee(); as person) {
+			<ef-hcm-lab-profile
+				slot="midColumn"
+				[employee]="person"
+				(back)="backToList()"
+				(context)="openContext($event)" />
+		} @else {
+			<ui5-page
+				slot="midColumn"
+				backgroundDesign="Solid">
+				<ui5-bar slot="header">
+					<ui5-button
+						slot="startContent"
+						icon="nav-back"
+						accessibleName="Back to list"
+						(ui5Click)="backToList()" />
+					<ui5-title
+						slot="startContent"
+						level="H2">
+						{{ area() === 'Leave' ? selectedLeave().type : selectedProject().name }}
+					</ui5-title>
+				</ui5-bar>
+				@if (area() === 'Leave') {
+					<div class="page-content">
+						<ui5-tag [design]="selectedLeave().status === 'Approved' ? 'Positive' : 'Critical'">
+							{{ selectedLeave().status }}
+						</ui5-tag>
+						<ui5-title level="H2">{{ selectedLeave().name }}</ui5-title>
+						<ui5-text>{{ selectedLeave().id }} · {{ selectedLeave().days }} days</ui5-text>
+						<ui5-form
+							accessibleName="Leave request details"
+							layout="S1 M2 L2 XL2">
+							<ui5-form-item>
+								<ui5-label slot="labelContent">From</ui5-label>
+								<ui5-text>{{ selectedLeave().start }}</ui5-text>
+							</ui5-form-item>
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Until</ui5-label>
+								<ui5-text>{{ selectedLeave().end }}</ui5-text>
+							</ui5-form-item>
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Reason</ui5-label>
+								<ui5-text>{{ selectedLeave().comment }}</ui5-text>
+							</ui5-form-item>
+						</ui5-form>
+						<ui5-toolbar accessibleName="Leave actions">
+							<ui5-toolbar-button
+								text="New request"
+								design="Emphasized"
+								(ui5Click)="requestOpen.set(true)" />
+							<ui5-toolbar-button
+								text="Approval history"
+								(ui5Click)="
+									openContext({
+										title: 'Approval history',
+										description: selectedLeave().name + ' · Submitted to Michael Scott for review.',
+									})
+								" />
+						</ui5-toolbar>
+						<ui5-panel headerText="Plan time off">
+							<ui5-form
+								accessibleName="Leave planning"
+								accessibleMode="Edit"
+								layout="S1 M2 L2 XL2">
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Date range</ui5-label>
+									<ui5-daterange-picker accessibleName="Leave planning dates" />
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Relative planning window</ui5-label>
+									<ui5-dynamic-date-range accessibleName="Planning window" />
+								</ui5-form-item>
+							</ui5-form>
+							<ui5-calendar
+								accessibleName="Leave calendar"
+								selectionMode="Range" />
+							<ui5-calendar-legend />
+						</ui5-panel>
+						<ui5-table
+							accessibleName="Team leave overview"
+							overflowMode="Popin">
+							<ui5-table-header-row slot="headerRow">
+								<ui5-table-header-cell minWidth="9rem">Employee</ui5-table-header-cell>
+								<ui5-table-header-cell minWidth="8rem">Dates</ui5-table-header-cell>
+								<ui5-table-header-cell minWidth="6rem">Status</ui5-table-header-cell>
+							</ui5-table-header-row>
+							@for (request of leaveRequests(); track request.id) {
+								<ui5-table-row>
+									<ui5-table-cell>
+										<ui5-link (ui5Click)="selectRecord(request.id)">{{ request.name }}</ui5-link>
+									</ui5-table-cell>
+									<ui5-table-cell>{{ request.start }}</ui5-table-cell>
+									<ui5-table-cell>
+										<ui5-tag [design]="request.status === 'Approved' ? 'Positive' : 'Critical'">
+											{{ request.status }}
+										</ui5-tag>
+									</ui5-table-cell>
+								</ui5-table-row>
+							}
+						</ui5-table>
+					</div>
+				} @else {
+					<div class="page-content">
+						<ui5-card>
+							<ui5-card-header
+								slot="header"
+								[titleText]="selectedProject().name"
+								[subtitleText]="selectedProject().client" />
+							<div class="section-content">
+								<ui5-tag
+									[design]="selectedProject().status === 'On track' ? 'Positive' : 'Critical'">
+									{{ selectedProject().status }}
+								</ui5-tag>
+								<ui5-progress-indicator
+									[value]="selectedProject().progress"
+									[displayValue]="selectedProject().progress + '% complete'" />
+							</div>
+						</ui5-card>
+						<ui5-toolbar accessibleName="Project actions">
+							<ui5-toolbar-button
+								text="Open assignment"
+								(ui5Click)="
+									openContext({
+										title: selectedProject().name + ' assignment',
+										description: 'Contributor allocation and milestones. Local preview only.',
+									})
+								" />
+						</ui5-toolbar>
+						<div class="inline-actions">
+							<ui5-toggle-button
+								[pressed]="following()"
+								(ui5Click)="following.update(toggle)">
+								{{ following() ? 'Following project' : 'Follow project' }}
+							</ui5-toggle-button>
+							<ui5-split-button
+								id="project-actions"
+								(ui5Click)="
+									openContext({
+										title: 'Project brief',
+										description: selectedProject().name + ' · ' + selectedProject().client,
+									})
+								"
+								(ui5ArrowClick)="menuOpen.set(true)">
+								Project brief
+							</ui5-split-button>
+						</div>
+						<ui5-title level="H3">Team</ui5-title>
+						<ui5-avatar-group>
+							@for (member of selectedProject().members; track member) {
+								<ui5-avatar
+									[initials]="initials(member)"
+									[accessibleName]="member" />
+							}
+						</ui5-avatar-group>
+						<ui5-table
+							accessibleName="Project assignments"
+							overflowMode="Popin">
+							<ui5-table-header-row slot="headerRow">
+								<ui5-table-header-cell minWidth="10rem">Contributor</ui5-table-header-cell>
+								<ui5-table-header-cell minWidth="10rem">Capacity</ui5-table-header-cell>
+							</ui5-table-header-row>
+							@for (member of selectedProject().members; track member) {
+								<ui5-table-row>
+									<ui5-table-cell>
+										<ui5-link
+											(ui5Click)="
+												openContext({
+													title: member,
+													description: selectedProject().name + ' · Contributor, 60% allocation.',
+												})
+											">
+											{{ member }}
+										</ui5-link>
+									</ui5-table-cell>
+									<ui5-table-cell>
+										<ui5-progress-indicator
+											[value]="60"
+											displayValue="60% allocated" />
+									</ui5-table-cell>
+								</ui5-table-row>
+							}
+						</ui5-table>
+						<ui5-panel headerText="Capacity planning">
+							<ui5-label>Weekly allocation: {{ capacity() }}%</ui5-label>
+							<ui5-slider
+								accessibleName="Weekly allocation"
+								[value]="capacity()"
+								[min]="0"
+								[max]="100"
+								[step]="10"
+								(ui5Input)="capacity.set($event.currentTarget.value)" />
+							<ui5-label>Available capacity range</ui5-label>
+							<ui5-range-slider
+								accessibleName="Available capacity range"
+								[startValue]="20"
+								[endValue]="80"
+								[step]="10" />
+							<ui5-message-strip [hideCloseButton]="true">
+								Capacity controls are a local planning preview. No assignment is updated.
+							</ui5-message-strip>
+						</ui5-panel>
+					</div>
+				}
+			</ui5-page>
+		}
+		<ui5-page
+			slot="endColumn"
+			backgroundDesign="Solid">
+			<ui5-bar slot="header">
+				<ui5-title
+					slot="startContent"
+					level="H2">
+					Context
+				</ui5-title>
+				<ui5-button
+					slot="endContent"
+					icon="decline"
+					accessibleName="Close context"
+					(ui5Click)="closeContext()" />
+			</ui5-bar>
+			@if (context(); as detail) {
+				<div class="page-content">
+					<ui5-title level="H3">{{ detail.title }}</ui5-title>
+					<ui5-text>{{ detail.description }}</ui5-text>
+					<ui5-tag>Local preview</ui5-tag>
+					<ui5-timeline accessibleName="Context history">
+						<ui5-timeline-item
+							titleText="Reviewed"
+							subtitleText="22 September 2026"
+							icon="accept">
+							The fictional record is ready for review.
+						</ui5-timeline-item>
+						<ui5-timeline-item
+							titleText="Created"
+							subtitleText="18 September 2026"
+							icon="document">
+							Created in the demo workspace.
+						</ui5-timeline-item>
+					</ui5-timeline>
+					<ui5-button
+						id="context-help"
+						(ui5Click)="helpOpen.set(true)">
+						About this record
+					</ui5-button>
+				</div>
+			}
+		</ui5-page>
+	</ui5-flexible-column-layout>
+</ef-hcm-tool-page-layout>
+<ui5-view-settings-dialog
+	[open]="sortOpen()"
+	[sortDescending]="descending()"
+	(ui5Confirm)="sortRecords($event.detail.sortDescending)"
+	(ui5Close)="sortOpen.set(false)">
+	<ui5-sort-item
+		slot="sortItems"
+		text="Name"
+		[selected]="true" />
+</ui5-view-settings-dialog>
+<ui5-menu
+	opener="project-actions"
+	[open]="menuOpen()"
+	(ui5Close)="menuOpen.set(false)"
+	(ui5ItemClick)="projectAction($event.detail.item.text || '')">
+	<ui5-menu-item text="View milestones" />
+	<ui5-menu-item text="View team allocation" />
+</ui5-menu>
+<ui5-popover
+	opener="context-help"
+	headerText="Fictional record"
+	[open]="helpOpen()"
+	(ui5Close)="helpOpen.set(false)">
+	<div class="dialog-body">
+		<ui5-text>
+			All records are deterministic lab fixtures. No customer data or backend requests are used.
+		</ui5-text>
+	</div>
+</ui5-popover>
+<ui5-dialog
+	headerText="Request leave · local preview"
+	[open]="requestOpen()"
+	(ui5Close)="requestOpen.set(false)">
+	<div class="dialog-body">
+		<ui5-form
+			accessibleName="New leave request"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Leave type</ui5-label>
+				<ui5-select accessibleName="Leave type">
+					<ui5-option>Annual leave</ui5-option>
+					<ui5-option>Personal leave</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Dates</ui5-label>
+				<ui5-daterange-picker
+					accessibleName="Request dates"
+					[formField]="requestForm.dates" />
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Notes</ui5-label>
+				<ui5-textarea
+					accessibleName="Request notes"
+					[formField]="requestForm.notes" />
+			</ui5-form-item>
+		</ui5-form>
+		@if (requestError()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ requestError() }}
+			</ui5-message-strip>
+		}
+	</div>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			(ui5Click)="requestOpen.set(false)">
+			Cancel
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			(ui5Click)="previewRequest()">
+			Preview request
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

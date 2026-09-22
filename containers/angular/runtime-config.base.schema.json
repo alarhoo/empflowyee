@@ -6,6 +6,10 @@
 	"additionalProperties": true,
 	"required": ["environment", "releaseId", "apiBaseUrl"],
 	"properties": {
+		"hcmThemeLabEnabled": {
+			"type": "boolean",
+			"description": "Optional HCM developer lab availability; defaults off in PROD."
+		},
 		"environment": {
 			"type": "string",
 			"enum": ["local", "dev", "qa", "prod"]

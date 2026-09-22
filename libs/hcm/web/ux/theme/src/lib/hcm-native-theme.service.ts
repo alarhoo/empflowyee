@@ -5,6 +5,7 @@ import { ThemingService } from '@fundamental-ngx/core/theming'
 
 // UI5 theme state is document-global, including across Angular/Storybook root remounts.
 const nativeQueues = new WeakMap<Document, Promise<void>>()
+const loadedThemes = new WeakMap<Document, 'sap_horizon' | 'sap_horizon_dark'>()
 
 /** Coordinate the maintained UI5 and Fundamental theme loaders using local, governed assets. */
 @Injectable({ providedIn: 'root' })
@@ -32,6 +33,8 @@ export class HcmNativeThemeService {
 
 	/** Load native assets only while this service still owns its outstanding request. */
 	private async load(theme: 'sap_horizon' | 'sap_horizon_dark', generation: number): Promise<void> {
+		// Semantic edits and tenant accents do not require reloading an unchanged native base.
+		if (loadedThemes.get(this.document) === theme) return
 		await setTheme(theme)
 		if (generation !== this.generation) return
 		if (!this.fundamental.setTheme(theme)) throw new Error('Unsupported Fundamental theme')
@@ -41,11 +44,13 @@ export class HcmNativeThemeService {
 					this.waitForStylesheet(id),
 			),
 		)
+		if (generation === this.generation) loadedThemes.set(this.document, theme)
 	}
 
 	/** Remove owned stylesheet links when this document no longer has an HCM theme owner. */
 	clear(): void {
 		this.generation++
+		loadedThemes.delete(this.document)
 		for (const cancel of this.pendingLoads) cancel()
 		for (const id of ['hcm-sap-theme', 'hcm-fundamental-theme'])
 			this.document.getElementById(id)?.remove()

@@ -15,6 +15,12 @@ Formatting rules use `@stylistic/eslint-plugin`, the maintained successors to ES
 
 ## TypeScript and frameworks
 
+HTML templates use the repository's Prettier configuration with `singleAttributePerLine: true`, `bracketSameLine: true` and `htmlWhitespaceSensitivity: ignore`. Multi-attribute opening tags put attributes on separate lines; closing tags remain intact instead of splitting the tag name from `>`. Empty Angular components may self-close. Prettier remains Angular-aware; do not run an XML formatter over bindings or control-flow blocks. Text content may wrap at the configured print width.
+
+VS Code uses Prettier on save for both `html` and `angular-html` language modes. Install the recommended Prettier extension and use **Format Document** or `pnpm exec prettier --write "apps/**/*.html" "libs/**/*.html"` to normalize existing templates. PR CI checks formatting through the existing Nx formatting step. These settings are documented in the [official Prettier options](https://prettier.io/docs/options).
+
+For inline prose where whitespace is semantically significant, use explicit spaces/entities or a narrowly documented `prettier-ignore`. Do not disable formatting for an entire template.
+
 TypeScript-aware rules replace the core redeclaration, unused-expression, unused-variable, and use-before-definition rules. Intentional unused parameters may start with `_`. Application source additionally uses type-aware checks for unhandled/misused promises, consistent returns, and readonly private fields.
 
 Angular retains its component/directive selector and template rules, prefers `inject()`, and requires standalone components and lifecycle interfaces. Zone.js remains enabled as documented in the Angular baseline.

@@ -16,7 +16,7 @@ Tenant branding adds a controlled primary-color overlay on top of the selected f
 
 ## Tenant branding flow
 
-The [current Shell + Theme Lab implementation](../architecture/shell/README.md) supports
+The [current Foundation Lab implementation](theme-lab/README.md) supports
 the four choices and a validated accent in fixture memory. The persistence/bootstrap
 steps below describe the future production flow; they are not implemented by this milestone.
 
@@ -35,6 +35,6 @@ Do not create one CSS theme file per tenant.
 ## Custom theme policy
 
 The accepted [HER overlay ADR](../adr/ADR-0002-her-theme-as-horizon-overlay.md) keeps
-native Horizon controls and permits only the [documented accent bridge](../architecture/shell/theming.md#implemented-accent-bridge).
+native Horizon controls and permits the [governed semantic and accent bridge](theme-lab/THEME-TOKENS.md#implemented-validation-and-bridge) accepted by the [Foundation Lab ADR](../adr/ADR-HCM-UX-FOUNDATION-LAB-v2.md).
 A complete custom UI5 theme bundle requires a separate ADR. Deep Shadow DOM styling
 and per-control skinning are prohibited.

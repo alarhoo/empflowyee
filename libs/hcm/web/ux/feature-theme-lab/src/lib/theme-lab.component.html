@@ -1,108 +1,239 @@
-<section class="lab" aria-labelledby="theme-lab-title">
-	<header class="lab-hero">
-		<div>
-			<p class="eyebrow">HCM UX FOUNDATION</p>
-			<h1 id="theme-lab-title">Theme Lab</h1>
-			<p>
-				Validate native Horizon controls, HER palettes, tenant branding and enterprise layout
-				behavior before domain screens are built.
-			</p>
-		</div>
-		<div class="context-chip">{{ currentContextLabel() }}</div>
-	</header>
-
-	<section class="controls" aria-label="Theme controls">
-		<div class="control-group">
-			<span class="control-label">Theme</span>
-			<div class="button-row">
-				@for (item of themes; track item.id) {
-					<ui5-button
-						[design]="theme.variant() === item.id ? 'Emphasized' : 'Default'"
-						[attr.aria-pressed]="theme.variant() === item.id"
-						(click)="selectTheme(item.id)"
-						>{{ item.label }}</ui5-button
-					>
+<a
+	class="skip-link"
+	href="#lab-content">
+	Skip to lab content
+</a>
+<ui5-shellbar
+	id="lab-shell"
+	primaryTitle="empFLOWyee"
+	secondaryTitle="UX Foundation Lab"
+	[showNotifications]="true"
+	notificationsCount="2"
+	(ui5ProfileClick)="profileAnchor.set($event.detail.targetRef)"
+	(ui5NotificationsClick)="notificationAnchor.set($event.detail.targetRef)">
+	<ui5-shellbar-branding
+		slot="branding"
+		accessibleName="empFLOWyee — Foundation Lab home"
+		(ui5Click)="mainTab.set('home')">
+		<ui5-avatar
+			slot="logo"
+			initials="EF"
+			size="XS"
+			shape="Square"
+			accessibleName="empFLOWyee" />
+		empFLOWyee · UX Foundation
+	</ui5-shellbar-branding>
+	<ui5-avatar
+		slot="profile"
+		initials="DV"
+		accessibleName="Developer profile" />
+	<ui5-input
+		slot="searchField"
+		accessibleName="Search lab"
+		placeholder="Search employees or type Leave / Projects"
+		(ui5Change)="searchLab($event.currentTarget.value)" />
+</ui5-shellbar>
+@if (settings.theme.loading()) {
+	<ui5-busy-indicator
+		[active]="true"
+		size="S"
+		text="Applying theme"
+		class="theme-loading" />
+}
+@if (settings.theme.error()) {
+	<ui5-message-strip
+		design="Negative"
+		[hideCloseButton]="true">
+		{{ settings.theme.error() }}
+	</ui5-message-strip>
+}
+<ui5-tabcontainer
+	id="lab-content"
+	class="main-tabs"
+	tabLayout="Inline"
+	contentBackgroundDesign="Transparent"
+	(ui5TabSelect)="selectMainTab($event.detail.tab.getAttribute('data-tab'))">
+	<ui5-tab
+		text="Home"
+		icon="home"
+		data-tab="home"
+		[selected]="mainTab() === 'home'">
+		<ui5-page backgroundDesign="Solid">
+			<ui5-bar slot="header">
+				<ui5-title
+					slot="startContent"
+					level="H1">
+					UX Foundation Lab
+				</ui5-title>
+			</ui5-bar>
+			<div class="home-content">
+				<div class="welcome">
+					<ui5-tag>Developer workspace</ui5-tag>
+					<ui5-title level="H1">Build the next people experience.</ui5-title>
+					<ui5-text>
+						Explore real enterprise controls, tune the HER palette and validate the foundations of
+						empFLOWyee HCM.
+					</ui5-text>
+					<div class="inline-actions">
+						<ui5-button
+							design="Emphasized"
+							(ui5Click)="mainTab.set('demo')">
+							Explore demo
+						</ui5-button>
+						<ui5-button (ui5Click)="mainTab.set('settings')">Open theme workshop</ui5-button>
+					</div>
+				</div>
+				<div class="home-cards">
+					<ui5-card>
+						<ui5-card-header
+							slot="header"
+							titleText="Presentation"
+							subtitleText="One theme engine, native controls" />
+						<div class="section-content">
+							<ui5-form
+								accessibleName="Active presentation"
+								layout="S1 M1 L1 XL1">
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Theme</ui5-label>
+									<ui5-text>{{ settings.theme.definition().label }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">UI5 base</ui5-label>
+									<ui5-text>{{ settings.theme.definition().ui5Theme }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Tenant accent</ui5-label>
+									<ui5-text>{{ settings.theme.tenantPrimary() || 'No override' }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Density</ui5-label>
+									<ui5-text>{{ settings.density() }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Locale / direction</ui5-label>
+									<ui5-text>{{ settings.locale() }} · {{ settings.direction() }}</ui5-text>
+								</ui5-form-item>
+							</ui5-form>
+						</div>
+					</ui5-card>
+					<ui5-card>
+						<ui5-card-header
+							slot="header"
+							titleText="HCM scenarios"
+							subtitleText="Fictional data, useful interactions" />
+						<div class="section-content">
+							<ui5-list accessibleName="Available scenarios">
+								<ui5-li
+									description="Directory, profile, skills, history and documents"
+									type="Active"
+									(ui5Click)="openArea('Employee')">
+									Employee
+								</ui5-li>
+								<ui5-li
+									description="Dates, requests and approval context"
+									type="Active"
+									(ui5Click)="openArea('Leave')">
+									Leave
+								</ui5-li>
+								<ui5-li
+									description="Assignments, teams and capacity planning"
+									type="Active"
+									(ui5Click)="openArea('Projects')">
+									Projects
+								</ui5-li>
+							</ui5-list>
+						</div>
+					</ui5-card>
+					<ui5-card>
+						<ui5-card-header
+							slot="header"
+							titleText="Control coverage"
+							subtitleText="Native controls in realistic scenarios" />
+						<div class="section-content">
+							<ui5-title level="H2">{{ controlCount }} native controls</ui5-title>
+							<ui5-text>
+								Shell and navigation · Employee profile · Leave · Projects · Theme settings
+							</ui5-text>
+							<ui5-text>
+								Page, DynamicPage, Form, Table, NavigationLayout and FlexibleColumnLayout are
+								maintained UI5 implementations.
+							</ui5-text>
+							<ui5-tag design="Information">Coverage is not accessibility certification</ui5-tag>
+							<ui5-button (ui5Click)="mainTab.set('demo')">Inspect the scenarios</ui5-button>
+						</div>
+					</ui5-card>
+				</div>
+				@if (settings.contrastWarning()) {
+					<ui5-message-strip
+						design="Critical"
+						[hideCloseButton]="true">
+						The current palette has a contrast warning. Review text and action colors in Settings.
+					</ui5-message-strip>
 				}
+				<ui5-message-strip [hideCloseButton]="true">
+					This lab uses fictional Office-style records. Edits, requests and file names stay in this
+					browser; nothing is sent to a product API.
+				</ui5-message-strip>
 			</div>
-		</div>
-
-		<div class="control-group">
-			<label class="control-label" for="tenant-primary">Tenant primary color</label>
-			<div class="color-row">
-				<ui5-input
-					id="tenant-primary"
-					accessibleName="Tenant primary color hex"
-					[valueState]="colorError() ? 'Negative' : 'None'"
-					[formField]="colorForm.primary"
-					placeholder="Optional #RRGGBB"
-					(keydown.enter)="onPrimaryColor(colorModel().primary)"
-				/>
-				<ui5-button (click)="onPrimaryColor(colorModel().primary)">Apply color</ui5-button>
-				<ui5-button design="Transparent" (click)="clearPrimary()">No tenant override</ui5-button>
-			</div>
-			<p id="color-help" class="help-text">
-				Optional accent for this demo tenant. Leave blank to use the theme palette.
-			</p>
-			@if (colorError()) {
-				<span class="error-text" role="alert">{{ colorError() }}</span>
-			}
-		</div>
-	</section>
-
-	<details class="mock-session">
-		<summary>Mock session — roles and entitlements</summary>
-		<p>
-			Change fixture visibility in Spaces and Browse apps. These controls do not grant backend
-			access. Theme Lab stays open so every combination can be tested.
-		</p>
-		<div class="session-grid">
-			<fieldset>
-				<legend>Presentation roles</legend>
-				@for (role of roles; track role) {
-					<ui5-checkbox
-						[text]="role"
-						[checked]="runtime.roles().has(role)"
-						(ui5Change)="runtime.toggleRole(role)"
-					></ui5-checkbox>
-				}
-			</fieldset>
-			<fieldset>
-				<legend>Licensed entitlements</legend>
-				@for (entitlement of entitlements; track entitlement) {
-					<ui5-checkbox
-						[text]="entitlement"
-						[checked]="runtime.entitlements().has(entitlement)"
-						(ui5Change)="runtime.toggleEntitlement(entitlement)"
-					></ui5-checkbox>
-				}
-			</fieldset>
-		</div>
-		<ui5-button (click)="runtime.resetFixture()">Reset demo session</ui5-button>
-	</details>
-
-	<nav class="preview-tabs" aria-label="Theme Lab previews">
-		@for (preview of previews; track preview.id) {
-			<ui5-button
-				[design]="activePreview() === preview.id ? 'Emphasized' : 'Default'"
-				[attr.aria-pressed]="activePreview() === preview.id"
-				(click)="activePreview.set(preview.id)"
-				>{{ preview.label }}</ui5-button
-			>
+		</ui5-page>
+	</ui5-tab>
+	<ui5-tab
+		text="Demo"
+		icon="employee"
+		data-tab="demo"
+		[selected]="mainTab() === 'demo'">
+		@defer (when mainTab() === 'demo') {
+			<ef-hcm-lab-demo [navigation]="navigation()" />
 		}
-	</nav>
-	<p class="help-text">
-		Developer playground using the same production components as the curated Storybook. All employee
-		data is fictional; preview edits are discarded on reload.
-	</p>
-	@if (theme.error()) {
-		<p role="alert">{{ theme.error() }}</p>
-	}
-	@switch (activePreview()) {
-		@case ('dynamic-page') {
-			<ef-hcm-dynamic-page-example />
+	</ui5-tab>
+	<ui5-tab
+		text="Settings"
+		icon="action-settings"
+		data-tab="settings"
+		[selected]="mainTab() === 'settings'">
+		@defer (when mainTab() === 'settings') {
+			<ef-hcm-lab-settings />
 		}
-		@case ('object-page') {
-			<ef-hcm-object-page-example />
+	</ui5-tab>
+</ui5-tabcontainer>
+<ui5-menu
+	[opener]="profileAnchor()"
+	[open]="!!profileAnchor()"
+	(ui5Close)="profileAnchor.set(null)"
+	(ui5ItemClick)="profileAction($event.detail.item.text || '')">
+	<ui5-menu-item-group checkMode="Single">
+		@for (preset of themes; track preset.id) {
+			<ui5-menu-item
+				[text]="preset.label"
+				[accessibleName]="preset.label"
+				[checked]="settings.theme.variant() === preset.id" />
 		}
-	}
-</section>
+	</ui5-menu-item-group>
+	<ui5-menu-item
+		text="Presentation settings"
+		icon="action-settings" />
+	<ui5-menu-item
+		text="About this session"
+		icon="information" />
+</ui5-menu>
+<ui5-responsive-popover
+	headerText="Notifications"
+	[opener]="notificationAnchor()"
+	[open]="!!notificationAnchor()"
+	(ui5Close)="notificationAnchor.set(null)">
+	<div class="dialog-body">
+		<ui5-list>
+			<ui5-li description="All edits are local and reset on reload.">
+				Developer session ready
+			</ui5-li>
+			<ui5-li description="Review profile, leave and project flows across all four themes.">
+				Explore the foundation
+			</ui5-li>
+		</ui5-list>
+	</div>
+</ui5-responsive-popover>
+<ui5-toast
+	[open]="toastOpen()"
+	(ui5Close)="toastOpen.set(false)">
+	Developer preview · Fictional data · No backend access
+</ui5-toast>

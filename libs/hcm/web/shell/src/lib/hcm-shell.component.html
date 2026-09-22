@@ -1,15 +1,23 @@
 <div class="hcm-shell">
-	<a class="skip-link" [routerLink]="[]" fragment="hcm-content">Skip to content</a>
-	<ui5-shellbar primaryTitle="empFLOWyee" secondaryTitle="workforce streamlined"></ui5-shellbar>
-	<nav class="space-nav" aria-label="HCM spaces">
+	<a
+		class="skip-link"
+		[routerLink]="[]"
+		fragment="hcm-content">
+		Skip to content
+	</a>
+	<ui5-shellbar
+		primaryTitle="empFLOWyee"
+		secondaryTitle="workforce streamlined"></ui5-shellbar>
+	<nav
+		class="space-nav"
+		aria-label="HCM spaces">
 		@for (space of spaces(); track space.id) {
 			<button
 				type="button"
 				class="space-nav__item"
 				[class.is-active]="activeSpace()?.id === space.id"
 				[attr.aria-current]="activeSpace()?.id === space.id ? 'true' : null"
-				(click)="selectSpace(space.id)"
-			>
+				(click)="selectSpace(space.id)">
 				{{ space.title }}
 			</button>
 		}
@@ -18,12 +26,15 @@
 			design="Transparent"
 			(click)="catalogOpen.set(!catalogOpen())"
 			[attr.aria-expanded]="catalogOpen()"
-			aria-controls="hcm-catalog"
-			>Browse apps</ui5-button
-		>
+			aria-controls="hcm-catalog">
+			Browse apps
+		</ui5-button>
 	</nav>
 	@if (catalogOpen()) {
-		<section class="catalog" id="hcm-catalog" aria-label="Application catalog">
+		<section
+			class="catalog"
+			id="hcm-catalog"
+			aria-label="Application catalog">
 			@if (activeSpace(); as space) {
 				<h2>{{ space.title }}</h2>
 				@for (page of space.pages; track page.id) {
@@ -34,9 +45,11 @@
 							@for (feature of group.features; track feature.id) {
 								<article class="catalog__tile">
 									@if (feature.id === 'theme-lab') {
-										<a [routerLink]="feature.route" (click)="catalogOpen.set(false)">{{
-											feature.title
-										}}</a>
+										<a
+											[routerLink]="feature.route"
+											(click)="catalogOpen.set(false)">
+											{{ feature.title }}
+										</a>
 									} @else {
 										<strong>{{ feature.title }}</strong>
 										<span class="catalog__planned">Planned</span>
@@ -57,7 +70,10 @@
 			</p>
 		</section>
 	}
-	<main class="hcm-shell__content" id="hcm-content" tabindex="-1">
+	<main
+		class="hcm-shell__content"
+		id="hcm-content"
+		tabindex="-1">
 		@if (theme.error()) {
 			<p role="alert">{{ theme.error() }}</p>
 		}

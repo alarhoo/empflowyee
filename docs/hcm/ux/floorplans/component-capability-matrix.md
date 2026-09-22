@@ -37,10 +37,12 @@ The exact declaration files are under each installed package's `types/` director
 
 ## Object Page finding
 
-No public ObjectPage export/declaration exists in the inspected UI5, Angular wrappers, Core or Platform packages. That absence does **not** justify custom layout. Platform DynamicPage already includes title/image/key information, actions, labeled sections, stacked content and section navigation. Its Icon Tab Bar scrolls to projected sections and coordinates scroll-spy selection. The earlier tab-only HCM composition omitted this maintained equivalent. The browser proof subsequently found that Platform DynamicPage forces every stacked content wrapper to a viewport height. The corrected production composition therefore uses Core DynamicPage plus Platform Icon Tab Bar directly, retaining their maintained scrolling and header behavior while letting section content have natural height.
+No public ObjectPage export/declaration exists in the inspected UI5, Angular wrappers, Core or Platform packages. That absence does not justify custom layout. Platform DynamicPage includes maintained stacked sections and scroll navigation; it remains an available alternative. The current approved implementation direction uses UI5 DynamicPage + TabContainer for tabbed object detail sections in `HcmObjectPage`. This replaces the earlier Core/Platform stacked experiment. DynamicPage owns header behavior and TabContainer owns section selection; there is no custom scroll or tab engine.
+
+ToolPageLayout uses `@fundamental-ngx/ui5-webcomponents-fiori/navigation-layout` (`NavigationLayout`) with native header, SideNavigation and content slots. It exposes the empFLOWyee name while preserving native layout and phone behavior. Theme Lab consumes this library with native FCL content.
 
 ## Approval and gaps
 
 Dynamic Page and Object Page are the only implementations in the current correction. See [validation](validation.md) for acceptance evidence. Other catalog entries are deferred, including the earlier List Report, Worklist, Overview and Analytical List approximations. Supporting form/table libraries remain candidates pending review.
 
-Custom composition is justified only by a documented unmet responsibility. Never add a wrapper solely to normalize APIs, build a separate Storybook implementation, or style Shadow DOM internals.
+Custom composition is justified only by a documented unmet responsibility. Thin empFLOWyee naming wrappers are permitted when they preserve native behavior. Do not build a separate Storybook implementation or style Shadow DOM internals.

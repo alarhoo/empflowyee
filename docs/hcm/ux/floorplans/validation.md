@@ -1,5 +1,14 @@
 # HCM floorplan acceptance record
 
+## Current pilot revision
+
+The current Object Page implementation uses native UI5 DynamicPage + TabContainer, replacing the Core/Platform stacked composition evaluated below. ToolPageLayout is a new native NavigationLayout integration consumed by Theme Lab. Historical Core/Platform accessibility and scrolling results below do not validate this replacement. Feature-adoption acceptance remains pending visual and accessibility review; no earlier test result is transferred to the new layout.
+
+The lab uses the shared pilots, compact density by default and theme selection from the avatar menu. Current focused checks are recorded in the [Foundation Lab acceptance criteria](../theme-lab/ACCEPTANCE-CRITERIA.md).
+
+## Previous implementation evidence (historical)
+
+
 This record covers the production UX correction on **2026-09-22**. It supersedes the earlier 114-story / 66-case materialization record. Those checks proved that examples rendered; they did not establish native floorplan fidelity or accessibility acceptance. No cloud deployment is part of this correction.
 
 ## Native HER palette correction

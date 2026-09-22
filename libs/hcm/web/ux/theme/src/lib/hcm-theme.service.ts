@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common'
 import { Injectable, computed, effect, inject, signal, DestroyRef } from '@angular/core'
 import { HcmNativeThemeService } from './hcm-native-theme.service'
+import { HER_TOKEN_NAMES, validateHerToken } from './her-token-contract'
 import { SAP_ACCENT_PARAMETERS, SAP_HER_PARAMETERS } from './hcm-sap-theme-parameters'
 import { deriveAccentPalette, normalizeHexColor } from './color-utils'
 import { HCM_THEMES, type HcmThemeDefinition, type HcmThemeVariant } from './hcm-theme.models'
@@ -40,6 +41,8 @@ export class HcmThemeService {
 	private readonly _error = signal<string | null>(null)
 	private pending = Promise.resolve()
 	private revision = 0
+	private readonly _herOverrides = signal<Readonly<Record<string, string>>>({})
+	readonly herOverrides = this._herOverrides.asReadonly()
 
 	readonly variant = this._variant.asReadonly()
 	readonly appliedVariant = this._appliedVariant.asReadonly()
@@ -73,6 +76,7 @@ export class HcmThemeService {
 			/** Apply the latest selected variant and validated branding data. */ () => {
 				const definition = this.definition()
 				const primary = this._tenantPrimary()
+				const overrides = this._herOverrides()
 				const revision = ++this.revision
 				this._loading.set(true)
 				this.document.documentElement.dataset['hcmThemeLoading'] = 'true'
@@ -82,7 +86,7 @@ export class HcmThemeService {
 							if (revision !== this.revision) return
 							await this.native.apply(definition.ui5Theme)
 							if (revision !== this.revision) return
-							this.applyPalette(definition, primary)
+							this.applyPalette(definition, primary, overrides)
 							this._appliedVariant.set(definition.id)
 							this._error.set(null)
 						},
@@ -128,18 +132,38 @@ export class HcmThemeService {
 		this._tenantPrimary.set(null)
 	}
 
+	/** Replace a validated semantic override map; Horizon keeps the draft without applying it. */
+	setHerOverrides(tokens: Readonly<Record<string, string>>): void {
+		const validated = Object.fromEntries(
+			Object.entries(tokens).map(
+				/** Reject unknown properties and unsafe CSS before application. */ ([name, value]) => [
+					name,
+					validateHerToken(name, value),
+				],
+			),
+		)
+		this._herOverrides.set(validated)
+	}
+
 	/** Await already scheduled theme work for diagnostics and deterministic tests. */
 	whenSettled(): Promise<void> {
 		return this.pending
 	}
 
 	/** Apply semantic surfaces only after the native UI5 base has loaded. */
-	private applyPalette(definition: HcmThemeDefinition, tenantPrimary: string | null): void {
+	private applyPalette(
+		definition: HcmThemeDefinition,
+		tenantPrimary: string | null,
+		overrides: Readonly<Record<string, string>>,
+	): void {
 		const root = this.document.documentElement
 		this.clearBrandBridge(root)
 		root.dataset['hcmThemeFamily'] = definition.family
 		root.dataset['hcmThemeVariant'] = definition.id
 		root.style.colorScheme = definition.dark ? 'dark' : 'light'
+		if (definition.family === 'her') {
+			for (const [name, value] of Object.entries(overrides)) root.style.setProperty(name, value)
+		}
 		if (tenantPrimary) {
 			const surface = this.document.defaultView
 				?.getComputedStyle(root)
@@ -162,6 +186,13 @@ export class HcmThemeService {
 		if (definition.family === 'her' || tenantPrimary) {
 			this.applySapBrandBridge(root)
 			this.applySemanticParameters(root, SAP_ACCENT_PARAMETERS)
+			if (definition.family === 'her') {
+				const focus = this.document.defaultView
+					?.getComputedStyle(root)
+					.getPropertyValue('--ef-focus-color')
+					.trim()
+				if (focus) root.style.setProperty('--sapContent_FocusColor', focus)
+			}
 		}
 	}
 
@@ -202,8 +233,12 @@ export class HcmThemeService {
 	): void {
 		const style = this.document.defaultView?.getComputedStyle(root)
 		if (!style) return
-		for (const [parameter, semantic] of Object.entries(parameters)) {
-			const value = style.getPropertyValue(semantic).trim()
+		// Snapshot reads before writes: interleaving them recalculates every native control per token.
+		const resolved = Object.entries(parameters).map(
+			/** Resolve the palette once before mutating native parameters. */ ([parameter, semantic]) =>
+				[parameter, style.getPropertyValue(semantic).trim()] as const,
+		)
+		for (const [parameter, value] of resolved) {
 			if (value) root.style.setProperty(parameter, value)
 		}
 	}
@@ -212,6 +247,7 @@ export class HcmThemeService {
 	private clearBrandBridge(root: HTMLElement): void {
 		for (const name of [
 			...ACCENT_VARIABLES,
+			...HER_TOKEN_NAMES,
 			...SAP_BRAND_VARIABLES,
 			...Object.keys(SAP_ACCENT_PARAMETERS),
 			...Object.keys(SAP_HER_PARAMETERS),

@@ -3,5 +3,15 @@
 	"semi": false,
 	"useTabs": true,
 	"trailingComma": "all",
-	"printWidth": 100
+	"printWidth": 100,
+	"overrides": [
+		{
+			"files": "*.html",
+			"options": {
+				"singleAttributePerLine": true,
+				"bracketSameLine": true,
+				"htmlWhitespaceSensitivity": "ignore"
+			}
+		}
+	]
 }

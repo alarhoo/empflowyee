@@ -3,75 +3,84 @@
 	[accessibilityAttributes]="{
 		root: { role: 'region', name: title() },
 		content: { role: 'region', name: title() + ' content' },
-	}"
->
+	}">
 	<ui5-dynamic-page-title slot="titleArea">
 		<h1 slot="heading">{{ title() }}</h1>
-		<h1 slot="snappedHeading" class="snapped-title">{{ title() }}</h1>
+		<h1
+			slot="snappedHeading"
+			class="snapped-title">
+			{{ title() }}
+		</h1>
 		<span slot="subheading">{{ summary() }}</span>
 		@if (state() === 'content' && visibleActions().length) {
-			<ui5-toolbar slot="actionsBar" design="Transparent" accessibleName="Page actions">
+			<ui5-toolbar
+				slot="actionsBar"
+				design="Transparent"
+				accessibleName="Page actions">
 				@for (item of visibleActions(); track item.id) {
 					<ui5-toolbar-button
 						[text]="item.label"
 						[design]="item.emphasized ? 'Emphasized' : 'Default'"
 						[disabled]="item.disabled ?? false"
-						(ui5Click)="action.emit(item.id)"
-					/>
+						(ui5Click)="action.emit(item.id)" />
 				}
 			</ui5-toolbar>
 		}
 	</ui5-dynamic-page-title>
 	@if (state() === 'content') {
-		<ui5-dynamic-page-header slot="headerArea"
-			><ng-content select="[hcmHeader]"
-		/></ui5-dynamic-page-header>
+		<ui5-dynamic-page-header slot="headerArea">
+			<ng-content select="[hcmHeader]" />
+		</ui5-dynamic-page-header>
 	}
-	<div class="content" [attr.aria-busy]="state() === 'loading'">
+	<div
+		class="content"
+		[attr.aria-busy]="state() === 'loading'">
 		@switch (state()) {
 			@case ('content') {
 				@if (readOnly()) {
-					<ui5-message-strip [hideCloseButton]="true"
-						>Read-only view. Changes are not available.</ui5-message-strip
-					>
+					<ui5-message-strip [hideCloseButton]="true">
+						Read-only view. Changes are not available.
+					</ui5-message-strip>
 				}
 				<ng-content />
 			}
 			@case ('loading') {
-				<div class="page-state" role="status">
-					<ui5-busy-indicator [active]="true" [delay]="0" text="Loading content" />
+				<div
+					class="page-state"
+					role="status">
+					<ui5-busy-indicator
+						[active]="true"
+						[delay]="0"
+						text="Loading content" />
 				</div>
 			}
 			@case ('empty') {
 				<ui5-illustrated-message
 					name="NoData"
 					titleText="No results"
-					subtitleText="Try changing the selection or return when data is available."
-				/>
+					subtitleText="Try changing the selection or return when data is available." />
 			}
 			@case ('error') {
 				<div role="alert">
 					<ui5-illustrated-message
 						name="UnableToLoad"
 						titleText="Content could not be loaded"
-						[subtitleText]="errorMessage()"
-						><ui5-button (click)="retry.emit()">Retry</ui5-button></ui5-illustrated-message
-					>
+						[subtitleText]="errorMessage()">
+						<ui5-button (click)="retry.emit()">Retry</ui5-button>
+					</ui5-illustrated-message>
 				</div>
 			}
 			@case ('denied') {
 				<ui5-illustrated-message
 					name="tnt/Lock"
 					titleText="Permission required"
-					subtitleText="You do not have permission to view this content."
-				/>
+					subtitleText="You do not have permission to view this content." />
 			}
 			@case ('unavailable') {
 				<ui5-illustrated-message
 					name="NoData"
 					titleText="Currently unavailable"
-					subtitleText="This capability is not available in the current context."
-				/>
+					subtitleText="This capability is not available in the current context." />
 			}
 		}
 	</div>

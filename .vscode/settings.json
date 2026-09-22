@@ -1,0 +1,12 @@
+{
+	"vsicons.presets.angular": true,
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"[html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnSave": true
+	},
+	"[angular-html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnSave": true
+	}
+}

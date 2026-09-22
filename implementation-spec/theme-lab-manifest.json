@@ -1,0 +1,15 @@
+{
+  "route": "/ux/theme-lab",
+  "tabs": ["home", "demo", "settings"],
+  "demoNavigation": ["employee", "leave", "projects"],
+  "themes": ["horizon-light", "horizon-dark", "her-light", "her-dark"],
+  "layout": {
+    "shell": "ShellBar",
+    "mainTabs": "TabContainer",
+    "toolArea": "NavigationLayout",
+    "sideNavigation": "SideNavigation",
+    "workspace": "FlexibleColumnLayout"
+  },
+  "productionEnabledByDefault": false,
+  "dataMode": "deterministic-fixtures-only"
+}

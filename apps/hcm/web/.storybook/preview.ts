@@ -52,7 +52,7 @@ const preview: Preview = {
 	initialGlobals: {
 		theme: 'horizon-light',
 		brand: 'default',
-		density: 'cozy',
+		density: 'compact',
 		viewport: { value: 'desktop', isRotated: false },
 	},
 	parameters: {

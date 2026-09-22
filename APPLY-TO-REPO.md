@@ -1,15 +1,17 @@
-# HCM UX foundation maintenance
+# Apply to the empFLOWyee repository
 
-The initial overlay was materialized, then superseded by the approved production-UX correction. Existing source does not require regeneration.
+Extract this bundle over the repository root.
 
-Start with the [root README](README.md#hcm-ux-workshop), [current scope](CODEX-IMPLEMENTATION-PROMPT.md) and [Storybook guide](docs/hcm/ux/storybook.md).
+Do not delete existing production libraries automatically. Treat existing Theme Lab/Storybook code as migration candidates and follow the cleanup plan in the TDD.
 
-```bash
-node tools/ux/check-component-entrypoints.mjs
-node tools/ux/check-storybook-readiness.mjs
-node tools/milestones/hcm-ux-floorplans-storybook/verify-bundle.mjs
-```
+Recommended implementation order:
 
-The curated iteration contains Dynamic Page and Object Page. They use native UI5/Fundamental behavior and shared production example hosts. The remaining generated floorplans and form/table adapters are deferred candidates, excluded from canonical Storybook discovery.
+1. Read `docs/hcm/fdd/FDD-HCM-UX-FOUNDATION-LAB.md`.
+2. Read `docs/hcm/tdd/TDD-HCM-UX-FOUNDATION-LAB.md`.
+3. Read the ADR and theme/control specs.
+4. Give Codex `CODEX-IMPLEMENTATION-PROMPT.md`.
+5. Implement the lab inside the existing HCM Angular app as a lazy feature.
+6. Run the acceptance criteria in `docs/hcm/ux/theme-lab/ACCEPTANCE-CRITERIA.md`.
+7. Only after this lab looks production quality should reusable floorplan libraries be extracted.
 
-Keep Storybook on the existing HCM app, preserve Nx boundaries, and never build an alternative story-only implementation. See [acceptance evidence](docs/hcm/ux/floorplans/validation.md) before approving further patterns.
+The implementation must not create a new deployable app.

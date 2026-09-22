@@ -1,106 +1,105 @@
-<fd-dynamic-page [autoResponsive]="true" [expandContent]="false" [ariaLabel]="title()">
-	<fd-dynamic-page-header
-		[title]="title()"
-		[subtitle]="summary()"
-		[titleWrap]="true"
-		[subtitleWrap]="true"
-		headingLevel="h1"
-	>
+<ui5-dynamic-page
+	[showFooter]="showFooter() && state() === 'content'"
+	[accessibilityAttributes]="{ root: { role: 'region', name: title() } }">
+	<ui5-dynamic-page-title slot="titleArea">
+		<ui5-title
+			slot="heading"
+			level="H1">
+			{{ title() }}
+		</ui5-title>
+		<ui5-title
+			slot="snappedHeading"
+			level="H2">
+			{{ title() }}
+		</ui5-title>
+		<ui5-text slot="subheading">{{ summary() }}</ui5-text>
+		<ng-content select="[hcmKeyInfo]" />
 		@if (state() === 'content') {
-			<fd-facet type="image"><ng-content select="[hcmImage]" /></fd-facet>
+			<ui5-toolbar
+				slot="actionsBar"
+				design="Transparent"
+				accessibleName="Object actions">
+				@for (item of visibleActions(); track item.id) {
+					<ui5-toolbar-button
+						[text]="item.label"
+						[icon]="item.icon || ''"
+						[design]="item.emphasized ? 'Emphasized' : 'Default'"
+						[disabled]="item.disabled ?? false"
+						(ui5Click)="action.emit(item.id)" />
+				}
+			</ui5-toolbar>
 		}
-		@if (state() === 'content') {
-			<fd-dynamic-page-title-content
-				><ng-content select="[hcmKeyInfo]"
-			/></fd-dynamic-page-title-content>
-		}
-		@if (state() === 'content') {
-			<fd-dynamic-page-global-actions>
-				<fd-toolbar fdType="transparent" [clearBorder]="true" ariaLabel="Object actions">
-					@for (item of visibleActions(); track item.id) {
-						<button
-							fd-button
-							fd-toolbar-item
-							[ariaLabel]="item.label"
-							[fdType]="item.emphasized ? 'emphasized' : 'standard'"
-							[disabled]="item.disabled ?? false"
-							(click)="action.emit(item.id)"
-						>
-							{{ item.label }}
-						</button>
-					}
-				</fd-toolbar>
-			</fd-dynamic-page-global-actions>
-		}
-	</fd-dynamic-page-header>
+	</ui5-dynamic-page-title>
 	@if (state() === 'content') {
-		<fd-dynamic-page-subheader [pinnable]="true" headerAriaLabel="Object summary"
-			><ng-content select="[hcmHeader]"
-		/></fd-dynamic-page-subheader>
-	}
-	@if (state() === 'content') {
-		<fdp-icon-tab-bar
-			[stackContent]="true"
-			maxContentHeight="auto"
-			[colorAssociations]="{ default: 'Section' }"
-			(iconTabSelected)="sectionChange.emit($event.id ?? '')"
-		>
+		<ui5-dynamic-page-header slot="headerArea">
+			<ng-content select="[hcmImage]" />
+			<ng-content select="[hcmHeader]" />
+		</ui5-dynamic-page-header>
+		<ui5-tabcontainer
+			tabLayout="Inline"
+			contentBackgroundDesign="Transparent"
+			(ui5TabSelect)="sectionChange.emit($event.detail.tab.getAttribute('data-section') || '')">
 			@for (section of sections(); track section.id()) {
-				<fdp-icon-tab-bar-tab [id]="section.id()" [label]="section.label()">
-					<section class="object-section" [attr.aria-label]="section.label()">
-						<h2>{{ section.label() }}</h2>
-						@if ($first && readOnly()) {
-							<ui5-message-strip [hideCloseButton]="true"
-								>Read-only view. Changes are not available.</ui5-message-strip
-							>
+				<ui5-tab
+					[text]="section.label()"
+					[attr.data-section]="section.id()"
+					[selected]="$first">
+					<section
+						class="object-section"
+						[attr.aria-label]="section.label()">
+						@if (readOnly()) {
+							<ui5-message-strip [hideCloseButton]="true">
+								Read-only view. Changes are not available.
+							</ui5-message-strip>
 						}
 						<ng-container [ngTemplateOutlet]="section.template" />
 					</section>
-				</fdp-icon-tab-bar-tab>
+				</ui5-tab>
 			}
-		</fdp-icon-tab-bar>
+		</ui5-tabcontainer>
 	} @else {
-		<fd-dynamic-page-content>
-			<div [attr.aria-busy]="state() === 'loading'">
-				@switch (state()) {
-					@case ('loading') {
-						<div class="page-state" role="status">
-							<ui5-busy-indicator [active]="true" [delay]="0" text="Loading object" />
-						</div>
-					}
-					@case ('empty') {
-						<ui5-illustrated-message
-							name="NoData"
-							titleText="Object not found"
-							subtitleText="The record may have been removed. Return to the list to choose another."
-						/>
-					}
-					@case ('error') {
-						<div role="alert">
-							<ui5-illustrated-message
-								name="UnableToLoad"
-								titleText="Object could not be loaded"
-								[subtitleText]="errorMessage()"
-								><button fd-button (click)="retry.emit()">Retry</button></ui5-illustrated-message
-							>
-						</div>
-					}
-					@case ('denied') {
-						<ui5-illustrated-message
-							name="tnt/Lock"
-							titleText="Permission required"
-							subtitleText="You do not have permission to view this object."
-						/>
-					}
-					@case ('unavailable') {
-						<ui5-illustrated-message
-							name="NoData"
-							titleText="Currently unavailable"
-							subtitleText="This capability is not available in the current context."
-						/>
-					}
+		<div [attr.aria-busy]="state() === 'loading'">
+			@switch (state()) {
+				@case ('loading') {
+					<div
+						class="page-state"
+						role="status">
+						<ui5-busy-indicator
+							[active]="true"
+							[delay]="0"
+							text="Loading object" />
+					</div>
 				}
-			</div>
-		</fd-dynamic-page-content>
+				@case ('empty') {
+					<ui5-illustrated-message
+						name="NoData"
+						titleText="Object not found"
+						subtitleText="The record may have been removed. Return to the list to choose another." />
+				}
+				@case ('error') {
+					<div role="alert">
+						<ui5-illustrated-message
+							name="UnableToLoad"
+							titleText="Object could not be loaded"
+							[subtitleText]="errorMessage()">
+							<ui5-button (ui5Click)="retry.emit()">Retry</ui5-button>
+						</ui5-illustrated-message>
+					</div>
+				}
+				@case ('denied') {
+					<ui5-illustrated-message
+						name="tnt/Lock"
+						titleText="Permission required"
+						subtitleText="You do not have permission to view this object." />
+				}
+				@case ('unavailable') {
+					<ui5-illustrated-message
+						name="NoData"
+						titleText="Currently unavailable"
+						subtitleText="This capability is not available in the current context." />
+				}
+			}
+		</div>
 	}
-</fd-dynamic-page>
+	<div slot="footerArea"><ng-content select="[hcmFooter]" /></div>
+</ui5-dynamic-page>

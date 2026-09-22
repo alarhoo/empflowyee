@@ -1,0 +1,263 @@
+<ui5-page backgroundDesign="Solid">
+	<ui5-bar slot="header">
+		<ui5-title
+			slot="startContent"
+			level="H1">
+			Theme workshop
+		</ui5-title>
+		<ui5-tag slot="endContent">{{ settings.changedCount() }} changed tokens</ui5-tag>
+	</ui5-bar>
+	<div class="page-content settings-content">
+		<ui5-text>
+			Shape the HER palette on real controls. Changes are local to this lab and disappear on reload.
+		</ui5-text>
+		@if (settings.error()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ settings.error() }}
+			</ui5-message-strip>
+		}
+		@if (settings.contrastWarning()) {
+			<ui5-message-strip
+				design="Critical"
+				[hideCloseButton]="true">
+				Contrast warning: a text or action pair is below 4.5:1. Review before using this palette.
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Presentation settings"
+			accessibleMode="Edit"
+			layout="S1 M2 L2 XL2">
+			<ui5-form-group headerText="Theme and tenant">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Theme preset</ui5-label>
+					<ui5-select
+						accessibleName="Theme preset"
+						(ui5Change)="settings.selectTheme($any($event.detail.selectedOption).value)">
+						@for (preset of themes; track preset.id) {
+							<ui5-option
+								[value]="preset.id"
+								[selected]="settings.theme.variant() === preset.id">
+								{{ preset.label }}
+							</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Tenant primary color</ui5-label>
+					<div class="inline-actions">
+						<ui5-input
+							accessibleName="Tenant primary color"
+							placeholder="#b74435"
+							[formField]="draftForm.primary" />
+						<ui5-button (ui5Click)="applyPrimary()">Apply accent</ui5-button>
+						<ui5-button
+							design="Transparent"
+							(ui5Click)="resetPrimary()">
+							Reset tenant override
+						</ui5-button>
+					</div>
+				</ui5-form-item>
+			</ui5-form-group>
+			<ui5-form-group headerText="Presentation preview">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Compact density</ui5-label>
+					<ui5-switch
+						accessibleName="Compact density"
+						[checked]="settings.density() === 'compact'"
+						(ui5Change)="settings.density.set($event.currentTarget.checked ? 'compact' : 'cozy')" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Right-to-left</ui5-label>
+					<ui5-switch
+						accessibleName="Right-to-left"
+						[checked]="settings.direction() === 'rtl'"
+						(ui5Change)="settings.direction.set($event.currentTarget.checked ? 'rtl' : 'ltr')" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Locale</ui5-label>
+					<ui5-select
+						accessibleName="Locale"
+						(ui5Change)="settings.locale.set($event.detail.selectedOption.value || '')">
+						<ui5-option
+							value="en-US"
+							[selected]="settings.locale() === 'en-US'">
+							English (US)
+						</ui5-option>
+						<ui5-option
+							value="de-DE"
+							[selected]="settings.locale() === 'de-DE'">
+							Deutsch
+						</ui5-option>
+						<ui5-option
+							value="ar-SA"
+							[selected]="settings.locale() === 'ar-SA'">
+							العربية
+						</ui5-option>
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Time zone</ui5-label>
+					<ui5-select
+						accessibleName="Time zone"
+						(ui5Change)="settings.timezone.set($event.detail.selectedOption.value || '')">
+						@for (zone of zones; track zone) {
+							<ui5-option
+								[value]="zone"
+								[selected]="settings.timezone() === zone">
+								{{ zone }}
+							</ui5-option>
+						}
+					</ui5-select>
+					<ui5-text>{{ settings.appointment() }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form-group>
+		</ui5-form>
+		<ui5-bar>
+			<ui5-title
+				slot="startContent"
+				level="H2">
+				HER semantic tokens
+			</ui5-title>
+			<ui5-button
+				slot="endContent"
+				(ui5Click)="settings.resetTokens()">
+				Reset HER defaults
+			</ui5-button>
+			<ui5-button
+				slot="endContent"
+				(ui5Click)="openTransfer('export')">
+				Export JSON
+			</ui5-button>
+			<ui5-button
+				slot="endContent"
+				(ui5Click)="openTransfer('import')">
+				Import JSON
+			</ui5-button>
+		</ui5-bar>
+		@if (settings.theme.definition().family !== 'her') {
+			<ui5-message-strip [hideCloseButton]="true">
+				Select HER Light or HER Dark to edit its palette. Horizon uses native defaults; saved HER
+				drafts are inactive.
+			</ui5-message-strip>
+		} @else {
+			<ui5-panel
+				headerText="Accent color picker"
+				[collapsed]="true">
+				<ui5-color-picker
+					accessibleName="HER accent picker"
+					[value]="settings.tokenValue('--ef-color-accent')"
+					(ui5Change)="pickerColor($event.currentTarget.value)" />
+			</ui5-panel>
+			@for (group of colorGroups; track group.label) {
+				<ui5-panel
+					[headerText]="group.label"
+					[collapsed]="group.label === 'Semantic status'">
+					<ui5-table
+						[accessibleName]="group.label + ' tokens'"
+						overflowMode="Popin">
+						<ui5-table-header-row slot="headerRow">
+							<ui5-table-header-cell minWidth="14rem">Semantic token</ui5-table-header-cell>
+							<ui5-table-header-cell minWidth="10rem">Value</ui5-table-header-cell>
+						</ui5-table-header-row>
+						@for (name of group.tokens; track name) {
+							<ui5-table-row>
+								<ui5-table-cell>
+									<ui5-label>{{ name }}</ui5-label>
+								</ui5-table-cell>
+								<ui5-table-cell>
+									<ui5-input
+										[accessibleName]="name"
+										[value]="settings.tokenValue(name)"
+										(ui5Change)="settings.editToken(name, $event.currentTarget.value)" />
+								</ui5-table-cell>
+							</ui5-table-row>
+						}
+					</ui5-table>
+				</ui5-panel>
+			}
+			<ui5-panel
+				headerText="Radius and shadows"
+				[collapsed]="true">
+				<ui5-form
+					accessibleName="Geometry tokens"
+					accessibleMode="Edit"
+					layout="S1 M2 L2 XL2">
+					@for (name of radii; track name) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">{{ name }} (rem)</ui5-label>
+							<ui5-step-input
+								[accessibleName]="name"
+								[min]="0"
+								[max]="2"
+								[step]="0.125"
+								[value]="radiusValue(name)"
+								(ui5Change)="settings.editToken(name, $event.currentTarget.value + 'rem')" />
+						</ui5-form-item>
+					}
+					@for (name of shadows; track name) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">{{ name }}</ui5-label>
+							<ui5-select
+								[accessibleName]="name"
+								(ui5Change)="settings.editToken(name, $event.detail.selectedOption.value || '')">
+								@for (value of shadowPresets; track value) {
+									<ui5-option
+										[value]="value"
+										[selected]="settings.tokenValue(name) === value">
+										{{ value }}
+									</ui5-option>
+								}
+							</ui5-select>
+						</ui5-form-item>
+					}
+				</ui5-form>
+			</ui5-panel>
+		}
+	</div>
+</ui5-page>
+<ui5-dialog
+	[headerText]="transfer() === 'import' ? 'Import HER overrides' : 'Export HER overrides'"
+	[open]="transfer() !== null"
+	(ui5Close)="transfer.set(null)">
+	<div class="dialog-body">
+		<ui5-text>
+			Schema version 1. Only listed semantic tokens and validated values are accepted.
+		</ui5-text>
+		<ui5-textarea
+			accessibleName="Theme JSON"
+			[rows]="14"
+			[formField]="draftForm.json"
+			[readonly]="transfer() === 'export'" />
+		@if (settings.error()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ settings.error() }}
+			</ui5-message-strip>
+		}
+	</div>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			(ui5Click)="transfer.set(null)">
+			Close
+		</ui5-button>
+		@if (transfer() === 'import') {
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				(ui5Click)="importDraft()">
+				Apply JSON
+			</ui5-button>
+		} @else {
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				(ui5Click)="download()">
+				Download JSON
+			</ui5-button>
+		}
+	</ui5-bar>
+</ui5-dialog>

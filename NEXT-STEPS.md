@@ -1,13 +1,12 @@
-# Next HCM milestones
+# After the UX Foundation Lab
 
-The approved correction first proves two production floorplans: Dynamic Page and Object Page. Theme Lab and Storybook must share implementations, theme isolation must be verified, and the [validation record](docs/hcm/ux/floorplans/validation.md) must state the evidence and limits.
+Do not immediately build more UX infrastructure.
 
-Do not expand the floorplan catalog until these implementations meet the [quality standard](docs/hcm/ux/storybook.md#admission-and-quality). Other generated patterns are deferred, not approved merely because their files exist.
+After the lab is visually approved:
 
-After this correction, the next design concerns the production shell runtime contract: tenant resolution, authenticated principal/session, entitlements, branding/preferences, catalog filtering and guards, and shell recovery states. Those changes need their own FDD/TDD and trust-boundary review.
-
-The first real business feature remains a separate decision. Employee Profile is a candidate because it exercises object sections, display/edit forms and authorization. The current profile is a fictional developer example with no persisted business behavior.
-
-## Current acceptance gate
-
-Resolve the Object Page native accessibility findings recorded in [validation](docs/hcm/ux/floorplans/validation.md#object-page-accessibility-gate) before approving it or expanding the catalog. The implementation is inspectable under Storybook Review; Dynamic Page is the canonical native proof.
+1. Freeze the approved theme token contract.
+2. Extract only the floorplan/composition patterns that have proven reusable.
+3. Create the real `My Profile` FDD and TDD using the approved Employee detail pattern.
+4. Implement `My Profile` as the first production HCM feature.
+5. Use the lab as a regression/reference surface for future theme and UI5 upgrades.
+6. Reconsider Storybook later only if it materially improves documentation/testing of already-approved production components.

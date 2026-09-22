@@ -20,11 +20,12 @@ Classify each approved floorplan as:
 
 The earlier fixed classifications are superseded following the installed-package audit. A catalog ID does not approve an implementation. Selection is NATIVE, maintained Angular integration, COMPOSED, then custom only for a documented gap.
 
-The first production proof is limited to Dynamic Page and Object Page. Dynamic Page uses the maintained UI5 Angular wrappers. Object Page uses Core DynamicPage with Platform Icon Tab Bar after a browser proof of Platform DynamicPage exposed viewport-height content wrappers and large gaps between short sections. The supported primitive composition retains maintained header and section navigation without a custom scroll engine. No Angular export literally named ObjectPage exists in the installed stack; Platform's maintained equivalent must be used before considering custom scrolling or navigation.
+The current reusable pilots are Object Page and ToolPageLayout under `libs/hcm/web/ux/floorplans`. Object Page composes native UI5 DynamicPage and TabContainer for tabbed sections. This supersedes the earlier Core DynamicPage + Platform IconTabBar stacked-section implementation. The maintained Platform alternative remains documented capability evidence; this decision selects a tabbed detail pattern without claiming that Angular lacks object-page building blocks.
 
-The same production components and example hosts are consumed by Theme Lab and Storybook. Product-specific state/action conventions justify a thin floorplan composition; merely renaming a native API does not. Existing other floorplans are deferred and excluded from the canonical catalog pending individual review.
+ToolPageLayout is an empFLOWyee naming integration over native NavigationLayout. Thin naming wrappers are allowed when native rendering, interactions and accessibility are retained. Custom layout engines and HTML/CSS imitations remain prohibited where maintained controls suffice. Theme Lab supplies feature content and consumes both reusable pilots; Storybook renders the same production libraries. Visual approval governs feature adoption rather than whether the library exists. Additional floorplan work is deferred.
 
-Horizon Light without a tenant override is the initial developer-tool presentation. HER remains a preserved semantic overlay over the corresponding Horizon base.
+
+Horizon Light without a tenant override and compact density are the initial developer-tool presentation. The Theme Lab avatar menu exposes all four variants. HER remains a preserved semantic overlay over the corresponding Horizon base.
 
 ## Consequences
 

@@ -72,6 +72,9 @@ jobs:
       - name: Validate HCM UX workshop foundation
         run: |
           node tools/ux/check-component-entrypoints.mjs
+          # Require native page headers and page-backed FCL columns across HCM templates.
+          node tools/ux/check-page-structure.mjs
+          node --test tools/ux/page-structure.test.mjs
           node tools/milestones/hcm-ux-floorplans-storybook/verify-bundle.mjs
 
       - name: Validate deployment manifest

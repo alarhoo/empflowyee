@@ -1,6 +1,19 @@
 import { expect, it, vi } from 'vitest'
 import { loadRuntimeConfig } from './loader'
 
+it('delegates product fields to the supplied parser before bootstrap', /** Preserve a validated product extension without adding product policy to the shared loader. */ async () => {
+	const config = {
+		environment: 'dev' as const,
+		releaseId: 'test',
+		apiBaseUrl: 'https://example.test/api',
+		featureEnabled: false,
+	}
+	const fetchConfig = vi.fn<typeof fetch>().mockResolvedValue(Response.json(config))
+	const parseConfig = vi.fn().mockReturnValue(Object.freeze(config))
+	await expect(loadRuntimeConfig(fetchConfig, parseConfig)).resolves.toBe(config)
+	expect(parseConfig).toHaveBeenCalledWith(config)
+})
+
 it('loads a fresh validated configuration before bootstrap', /** Verify the config request bypasses caches and uses the public endpoint. */ async () => {
 	const response = Response.json({
 		environment: 'local',
