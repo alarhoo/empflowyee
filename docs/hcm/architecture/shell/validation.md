@@ -1,5 +1,7 @@
 # HCM Shell + Theme Lab validation
 
+> Historical shell milestone record. The preview implementation and current acceptance evidence are superseded by the [production floorplan correction](../../ux/floorplans/validation.md).
+
 Validated locally on **2026-09-22**. This record applies to the source milestone described in the [maintainer guide](README.md) and [TDD](../../tdd/TDD-HCM-SHELL-THEME-LAB.md); it is not a DEV deployment record.
 
 ## Verified behavior

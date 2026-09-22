@@ -1,14 +1,20 @@
-# HCM milestone implementation references
+# Sources checked for this milestone
 
-Architecture and policy are owned by the repository's [HCM documentation](docs/hcm/README.md). The installed package declarations/source were inspected on 2026-09-22: Nx 23.2.1, Angular 22.1.7, Fundamental NGX 0.64.3 and UI5 Web Components 2.26.0.
+References supplied with the milestone are listed below. Implementation evidence comes from the installed package exports/declarations and official Nx generator help, recorded in the [capability matrix](docs/hcm/ux/floorplans/component-capability-matrix.md). Versions and validation scope are recorded there; links alone are not evidence that every upstream capability was implemented.
 
-Use these primary references when upgrading or maintaining the integration:
+- UI5 Web Components component catalog: https://ui5.github.io/webcomponents/components/
+- UI5 Web Components Fiori components: https://ui5.github.io/webcomponents/components/fiori/
+- UI5 Web Components Table: https://ui5.github.io/webcomponents/components/Table/
+- Fundamental NGX UI5 wrappers on npm: https://www.npmjs.com/package/@fundamental-ngx/ui5-webcomponents
+- Fundamental NGX Fiori wrappers on npm: https://www.npmjs.com/package/@fundamental-ngx/ui5-webcomponents-fiori
+- Fundamental NGX MCP: https://www.npmjs.com/package/@fundamental-ngx/mcp
+- Nx Storybook introduction/generators: https://nx.dev/docs/technologies/test-tools/storybook/introduction
+- Nx Angular Storybook generator: https://nx.dev/docs/technologies/angular/generators
+- Storybook Angular stable: https://storybook.js.org/docs/get-started/frameworks/angular
+- Storybook Angular-Vite preview status: https://storybook.js.org/docs/get-started/frameworks/angular-vite
 
-- [UI5 configuration and theme assets](https://ui5.github.io/webcomponents/docs/advanced/configuration/) — register Assets and switch the native base with `setTheme`.
-- [UI5 styling](https://ui5.github.io/webcomponents/docs/advanced/styles/) — public CSS theming parameters.
-- [UI5 theme designer](https://ui5.github.io/webcomponents/docs/advanced/theming/) — separate future option; the current HER overlay is not a full custom theme.
-- [Fundamental NGX source](https://github.com/SAP/fundamental-ngx) — maintained Angular wrappers; current implementation uses Button, Input, CheckBox and ShellBar secondary entry points.
-- [Angular Signal Forms](https://angular.dev/guide/forms/signals/overview) — signal model and native field binding used by the hex-color editor.
-- [Nx Angular library generator](https://nx.dev/nx-api/angular/generators/library) — generated project metadata and supported test runners.
+Public documentation consulted during implementation:
 
-The precise accent parameter allowlist, palette integrity hash and contrast behavior are documented in [HCM theming](docs/hcm/architecture/shell/theming.md). Recheck the installed APIs, generated configuration and browser behavior when dependencies change.
+- [Angular Signal Forms custom controls and CVA compatibility](https://angular.dev/guide/forms/signals/custom-controls)
+- [Storybook test runner](https://storybook.js.org/docs/writing-tests/integrations/test-runner)
+- [Storybook globals and toolbars](https://storybook.js.org/docs/essentials/toolbars-and-globals)

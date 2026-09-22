@@ -1,0 +1,19 @@
+{
+	"name": "hcm-ux-floorplans-storybook",
+	"version": "2.0.0",
+	"requires": ["HCM Shell + Theme Lab milestone"],
+	"newNxLibraries": [
+		"hcm-web-ux-floorplan-object-page",
+		"hcm-web-ux-floorplan-list-report",
+		"hcm-web-ux-floorplan-worklist",
+		"hcm-web-ux-floorplan-overview-page",
+		"hcm-web-ux-floorplan-analytical-list-page",
+		"hcm-web-ux-forms",
+		"hcm-web-ux-tables",
+		"hcm-web-ux-floorplan-dynamic-page"
+	],
+	"storybookHost": "hcm-web",
+	"canonicalFloorplans": ["UX-FP-DYNAMIC-PAGE"],
+	"note": "Materialization history is not canonical approval; consult the floorplan catalog status and validation evidence.",
+	"reviewRequiredFloorplans": ["UX-FP-OBJECT-PAGE"]
+}

@@ -23,6 +23,10 @@ Use the applicable procedure before changing the shell, catalog or theme engine:
 - [Theme changes](skills/hcm-theme-change/SKILL.md): preserve the HER source palette, use governed tokens and validate light/dark variants.
 - [Navigation catalog changes](skills/hcm-navigation-catalog/SKILL.md): retain stable identifiers and separate visibility from authorization.
 - [Floorplan selection](skills/hcm-floorplan-selection/SKILL.md): consult the capability matrix and approved specifications before composing a screen.
+- [Build a floorplan](skills/hcm-build-floorplan/SKILL.md): verify native APIs and keep composed layouts domain-agnostic.
+- [Storybook stories](skills/hcm-storybook-story/SKILL.md): document reusable UX with fictional fixtures, theme controls and interaction checks.
+- [Signal Forms](skills/hcm-signal-form/SKILL.md): implement typed state, validation, save/cancel and server-error mapping.
+- [Enterprise tables](skills/hcm-enterprise-table/SKILL.md): declare query ownership and keep HTTP outside presentation libraries.
 
 ## Code-change procedure
 

@@ -1,0 +1,16 @@
+# HCM Enterprise Table
+
+## Use when
+
+Designing or implementing a tabular HCM feature.
+
+## Procedure
+
+1. Read the FDD/TDD and identify required table capabilities.
+2. Declare `client` or `server` data mode explicitly.
+3. Verify current `ui5-table` and Fundamental wrapper APIs before coding.
+4. Enable only required features (selection, growing, virtualization, etc.).
+5. Keep HTTP/query execution in feature/data-access code, never in the UX table library.
+6. Define loading, empty, error and responsive behavior.
+7. Add a Storybook fixture for the selected mode.
+8. Test query-state mapping or our table orchestration; do not test UI5's own selection implementation.

@@ -1,24 +1,15 @@
-# HCM Shell + Theme Lab materialization
+# HCM UX foundation maintenance
 
-The supplied milestone has been materialized into five Nx libraries and the existing HCM app. Do not copy the original templates over the implementation or rerun the library generators.
+The initial overlay was materialized, then superseded by the approved production-UX correction. Existing source does not require regeneration.
 
-## Run and verify
+Start with the [root README](README.md#hcm-ux-workshop), [current scope](CODEX-IMPLEMENTATION-PROMPT.md) and [Storybook guide](docs/hcm/ux/storybook.md).
 
-```sh
-pnpm install --frozen-lockfile
-pnpm exec node tools/milestones/hcm-shell-theme-lab/verify-bundle.mjs
-pnpm dev:hcm:preview
+```bash
+node tools/ux/check-component-entrypoints.mjs
+node tools/ux/check-storybook-readiness.mjs
+node tools/milestones/hcm-ux-floorplans-storybook/verify-bundle.mjs
 ```
 
-Open [Theme Lab](http://127.0.0.1:4303/ux/theme-lab). Follow the [maintainer guide](docs/hcm/architecture/shell/README.md) for the validation commands, fixture controls, library map and troubleshooting.
+The curated iteration contains Dynamic Page and Object Page. They use native UI5/Fundamental behavior and shared production example hosts. The remaining generated floorplans and form/table adapters are deferred candidates, excluded from canonical Storybook discovery.
 
-## Implementation references
-
-- [Approved prompt](CODEX-IMPLEMENTATION-PROMPT.md)
-- [TDD and actual adaptations](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md)
-- [Verified Nx generator options](tools/milestones/hcm-shell-theme-lab/NX-COMMANDS.md)
-- [HER integrity record](HER-SOURCE-SHA256.txt)
-- [Original source templates](templates/hcm-shell-theme-lab/README.md)
-- [Next milestone](NEXT-STEPS.md)
-
-The supplied HER palette is unchanged. Reference templates retain the original design shape with repository formatting and function documentation; the working application includes the corrections described by the TDD. Runtime source under `libs/hcm/web` is the implementation to maintain.
+Keep Storybook on the existing HCM app, preserve Nx boundaries, and never build an alternative story-only implementation. See [acceptance evidence](docs/hcm/ux/floorplans/validation.md) before approving further patterns.

@@ -10,6 +10,7 @@ This README is the starting point for developing, deploying and supporting the r
 - [Applications and environments](#applications-and-environments)
 - [Developer setup](#developer-setup)
 - [HCM Shell and Theme Lab](#hcm-shell-and-theme-lab)
+- [HCM UX workshop](#hcm-ux-workshop)
 - [Repository structure and architecture](#repository-structure-and-architecture)
 - [Validation and contributions](#validation-and-contributions)
 - [Build and deployment](#build-and-deployment)
@@ -23,7 +24,7 @@ Foundation status recorded on **2026-09-22**:
 
 | Area         | Implemented                                                                                        | Remaining work                                                                   |
 | ------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Applications | Seven runnable apps; HCM fixture shell, Theme Lab, Nx boundaries and documentation rules           | Production floorplans, authenticated bootstrap and domain features               |
+| Applications | Seven runnable apps; HCM shell fixtures, shared Dynamic/Object Page proofs and Theme Lab               | Authenticated bootstrap, production feature integration and domain transactions  |
 | Containers   | Seven Dockerfiles; health checks, runtime configuration, image smoke tests and local Compose stack | Business dependencies and migration orchestration                                |
 | Delivery     | Protected `main`, PR checks, immutable image publication and manual per-app deployment             | QA/PROD activation, production rollout validation and further delivery hardening |
 | Google Cloud | Shared delivery foundation and all seven DEV Cloud Run services in Mumbai                          | Separate QA/PROD provisioning and promotion                                      |
@@ -141,11 +142,25 @@ Start a source development server alongside the container stack:
 pnpm nx serve hcm-web --port=4303 --host=127.0.0.1
 ```
 
-Open [Theme Lab](http://127.0.0.1:4303/ux/theme-lab). Choose a theme, apply or clear an accent, inspect the four preview layouts, and use **Mock session** plus **Browse apps** to exercise role/entitlement filtering.
+Open [Theme Lab](http://127.0.0.1:4303/ux/theme-lab). Choose a theme, apply or clear an accent, inspect the Dynamic Page and Object Page production previews, and use **Mock session** plus **Browse apps** to exercise role/entitlement filtering.
 
 The milestone uses fictional in-memory data. It does not implement sign-in, backend calls, preference persistence or business transactions. Navigation visibility is not authorization, and the existing API access policy is unchanged.
 
-Read the [HCM maintainer guide](docs/hcm/architecture/shell/README.md) for the library map, Mermaid composition/theme diagrams, validation commands and troubleshooting. The [TDD](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) records generator choices and deviations from the supplied templates. The [HCM documentation index](docs/hcm/README.md) links the architecture and next floorplan milestone.
+Read the [HCM maintainer guide](docs/hcm/architecture/shell/README.md) for the library map, Mermaid composition/theme diagrams, validation commands and troubleshooting. The [TDD](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) records generator choices and deviations from the supplied templates. The [HCM documentation index](docs/hcm/README.md) links the shell architecture and implemented floorplan workshop.
+
+## HCM UX workshop
+
+Storybook is the curated HCM production UX catalog. Theme Lab is its exploratory application consumer. It is an Nx target of the existing HCM application and adds no production deployable.
+
+```sh
+pnpm nx storybook hcm-web
+```
+
+Open [HCM Storybook](http://localhost:6006). The toolbar selects Horizon/HER light/dark, tenant accent presets, content density and desktop/tablet/phone viewports. All examples use fictional local data.
+
+Storybook displays Dynamic Page under **Floorplans / Native** and Object Page under **Floorplans / Composed**, without a feature flag. Object Page retains a visible notice about outstanding native accessibility findings; see the [acceptance record](docs/hcm/ux/floorplans/validation.md). The corrected iteration covers only Dynamic Page and Object Page, using maintained UI5/Fundamental layouts and the same production example components in both hosts. Other generated patterns are deferred and excluded from the canonical catalog. The initial presentation is Horizon Light with no tenant override. Start with the [workshop guide](docs/hcm/ux/storybook.md), [floorplan APIs](docs/hcm/ux/floorplans/README.md), [verified capability matrix](docs/hcm/ux/floorplans/component-capability-matrix.md) and [implementation TDD](docs/hcm/tdd/TDD-HCM-UX-FLOORPLANS-STORYBOOK.md). Theme Lab remains the application fixture at `/ux/theme-lab`.
+
+Build and interaction-test commands are in the workshop guide. PR CI builds affected workshops; Storybook publication and product deployment remain separate decisions.
 
 ## Repository structure and architecture
 

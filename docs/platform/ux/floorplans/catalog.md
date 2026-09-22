@@ -1,31 +1,54 @@
-# empFLOWyee Floorplan Catalog
+# empFLOWyee floorplan catalog
 
-Floorplans are UX specifications. A floorplan may be implemented by a native library component, a composition of approved primitives, or an empFLOWyee-owned component.
+A floorplan is a reusable page-level UX pattern. It is not a business feature and it is not an Nx deployable application.
 
-## Status values
+The catalog deliberately separates **behavioral specification** from **technology implementation**. HCM, Account and Console may implement the same platform floorplan with different UI libraries.
 
-- `SPEC_PENDING` — definition still required
-- `RESEARCH` — capability matrix not yet complete
-- `NATIVE` — chosen library provides a suitable maintained implementation
-- `COMPOSED` — implemented by composing approved primitives
-- `EMPFLOWYEE` — custom reusable implementation approved
+A listed ID does not approve a product implementation. Each product records its installed capabilities, implementation choice and acceptance evidence. HCM's current correction is limited to Dynamic Page and Object Page; other generated candidates are deferred.
 
-## Initial catalog
+## IDs
 
-| ID | Floorplan | Typical use | Status |
-| --- | --- | --- | --- |
-| UX-FP-DYNAMIC-PAGE | Dynamic Page | header + content + actions | RESEARCH |
-| UX-FP-OBJECT-PAGE | Object Page | rich business object display/edit | RESEARCH |
-| UX-FP-FLEXIBLE-COLUMN | Flexible Column | master/detail/multi-object flows | RESEARCH |
-| UX-FP-LIST-REPORT | List Report | searchable/filterable object collection | RESEARCH |
-| UX-FP-WORKLIST | Worklist | task-oriented operational list | RESEARCH |
-| UX-FP-WIZARD | Wizard | guided multi-step process | RESEARCH |
-| UX-FP-OVERVIEW | Overview | cards/KPIs/entry points | RESEARCH |
-| UX-FP-ANALYTICAL-LIST | Analytical List | analysis + filtering + drill-down | RESEARCH |
-| UX-FP-DASHBOARD | Dashboard | role-specific monitoring | RESEARCH |
-| UX-FP-FORM | Form Page | focused create/edit flow | RESEARCH |
-| UX-FP-CALENDAR | Calendar/Planning | time-oriented planning | RESEARCH |
-| UX-FP-TIMELINE | Timeline | chronological business history | RESEARCH |
-| UX-FP-TASK-INBOX | Task/Inbox | approval/workflow tasks | RESEARCH |
+Floorplan IDs are stable documentation identifiers. FDD/TDD references the ID, not a CSS class or component-library name.
 
-The catalog is intentionally extensible. A new feature must reference an approved floorplan ID in its FDD/TDD rather than inventing layout ad hoc.
+| ID                      | Intent                                                        |
+| ----------------------- | ------------------------------------------------------------- |
+| `UX-FP-STANDARD-PAGE`   | Simple page with title/actions/content                        |
+| `UX-FP-DYNAMIC-PAGE`    | Collapsible/expandable header with persistent title/actions   |
+| `UX-FP-FCL`             | List-detail-detail / master-detail progression in 1–3 columns |
+| `UX-FP-WIZARD`          | Guided multi-step process                                     |
+| `UX-FP-OBJECT-PAGE`     | Rich display/edit page for one business object with sections  |
+| `UX-FP-LIST-REPORT`     | Filter/search + result set + table/list actions               |
+| `UX-FP-WORKLIST`        | Task-oriented searchable work queue                           |
+| `UX-FP-OVERVIEW`        | Cards/tiles/summary blocks across multiple concerns           |
+| `UX-FP-ANALYTICAL-LIST` | Filters + analytical summary + detailed result set            |
+
+### Earlier documentation identifiers
+
+`UX-FP-FLEXIBLE-COLUMN` in the Shell + Theme Lab TDD refers to the canonical
+`UX-FP-FCL` pattern above. Earlier `UX-FP-FORM` references describe the supporting
+[form standard](../forms/form-standard.md), not a tenth floorplan. Keep these
+references readable when maintaining historical implementation records; new TDDs
+use the canonical catalog IDs.
+
+## Universal states
+
+Every implementation must define the behavior of the states relevant to it:
+
+- loading
+- no data / first-use
+- error / retry
+- unavailable/not entitled
+- unauthorized
+- read-only
+- edit/action in progress
+- responsive narrow/medium/wide
+
+## Non-goals
+
+A floorplan does not own:
+
+- backend calls
+- business authorization decisions
+- domain rules
+- feature-specific routes
+- tenant entitlements

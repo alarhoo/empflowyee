@@ -1,5 +1,8 @@
 # TDD — HCM Shell + Theme Lab Foundation
 
+> Historical initial milestone design. Its schematic preview scope is superseded by the approved [production UX correction](TDD-HCM-UX-FLOORPLANS-STORYBOOK.md). Current Theme Lab renders the same production examples as Storybook.
+
+
 Status: Approved milestone design; materialized in the workspace on 2026-09-22
 
 ## 1. Objective

@@ -1,5 +1,9 @@
 # Repository validation records
 
+## HCM UX floorplans and Storybook
+
+Historical initial materialization checks (superseded as UX approval by the two-floorplan correction): affected lint/test/build passed across 29 projects, all 17 new library unit tests passed, the static Storybook build passed, all 114 stories passed the Chromium runner, and 66 theme/viewport cases passed with local assets only. The original HER palette remains unchanged. See the [workshop validation record](docs/hcm/ux/floorplans/validation.md) for commands, evidence and scope limits. No cloud deployment was performed.
+
 ## HCM Shell + Theme Lab
 
 The local HCM milestone was validated on 2026-09-22: affected lint/test/build passed across 22 projects, all 15 HCM unit tests and all 12 Chromium/Firefox/WebKit cases passed, and the original HER palette checksum is unchanged. See the [HCM validation record](docs/hcm/architecture/shell/validation.md) for repeat commands, evidence and scope limits. This source change has not been deployed to DEV.
@@ -29,3 +33,7 @@ Validated locally on 2026-09-22 with Terraform 1.16.3 and locked Google provider
 Shared and DEV foundations and the first DEV application release are complete. QA/PROD had only offline Terraform checks. GitHub has a protected main branch and configured `cicd`/`dev` environments. Release builds are enabled; infrastructure automation remains disabled. See [deployment evidence and access instructions](docs/platform/engineering/dev-deployment.md) and [foundation readiness](docs/platform/engineering/cloud-run-readiness.md).
 
 Repeat commands are in the [Terraform guide](docs/platform/engineering/terraform.md) and [DEV deployment runbook](docs/platform/engineering/dev-deployment.md). Prior application/container verification remains recorded in [container validation](docs/platform/engineering/container-validation.md).
+
+## Production UX correction
+
+The earlier materialization counts do not establish UX approval. See the [current acceptance record](docs/hcm/ux/floorplans/validation.md) for the two production proofs, cross-browser behavior and the unresolved Object Page accessibility gate.

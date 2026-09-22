@@ -1,27 +1,13 @@
-# After this milestone
+# Next HCM milestones
 
-The HCM Shell + Theme Lab is implemented locally. Use the [maintainer guide](docs/hcm/architecture/shell/README.md)
-and [TDD](docs/hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) for its scope and validation. Promote it to DEV through
-the normal reviewed build/manual deployment process when ready; the historical DEV release still contains the scaffold.
+The approved correction first proves two production floorplans: Dynamic Page and Object Page. Theme Lab and Storybook must share implementations, theme isolation must be verified, and the [validation record](docs/hcm/ux/floorplans/validation.md) must state the evidence and limits.
 
-The next product milestone is **HCM UX Floorplan Foundation**.
+Do not expand the floorplan catalog until these implementations meet the [quality standard](docs/hcm/ux/storybook.md#admission-and-quality). Other generated patterns are deferred, not approved merely because their files exist.
 
-Sequence:
+After this correction, the next design concerns the production shell runtime contract: tenant resolution, authenticated principal/session, entitlements, branding/preferences, catalog filtering and guards, and shell recovery states. Those changes need their own FDD/TDD and trust-boundary review.
 
-1. Build the component-capability matrix against current UI5 Web Components / Fundamental NGX.
-2. Create the approved floorplan catalog and production implementations/adapters only where the library does not already provide them.
-3. Add Storybook for HCM UX/floorplan libraries.
-4. Implement and visually test at least:
-   - Dynamic Page
-   - Object Page composition
-   - Flexible Column Layout
-   - List Report
-   - Worklist
-   - Wizard
-   - Overview Page
-   - enterprise form pattern
-   - client/server table pattern
-5. Add responsive/accessibility/empty/loading/error/read-only states.
-6. Only then choose the first real HCM domain feature for an end-to-end FDD → TDD → implementation vertical slice.
+The first real business feature remains a separate decision. Employee Profile is a candidate because it exercises object sections, display/edit forms and authorization. The current profile is a fictional developer example with no persisted business behavior.
 
-Do not jump straight to Payroll/Leave implementation before the UX primitives and shell contract are proven.
+## Current acceptance gate
+
+Resolve the Object Page native accessibility findings recorded in [validation](docs/hcm/ux/floorplans/validation.md#object-page-accessibility-gate) before approving it or expanding the catalog. The implementation is inspectable under Storybook Review; Dynamic Page is the canonical native proof.
