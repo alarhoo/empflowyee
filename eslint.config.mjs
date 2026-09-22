@@ -347,7 +347,11 @@ export default [
 						},
 						{
 							sourceTag: 'type:floorplan',
-							onlyDependOnLibsWithTags: ['type:floorplan', 'type:ui', 'type:util', 'type:contract'],
+							onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:contract'],
+						},
+						{
+							allSourceTags: ['product:hcm', 'type:floorplan'],
+							onlyDependOnLibsWithTags: ['domain:ux'],
 						},
 						{ sourceTag: 'type:util', onlyDependOnLibsWithTags: ['type:util', 'type:contract'] },
 						{ sourceTag: 'type:contract', onlyDependOnLibsWithTags: ['type:contract'] },

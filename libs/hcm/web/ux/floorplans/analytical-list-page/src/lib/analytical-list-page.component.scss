@@ -1,0 +1,53 @@
+:host {
+	display: block;
+	height: 100%;
+	min-height: 24rem;
+	min-width: 0;
+	color: var(--ef-text-strong);
+}
+.page {
+	height: 100%;
+	background: var(--ef-surface-canvas);
+}
+h1 {
+	margin: 0;
+	font-size: var(--sapObjectHeader_Title_FontSize);
+	overflow-wrap: anywhere;
+}
+.body {
+	padding: 1rem;
+}
+.actions,
+.footer,
+.result-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: center;
+}
+.result-toolbar,
+.analytics {
+	margin-bottom: 1rem;
+}
+.state {
+	padding: 2rem 1rem;
+	display: grid;
+	gap: 1rem;
+	justify-items: start;
+}
+.object-section {
+	padding: 1rem;
+}
+.cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+	gap: 1rem;
+}
+.results {
+	min-width: 0;
+}
+@media (max-width: 40rem) {
+	.body {
+		padding: 0.5rem;
+	}
+}

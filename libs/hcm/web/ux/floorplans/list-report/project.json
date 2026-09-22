@@ -1,0 +1,20 @@
+{
+	"name": "hcm-web-ux-floorplan-list-report",
+	"$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/ux/floorplans/list-report/src",
+	"prefix": "ef-hcm",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:ux", "type:floorplan"],
+	"targets": {
+		"test": {
+			"executor": "@nx/vitest:test",
+			"outputs": ["{options.reportsDirectory}"],
+			"options": {
+				"reportsDirectory": "coverage/libs/hcm/web/ux/floorplans/list-report"
+			}
+		},
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

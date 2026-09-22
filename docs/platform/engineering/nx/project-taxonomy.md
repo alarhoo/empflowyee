@@ -70,6 +70,11 @@ and `type:shell`, respectively. `hcm-web-ux-feature-theme-lab` follows the regul
 pattern. No new Nx type or dependency exemption is introduced. New domain
 features continue to use the general pattern above.
 
+The [UX workshop TDD](../../../hcm/tdd/TDD-HCM-UX-FLOORPLANS-STORYBOOK.md) also retains
+`hcm-web-ux-forms` and `hcm-web-ux-tables` as scoped `type:ui` naming exceptions.
+The five `hcm-web-ux-floorplan-*` projects follow the general pattern and use the
+existing `type:floorplan` role. Storybook targets belong to `hcm-web`, not a new app.
+
 ### Allowed roles
 
 - `type:app` — deployable composition root

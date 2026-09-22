@@ -39,6 +39,12 @@ feature
 
 Feature libraries do not import other feature libraries.
 
+Floorplans may depend only on UI, utility and contract libraries. They do not import
+other floorplans, features, data-access code or application roots. HCM floorplan
+dependencies additionally require `domain:ux`; business-domain implementations stay
+in consuming features. The [floorplan addendum](NX-TAXONOMY-FLOORPLAN-ADDENDUM.md)
+records this scope.
+
 ## Backend layering
 
 ```text

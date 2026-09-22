@@ -1,0 +1,77 @@
+<section [attr.aria-label]="label()">
+	@if (state() === 'denied' || state() === 'unavailable') {
+		<p role="status">
+			{{
+				state() === 'denied'
+					? 'You do not have permission to view these results.'
+					: 'These results are unavailable.'
+			}}
+		</p>
+	} @else {
+		<div class="toolbar">
+			<ui5-input
+				[accessibleName]="'Search ' + label()"
+				[value]="query().search"
+				type="Search"
+				placeholder="Search results"
+				(ui5Input)="search($event.target.value)"
+			/>
+			<span role="status">{{ page().total }} results</span>
+		</div>
+		@if (state() === 'error') {
+			<p role="alert">Results could not be loaded.</p>
+			<ui5-button (click)="retry.emit()">Retry results</ui5-button>
+		} @else {
+			<ui5-table
+				[accessibleName]="label()"
+				overflowMode="Popin"
+				[loading]="state() === 'loading'"
+				[loadingDelay]="0"
+				noDataText="No matching results"
+			>
+				<ui5-table-header-row slot="headerRow">
+					@for (column of columns(); track column.id) {
+						<ui5-table-header-cell
+							[importance]="column.importance ?? 0"
+							[popinText]="column.label"
+							[sortIndicator]="sortIndicator(column.id)"
+						>
+							@if (column.sortable) {
+								<ui5-button
+									design="Transparent"
+									[accessibleName]="'Sort by ' + column.label"
+									(click)="sort(column)"
+									>{{ column.label }}</ui5-button
+								>
+							} @else {
+								{{ column.label }}
+							}
+						</ui5-table-header-cell>
+					}
+				</ui5-table-header-row>
+				@if (state() !== 'empty') {
+					@for (row of page().rows; track row.id) {
+						<ui5-table-row [rowKey]="row.id">
+							@for (column of columns(); track column.id) {
+								<ui5-table-cell>{{ row.cells[column.id] }}</ui5-table-cell>
+							}
+						</ui5-table-row>
+					}
+				}
+			</ui5-table>
+			<nav class="pagination" aria-label="Result pages">
+				<ui5-button
+					[disabled]="page().page === 0 || state() === 'loading'"
+					(click)="goToPage(page().page - 1)"
+					>Previous page</ui5-button
+				>
+				<span>Page {{ page().page + 1 }} of {{ pageCount() }}</span>
+				<ui5-button
+					[disabled]="page().page + 1 >= pageCount() || state() === 'loading'"
+					(click)="goToPage(page().page + 1)"
+					>Next page</ui5-button
+				>
+			</nav>
+		}
+	}
+</section>

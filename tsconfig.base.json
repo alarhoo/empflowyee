@@ -25,6 +25,26 @@
 			"@empflowyee/hcm-web-shell": ["./libs/hcm/web/shell/src/index.ts"],
 			"@empflowyee/hcm-web-ux-feature-theme-lab": [
 				"./libs/hcm/web/ux/feature-theme-lab/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-floorplan-object-page": [
+				"./libs/hcm/web/ux/floorplans/object-page/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-floorplan-list-report": [
+				"./libs/hcm/web/ux/floorplans/list-report/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-floorplan-worklist": [
+				"./libs/hcm/web/ux/floorplans/worklist/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-floorplan-overview-page": [
+				"./libs/hcm/web/ux/floorplans/overview-page/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-floorplan-analytical-list-page": [
+				"./libs/hcm/web/ux/floorplans/analytical-list-page/src/index.ts"
+			],
+			"@empflowyee/hcm-web-ux-forms": ["./libs/hcm/web/ux/forms/src/index.ts"],
+			"@empflowyee/hcm-web-ux-tables": ["./libs/hcm/web/ux/tables/src/index.ts"],
+			"@empflowyee/hcm-web-ux-floorplan-dynamic-page": [
+				"./libs/hcm/web/ux/floorplans/dynamic-page/src/index.ts"
 			]
 		}
 	},

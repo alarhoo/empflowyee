@@ -1,0 +1,59 @@
+<ui5-dynamic-page class="page" [showFooter]="state() === 'content' && !readOnly()">
+	<ui5-dynamic-page-title slot="titleArea">
+		<h1 slot="heading">{{ title() }}</h1>
+		<span slot="subheading">{{ summary() }}</span>
+		@if (state() === 'content' && !readOnly()) {
+			<div slot="actionsBar" class="actions"><ng-content select="[hcmActions]" /></div>
+		}
+	</ui5-dynamic-page-title>
+	<ui5-dynamic-page-header slot="headerArea">
+		<ng-content select="[hcmHeader]" />
+		@if (state() !== 'denied' && state() !== 'unavailable') {
+			<section aria-label="Search and filters"><ng-content select="[hcmFilters]" /></section>
+		}
+	</ui5-dynamic-page-header>
+	<div class="body" [attr.aria-busy]="state() === 'loading'">
+		@switch (state()) {
+			@case ('loading') {
+				<div class="state" role="status">
+					<ui5-busy-indicator [active]="true" [delay]="0" text="Loading content" />
+				</div>
+			}
+			@case ('empty') {
+				<div class="state" role="status">
+					<ng-content select="[hcmEmpty]">No content is available yet.</ng-content>
+				</div>
+			}
+			@case ('error') {
+				<div class="state" role="alert">
+					<ui5-message-strip design="Negative" [hideCloseButton]="true">{{
+						errorMessage()
+					}}</ui5-message-strip>
+					<ng-content select="[hcmError]" />
+					<ui5-button (click)="retry.emit()">Retry</ui5-button>
+				</div>
+			}
+			@case ('denied') {
+				<div class="state" role="status">You do not have permission to view this content.</div>
+			}
+			@case ('unavailable') {
+				<div class="state" role="status">This capability is not available.</div>
+			}
+			@default {
+				@if (readOnly()) {
+					<ui5-message-strip [hideCloseButton]="true">Read-only view</ui5-message-strip>
+				}
+				<section class="analytics" aria-label="Analytical summary">
+					<ng-content select="[hcmAnalytics]" />
+				</section>
+				<section class="result-toolbar" aria-label="Result toolbar">
+					<ng-content select="[hcmResultToolbar]" />
+				</section>
+				<section class="results" aria-label="Detailed results">
+					<ng-content />
+				</section>
+			}
+		}
+	</div>
+	<div slot="footerArea" class="footer"><ng-content select="[hcmFooter]" /></div>
+</ui5-dynamic-page>

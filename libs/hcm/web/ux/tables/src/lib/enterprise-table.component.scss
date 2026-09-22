@@ -1,0 +1,22 @@
+:host {
+	display: block;
+	min-width: 0;
+	color: var(--ef-text-strong);
+}
+section {
+	min-width: 0;
+}
+.toolbar,
+.pagination {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	flex-wrap: wrap;
+	padding: 0.75rem 0;
+}
+ui5-table {
+	width: 100%;
+}
+ui5-input {
+	max-width: 100%;
+}
