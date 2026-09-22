@@ -1,4 +1,4 @@
 # No secrets belong here.
-# Cloud Run services are created PRIVATE by default.
+# DEV web services are public; APIs retain IAM checks. See ADR-dev-web-browser-access.
 project_id = "empflowyee-dev"
 region     = "asia-south1"

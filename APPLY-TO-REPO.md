@@ -1,10 +1,10 @@
-# Apply to the empFLOWyee repository
+# Terraform validation quick reference
 
-The overlay is integrated locally. Read [DEV readiness and reviewed plans](docs/platform/engineering/cloud-run-readiness.md) before a live apply.
+The foundation is integrated into the repository. Start with the [README](README.md) for development and [the maintainer handbook](docs/platform/engineering/maintenance.md) for a new operator's checkout. Read [DEV readiness and reviewed plans](docs/platform/engineering/cloud-run-readiness.md) before a live apply; this page is a repeat-validation reference, not a bootstrap instruction for every clone.
 
 ## Toolchain and authentication
 
-Use the Terraform version in `.terraform-version` (currently 1.16.3). It is installed in `%LOCALAPPDATA%\Programs\HashiCorp\Terraform\1.16.3` and registered in the Windows user PATH. Restart an existing terminal's host application to inherit the updated PATH. To refresh only the current PowerShell session from the repository root:
+Use the Terraform version in `.terraform-version` (currently 1.16.3). On the original Windows workstation it was installed in `%LOCALAPPDATA%\Programs\HashiCorp\Terraform\1.16.3` and registered in the user PATH. New workstations need their own installation. Restart an existing terminal's host application to inherit an updated PATH. If using that installation location, refresh only the current PowerShell session from the repository root with:
 
 ```powershell
 $tfVersion = (Get-Content .terraform-version -Raw).Trim()
@@ -12,7 +12,7 @@ $env:Path = "$env:LOCALAPPDATA\Programs\HashiCorp\Terraform\$tfVersion;$env:Path
 terraform version
 ```
 
-Local Application Default Credentials are now configured. Refresh them when required with `gcloud auth application-default login`; consent to the Cloud Platform permission. Never copy credentials into the repository.
+Each authorized operator needs their own Application Default Credentials. Configure or refresh them with `gcloud auth application-default login`; consent to the required Cloud Platform permission. Never copy credentials into the repository.
 
 ## Structural and offline checks
 

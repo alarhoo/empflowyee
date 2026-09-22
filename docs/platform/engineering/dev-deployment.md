@@ -40,6 +40,14 @@ Fresh plans for `shared`, `environments/dev` and `cloud-run/dev` report no chang
 | `console-web`   | `console-web-00003-nsn`   | [Run 35646335725](https://github.com/alarhoo/empflowyee/actions/runs/35646335725) |
 | `console-api`   | `console-api-00002-dbt`   | [Run 35645777349](https://github.com/alarhoo/empflowyee/actions/runs/35645777349) |
 
+## Browser-access correction — 2026-09-22
+
+[PR #5](https://github.com/alarhoo/empflowyee/pull/5), merged as `50b63fe`, recorded the [DEV access decision](../adr/ADR-dev-web-browser-access.md) and changed only the four web services' invoker IAM setting. The reviewed apply added no resources, updated four services in place and destroyed none. The application digests, runtime configuration, identities and resource limits were unchanged.
+
+All four web apps rendered their welcome screens in an ordinary browser. Anonymous HTTP checks passed for their pages, health endpoints, public runtime configuration and referenced JavaScript/CSS assets. Each API still returned HTTP 403 without a token and its expected greeting with an authorized identity token. A fresh DEV Cloud Run plan reported no drift.
+
+This correction completes direct browser access to the scaffold UIs. It does not implement application sign-in or browser-to-API authentication.
+
 ## Browser access and private API diagnostics
 
 The four web apps must open at the HTTPS URLs above without a proxy, a Google IAM token or a local process. Their HTML, JavaScript, CSS and public runtime configuration are part of that browser-access contract. Application sign-in and authorization are separate product work.

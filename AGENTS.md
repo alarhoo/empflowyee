@@ -80,6 +80,13 @@ Stop and propose an ADR before introducing:
 
 Do not invent missing business behavior.
 
+## README and operational documentation
+
+- Treat the root `README.md` as the developer/maintainer entry point. Keep its setup commands, status summaries, navigation links and deployment diagrams current when the implementation changes.
+- Keep detailed architecture, security and operational truth under `docs/`; README files summarize and link rather than creating conflicting policies.
+- Follow `docs/platform/engineering/maintenance.md#maintaining-documentation`: distinguish implemented, planned and historically verified behavior, and verify links, commands and Mermaid diagrams affected by a change.
+- Write documentation for repository readers, using prerequisites, procedures and expected results rather than conversation history or assumptions about one developer's machine.
+
 ## Function documentation
 
 - Every JavaScript/TypeScript function implementation must have a meaningful JSDoc description, including methods, constructors, accessors, callbacks, tests and tooling.

@@ -1,5 +1,11 @@
 # GitHub setup
 
+## Current rollout
+
+As recorded on 2026-09-22, `main` is protected and the `cicd` and `dev` environments are configured with exact-main branch policies. Release publication and seven manual DEV promotions are proven. `RELEASE_PIPELINE_ENABLED=true`; `INFRA_PIPELINE_ENABLED=false`. QA/PROD setup and a dedicated Terraform automation identity remain pending. See [DEV readiness](cloud-run-readiness.md) for applied values and evidence.
+
+The sections below describe provisioning requirements for each environment; listing QA/PROD variables does not mean those environments are already activated.
+
 ## `main` ruleset
 
 Configure:
