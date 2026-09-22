@@ -68,6 +68,12 @@ jobs:
       - name: Validate documentation
         run: node tools/documentation/verify.mjs
 
+      # Keep the verified native entry points and generated HCM workshop projects aligned with the catalog.
+      - name: Validate HCM UX workshop foundation
+        run: |
+          node tools/ux/check-component-entrypoints.mjs
+          node tools/milestones/hcm-ux-floorplans-storybook/verify-bundle.mjs
+
       - name: Validate deployment manifest
         run: node tools/ci/validate-deployables.mjs
 
@@ -101,3 +107,7 @@ jobs:
 
       - name: Lint, test and build affected projects
         run: pnpm nx affected -t lint test build --base="${{ github.event.pull_request.base.sha }}" --head="${{ github.event.pull_request.head.sha }}" --parallel=3
+
+      # Validate the isolated HCM workshop when its host or library dependencies change; never publish it here.
+      - name: Build affected Storybook workshops
+        run: pnpm nx affected -t build-storybook --base="${{ github.event.pull_request.base.sha }}" --head="${{ github.event.pull_request.head.sha }}" --parallel=1 --configuration=ci

@@ -1,0 +1,21 @@
+:host,
+ui5-dynamic-page {
+	display: block;
+	height: 100%;
+	min-width: 0;
+}
+h1 {
+	margin: 0;
+	font-size: var(--sapObjectHeader_Title_FontSize);
+}
+.snapped-title {
+	font-size: var(--sapObjectHeader_Title_SnappedFontSize);
+}
+.content {
+	padding-block: 1rem;
+}
+.page-state {
+	display: grid;
+	place-items: center;
+	min-height: 16rem;
+}

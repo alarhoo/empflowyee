@@ -3,7 +3,7 @@ import { nxE2EPreset } from '@nx/playwright/preset'
 import { workspaceRoot } from '@nx/devkit'
 
 // For CI, you may want to set BASE_URL to the deployed application.
-// A separate development port avoids accidentally testing the older local Docker image on 4302.
+// The optional preview server is separate from the primary pnpm dev:hcm server on 4302.
 const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4303'
 
 const localServer = {

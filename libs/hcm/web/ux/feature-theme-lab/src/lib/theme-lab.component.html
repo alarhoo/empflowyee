@@ -29,26 +29,16 @@
 		<div class="control-group">
 			<label class="control-label" for="tenant-primary">Tenant primary color</label>
 			<div class="color-row">
-				<input
-					#colorPicker
+				<ui5-input
 					id="tenant-primary"
-					class="color-picker"
-					type="color"
-					[value]="theme.tenantPrimary() ?? '#b74435'"
-					(input)="onPrimaryColor(colorPicker.value)"
-				/>
-				<input
-					class="hex-input"
-					type="text"
-					aria-label="Tenant primary color hex"
+					accessibleName="Tenant primary color hex"
+					[valueState]="colorError() ? 'Negative' : 'None'"
 					[formField]="colorForm.primary"
-					[attr.aria-invalid]="colorError() ? true : null"
-					aria-describedby="color-help"
-					placeholder="#b74435"
+					placeholder="Optional #RRGGBB"
 					(keydown.enter)="onPrimaryColor(colorModel().primary)"
 				/>
 				<ui5-button (click)="onPrimaryColor(colorModel().primary)">Apply color</ui5-button>
-				<ui5-button design="Transparent" (click)="clearPrimary()">Use theme default</ui5-button>
+				<ui5-button design="Transparent" (click)="clearPrimary()">No tenant override</ui5-button>
 			</div>
 			<p id="color-help" class="help-text">
 				Optional accent for this demo tenant. Leave blank to use the theme palette.
@@ -92,34 +82,27 @@
 
 	<nav class="preview-tabs" aria-label="Theme Lab previews">
 		@for (preview of previews; track preview.id) {
-			<button
-				type="button"
-				class="preview-tab"
-				[class.is-active]="activePreview() === preview.id"
+			<ui5-button
+				[design]="activePreview() === preview.id ? 'Emphasized' : 'Default'"
 				[attr.aria-pressed]="activePreview() === preview.id"
 				(click)="activePreview.set(preview.id)"
+				>{{ preview.label }}</ui5-button
 			>
-				{{ preview.label }}
-			</button>
 		}
 	</nav>
-
 	<p class="help-text">
-		Schematic previews with fictional data. Business actions are disabled; no changes are saved.
+		Developer playground using the same production components as the curated Storybook. All employee
+		data is fictional; preview edits are discarded on reload.
 	</p>
-
+	@if (theme.error()) {
+		<p role="alert">{{ theme.error() }}</p>
+	}
 	@switch (activePreview()) {
-		@case ('overview') {
-			<ef-hcm-overview-preview />
+		@case ('dynamic-page') {
+			<ef-hcm-dynamic-page-example />
 		}
 		@case ('object-page') {
-			<ef-hcm-object-page-preview />
-		}
-		@case ('flexible-columns') {
-			<ef-hcm-flexible-columns-preview />
-		}
-		@case ('table-form') {
-			<ef-hcm-table-form-preview />
+			<ef-hcm-object-page-example />
 		}
 	}
 </section>

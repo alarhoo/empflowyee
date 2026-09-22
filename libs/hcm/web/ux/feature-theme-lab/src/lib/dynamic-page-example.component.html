@@ -1,0 +1,69 @@
+<div class="hcm-floorplan-canvas">
+	<ef-hcm-dynamic-page
+		title="Employee directory"
+		summary="Find people across your organization"
+		[state]="effectiveState()"
+		[readOnly]="readOnly()"
+		[actions]="actions"
+		(action)="handleAction($event)"
+		(retry)="recovered.set(true)"
+	>
+		<ui5-form
+			hcmHeader
+			accessibleName="Directory filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+		>
+			<ui5-form-item
+				><ui5-label slot="labelContent" for="directory-search">Search employees</ui5-label
+				><ui5-input
+					id="directory-search"
+					accessibleName="Search employees"
+					type="Search"
+					placeholder="Name, team or location"
+					[formField]="searchForm.query"
+			/></ui5-form-item>
+			<ui5-form-item
+				><ui5-label slot="labelContent">Scope</ui5-label
+				><span>All locations / Active employees</span></ui5-form-item
+			>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip [hideCloseButton]="true">{{ notice() }}</ui5-message-strip>
+		}
+		<div class="section-intro">
+			<ui5-title level="H2" size="H4">Employees ({{ rows().length }})</ui5-title>
+			<p>Fictional directory for layout and theme verification.</p>
+		</div>
+		<ui5-table
+			accessibleName="Employee directory results"
+			overflowMode="Popin"
+			noDataText="No employees match your search"
+		>
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell [importance]="100" minWidth="12rem">Employee</ui5-table-header-cell>
+				<ui5-table-header-cell minWidth="8rem" popinText="Employee ID" [importance]="20"
+					>Employee ID</ui5-table-header-cell
+				>
+				<ui5-table-header-cell minWidth="12rem" popinText="Team" [importance]="60"
+					>Team</ui5-table-header-cell
+				>
+				<ui5-table-header-cell minWidth="14rem" popinText="Role" [importance]="10"
+					>Role</ui5-table-header-cell
+				>
+				<ui5-table-header-cell minWidth="10rem" popinText="Location" [importance]="40"
+					>Location</ui5-table-header-cell
+				>
+			</ui5-table-header-row>
+			@for (row of rows(); track row.id) {
+				<ui5-table-row [rowKey]="row.id"
+					><ui5-table-cell>{{ row.name }}</ui5-table-cell
+					><ui5-table-cell>{{ row.id }}</ui5-table-cell
+					><ui5-table-cell>{{ row.team }}</ui5-table-cell
+					><ui5-table-cell>{{ row.role }}</ui5-table-cell
+					><ui5-table-cell>{{ row.location }}</ui5-table-cell></ui5-table-row
+				>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+</div>

@@ -19,7 +19,28 @@
 				"assets": [
 					{
 						"glob": "**/*",
-						"input": "apps/hcm/web/public"
+						"input": "apps/hcm/web/public",
+						"output": ""
+					},
+					{
+						"glob": "**/css_variables.css",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib",
+						"output": "assets/hcm/theming/Base/baseLib"
+					},
+					{
+						"glob": "sap_horizon*.css",
+						"input": "node_modules/fundamental-styles/dist/theming",
+						"output": "assets/hcm/fundamental"
+					},
+					{
+						"glob": "*.woff2",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib/baseTheme/fonts",
+						"output": "assets/hcm/theming/Base/baseLib/baseTheme/fonts"
+					},
+					{
+						"glob": "*.woff2",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib/sap_horizon/fonts",
+						"output": "assets/hcm/theming/Base/baseLib/sap_horizon/fonts"
 					}
 				],
 				"styles": ["apps/hcm/web/src/styles.scss"]
@@ -81,6 +102,112 @@
 				"staticFilePath": "dist/apps/hcm/web/browser",
 				"spa": true
 			}
+		},
+		"storybook": {
+			"executor": "@storybook/angular:start-storybook",
+			"options": {
+				"port": 6006,
+				"configDir": "apps/hcm/web/.storybook",
+				"browserTarget": "hcm-web:build:development",
+				"compodoc": false,
+				"tsConfig": "apps/hcm/web/.storybook/tsconfig.json",
+				"styles": ["apps/hcm/web/src/styles.scss", "apps/hcm/web/.storybook/workshop.scss"],
+				"assets": [
+					{
+						"glob": "**/css_variables.css",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib",
+						"output": "assets/hcm/theming/Base/baseLib"
+					},
+					{
+						"glob": "sap_horizon*.css",
+						"input": "node_modules/fundamental-styles/dist/theming",
+						"output": "assets/hcm/fundamental"
+					},
+					{
+						"glob": "*.woff2",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib/baseTheme/fonts",
+						"output": "assets/hcm/theming/Base/baseLib/baseTheme/fonts"
+					},
+					{
+						"glob": "*.woff2",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib/sap_horizon/fonts",
+						"output": "assets/hcm/theming/Base/baseLib/sap_horizon/fonts"
+					}
+				],
+				"experimentalZoneless": false
+			},
+			"configurations": {
+				"ci": {
+					"quiet": true
+				}
+			}
+		},
+		"build-storybook": {
+			"executor": "@storybook/angular:build-storybook",
+			"outputs": ["{options.outputDir}"],
+			"options": {
+				"outputDir": "dist/storybook/hcm-web",
+				"configDir": "apps/hcm/web/.storybook",
+				"browserTarget": "hcm-web:build:development",
+				"compodoc": false,
+				"tsConfig": "apps/hcm/web/.storybook/tsconfig.json",
+				"styles": ["apps/hcm/web/src/styles.scss", "apps/hcm/web/.storybook/workshop.scss"],
+				"assets": [
+					{
+						"glob": "**/css_variables.css",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib",
+						"output": "assets/hcm/theming/Base/baseLib"
+					},
+					{
+						"glob": "sap_horizon*.css",
+						"input": "node_modules/fundamental-styles/dist/theming",
+						"output": "assets/hcm/fundamental"
+					},
+					{
+						"glob": "*.woff2",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib/baseTheme/fonts",
+						"output": "assets/hcm/theming/Base/baseLib/baseTheme/fonts"
+					},
+					{
+						"glob": "*.woff2",
+						"input": "node_modules/@sap-theming/theming-base-content/content/Base/baseLib/sap_horizon/fonts",
+						"output": "assets/hcm/theming/Base/baseLib/sap_horizon/fonts"
+					}
+				],
+				"experimentalZoneless": false
+			},
+			"configurations": {
+				"ci": {
+					"quiet": true
+				}
+			}
+		},
+		"test-storybook": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "test-storybook -c apps/hcm/web/.storybook --url=http://localhost:6006 --maxWorkers=1"
+			}
+		},
+		"static-storybook": {
+			"executor": "@nx/web:file-server",
+			"dependsOn": ["build-storybook"],
+			"options": {
+				"buildTarget": "hcm-web:build-storybook",
+				"staticFilePath": "dist/storybook/hcm-web",
+				"spa": true,
+				"port": 6006
+			},
+			"configurations": {
+				"ci": {
+					"buildTarget": "hcm-web:build-storybook:ci"
+				}
+			}
 		}
-	}
+	},
+	"implicitDependencies": [
+		"hcm-web-ux-*",
+		"hcm-web-runtime-context",
+		"hcm-web-navigation-catalog",
+		"hcm-web-shell"
+	]
 }

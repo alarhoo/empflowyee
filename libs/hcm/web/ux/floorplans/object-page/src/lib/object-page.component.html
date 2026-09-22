@@ -1,0 +1,106 @@
+<fd-dynamic-page [autoResponsive]="true" [expandContent]="false" [ariaLabel]="title()">
+	<fd-dynamic-page-header
+		[title]="title()"
+		[subtitle]="summary()"
+		[titleWrap]="true"
+		[subtitleWrap]="true"
+		headingLevel="h1"
+	>
+		@if (state() === 'content') {
+			<fd-facet type="image"><ng-content select="[hcmImage]" /></fd-facet>
+		}
+		@if (state() === 'content') {
+			<fd-dynamic-page-title-content
+				><ng-content select="[hcmKeyInfo]"
+			/></fd-dynamic-page-title-content>
+		}
+		@if (state() === 'content') {
+			<fd-dynamic-page-global-actions>
+				<fd-toolbar fdType="transparent" [clearBorder]="true" ariaLabel="Object actions">
+					@for (item of visibleActions(); track item.id) {
+						<button
+							fd-button
+							fd-toolbar-item
+							[ariaLabel]="item.label"
+							[fdType]="item.emphasized ? 'emphasized' : 'standard'"
+							[disabled]="item.disabled ?? false"
+							(click)="action.emit(item.id)"
+						>
+							{{ item.label }}
+						</button>
+					}
+				</fd-toolbar>
+			</fd-dynamic-page-global-actions>
+		}
+	</fd-dynamic-page-header>
+	@if (state() === 'content') {
+		<fd-dynamic-page-subheader [pinnable]="true" headerAriaLabel="Object summary"
+			><ng-content select="[hcmHeader]"
+		/></fd-dynamic-page-subheader>
+	}
+	@if (state() === 'content') {
+		<fdp-icon-tab-bar
+			[stackContent]="true"
+			maxContentHeight="auto"
+			[colorAssociations]="{ default: 'Section' }"
+			(iconTabSelected)="sectionChange.emit($event.id ?? '')"
+		>
+			@for (section of sections(); track section.id()) {
+				<fdp-icon-tab-bar-tab [id]="section.id()" [label]="section.label()">
+					<section class="object-section" [attr.aria-label]="section.label()">
+						<h2>{{ section.label() }}</h2>
+						@if ($first && readOnly()) {
+							<ui5-message-strip [hideCloseButton]="true"
+								>Read-only view. Changes are not available.</ui5-message-strip
+							>
+						}
+						<ng-container [ngTemplateOutlet]="section.template" />
+					</section>
+				</fdp-icon-tab-bar-tab>
+			}
+		</fdp-icon-tab-bar>
+	} @else {
+		<fd-dynamic-page-content>
+			<div [attr.aria-busy]="state() === 'loading'">
+				@switch (state()) {
+					@case ('loading') {
+						<div class="page-state" role="status">
+							<ui5-busy-indicator [active]="true" [delay]="0" text="Loading object" />
+						</div>
+					}
+					@case ('empty') {
+						<ui5-illustrated-message
+							name="NoData"
+							titleText="Object not found"
+							subtitleText="The record may have been removed. Return to the list to choose another."
+						/>
+					}
+					@case ('error') {
+						<div role="alert">
+							<ui5-illustrated-message
+								name="UnableToLoad"
+								titleText="Object could not be loaded"
+								[subtitleText]="errorMessage()"
+								><button fd-button (click)="retry.emit()">Retry</button></ui5-illustrated-message
+							>
+						</div>
+					}
+					@case ('denied') {
+						<ui5-illustrated-message
+							name="tnt/Lock"
+							titleText="Permission required"
+							subtitleText="You do not have permission to view this object."
+						/>
+					}
+					@case ('unavailable') {
+						<ui5-illustrated-message
+							name="NoData"
+							titleText="Currently unavailable"
+							subtitleText="This capability is not available in the current context."
+						/>
+					}
+				}
+			</div>
+		</fd-dynamic-page-content>
+	}
+</fd-dynamic-page>

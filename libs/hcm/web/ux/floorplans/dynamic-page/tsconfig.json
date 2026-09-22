@@ -1,5 +1,5 @@
 {
-	"extends": "../../../../../tsconfig.base.json",
+	"extends": "../../../../../../tsconfig.base.json",
 	"compilerOptions": {
 		"isolatedModules": true,
 		"moduleResolution": "bundler",
@@ -24,9 +24,6 @@
 		},
 		{
 			"path": "./tsconfig.spec.json"
-		},
-		{
-			"path": "./tsconfig.stories.json"
 		}
 	]
 }

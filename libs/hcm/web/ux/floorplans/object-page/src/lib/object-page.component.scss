@@ -1,0 +1,25 @@
+:host,
+fd-dynamic-page {
+	display: block;
+	height: 100%;
+	min-width: 0;
+}
+.page-state {
+	display: grid;
+	place-items: center;
+	min-height: 16rem;
+}
+// Only projected section spacing is product-owned. Native controls own header and anchor anatomy.
+.object-section {
+	padding: 1.5rem 2rem;
+}
+h2 {
+	margin: 0 0 1rem;
+	font-size: var(--sapFontHeader3Size);
+	color: var(--sapTextColor);
+}
+@media (max-width: 40rem) {
+	.object-section {
+		padding: 1rem;
+	}
+}

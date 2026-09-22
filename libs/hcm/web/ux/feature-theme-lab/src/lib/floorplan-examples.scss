@@ -1,0 +1,26 @@
+// Only the consuming canvas and content spacing are product-owned; native components own floorplan anatomy.
+:host {
+	display: block;
+	min-width: 0;
+}
+.hcm-floorplan-canvas {
+	height: 85svh;
+	min-height: 24rem;
+	max-height: 58rem;
+	min-width: 0;
+}
+.section-intro {
+	padding-block: 1rem;
+}
+.section-intro p {
+	color: var(--ef-text-muted);
+	margin-block: 0.5rem;
+}
+.example-actions {
+	display: flex;
+	gap: 0.5rem;
+	padding-block: 0.75rem;
+}
+ui5-form {
+	width: 100%;
+}

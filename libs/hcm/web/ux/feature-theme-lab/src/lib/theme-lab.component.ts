@@ -1,7 +1,6 @@
-import { TableFormPreview } from './table-form-preview.component'
-import { FlexibleColumnsPreview } from './flexible-columns-preview.component'
-import { ObjectPagePreview } from './object-page-preview.component'
-import { OverviewPreview } from './overview-preview.component'
+import { DynamicPageExample } from './dynamic-page-example.component'
+import { ObjectPageExample } from './object-page-example.component'
+import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core'
 import { form, FormField } from '@angular/forms/signals'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
@@ -9,19 +8,11 @@ import { CheckBox } from '@fundamental-ngx/ui5-webcomponents/check-box'
 import { HcmRuntimeStore, HCM_ROLES, HCM_ENTITLEMENTS } from '@empflowyee/hcm-web-runtime-context'
 import { HCM_THEMES, HcmThemeService, type HcmThemeVariant } from '@empflowyee/hcm-web-ux-theme'
 
-type PreviewId = 'overview' | 'object-page' | 'flexible-columns' | 'table-form'
+type PreviewId = 'dynamic-page' | 'object-page'
 
 @Component({
 	selector: 'ef-hcm-theme-lab',
-	imports: [
-		Button,
-		CheckBox,
-		FormField,
-		OverviewPreview,
-		ObjectPagePreview,
-		FlexibleColumnsPreview,
-		TableFormPreview,
-	],
+	imports: [Button, CheckBox, FormField, DynamicPageExample, ObjectPageExample, Input],
 	templateUrl: './theme-lab.component.html',
 	styleUrl: './theme-lab.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,7 +23,7 @@ export class ThemeLabComponent {
 	readonly themes = HCM_THEMES
 	readonly roles = HCM_ROLES
 	readonly entitlements = HCM_ENTITLEMENTS
-	readonly activePreview = signal<PreviewId>('overview')
+	readonly activePreview = signal<PreviewId>('dynamic-page')
 	readonly colorError = signal<string | null>(null)
 	readonly colorModel = signal({ primary: '' })
 	readonly colorForm = form(this.colorModel)
@@ -41,10 +32,8 @@ export class ThemeLabComponent {
 			`${this.runtime.tenant().displayName} · ${this.runtime.principal().displayName}`,
 	)
 	readonly previews: readonly { id: PreviewId; label: string }[] = [
-		{ id: 'overview', label: 'Overview' },
+		{ id: 'dynamic-page', label: 'Dynamic Page' },
 		{ id: 'object-page', label: 'Object Page' },
-		{ id: 'flexible-columns', label: 'Flexible Columns' },
-		{ id: 'table-form', label: 'Table + Form' },
 	]
 
 	/** Synchronize the editable branding field when accepted fixture branding changes. */

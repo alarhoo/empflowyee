@@ -1,0 +1,14 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"emitDecoratorMetadata": true
+	},
+	"exclude": ["../**/*.spec.ts", "../../../../libs/hcm/web/**/*.spec.ts"],
+	"include": [
+		"../src/**/*.stories.ts",
+		"../src/stories/**/*.ts",
+		"../../../../libs/hcm/web/**/*.stories.ts",
+		"preview.ts",
+		"theme-frame.ts"
+	]
+}

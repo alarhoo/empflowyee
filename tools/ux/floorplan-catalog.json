@@ -1,0 +1,93 @@
+{
+	"version": "2.0.0",
+	"product": "hcm",
+	"patterns": [
+		{
+			"id": "UX-FP-STANDARD-PAGE",
+			"name": "Standard Page",
+			"mode": "NATIVE",
+			"component": "ui5-page",
+			"wrapperPackage": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"entrypoint": "page",
+			"nxLibrary": null,
+			"status": "deferred"
+		},
+		{
+			"id": "UX-FP-DYNAMIC-PAGE",
+			"name": "Dynamic Page",
+			"mode": "NATIVE",
+			"component": "ui5-dynamic-page",
+			"wrapperPackage": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"entrypoint": "dynamic-page",
+			"nxLibrary": "hcm-web-ux-floorplan-dynamic-page",
+			"status": "canonical",
+			"projectFile": "libs/hcm/web/ux/floorplans/dynamic-page/project.json",
+			"exampleSource": "libs/hcm/web/ux/feature-theme-lab/src/lib/dynamic-page-example.component.ts",
+			"storySource": "libs/hcm/web/ux/feature-theme-lab/src/lib/dynamic-page.stories.ts",
+			"validation": "docs/hcm/ux/floorplans/validation.md"
+		},
+		{
+			"id": "UX-FP-FCL",
+			"name": "Flexible Column Layout",
+			"mode": "NATIVE",
+			"component": "ui5-flexible-column-layout",
+			"wrapperPackage": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"entrypoint": "flexible-column-layout",
+			"nxLibrary": null,
+			"status": "deferred"
+		},
+		{
+			"id": "UX-FP-WIZARD",
+			"name": "Wizard",
+			"mode": "NATIVE",
+			"component": "ui5-wizard",
+			"wrapperPackage": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"entrypoint": "wizard",
+			"nxLibrary": null,
+			"status": "deferred"
+		},
+		{
+			"id": "UX-FP-OBJECT-PAGE",
+			"name": "Object Page",
+			"mode": "COMPOSED",
+			"nxLibrary": "hcm-web-ux-floorplan-object-page",
+			"status": "review-required",
+			"projectFile": "libs/hcm/web/ux/floorplans/object-page/project.json",
+			"exampleSource": "libs/hcm/web/ux/feature-theme-lab/src/lib/object-page-example.component.ts",
+			"storySource": "libs/hcm/web/ux/feature-theme-lab/src/lib/object-page.stories.ts",
+			"validation": "docs/hcm/ux/floorplans/validation.md",
+			"component": "fd-dynamic-page + fdp-icon-tab-bar",
+			"wrapperPackage": "@fundamental-ngx/core",
+			"entrypoint": "dynamic-page",
+			"strategy": "Core DynamicPage with Platform IconTabBar stacked sections; see validation for the accessibility admission gate"
+		},
+		{
+			"id": "UX-FP-LIST-REPORT",
+			"name": "List Report",
+			"mode": "COMPOSED",
+			"nxLibrary": "hcm-web-ux-floorplan-list-report",
+			"status": "deferred"
+		},
+		{
+			"id": "UX-FP-WORKLIST",
+			"name": "Worklist",
+			"mode": "COMPOSED",
+			"nxLibrary": "hcm-web-ux-floorplan-worklist",
+			"status": "deferred"
+		},
+		{
+			"id": "UX-FP-OVERVIEW",
+			"name": "Overview Page",
+			"mode": "COMPOSED",
+			"nxLibrary": "hcm-web-ux-floorplan-overview-page",
+			"status": "deferred"
+		},
+		{
+			"id": "UX-FP-ANALYTICAL-LIST",
+			"name": "Analytical List Page",
+			"mode": "COMPOSED",
+			"nxLibrary": "hcm-web-ux-floorplan-analytical-list-page",
+			"status": "deferred"
+		}
+	]
+}
