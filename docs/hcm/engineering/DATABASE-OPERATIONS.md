@@ -71,6 +71,44 @@ and resolve the failure explicitly; do not delete an existing database to retry.
 This script is local infrastructure provisioning, not the HCM0-03 seed framework.
 Production Cloud SQL/IAM provisioning needs its own reviewed infrastructure design.
 
+## Open and inspect the local database
+
+An installed PostgreSQL client can connect with these settings:
+
+| Setting  | Value                                             |
+| -------- | ------------------------------------------------- |
+| Host     | `127.0.0.1`                                       |
+| Port     | `55432`                                           |
+| Database | `hcm_db`                                          |
+| User     | `hcm_runtime`                                     |
+| Password | `runtimePassword` from `.local/hcm/database.json` |
+| Schema   | `hcm`                                             |
+
+The runtime role is read-only. Row-level security intentionally returns no
+tenant-owned rows without a tenant context. In a query editor, run these statements
+together on one connection:
+
+```sql
+BEGIN READ ONLY;
+SET LOCAL hcm.tenant_id = 'local-dunder-mifflin';
+SELECT * FROM hcm.person;
+SELECT * FROM hcm.user_account;
+SELECT * FROM hcm.account_role;
+SELECT * FROM hcm.tenant_entitlement;
+COMMIT;
+```
+
+No desktop database client is required. Open the bundled PostgreSQL terminal:
+
+```sh
+docker exec -it empflowyee-hcm-postgres psql -U hcm_runtime -d hcm_db
+```
+
+Use `\dt hcm.*` to list tables, run the same SQL above, and enter `\q` to exit.
+The container's local socket supports this command without exposing the generated
+password. Keep the credential file private; API queries must retain the restricted
+runtime role rather than using the administrator account.
+
 ## Apply SQL explicitly
 
 Set `HCM_MIGRATION_DATABASE_URL` in the command's server environment to a PostgreSQL
