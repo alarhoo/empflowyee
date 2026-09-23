@@ -19,6 +19,22 @@ export {
 	type HcmSessionRequest,
 } from '@empflowyee/hcm-api-runtime-domain'
 
+export interface AuthenticatedHcmContext {
+	readonly session: HcmRuntimeContext
+}
+
+const authenticatedScopes = new WeakMap<
+	AuthenticatedHcmContext,
+	{ tenantId: string; expiresAt: number }
+>()
+
+/** Accept only a still-valid context issued by server verification, never a copied public DTO. */
+export function requireAuthenticatedTenant(context: AuthenticatedHcmContext): string {
+	const scope = authenticatedScopes.get(context)
+	if (!scope || scope.expiresAt <= Date.now()) throw new HcmRuntimeError('unauthenticated')
+	return scope.tenantId
+}
+
 export class HcmRuntimeApplication {
 	/** Bind framework-neutral tenant and verified-session ports at the module composition boundary. */
 	constructor(
@@ -69,6 +85,15 @@ export class HcmRuntimeApplication {
 		cookie?: string,
 		request?: HcmSessionRequest,
 	): Promise<HcmRuntimeContext> {
+		return (await this.authenticate(record, cookie, request)).session
+	}
+
+	/** Issue an internal scope after tenant status, session expiry and membership are verified. */
+	async authenticate(
+		record: TenantRecord,
+		cookie?: string,
+		request?: HcmSessionRequest,
+	): Promise<AuthenticatedHcmContext> {
 		if (!isTenantAccessible(record.discovery.tenant)) throw new HcmRuntimeError('tenant-suspended')
 		const session = await this.sessions.read(cookie, request)
 		if (
@@ -78,13 +103,20 @@ export class HcmRuntimeApplication {
 		)
 			throw new HcmRuntimeError('unauthenticated')
 		if (session.tenantId !== record.id) throw new HcmRuntimeError('forbidden')
-		return {
-			tenant: this.discover(record).tenant,
-			user: session.user,
-			access: session.access,
-			preferences: session.preferences,
-			session: { version: session.version, expiresAt: session.expiresAt },
-			...(session.development ? { development: session.development } : {}),
-		}
+		const context: AuthenticatedHcmContext = Object.freeze({
+			session: {
+				tenant: this.discover(record).tenant,
+				user: session.user,
+				access: session.access,
+				preferences: session.preferences,
+				session: { version: session.version, expiresAt: session.expiresAt },
+				...(session.development ? { development: session.development } : {}),
+			},
+		})
+		authenticatedScopes.set(context, {
+			tenantId: record.id,
+			expiresAt: Date.parse(session.expiresAt),
+		})
+		return context
 	}
 }

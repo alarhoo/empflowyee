@@ -5,11 +5,12 @@ for dependencies, exact repository ownership, approval gates and acceptance crit
 The [installation report](docs/hcm/engineering/FACTORY-INSTALLATION-REPORT.md)
 records what is already installed.
 
-1. Materialize the complete planned HCM tree and inspect it in VS Code.
-2. Build the current Launchpad from `hcm-launchpad.json` + `hcm-app-catalogue.json`; development may show unavailable planned apps, while production navigation requires implemented and authorized routes. Do not move code to match the visual hierarchy.
-3. Build SQL-first database foundation: migration runner, `hcm` PostgreSQL namespace, runtime/migration roles, RLS tenant context and Kysely strategy.
-4. Build versioned PostgreSQL development seed framework with the approved fictional tenant dataset.
-5. Build development session personas so authorization is implemented/tested before external IdP integration.
-6. Finalize all FDDs/TDDs and blockers for HCM-1.
-7. Implement HCM-1 domain foundations and apps.
-8. Finalize HCM-2 FDD/TDD set and use Employee Directory as the first from-zero reference business app.
+The factory, HCM0-01 catalogue launchpad and isolated local personas are implemented.
+HCM0-02 adds the [SQL-first database foundation](docs/hcm/engineering/DATABASE-OPERATIONS.md).
+Do not reinstall the factory or regenerate the planned tree to repeat those milestones.
+
+1. Build HCM0-03: versioned PostgreSQL development seed tooling with the approved fictional tenant dataset.
+2. Integrate persisted development tenant/persona data through the established session contract when the owning domain schema is approved; external production authentication remains separate.
+3. Complete HCM0-05: executable app blueprint/readiness gate and evidence for prerequisite milestones.
+4. Finalize HCM-1 FDDs/TDDs and unresolved blockers, then implement its domain foundations/app slices.
+5. Finalize HCM-2 FDD/TDD set and use Employee Directory as the first from-zero reference business app.

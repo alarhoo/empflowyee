@@ -3,7 +3,9 @@
 Status: factory installation, HCM0-01 catalogue launchpad and the isolated local
 portion of HCM0-04 are implemented under the
 [launchpad TDD](../tdd/TDD-HCM-0-LAUNCHPAD.md) and
-[local-session ADR](../adr/ADR-HCM-LOCAL-DEVELOPMENT-SESSION.md). Database, seeds,
+[local-session ADR](../adr/ADR-HCM-LOCAL-DEVELOPMENT-SESSION.md). HCM0-02 supplies
+the explicit migration runner and tenant query adapter under the
+[database design](../tdd/TDD-HCM-0-DATABASE.md). Seeds, production database deployment,
 production authentication and the executable readiness gate remain planned.
 The sequence below records remaining work and the original delivery slices.
 HCM-0 contains no business apps, so a generated context with `count: 0` is expected.
@@ -37,8 +39,9 @@ Existing implementation to reuse:
 
 `HcmSessionReader` fails closed outside the explicit local launcher; the local
 adapter supplies Dunder Mifflin personas through the normal session contract.
-There is no Kysely dependency, migration runner or seed framework. Planned empty directories
-do not change that status. Do not put business records in frontend fixtures or
+The database infrastructure libraries implement SQL-first migrations and Kysely
+transactions; the [operations guide](../engineering/DATABASE-OPERATIONS.md) records their explicit commands.
+There is no seed framework yet. Planned empty directories do not change that status. Do not put business records in frontend fixtures or
 create domain tables merely to prove HCM-0 plumbing.
 
 ## Delivery sequence

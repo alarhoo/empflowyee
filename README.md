@@ -50,6 +50,12 @@ separately in [DEV deployment](docs/platform/engineering/dev-deployment.md).
 
 ## HCM engineering factory
 
+HCM0-02 supplies the SQL migration runner, restricted PostgreSQL roles and verified
+tenant-scoped Kysely transactions. Run `pnpm hcm:db:test` with Docker running to
+verify against a disposable database. See [database operations](docs/hcm/engineering/DATABASE-OPERATIONS.md)
+for explicit provisioning/migration commands. API startup never migrates; domain
+tables, the development seed framework and production Cloud SQL deployment remain future work.
+
 The installed factory provides canonical metadata for 170 apps across 26 domains,
 5 Spaces and 20 Pages, context tools and a planned directory map. It does not
 implement business apps or domain tables. The running shell consumes a checked,

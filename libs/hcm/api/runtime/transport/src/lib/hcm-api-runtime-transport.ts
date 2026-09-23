@@ -14,6 +14,7 @@ import {
 	HcmRuntimeApplication,
 	HcmRuntimeError,
 	type TenantRecord,
+	type AuthenticatedHcmContext,
 } from '@empflowyee/hcm-api-runtime-application'
 import type {
 	HcmRuntimeContext,
@@ -59,7 +60,11 @@ export class HcmRequestTenantContext {
 	}
 	/** Pass the opaque cookie to the verified session port after tenant authority is established. */
 	async session(): Promise<HcmRuntimeContext> {
-		return this.runtime.session(await this.resolve(), this.request.headers.cookie, {
+		return (await this.authenticated()).session
+	}
+	/** Supply domain use cases with the verified server context used by the session endpoint. */
+	async authenticated(): Promise<AuthenticatedHcmContext> {
+		return this.runtime.authenticate(await this.resolve(), this.request.headers.cookie, {
 			peerAddress: this.request.socket.remoteAddress,
 			developmentPersona: this.request.headers['x-hcm-development-persona'],
 		})

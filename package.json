@@ -14,6 +14,8 @@
 		}
 	},
 	"scripts": {
+		"hcm:db:migrate": "node tools/hcm-database/migrate.mts",
+		"hcm:db:test": "vitest run --config tools/hcm-database/vitest.config.mts",
 		"scaffold": "node tools/scaffold/scaffold.mjs",
 		"scaffold:projects": "node tools/scaffold/scaffold-projects.mjs",
 		"scaffold:ui": "node tools/scaffold/install-ui-stacks.mjs",
@@ -87,6 +89,7 @@
 		"@swc/core": "~1.15.5",
 		"@swc/helpers": "~0.5.18",
 		"@types/node": "^22.0.0",
+		"@types/pg": "8.23.1",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"@typescript-eslint/utils": "^8.58.0",
@@ -142,7 +145,9 @@
 		"@ui5/webcomponents-icons": "2.26.0",
 		"axios": "^1.6.0",
 		"fundamental-styles": "^0.41.8",
+		"kysely": "0.29.6",
 		"next": "~16.1.6",
+		"pg": "8.23.0",
 		"primeng": "22.1.1",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
