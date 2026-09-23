@@ -47,7 +47,10 @@ export default defineConfig({
 	],
 	test: {
 		environment: 'node',
-		include: ['libs/hcm/api/runtime/**/*.spec.ts', 'libs/hcm/contracts/runtime/**/*.spec.ts'],
+		include: [
+			'libs/hcm/api/runtime/module/src/lib/hcm-api-runtime-module.spec.ts',
+			'libs/hcm/contracts/runtime/**/*.spec.ts',
+		],
 		testTimeout: 15000,
 	},
 })

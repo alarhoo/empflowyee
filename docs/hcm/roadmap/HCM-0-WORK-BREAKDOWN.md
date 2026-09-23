@@ -6,8 +6,11 @@ portion of HCM0-04 are implemented under the
 [local-session ADR](../adr/ADR-HCM-LOCAL-DEVELOPMENT-SESSION.md). HCM0-02 supplies
 the explicit migration runner and tenant query adapter under the
 [database design](../tdd/TDD-HCM-0-DATABASE.md). HCM0-03 supplies the
-[versioned seed framework](../tdd/TDD-HCM-0-SEEDS.md) with an empty canonical manifest.
-Business seed modules, production database deployment,
+[versioned seed framework](../tdd/TDD-HCM-0-SEEDS.md). The approved
+[minimal platform spine](../domain/PLATFORM-SPINE.md) now has five SQL migrations
+and four Dunder Mifflin seed modules, consumed by the
+[persistent local runtime](../tdd/TDD-HCM-PERSISTENT-RUNTIME.md).
+Further business seed modules, production database deployment,
 production authentication and the executable readiness gate remain planned.
 The sequence below records remaining work and the original delivery slices.
 HCM-0 contains no business apps, so a generated context with `count: 0` is expected.
@@ -44,9 +47,10 @@ adapter supplies Dunder Mifflin personas through the normal session contract.
 The database infrastructure libraries implement SQL-first migrations and Kysely
 transactions; the [operations guide](../engineering/DATABASE-OPERATIONS.md) records their explicit commands.
 The [seed framework](../engineering/DEVELOPMENT-SEEDS.md) supports explicit local
-apply/reset with immutable versions; business datasets wait for their owning schemas.
-Planned empty directories do not change that status. Do not put business records in frontend fixtures or
-create domain tables merely to prove HCM-0 plumbing.
+apply/reset with immutable versions. Tenant, workforce identity, accounts and discovery
+grants are persisted; additional business datasets wait for their owning schemas.
+Planned empty directories do not implement business behavior. Do not put business
+records in frontend fixtures or invent unapproved domain schemas.
 
 ## Delivery sequence
 
@@ -55,13 +59,13 @@ its approved FDD/TDD or technical foundation design, including exact project tag
 contracts, acceptance criteria and rollback. Keep coherent commits for review;
 squash merge is preferred. All planned libraries use existing Nx types.
 
-| ID      | Outcome and proposed branch                                         | Dependencies                                                         | Commit/review slices                                                                                           |
-| ------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| HCM0-01 | Catalogue-driven launchpad, `codex/hcm-canonical-launchpad`         | Factory validation; shell design addendum                            | design and metadata mapping; pure projection; shell/router integration; regression evidence                    |
-| HCM0-02 | SQL runner and Kysely foundation, `codex/hcm-database-foundation`   | Approved database technical design                                   | design and Nx infrastructure libraries; SQL runner; query/transaction adapter; PostgreSQL integration evidence |
-| HCM0-03 | Versioned development seed framework, `codex/hcm-development-seeds` | HCM0-02                                                              | seed manifest/design; runner and safeguards; repeatability/failure tests; maintainer procedure                 |
-| HCM0-04 | Development session/personas, `codex/hcm-development-personas`      | Accepted local-session ADR; database/seed integration remains future | ADR/TDD and persona matrix; server adapter; API/browser authorization tests; local setup                       |
-| HCM0-05 | App blueprint/readiness gate, `codex/hcm-app-readiness`             | Approved evidence format; integrates prior foundation results        | design and template; context/gate CLI; negative tests; workflow integration                                    |
+| ID      | Outcome and proposed branch                                         | Dependencies                                                   | Commit/review slices                                                                                           |
+| ------- | ------------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| HCM0-01 | Catalogue-driven launchpad, `codex/hcm-canonical-launchpad`         | Factory validation; shell design addendum                      | design and metadata mapping; pure projection; shell/router integration; regression evidence                    |
+| HCM0-02 | SQL runner and Kysely foundation, `codex/hcm-database-foundation`   | Approved database technical design                             | design and Nx infrastructure libraries; SQL runner; query/transaction adapter; PostgreSQL integration evidence |
+| HCM0-03 | Versioned development seed framework, `codex/hcm-development-seeds` | HCM0-02                                                        | seed manifest/design; runner and safeguards; repeatability/failure tests; maintainer procedure                 |
+| HCM0-04 | Persisted development sessions, `codex/hcm-persistent-runtime`      | Accepted local-session ADR and approved minimal platform spine | SQL/seed modules; Kysely runtime adapter; API/browser isolation tests; persistent local setup                  |
+| HCM0-05 | App blueprint/readiness gate, `codex/hcm-app-readiness`             | Approved evidence format; integrates prior foundation results  | design and template; context/gate CLI; negative tests; workflow integration                                    |
 
 HCM0-01 and HCM0-02 can progress independently. HCM0-05's evidence format can be
 designed first; final admission must reference the completed prerequisites. No
@@ -124,8 +128,8 @@ not implied by local success.
 2. Require an explicit approved development target; fail closed for production or
    unknown targets. Seed/reset is a deliberate command, never ordinary startup.
 3. Use Dunder Mifflin as the canonical fictional development dataset. Domain seed
-   modules are added only alongside approved domain migrations; the foundation
-   supports an empty manifest without inventing employee/leave/payroll tables.
+   modules are added only alongside approved domain migrations. The minimal spine
+   is now populated; the runner also supports an empty manifest for isolated tooling tests.
 4. Keep nonproduction tenant/session setup separate from workforce business data.
    Tests may create isolated disposable fixtures to prove behavior; production
    features later consume seeded PostgreSQL data through real Nest APIs/DTOs.
@@ -133,7 +137,8 @@ not implied by local success.
    dependency order, missing migrations and environment safeguards.
 
 Acceptance: a versioned and repeatable framework with explicit local instructions;
-no production Angular fixture records and no claim that business datasets exist yet.
+no production Angular fixture records. The minimal spine is implemented; business
+application datasets still require their domain designs.
 
 ## HCM0-04: development authorization personas
 

@@ -35,6 +35,8 @@ export abstract class HcmSessionReader {
 }
 
 export interface HcmSessionRequest {
+	/** Internal authority populated by the application after exact Host resolution, never a browser field. */
+	tenantId?: string
 	peerAddress?: string
 	developmentPersona?: string
 }

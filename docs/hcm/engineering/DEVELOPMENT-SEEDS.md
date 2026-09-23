@@ -2,9 +2,13 @@
 
 HCM0-03 implements the framework described in the
 [seed design](../tdd/TDD-HCM-0-SEEDS.md). Dunder Mifflin is the canonical fictional
-dataset. The checked manifest is currently **empty**: no approved workforce domain
-tables exist yet. A successful seed command therefore changes zero module versions.
-It does not persist the shell's local personas or invent employee/leave/payroll data.
+dataset. The [approved minimal spine](../domain/PLATFORM-SPINE.md) now supplies four
+immutable module versions: `runtime.tenant@1`, `workforce.foundation@1`,
+`identity.accounts@1` and `access.discovery@1`, applied in that dependency order.
+They persist Dunder Mifflin, three organisations, two locations, four people/workers/
+employments/assignments/accounts/personas, four roles, 170 catalogue-discovery
+permissions, 268 role grants and 26 entitlements. Employment lifecycle and business
+permissions remain deferred; no leave, payroll or other business app is implemented.
 
 ## Verify the framework
 
@@ -18,12 +22,16 @@ This provisions a disposable PostgreSQL instance, verifies migration/query/seed
 behavior against real SQL, then removes its own container. Tests use isolated
 probe tables that are never part of the canonical migration or seed inventory.
 `pnpm nx test hcm-api-database-seed` runs only the seed scenarios. See
-[validation evidence](../testing/HCM-0-SEED-VALIDATION.md).
+[framework checkpoint](../testing/HCM-0-SEED-VALIDATION.md) and current
+[runtime evidence](../testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md).
 
 ## Explicit local provisioning and apply
 
 Follow [database operations](DATABASE-OPERATIONS.md) to provision `hcm_db` with
 separate restricted migrator/runtime roles and apply the canonical SQL inventory.
+The normal local setup is `pnpm hcm:db:up`: it explicitly provisions, migrates and
+seeds the persistent database without requiring manual credentials or SQL commands.
+The separate commands below are for deliberately managed local instances.
 The local bootstrap script also sets a database comment marking the approved
 local target. Migration `000002_development_seed_history.sql` creates protected
 seed bookkeeping; production migrations never set the local-target marker.
@@ -57,12 +65,20 @@ markers are rejected. Then run from the repository root:
 pnpm hcm:db:seed
 ```
 
-Expected now: `Dunder Mifflin seed apply complete: 0 module versions changed.`
+Expected first apply: `Dunder Mifflin seed apply complete: 4 module versions changed.`
+An unchanged repeated apply reports `0 module versions changed`.
 Ordinary API startup never seeds, resets, provisions or migrates. The shell still
-works independently of PostgreSQL. These guards prevent accidental target selection;
+uses its normal runtime contracts, now populated from PostgreSQL. These guards prevent accidental target selection;
 they cannot attest that an administrator has not relabeled or tunneled a database.
 
 ## Add a domain module only when its schema is approved
+
+`tools/hcm-database/generate-spine-seeds.mjs` owns the initial fictional fixture
+definitions and the canonical catalogue-to-discovery-grant projection. Run
+`pnpm hcm:db:seed:check` to verify its checked-in SQL. Do not regenerate an applied
+version to accommodate later catalogue changes: add a new immutable seed version
+and update the generator/check design together. Persona/permission arrays belong
+in this explicit seed tool, never in production Angular or runtime adapters.
 
 The manifest is `libs/hcm/api/database/seed/manifest/manifest.json`, format version 1.
 Keep SQL beside that manifest; the loader rejects unregistered files, symlinks,

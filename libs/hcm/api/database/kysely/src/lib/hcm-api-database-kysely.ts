@@ -42,20 +42,7 @@ export class HcmTenantDatabase<Database> {
 				transaction,
 			) => {
 				const tenantId = requireAuthenticatedTenant(context)
-				const identity = await sql<{ valid: boolean }>`
-					SELECT current_database() = 'hcm_db' AND current_user = 'hcm_runtime'
-					AND session_user = current_user AND NOT rolsuper AND NOT rolbypassrls
-					AND NOT rolcreatedb AND NOT rolcreaterole AND NOT rolreplication
-					AND NOT has_database_privilege(current_user, current_database(), 'CREATE')
-					AND NOT has_schema_privilege(current_user, 'hcm', 'CREATE')
-					AND NOT EXISTS (SELECT 1 FROM pg_auth_members WHERE member = r.oid)
-					AND NOT EXISTS (SELECT 1 FROM pg_class WHERE relowner = r.oid)
-					AND NOT EXISTS (SELECT 1 FROM pg_proc WHERE proowner = r.oid)
-					AND NOT EXISTS (SELECT 1 FROM pg_type WHERE typowner = r.oid)
-					AND NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspowner = r.oid) AS valid
-					FROM pg_roles r WHERE rolname = current_user
-				`.execute(transaction)
-				if (!identity.rows[0]?.valid) throw new Error('Unsafe HCM runtime database role')
+				await assertHcmRuntimeRole<Database>(transaction)
 				await sql`SELECT set_config('hcm.tenant_id', ${tenantId}, true)`.execute(transaction)
 				return query(transaction)
 			},
@@ -71,6 +58,24 @@ export class HcmTenantDatabase<Database> {
 	onApplicationShutdown(): Promise<void> {
 		return this.destroy()
 	}
+}
+
+/** Enforce the same restricted-role posture for authenticated queries and the private runtime bootstrap adapter. */
+export async function assertHcmRuntimeRole<Database>(executor: Kysely<Database>): Promise<void> {
+	const identity = await sql<{ valid: boolean }>`
+					SELECT current_database() = 'hcm_db' AND current_user = 'hcm_runtime'
+					AND session_user = current_user AND NOT rolsuper AND NOT rolbypassrls
+					AND NOT rolcreatedb AND NOT rolcreaterole AND NOT rolreplication
+					AND NOT has_database_privilege(current_user, current_database(), 'CREATE')
+					AND NOT has_schema_privilege(current_user, 'hcm', 'CREATE')
+					AND NOT EXISTS (SELECT 1 FROM pg_auth_members WHERE member = r.oid)
+					AND NOT EXISTS (SELECT 1 FROM pg_class WHERE relowner = r.oid)
+					AND NOT EXISTS (SELECT 1 FROM pg_proc WHERE proowner = r.oid)
+					AND NOT EXISTS (SELECT 1 FROM pg_type WHERE typowner = r.oid)
+					AND NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspowner = r.oid) AS valid
+					FROM pg_roles r WHERE rolname = current_user
+	`.execute(executor)
+	if (!identity.rows[0]?.valid) throw new Error('Unsafe HCM runtime database role')
 }
 
 /** Avoid emitting credentials from idle pool errors; pg discards the failed client. */

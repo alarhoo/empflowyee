@@ -224,101 +224,43 @@ describe('HCM runtime HTTP boundary', /** Exercise real Nest routing, request sc
 	)
 })
 
-it('restricts local discovery to opted-in non-cloud development and loopback callers', /** Prevent fixture flags alone from enabling fake production tenant authority. */ async () => {
-	for (const env of [
+it('requires persisted stores and rejects unsafe local activation', /** Local flags cannot activate fixtures, remote environments or production authentication. */ async () => {
+	const enabled = {
+		APP_ENVIRONMENT: 'local',
+		NODE_ENV: 'test',
+		HCM_LOCAL_TENANTS: 'true',
+		HCM_LOCAL_SESSION: 'true',
+	}
+	for (const override of [
+		{ APP_ENVIRONMENT: 'qa' },
 		{ APP_ENVIRONMENT: 'prod' },
-		{ APP_ENVIRONMENT: 'local', NODE_ENV: 'production' },
-		{ APP_ENVIRONMENT: 'local', K_SERVICE: 'cloud-service' },
+		{ NODE_ENV: 'production' },
+		{ K_SERVICE: 'cloud' },
 	]) {
 		expect(
-			/** Try the prohibited fixture configuration. */ () =>
-				createTenantDirectory({ ...env, HCM_LOCAL_TENANTS: 'true' }),
+			/** Reject local discovery in nonlocal environments. */ () =>
+				createTenantDirectory({ ...enabled, ...override }),
+		).toThrow()
+		expect(
+			/** Reject local sessions in nonlocal environments. */ () =>
+				createSessionReader({ ...enabled, ...override }),
 		).toThrow()
 	}
-	const directory = createTenantDirectory({
-		APP_ENVIRONMENT: 'local',
-		NODE_ENV: 'development',
-		HCM_LOCAL_TENANTS: 'true',
-	})
-	expect(await directory.findByHost('acme.localhost', '127.0.0.1')).toMatchObject({
-		discovery: { tenant: { status: 'active' } },
-	})
-	expect(await directory.findByHost('acme.localhost', '10.0.0.2')).toBeNull()
+	expect(
+		/** Refuse an in-memory fallback when PostgreSQL is not supplied. */ () =>
+			createTenantDirectory(enabled),
+	).toThrow('database store')
+	expect(
+		/** Refuse session fixtures when PostgreSQL is not supplied. */ () =>
+			createSessionReader(enabled),
+	).toThrow('database store')
 	await expect(createTenantDirectory({}).findByHost('acme.localhost')).rejects.toThrow(
 		'runtime-unavailable',
 	)
-})
-
-it('serves server-owned development personas through the real HTTP runtime boundary', /** Verify default local login, persona selection and independent tenant membership checks. */ async () => {
-	const env = { APP_ENVIRONMENT: 'local', HCM_LOCAL_TENANTS: 'true', HCM_LOCAL_SESSION: 'true' }
-	const module = await Test.createTestingModule({ imports: [HcmRuntimeModule] })
-		.overrideProvider(TenantDirectory)
-		.useValue(createTenantDirectory(env))
-		.overrideProvider(HcmSessionReader)
-		.useValue(createSessionReader(env))
-		.compile()
-	const app = module.createNestApplication({ logger: false })
-	app.setGlobalPrefix('api')
-	await app.listen(0, '127.0.0.1')
-	try {
-		const url = `${await app.getUrl()}/api/v1/runtime/session`
-		const initial = await runtimeRequest(url, { headers: { host: 'acme.localhost' } })
-		expect(initial.status).toBe(200)
-		expect(await initial.json()).toMatchObject({
-			tenant: { displayName: 'Dunder Mifflin' },
-			user: { displayName: 'Jim Halpert' },
-			development: { personaId: 'jim', catalogueInspection: true },
-		})
-		for (const [id, displayName] of [
-			['michael', 'Michael Scott'],
-			['toby', 'Toby Flenderson'],
-			['david', 'David Wallace'],
-		]) {
-			const response = await runtimeRequest(url, {
-				headers: { host: 'acme.localhost', 'x-hcm-development-persona': id },
-			})
-			expect(response.status).toBe(200)
-			expect(await response.json()).toMatchObject({
-				user: { displayName },
-				development: { personaId: id },
-			})
-		}
-		expect(
-			(
-				await runtimeRequest(url, {
-					headers: { host: 'acme.localhost', 'x-hcm-development-persona': 'unknown' },
-				})
-			).status,
-		).toBe(401)
-		expect((await runtimeRequest(url, { headers: { host: 'trial.localhost' } })).status).toBe(403)
-		expect((await runtimeRequest(url, { headers: { host: 'suspended.localhost' } })).status).toBe(
-			423,
-		)
-	} finally {
-		await app.close()
-	}
-})
-
-it('never activates local sessions implicitly or for non-local callers', /** Guard the new local trust boundary and ensure disabled adapters ignore persona headers. */ async () => {
-	const enabled = { APP_ENVIRONMENT: 'local', HCM_LOCAL_TENANTS: 'true', HCM_LOCAL_SESSION: 'true' }
-	for (const overrides of [
-		{ APP_ENVIRONMENT: 'prod' },
-		{ APP_ENVIRONMENT: 'qa' },
-		{ NODE_ENV: 'production' },
-		{ K_SERVICE: 'hcm-api' },
-		{ HCM_LOCAL_TENANTS: 'false' },
-	]) {
-		expect(
-			/** Reject unsafe local adapter configuration at startup. */ () =>
-				createSessionReader({ ...enabled, ...overrides }),
-		).toThrow()
-	}
 	expect(
 		await createSessionReader({}).read(undefined, {
 			peerAddress: '127.0.0.1',
 			developmentPersona: 'david',
 		}),
 	).toBeNull()
-	expect(await createSessionReader(enabled).read(undefined, { peerAddress: '10.0.0.2' })).toBeNull()
-	expect(await createSessionReader(enabled).read(undefined)).toBeNull()
 })

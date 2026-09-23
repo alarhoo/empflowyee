@@ -2,10 +2,11 @@
 
 The [HCM0-02 design](../tdd/TDD-HCM-0-DATABASE.md) implements the
 [SQL-first strategy](../architecture/DATABASE-STRATEGY.md). It supplies explicit
-SQL migrations and a tenant-scoped query adapter. It creates no business tables
-or seeded tenant records. Local shell sessions still work without PostgreSQL.
-HCM0-03 adds the [versioned seed framework](DEVELOPMENT-SEEDS.md), whose canonical
-manifest remains empty until domain schemas are approved.
+SQL migrations and a tenant-scoped query adapter. The approved
+[minimal platform spine](../domain/PLATFORM-SPINE.md) adds persisted tenant,
+workforce identity, account and discovery-access records. HCM0-03's
+[versioned seeds](DEVELOPMENT-SEEDS.md) populate Dunder Mifflin. The local runtime
+now requires PostgreSQL and reads these records through Kysely; it has no fixture fallback.
 
 ## Prerequisites and isolated verification
 
@@ -45,7 +46,10 @@ Random local credentials are stored in `.local/hcm/database.json`, restricted to
 the current OS user and excluded from Git and Docker build contexts. Preserve this
 file along with the volume; if resources exist but credentials are missing, the
 command fails rather than deleting/recreating data. No database reset is implicit.
-This does not yet populate workforce tables or replace the current runtime adapters.
+Five SQL migrations and four seed module versions establish the current foundation.
+Start `pnpm dev:hcm-api` afterward; it reads only the runtime credentials from this
+private file. Start `pnpm dev:hcm --host=127.0.0.1` and open `http://acme.localhost:4302`.
+The API does not use the administrator or migrator credentials.
 
 The following administrator procedure remains available for a separately managed
 dedicated local PostgreSQL instance.
@@ -78,8 +82,8 @@ out of source control, browser configuration and terminal logs. Then run:
 pnpm hcm:db:migrate
 ```
 
-Expected first result: `HCM migrations complete: 2 applied.` A database already at
-HCM0-02 applies only the new seed-history migration. A repeated run reports
+Expected first result: `HCM migrations complete: 5 applied.` A database already at
+the seed-framework checkpoint applies only migrations 000003–000005. A repeated run reports
 `0 applied.` The command validates database/role identity, locks migration execution,
 checks the entire applied history and commits each new migration together with its
 checksum record. Connection acquisition is bounded to 10 seconds, lock waiting to
@@ -88,11 +92,14 @@ suppresses provider diagnostics. Use restricted administrator inspection of
 `hcm.schema_migrations` and reviewed SQL files to diagnose it; never publish SQL
 error payloads containing business data or credentials.
 
-The runtime receives a separate URI through an owning server module when its
-first persistent domain is implemented. That module constructs
-`HcmTenantDatabase<DomainDatabaseMapping>` and owns its shutdown. Never use the
+The local runtime receives a separate `HCM_DATABASE_URL` using `hcm_runtime` from
+the launcher. Runtime infrastructure owns private Kysely bootstrap/session reads
+and its Nest shutdown hook. Future domain repositories use
+`HcmTenantDatabase<DomainDatabaseMapping>` with authenticated tenant scopes. Never use the
 migrator URI for API queries. Neither role provisioning nor migration runs during
 normal API startup. There is no production migration/deployment job in this milestone.
+See [persistent runtime evidence](../testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md)
+for table counts, tenant isolation and end-to-end verification.
 
 ## Authoring, recovery and compatibility
 

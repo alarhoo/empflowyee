@@ -6,13 +6,16 @@ Status: accepted for the explicitly requested HCM-0 local-development milestone.
 
 The local HCM development launcher opts into a server development session adapter
 using `APP_ENVIRONMENT=local` and `HCM_LOCAL_SESSION=true`. Activation requires a
-non-production Node process, no Cloud Run service identity and the existing local
-tenant directory. Every session read additionally requires a loopback peer.
+development/test Node process, no cloud runtime identity and the existing local
+tenant-directory port. The persisted adapter requires a literal-loopback
+`hcm_runtime` connection to the marked local `hcm_db`. Every session read
+additionally requires a loopback peer.
 Production and other environments retain unconfigured, fail-closed session ports.
 
 `acme.localhost` resolves through the existing tenant directory to the fictional
-Dunder Mifflin development tenant. Default session is Jim Halpert. The API owns
-the Jim, Michael, Toby and David persona definitions; a client cannot submit
+Dunder Mifflin development tenant. Default session is Jim Halpert. Approved seed
+modules persist the Jim, Michael, Toby and David personas and their accounts/grants;
+the API queries them on each session read. A client cannot submit
 permissions, entitlements or a tenant identity. An optional
 `X-HCM-Development-Persona` header selects an allowlisted persona for a read-only
 runtime request. Unknown selections are denied. There is no cookie mutation,
@@ -32,8 +35,10 @@ Business APIs must still independently authorize each request.
 
 Canonical per-app `discoveryPolicy` identifies a catalogue discovery permission
 and domain entitlement. These are navigation capabilities, not finalized business
-API permission contracts. The local adapter derives persona capabilities from
-canonical business-role/catalogue membership. Roles alone do not pass capability
+API permission contracts. The seed tooling projects canonical business-role/catalogue
+membership into persisted grants; the local adapter queries enabled accounts,
+assigned roles, permission grants and tenant entitlements under RLS. Disabling an
+account or changing a grant affects the next session read. Roles alone do not pass capability
 checks. Inspection mode changes metadata visibility only; it cannot satisfy the
 route guard or grant backend permissions.
 

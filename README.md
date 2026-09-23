@@ -12,17 +12,20 @@ Use Node 24.21.0 and pnpm 12.5.1, pinned in `package.json`. From the repository 
 ```sh
 pnpm install --frozen-lockfile
 pnpm exec node --version
+pnpm hcm:db:up
 pnpm dev:hcm --host=127.0.0.1
 ```
 
+Docker Desktop must be running Linux containers for database provisioning. The
+database command preserves its named volume and applies migrations/seeds explicitly.
 Run the HCM API in a second terminal:
 
 ```sh
 pnpm dev:hcm-api
 ```
 
-Open `http://acme.localhost:4302`. The local API launcher establishes the Dunder
-Mifflin development tenant and Jim Halpert session. Use the profile button to
+Open `http://acme.localhost:4302`. The local API reads the persisted Dunder
+Mifflin tenant, Jim Halpert account and grants from PostgreSQL. Use the profile button to
 switch to Michael Scott, Toby Flenderson or David Wallace, or enable
 **Inspect all applications** to explore all five Spaces, 20 Pages and 170 apps.
 The appearance button beside the avatar offers Horizon Light/Dark, HER Light/Dark
@@ -54,15 +57,19 @@ HCM0-02 supplies the SQL migration runner, restricted PostgreSQL roles and verif
 tenant-scoped Kysely transactions. Run `pnpm hcm:db:test` with Docker running to
 verify against a disposable database. See [database operations](docs/hcm/engineering/DATABASE-OPERATIONS.md)
 for `pnpm hcm:db:up`, which provisions persistent local PostgreSQL on port 55432, and
-for explicit provisioning/migration commands. API startup never migrates; domain
-tables and production Cloud SQL deployment remain future work. HCM0-03 adds
+for explicit provisioning/migration commands. API startup never migrates. HCM0-03 adds
 the [versioned development seed framework](docs/hcm/engineering/DEVELOPMENT-SEEDS.md):
 `pnpm hcm:db:seed` requires an explicitly marked local database and local environment
-flags. Its canonical Dunder Mifflin manifest is empty until domain schemas are approved.
+flags. Four seed modules populate the approved minimal platform spine: tenant,
+organisations/locations, people/workers/employments/assignments, accounts, roles,
+catalogue-discovery permissions, entitlements and development personas. The runtime
+queries those records through Kysely and returns the existing session contract.
+See [persistent runtime validation](docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md).
+Production authentication, Cloud SQL deployment and HR lifecycle behavior remain separate work.
 
 The installed factory provides canonical metadata for 170 apps across 26 domains,
 5 Spaces and 20 Pages, context tools and a planned directory map. It does not
-implement business apps or domain tables. The running shell consumes a checked,
+implement business apps. The running shell consumes a checked,
 generated projection of the canonical catalogue. See the
 [HCM-0 launchpad design](docs/hcm/tdd/TDD-HCM-0-LAUNCHPAD.md) and
 [remaining foundation work](docs/hcm/roadmap/HCM-0-WORK-BREAKDOWN.md).

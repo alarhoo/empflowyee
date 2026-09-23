@@ -9,9 +9,9 @@
 		"test": {
 			"executor": "nx:run-commands",
 			"options": {
-				"command": "vitest run --config tools/milestones/hcm-production-shell/vitest.config.mts libs/hcm/api/runtime/module"
+				"command": "vitest run --config tools/hcm-database/vitest.config.mts libs/hcm/api/runtime/module"
 			},
-			"cache": true
+			"cache": false
 		}
 	}
 }

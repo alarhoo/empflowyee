@@ -10,8 +10,9 @@ production authentication, domain schemas or seeded business data.
 At the HCM0-02 checkpoint, `pnpm hcm:db:test` ran 21 tests: 11 database integration scenarios and 10 existing
 runtime/contract regressions. Database assertions use the production runner,
 query adapter and administrator provisioning script against real PostgreSQL.
-The current suite also includes [HCM0-03 seed validation](HCM-0-SEED-VALIDATION.md)
-and the additional seed-history migration; it still creates no business tables.
+Subsequent evidence adds [HCM0-03 seed validation](HCM-0-SEED-VALIDATION.md)
+and the [persistent platform spine/runtime](HCM-PERSISTENT-RUNTIME-VALIDATION.md).
+The counts and absence of domain tables below describe this original checkpoint.
 
 - Concurrent runners serialize; exactly one applies the first migration.
 - Reruns are no-ops; only foundation history exists after the production SQL inventory.

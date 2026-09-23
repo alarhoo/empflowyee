@@ -59,7 +59,7 @@ Compose uses the existing Nx-built images and does not build or pull them. All p
 | Console   | http://localhost:4301 | http://localhost:4401/api |
 | HCM       | http://localhost:4302 | http://localhost:4402/api |
 
-Every app exposes `/health/live` and `/health/ready` on its own port. The Angular containers generate public API URLs matching this table. The current applications display scaffold welcome screens, and each API returns its scaffold greeting; this verifies the runtime foundation, not unfinished business features. No hosts-file changes are needed for these localhost checks.
+Every app exposes `/health/live` and `/health/ready` on its own port. The Angular containers generate public API URLs matching this table. These production images verify runtime packaging; HCM development personas are deliberately unavailable in production mode. Use the local HCM procedure below for the database-backed launchpad. No hosts-file changes are needed for these localhost health checks.
 
 Inspect logs or stop only this stack with:
 
@@ -69,6 +69,24 @@ docker compose -f containers/compose.local.yml down
 ```
 
 ### Run individual development servers
+
+For the HCM local-development experience, stop only the two HCM containers if they
+occupy ports 4302/4402, then run the database setup and the API/web servers:
+
+```sh
+docker compose -f containers/compose.local.yml stop hcm-api hcm-web
+pnpm hcm:db:up
+pnpm dev:hcm-api
+# In another terminal:
+pnpm dev:hcm --host=127.0.0.1
+```
+
+Open `http://acme.localhost:4302`; this local tenant hostname needs no hosts-file
+entry. The named PostgreSQL volume retains Dunder Mifflin between container
+restarts. API startup never migrates/seeds. See
+[HCM database operations](../../hcm/engineering/DATABASE-OPERATIONS.md) for credential
+ownership, explicit migration commands and recovery. The production Compose images
+do not enable the development session adapter.
 
 Stop the container stack first to free the same ports. These commands provide the framework development servers for source editing:
 

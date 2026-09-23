@@ -13,11 +13,12 @@ Generate one Nx JS library, `hcm-api-database-seed`, under
 CLI supplies the canonical inventory through the existing migration loader. No browser, public DTO, API startup or business
 feature imports seed tooling. The CLI is an explicit operator command.
 
-The canonical manifest uses format version 1, dataset `dunder-mifflin`, and an
-initially empty modules array. This is intentionally not a workforce dataset:
-there are no approved domain migrations yet. Tenant/persona session infrastructure
-remains separate. Future modules arrive only with their owning approved domain
-schema and FDD/TDD, with domain ownership declared in the manifest and SQL.
+The canonical manifest uses format version 1 and dataset `dunder-mifflin`. Its
+initial framework checkpoint had an empty modules array. The approved
+[persistent runtime design](TDD-HCM-PERSISTENT-RUNTIME.md) now supplies four
+domain-owned modules for the minimal platform spine. Further modules arrive only
+with their owning approved domain schema and FDD/TDD, with ownership declared in
+the manifest and SQL. Seed data remains separate from runtime implementation.
 
 ## Manifest and IDs
 

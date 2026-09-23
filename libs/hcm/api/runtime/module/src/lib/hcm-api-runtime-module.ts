@@ -7,6 +7,8 @@ import {
 import {
 	createSessionReader,
 	createTenantDirectory,
+	createRuntimeStore,
+	HcmRuntimeStore,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
 	HcmRequestTenantContext,
@@ -17,14 +19,22 @@ import {
 	controllers: [HcmRuntimeController],
 	providers: [
 		{
+			provide: HcmRuntimeStore,
+			useFactory: /** Own one database pool and its Nest shutdown lifecycle. */ () =>
+				createRuntimeStore(process.env),
+		},
+		{
 			provide: TenantDirectory,
-			useFactory: /** Select only the explicitly opted-in local discovery adapter. */ () =>
-				createTenantDirectory(process.env),
+			inject: [HcmRuntimeStore],
+			useFactory: /** Select only the explicitly opted-in persisted discovery adapter. */ (
+				store: HcmRuntimeStore | null,
+			) => createTenantDirectory(process.env, store),
 		},
 		{
 			provide: HcmSessionReader,
-			useFactory: /** Keep local session activation at the server composition boundary. */ () =>
-				createSessionReader(process.env),
+			inject: [HcmRuntimeStore],
+			useFactory: /** Bind persisted development sessions. */ (store: HcmRuntimeStore | null) =>
+				createSessionReader(process.env, store),
 		},
 		{
 			provide: HcmRuntimeApplication,

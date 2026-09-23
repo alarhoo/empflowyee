@@ -5,7 +5,7 @@ export default mergeConfig(
 	runtime,
 	defineConfig({
 		test: {
-			include: ['libs/hcm/api/database/**/*.spec.ts'],
+			include: ['libs/hcm/api/database/**/*.spec.ts', 'libs/hcm/api/runtime/**/*.database.spec.ts'],
 			globalSetup: ['tools/hcm-database/test-postgres.mts'],
 			fileParallelism: false,
 			testTimeout: 30000,

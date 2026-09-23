@@ -3,7 +3,10 @@
 Verified locally on 2026-09-23 with the pinned Node 24.21.0/pnpm 12.5.1 toolchain
 and real PostgreSQL 17.11 in the existing disposable Docker harness.
 
-`pnpm hcm:db:test` passes 34 tests: 13 seed scenarios, 11 database/query scenarios
+This records the original framework checkpoint. Current seeded records and runtime
+integration are documented in [persistent runtime validation](HCM-PERSISTENT-RUNTIME-VALIDATION.md).
+
+At this framework checkpoint, `pnpm hcm:db:test` passed 34 tests: 13 seed scenarios, 11 database/query scenarios
 and 10 runtime/contract regressions. Seed coverage includes:
 
 - Empty canonical manifest, explicit CLI execution and rejection of unconfirmed reset.

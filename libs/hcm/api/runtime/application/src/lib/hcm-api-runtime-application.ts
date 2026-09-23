@@ -95,7 +95,7 @@ export class HcmRuntimeApplication {
 		request?: HcmSessionRequest,
 	): Promise<AuthenticatedHcmContext> {
 		if (!isTenantAccessible(record.discovery.tenant)) throw new HcmRuntimeError('tenant-suspended')
-		const session = await this.sessions.read(cookie, request)
+		const session = await this.sessions.read(cookie, { ...request, tenantId: record.id })
 		if (
 			!session ||
 			!Number.isFinite(Date.parse(session.expiresAt)) ||
