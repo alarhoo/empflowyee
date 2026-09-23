@@ -51,3 +51,8 @@ Open decisions are classified as:
 - `RESOLVED`
 
 Only `BLOCKS_THIS_APP` prevents implementation. The agent must ask the user rather than invent an answer.
+
+The [executable readiness gate](APP-READINESS.md) verifies reviewed document revisions,
+the blueprint and explicit decision classifications. Run
+`pnpm hcm:app:readiness --app=APP_CODE --check` before implementation. Context
+generation reports missing evidence without marking the app or wave approved.

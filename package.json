@@ -44,6 +44,8 @@
 		"dev:hcm:preview": "nx serve hcm-web --port=4303 --host=127.0.0.1",
 		"hcm:catalogue:validate": "node tools/hcm-factory/validate-catalogue.mjs",
 		"hcm:app:context": "node tools/hcm-factory/app-context.mjs",
+		"hcm:app:readiness": "node tools/hcm-factory/check-readiness.mjs",
+		"hcm:factory:test": "node --test tools/hcm-factory/*.test.mjs",
 		"hcm:wave:context": "node tools/hcm-factory/wave-context.mjs",
 		"hcm:structure:materialize": "node tools/hcm-factory/materialize-hcm-structure.mjs",
 		"hcm:structure:dry-run": "node tools/hcm-factory/materialize-hcm-structure.mjs --dry-run",

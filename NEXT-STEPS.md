@@ -14,8 +14,13 @@ with four persisted Dunder Mifflin modules. The approved
 local tenant/persona integration through the existing session contract.
 Do not reinstall the factory or regenerate the planned tree to repeat those milestones.
 
-1. Complete HCM0-05: executable app blueprint/readiness gate and evidence for prerequisite milestones.
+HCM0-05's [blueprint/readiness gate](docs/hcm/engineering/APP-READINESS.md) is now
+implemented with app/wave context reports, adversarial tests and CI enforcement for
+apps claiming approval or implementation. All 170 planned apps still require their
+own reviewed designs before implementation.
+
+1. Prepare HCM-1 app/domain designs and blueprints; resolve business blockers and run the readiness gate before implementing each slice.
 2. Extend domain-owned Dunder Mifflin seed modules only alongside approved domain migrations; the minimal workforce identity spine is already populated.
 3. Design production authentication and database deployment separately; local runtime success does not approve either deployment boundary.
-4. Finalize HCM-1 FDDs/TDDs and unresolved blockers, then implement its domain foundations/app slices.
+4. Implement admitted HCM-1 domain/app slices one at a time, preserving real-data and tenant-isolation requirements.
 5. Finalize HCM-2 FDD/TDD set and use Employee Directory as the first from-zero reference business app.

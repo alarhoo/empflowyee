@@ -9,4 +9,4 @@
 6. Resolve all `BLOCKS_THIS_APP` decisions with the user.
 7. Review cross-app contracts and domain migrations.
 8. Architecture review.
-9. Mark the wave `implementation-ready` only after all gates pass.
+9. Run `pnpm hcm:wave:context --wave=HCM-N --check` for a business wave. Mark it `implementation-ready` only after every app passes and human review confirms the evidence. HCM-0 uses its foundation validation documents, not an empty-app check.

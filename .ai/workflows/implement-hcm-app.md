@@ -1,7 +1,7 @@
 # Workflow: implement one HCM app
 
 1. Compile app context/blueprint.
-2. Verify v3 FDD/TDD are approved and zero blockers remain.
+2. Verify actual FDD/TDD approval records and run `pnpm hcm:app:readiness --app=APP_CODE --check`. Follow `docs/hcm/engineering/APP-READINESS.md`; catalogue flags alone do not pass the gate.
 3. Create `feat/hcm-<app-slug>` branch using git workflow skill.
 4. Reuse existing domain contract/API; extend contract/DB/API only if TDD requires it.
 5. Ensure API returns real PostgreSQL data.

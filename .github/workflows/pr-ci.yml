@@ -68,6 +68,13 @@ jobs:
       - name: Validate documentation
         run: node tools/documentation/verify.mjs
 
+      # Planned drafts may remain blocked; admitted apps must have current reviewed evidence.
+      # This validates readiness only and never approves metadata or deploys an application.
+      - name: Validate HCM app readiness evidence
+        run: |
+          pnpm hcm:factory:test
+          pnpm hcm:app:readiness --admitted --check
+
       # Keep the verified native entry points and generated HCM workshop projects aligned with the catalog.
       - name: Validate HCM UX workshop foundation
         run: |

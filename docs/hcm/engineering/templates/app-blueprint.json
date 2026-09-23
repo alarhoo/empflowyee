@@ -1,0 +1,20 @@
+{
+	"formatVersion": 1,
+	"appCode": "REPLACE_WITH_APP_CODE",
+	"domain": "replace-with-domain",
+	"documents": [],
+	"route": null,
+	"floorplan": { "id": null, "mode": null, "ref": null },
+	"nativeComponents": [],
+	"contracts": [],
+	"data": [],
+	"permissions": [],
+	"projects": [],
+	"prerequisites": [],
+	"foundations": [],
+	"decisions": [],
+	"requirements": [],
+	"tests": [],
+	"traceability": [],
+	"delivery": { "branch": null, "commits": [] }
+}

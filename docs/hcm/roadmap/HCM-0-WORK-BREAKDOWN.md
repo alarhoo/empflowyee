@@ -10,8 +10,10 @@ the explicit migration runner and tenant query adapter under the
 [minimal platform spine](../domain/PLATFORM-SPINE.md) now has five SQL migrations
 and four Dunder Mifflin seed modules, consumed by the
 [persistent local runtime](../tdd/TDD-HCM-PERSISTENT-RUNTIME.md).
-Further business seed modules, production database deployment,
-production authentication and the executable readiness gate remain planned.
+HCM0-05's [blueprint/readiness gate](../engineering/APP-READINESS.md) is implemented
+with revision-bound document approvals, explicit checks and CI validation.
+Further business seed modules, production database deployment and
+production authentication remain planned.
 The sequence below records remaining work and the original delivery slices.
 HCM-0 contains no business apps, so a generated context with `count: 0` is expected.
 

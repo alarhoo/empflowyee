@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { catalogue, root } from './lib.mjs'
+import { evaluateReadiness } from './readiness.mjs'
 
 const arg = process.argv.find(
 	/** Locate the requested delivery wave. */ (x) => x.startsWith('--wave='),
@@ -11,6 +12,17 @@ if (!arg) {
 }
 
 const wave = arg.slice('--wave='.length).toUpperCase()
+if (
+	process.argv
+		.slice(2)
+		.some(
+			/** Reject unknown flags rather than silently skipping requested checks. */ (value) =>
+				value !== arg && value !== '--check',
+		)
+) {
+	console.error('Supported options: --wave=HCM-N [--check]')
+	process.exit(2)
+}
 if (!/^HCM-[0-9]$/.test(wave)) {
 	console.error(`Unknown wave ${wave}; current roadmap defines HCM-0 through HCM-9.`)
 	process.exit(1)
@@ -47,6 +59,10 @@ const result = {
 	scope: wave === 'HCM-0' ? 'engineering-foundation' : 'business-apps',
 	documents,
 	count: apps.length,
+	readiness: apps.map(
+		/** Include actionable evidence gaps without changing catalogue approval state. */ (app) =>
+			evaluateReadiness(root, app),
+	),
 	domains: Object.fromEntries(
 		Object.entries(byDomain)
 			.sort(
@@ -70,3 +86,16 @@ const target = path.join(out, `${wave}.context.json`)
 fs.writeFileSync(target, `${JSON.stringify(result, null, 2)}\n`)
 console.log(target)
 console.log(JSON.stringify(result, null, 2))
+if (process.argv.includes('--check')) {
+	if (wave === 'HCM-0') {
+		console.error(
+			'HCM-0 has no business apps; review its foundation evidence instead of claiming empty-wave approval.',
+		)
+		process.exitCode = 2
+	} else if (
+		result.readiness.some(
+			/** Deny the wave when any app lacks reviewed prerequisites. */ (report) => !report.ready,
+		)
+	)
+		process.exitCode = 1
+}

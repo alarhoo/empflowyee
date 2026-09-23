@@ -2,6 +2,7 @@
 
 - `validate-catalogue.mjs` — validates the canonical current app/launchpad metadata and rejects historical provenance fields.
 - `app-context.mjs --app=APP_CODE` — creates current app context from catalogue + existing current docs.
+- `check-readiness.mjs --app=APP_CODE --check` — checks actual document/blueprint approvals, decisions, design selections and traceability.
 - `wave-context.mjs --wave=HCM-N` — groups apps in a delivery wave by domain.
 - `materialize-hcm-structure.mjs` — creates the complete planned HCM folder tree without creating Nx projects and writes a generated codebase map.
 
@@ -15,7 +16,8 @@ pnpm hcm:structure:dry-run
 pnpm hcm:structure:materialize
 pnpm hcm:wave:context --wave=HCM-0
 pnpm hcm:app:context --app=EMPLOYEE_DIRECTORY
-node --test tools/hcm-factory/factory.test.mjs
+pnpm hcm:factory:test
+pnpm hcm:app:readiness --app=EMPLOYEE_DIRECTORY --check
 ```
 
 Validation checks canonical identities, domain-owned feature paths, invariant
@@ -34,8 +36,15 @@ the planned tree. Repeated runs produce the same map.
 Context artifacts go to ignored `.tmp/hcm-factory/`. Paths resolve from the tool
 location, independently of the caller's working directory. Unknown apps/waves
 fail without writing output. HCM-0 intentionally contains zero business apps and
-links its foundation design/work breakdown. App context reports catalogue flags
-and document presence only; the executable readiness gate is future HCM-0 work.
+links its foundation design/work breakdown. App/wave contexts now include the
+executable readiness report. `--check` fails for missing/unapproved evidence;
+HCM-0 cannot pass an empty business-app check. Current planned apps are expected
+to remain blocked. See [readiness evidence format](../../docs/hcm/engineering/APP-READINESS.md).
+
+CI uses `pnpm hcm:app:readiness --admitted --check`: it checks apps claiming approval
+or implementation, including existing canonical feature projects. It does not demand
+that every planned app be approved. Readiness is a document-input gate, not a
+replacement for human review, implementation tests or deployment approval.
 
 If validation fails, correct the owning canonical document or approved metadata
 before rerunning. These commands do not change databases, deployment or approval
@@ -51,6 +60,7 @@ Neither command materializes folders or implements business apps.
 
 `pnpm dev:hcm-api` uses `start-local-api.mjs` to activate the isolated local tenant
 and persona adapters on port 4402. It rejects production/cloud/nonlocal settings.
+Run `pnpm hcm:db:up` first to provision/migrate/seed the persistent local database.
 Run the web server separately with `pnpm dev:hcm --host=127.0.0.1`, then use
 `http://acme.localhost:4302`. See the [shell operation guide](../../docs/hcm/architecture/shell/README.md).
 

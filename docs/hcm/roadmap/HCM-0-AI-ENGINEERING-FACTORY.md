@@ -13,8 +13,10 @@ HCM-0 establishes the deterministic machinery used by every later HCM app:
 
 HCM-0 does not implement domain business applications.
 
-The factory tooling and metadata are installed. Runtime catalogue integration,
-database/seed tooling, development personas and an executable readiness gate are
-proposed next steps, detailed in the [work breakdown](HCM-0-WORK-BREAKDOWN.md).
+The factory tooling and metadata, runtime catalogue integration, persistent local
+database/seeds, development personas and executable readiness gate are implemented.
+Current scope and remaining business-design work are detailed in the
+[work breakdown](HCM-0-WORK-BREAKDOWN.md) and
+[readiness guide](../engineering/APP-READINESS.md).
 See the [installation report](../engineering/FACTORY-INSTALLATION-REPORT.md) for
 scope, reconciled documentation conflicts and verification results.

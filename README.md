@@ -74,6 +74,12 @@ generated projection of the canonical catalogue. See the
 [HCM-0 launchpad design](docs/hcm/tdd/TDD-HCM-0-LAUNCHPAD.md) and
 [remaining foundation work](docs/hcm/roadmap/HCM-0-WORK-BREAKDOWN.md).
 
+HCM0-05's [app readiness gate](docs/hcm/engineering/APP-READINESS.md) checks reviewed
+blueprints/documents, approval hashes, blockers, design selections and traceability.
+Run `pnpm hcm:app:readiness --app=APP_CODE --check` before implementing a business
+app. All 170 current apps remain planned and blocked pending their real designs;
+passing catalogue validation alone is not approval.
+
 ```sh
 pnpm hcm:catalogue:validate
 pnpm hcm:structure:materialize
