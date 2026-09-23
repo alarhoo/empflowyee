@@ -1,0 +1,25 @@
+{
+	"name": "hcm-api-database-seed",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/database/seed/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:database", "type:infrastructure"],
+	"targets": {
+		"test": {
+			"executor": "nx:run-commands",
+			"cache": false,
+			"options": { "command": "pnpm hcm:db:test seed.integration.spec.ts" }
+		},
+		"typecheck": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "pnpm exec tsc -p libs/hcm/api/database/seed/tsconfig.lib.json --noEmit"
+			}
+		},
+		"seed": {
+			"executor": "nx:run-commands",
+			"cache": false,
+			"options": { "command": "pnpm hcm:db:seed" }
+		}
+	}
+}

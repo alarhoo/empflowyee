@@ -16,6 +16,7 @@
 	"scripts": {
 		"hcm:db:migrate": "node tools/hcm-database/migrate.mts",
 		"hcm:db:test": "vitest run --config tools/hcm-database/vitest.config.mts",
+		"hcm:db:seed": "node tools/hcm-database/seed.mts",
 		"scaffold": "node tools/scaffold/scaffold.mjs",
 		"scaffold:projects": "node tools/scaffold/scaffold-projects.mjs",
 		"scaffold:ui": "node tools/scaffold/install-ui-stacks.mjs",

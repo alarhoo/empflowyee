@@ -7,9 +7,11 @@ production authentication, domain schemas or seeded business data.
 
 ## Automated evidence
 
-`pnpm hcm:db:test` runs 21 tests: 11 database integration scenarios and 10 existing
+At the HCM0-02 checkpoint, `pnpm hcm:db:test` ran 21 tests: 11 database integration scenarios and 10 existing
 runtime/contract regressions. Database assertions use the production runner,
 query adapter and administrator provisioning script against real PostgreSQL.
+The current suite also includes [HCM0-03 seed validation](HCM-0-SEED-VALIDATION.md)
+and the additional seed-history migration; it still creates no business tables.
 
 - Concurrent runners serialize; exactly one applies the first migration.
 - Reruns are no-ops; only foundation history exists after the production SQL inventory.
@@ -52,5 +54,5 @@ because the repository root supports mixed module tooling. Node reparses this
 ES module correctly; the CLI succeeds without changing the monorepo module mode.
 
 See [database operations](../engineering/DATABASE-OPERATIONS.md) for provisioning,
-migration failure recovery and future domain adoption. HCM0-03 is the next
-database milestone: versioned development seed tooling.
+migration failure recovery and future domain adoption. HCM0-03 extends this
+checkpoint with versioned development seed tooling.

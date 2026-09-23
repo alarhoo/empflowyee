@@ -4,6 +4,8 @@ The [HCM0-02 design](../tdd/TDD-HCM-0-DATABASE.md) implements the
 [SQL-first strategy](../architecture/DATABASE-STRATEGY.md). It supplies explicit
 SQL migrations and a tenant-scoped query adapter. It creates no business tables
 or seeded tenant records. Local shell sessions still work without PostgreSQL.
+HCM0-03 adds the [versioned seed framework](DEVELOPMENT-SEEDS.md), whose canonical
+manifest remains empty until domain schemas are approved.
 
 ## Prerequisites and isolated verification
 
@@ -55,7 +57,8 @@ out of source control, browser configuration and terminal logs. Then run:
 pnpm hcm:db:migrate
 ```
 
-Expected first result: `HCM migrations complete: 1 applied.` A repeated run reports
+Expected first result: `HCM migrations complete: 2 applied.` A database already at
+HCM0-02 applies only the new seed-history migration. A repeated run reports
 `0 applied.` The command validates database/role identity, locks migration execution,
 checks the entire applied history and commits each new migration together with its
 checksum record. Connection acquisition is bounded to 10 seconds, lock waiting to

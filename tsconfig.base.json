@@ -71,7 +71,8 @@
 			"@empflowyee/hcm-api-database-migrations": [
 				"./libs/hcm/api/database/migrations/src/index.ts"
 			],
-			"@empflowyee/hcm-api-database-kysely": ["./libs/hcm/api/database/kysely/src/index.ts"]
+			"@empflowyee/hcm-api-database-kysely": ["./libs/hcm/api/database/kysely/src/index.ts"],
+			"@empflowyee/hcm-api-database-seed": ["./libs/hcm/api/database/seed/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

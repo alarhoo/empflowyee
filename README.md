@@ -54,7 +54,10 @@ HCM0-02 supplies the SQL migration runner, restricted PostgreSQL roles and verif
 tenant-scoped Kysely transactions. Run `pnpm hcm:db:test` with Docker running to
 verify against a disposable database. See [database operations](docs/hcm/engineering/DATABASE-OPERATIONS.md)
 for explicit provisioning/migration commands. API startup never migrates; domain
-tables, the development seed framework and production Cloud SQL deployment remain future work.
+tables and production Cloud SQL deployment remain future work. HCM0-03 adds
+the [versioned development seed framework](docs/hcm/engineering/DEVELOPMENT-SEEDS.md):
+`pnpm hcm:db:seed` requires an explicitly marked local database and local environment
+flags. Its canonical Dunder Mifflin manifest is empty until domain schemas are approved.
 
 The installed factory provides canonical metadata for 170 apps across 26 domains,
 5 Spaces and 20 Pages, context tools and a planned directory map. It does not

@@ -75,14 +75,14 @@ async function rows(transaction: Transaction<TestDatabase>) {
 beforeAll(
 	/** Prepare clients and a private temporary SQL inventory owned by this test. */ async () => {
 		directory = await mkdtemp(join(tmpdir(), 'hcm-database-test-'))
-		await writeFile(
-			join(directory, '000001_database_foundation.sql'),
-			await readFile(join(inventory, '000001_database_foundation.sql')),
-		)
+		for (const migration of await loadSqlMigrations(inventory))
+			await writeFile(join(directory, migration.name), migration.sql)
 		migrator = new Client({ connectionString: connection('MIGRATOR') })
 		runtime = new Client({ connectionString: connection('RUNTIME') })
 		await migrator.connect()
 		await runtime.connect()
+		// Suites run serially against a uniquely allocated disposable database, never a developer target.
+		await migrator.query('DROP SCHEMA IF EXISTS hcm CASCADE')
 		database = new HcmTenantDatabase({ connectionString: connection('RUNTIME'), maxConnections: 1 })
 		tenantA = await scope('tenant-a')
 		tenantB = await scope('tenant-b')
@@ -104,11 +104,18 @@ it('serializes concurrent runners, applies once and exposes only foundation obje
 		migrateHcmDatabase(connection('MIGRATOR'), inventory),
 		migrateHcmDatabase(connection('MIGRATOR'), inventory),
 	])
-	expect(results.flat()).toEqual(['000001_database_foundation.sql'])
+	expect(results.flat()).toEqual([
+		'000001_database_foundation.sql',
+		'000002_development_seed_history.sql',
+	])
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), inventory)).toEqual([])
 	expect(
-		(await migrator.query("SELECT tablename FROM pg_tables WHERE schemaname='hcm'")).rows,
-	).toEqual([{ tablename: 'schema_migrations' }])
+		(
+			await migrator.query(
+				"SELECT tablename FROM pg_tables WHERE schemaname='hcm' ORDER BY tablename",
+			)
+		).rows,
+	).toEqual([{ tablename: 'development_seed_history' }, { tablename: 'schema_migrations' }])
 	await expect(runtime.query('SELECT * FROM hcm.schema_migrations')).rejects.toMatchObject({
 		code: '42501',
 	})
@@ -127,16 +134,16 @@ it('rejects historical edits and sequence gaps before changing the database', /*
 	await writeFile(join(directory, '000001_database_foundation.sql'), `${original}\n-- edited`)
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), directory)).rejects.toThrow('immutable')
 	await writeFile(join(directory, '000001_database_foundation.sql'), original)
-	await writeFile(join(directory, '000003_gap.sql'), 'SELECT 1;')
+	await writeFile(join(directory, '000004_gap.sql'), 'SELECT 1;')
 	await expect(loadSqlMigrations(directory)).rejects.toThrow('gap')
-	await rm(join(directory, '000003_gap.sql'))
-	await writeFile(join(directory, '000002_bad_encoding.sql'), Buffer.from([0xc3, 0x28]))
+	await rm(join(directory, '000004_gap.sql'))
+	await writeFile(join(directory, '000003_bad_encoding.sql'), Buffer.from([0xc3, 0x28]))
 	await expect(loadSqlMigrations(directory)).rejects.toThrow()
-	await rm(join(directory, '000002_bad_encoding.sql'))
+	await rm(join(directory, '000003_bad_encoding.sql'))
 })
 
 it('rolls back failed DDL and prevents SQL from committing outside the history transaction', /** Failed and transaction-ending scripts leave neither objects nor history, then allow a corrected unapplied retry. */ async () => {
-	const file = join(directory, '000002_transaction_probe.sql')
+	const file = join(directory, '000003_transaction_probe.sql')
 	await writeFile(file, 'CREATE TABLE hcm.transaction_probe (id integer); SELECT 1 / 0;')
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), directory)).rejects.toBeDefined()
 	expect(
@@ -151,17 +158,17 @@ it('rolls back failed DDL and prevents SQL from committing outside the history t
 	).toBeNull()
 	await writeFile(file, 'CREATE TABLE hcm.transaction_probe (id integer);')
 	await writeFile(
-		join(directory, '000003_order_probe.sql'),
+		join(directory, '000004_order_probe.sql'),
 		'ALTER TABLE hcm.transaction_probe ADD COLUMN verified boolean;',
 	)
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), directory)).toEqual([
-		'000002_transaction_probe.sql',
-		'000003_order_probe.sql',
+		'000003_transaction_probe.sql',
+		'000004_order_probe.sql',
 	])
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), directory)).toEqual([])
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), inventory)).rejects.toThrow('immutable')
 	await migrator.query(
-		"DROP TABLE hcm.transaction_probe; DELETE FROM hcm.schema_migrations WHERE name > '000001_database_foundation.sql'",
+		"DROP TABLE hcm.transaction_probe; DELETE FROM hcm.schema_migrations WHERE name > '000002_development_seed_history.sql'",
 	)
 })
 

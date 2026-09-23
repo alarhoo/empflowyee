@@ -5,7 +5,9 @@ portion of HCM0-04 are implemented under the
 [launchpad TDD](../tdd/TDD-HCM-0-LAUNCHPAD.md) and
 [local-session ADR](../adr/ADR-HCM-LOCAL-DEVELOPMENT-SESSION.md). HCM0-02 supplies
 the explicit migration runner and tenant query adapter under the
-[database design](../tdd/TDD-HCM-0-DATABASE.md). Seeds, production database deployment,
+[database design](../tdd/TDD-HCM-0-DATABASE.md). HCM0-03 supplies the
+[versioned seed framework](../tdd/TDD-HCM-0-SEEDS.md) with an empty canonical manifest.
+Business seed modules, production database deployment,
 production authentication and the executable readiness gate remain planned.
 The sequence below records remaining work and the original delivery slices.
 HCM-0 contains no business apps, so a generated context with `count: 0` is expected.
@@ -41,7 +43,9 @@ Existing implementation to reuse:
 adapter supplies Dunder Mifflin personas through the normal session contract.
 The database infrastructure libraries implement SQL-first migrations and Kysely
 transactions; the [operations guide](../engineering/DATABASE-OPERATIONS.md) records their explicit commands.
-There is no seed framework yet. Planned empty directories do not change that status. Do not put business records in frontend fixtures or
+The [seed framework](../engineering/DEVELOPMENT-SEEDS.md) supports explicit local
+apply/reset with immutable versions; business datasets wait for their owning schemas.
+Planned empty directories do not change that status. Do not put business records in frontend fixtures or
 create domain tables merely to prove HCM-0 plumbing.
 
 ## Delivery sequence
