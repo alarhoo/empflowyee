@@ -1,12 +1,12 @@
 # HCM-1 local platform delivery
 
-Status: **draft scope and dependency proposal, not implementation approval**.
+Status: **20-app local stage approved; business policies and app designs pending**.
 Catalogue inspected on 2026-09-24. HCM-1 contains 26 planned applications in five
 application-owning domains. None currently has an approved app blueprint.
 
 The confirmed scope excludes production authentication and external integrations.
-The proposed local stage below makes that boundary concrete. Its business behavior
-and the staged readiness exception require the decisions in
+The approved local stage below makes that boundary concrete. Its business behavior
+still requires the pending decisions in
 [the review register](HCM-1-DECISIONS.md). The
 [local platform proposal](../domain/HCM-1-LOCAL-PLATFORM-PROPOSAL.md) defines the
 suggested data, permissions and interactions for review.
@@ -25,18 +25,17 @@ forward migrations and negative authorization tests.
 
 ## Scope reconciliation
 
-The [delivery-wave rule](HCM-DELIVERY-WAVES.md#wave-readiness-rule) requires every
-app in a wave to have approved FDD/TDD documents before implementation starts.
-Deferring authentication while delivering local capabilities cannot satisfy that
-rule for all 26 apps as currently written. Do not silently reinterpret the rule,
-mark deferred designs approved, or weaken the readiness checker.
+The [approved roadmap exception](HCM-DELIVERY-WAVES.md#approved-hcm-1-local-stage-exception)
+resolves the conflict between the all-app wave rule and deferred integrations.
+Do not mark deferred designs approved or weaken the app readiness checker.
 
-**Proposed exception:** review the 20-app local stage as a named delivery stage,
+**Approved exception:** review the 20-app local stage as a named delivery stage,
 requiring all its FDDs, TDDs, contracts and blockers to be resolved before its first
 implementation slice. Keep the six deferred apps in HCM-1 and Planned. Full HCM-1
 completion and the full-wave gate remain blocked until the deferred stage is
-designed and delivered. Record the exception in the owning roadmap only after
-DEC-HCM1-001 is resolved; the proposal alone does not activate it.
+designed and delivered. DEC-HCM1-001 records the explicit product-owner approval
+on 2026-09-24. This is scope approval, not approval of the remaining business rules
+or individual app designs.
 
 Workflow and governance appear in the roadmap's primary domains but own no apps in
 the HCM-1 catalogue. Treat them as prerequisite policy/contracts when needed. Do
@@ -45,8 +44,9 @@ into this stage.
 
 ## Proposed app coverage
 
-This table accounts for each canonical HCM-1 app exactly once. “Local” is proposed
-scope, not Available status. All apps remain Planned until their actual acceptance
+This table accounts for each canonical HCM-1 app exactly once. “Local” is approved
+stage membership, not Available status. The bounded behavior below remains subject
+to business and app-design review. All apps remain Planned until their actual acceptance
 criteria pass. Read-only scope is explicit where a source of truth lives elsewhere.
 
 | App code                    | Owner           | Stage    | Proposed bounded outcome                                                                                                     |
@@ -103,7 +103,7 @@ part of this plan.
 
 ## Admission and acceptance
 
-After any approved stage-rule change, check every app in that stage using
+Before admitting the approved local stage, check every app in that stage using
 `pnpm hcm:app:readiness --app=APP_CODE --check`. The full
 `pnpm hcm:wave:context --wave=HCM-1 --check` must continue to report deferred apps
 as blocked; it must not be cited as a successful full-wave check.

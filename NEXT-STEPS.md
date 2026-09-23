@@ -19,7 +19,7 @@ implemented with app/wave context reports, adversarial tests and CI enforcement 
 apps claiming approval or implementation. All 170 planned apps still require their
 own reviewed designs before implementation.
 
-1. Resolve the [HCM-1 local-stage decisions](docs/hcm/roadmap/HCM-1-DECISIONS.md) against the [concrete scope proposal](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md). Production authentication and external integrations are deferred. The proposed staged-readiness exception is not yet approved.
+1. Resolve the remaining [HCM-1 access and document/notification decisions](docs/hcm/roadmap/HCM-1-DECISIONS.md). The [20-app local stage](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md) and its staged-readiness exception are approved; production authentication and external integrations remain deferred.
 2. Prepare and review the approved stage's app/domain designs and blueprints before implementation; retain the full-wave gate for eventual HCM-1 completion.
 3. Extend domain-owned Dunder Mifflin seed modules only alongside approved domain migrations; the minimal workforce identity spine is already populated.
 4. Design production authentication and database deployment separately; local runtime success does not approve either deployment boundary.
