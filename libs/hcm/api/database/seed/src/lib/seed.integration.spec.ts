@@ -115,12 +115,12 @@ afterAll(
 	},
 )
 
-it('supports an empty canonical dataset and explicit CLI without inventing business data', /** Seed and reset empty manifests safely and reject malformed CLI options without leaking the URI. */ async () => {
-	expect(await runDevelopmentSeeds({ ...options, manifestDirectory: canonical })).toEqual([])
+it('supports an empty test manifest and applies the canonical dataset through the CLI', /** Verify empty manifests, canonical CLI apply/reset and malformed options without leaking the URI. */ async () => {
+	await manifest([])
+	expect(await runDevelopmentSeeds(options)).toEqual([])
 	expect(
 		await runDevelopmentSeeds({
 			...options,
-			manifestDirectory: canonical,
 			mode: 'reset',
 			resetConfirmation: 'local-dunder-mifflin',
 		}),
@@ -131,14 +131,14 @@ it('supports an empty canonical dataset and explicit CLI without inventing busin
 		windowsHide: true,
 	})
 	expect(result.status).toBe(0)
-	expect(result.stdout).toContain('0 module versions changed')
+	expect(result.stdout).toContain('4 module versions changed')
 	const reset = spawnSync(
 		process.execPath,
 		['tools/hcm-database/seed.mts', '--reset', '--confirm=local-dunder-mifflin'],
 		{ env: { ...process.env, ...env }, encoding: 'utf8', windowsHide: true },
 	)
 	expect(reset.status).toBe(0)
-	expect(reset.stdout).toContain('seed reset complete: 0')
+	expect(reset.stdout).toContain('seed reset complete: 4')
 	const rejected = spawnSync(process.execPath, ['tools/hcm-database/seed.mts', '--reset'], {
 		env: { ...process.env, ...env },
 		encoding: 'utf8',
@@ -222,7 +222,7 @@ it('rejects missing or changed migrations before seed DML', /** A stale schema o
 	await expect(
 		runDevelopmentSeeds({
 			...options,
-			migrations: [{ ...changed[0], checksum: '0'.repeat(64) }, changed[1]],
+			migrations: [{ ...changed[0], checksum: '0'.repeat(64) }, ...changed.slice(1)],
 		}),
 	).rejects.toThrow('checksums')
 	expect(await records()).toEqual([])

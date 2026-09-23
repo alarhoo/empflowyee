@@ -104,10 +104,11 @@ it('serializes concurrent runners, applies once and exposes only foundation obje
 		migrateHcmDatabase(connection('MIGRATOR'), inventory),
 		migrateHcmDatabase(connection('MIGRATOR'), inventory),
 	])
-	expect(results.flat()).toEqual([
-		'000001_database_foundation.sql',
-		'000002_development_seed_history.sql',
-	])
+	expect(results.flat()).toEqual(
+		(await loadSqlMigrations(inventory)).map(
+			/** Compare exactly the approved ordered inventory. */ (migration) => migration.name,
+		),
+	)
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), inventory)).toEqual([])
 	expect(
 		(
@@ -115,7 +116,33 @@ it('serializes concurrent runners, applies once and exposes only foundation obje
 				"SELECT tablename FROM pg_tables WHERE schemaname='hcm' ORDER BY tablename",
 			)
 		).rows,
-	).toEqual([{ tablename: 'development_seed_history' }, { tablename: 'schema_migrations' }])
+	).toEqual(
+		[
+			'access_permission',
+			'access_role',
+			'account_role',
+			'assignment',
+			'development_persona',
+			'development_seed_history',
+			'employment',
+			'entitlement_definition',
+			'location',
+			'organisation',
+			'person',
+			'role_permission',
+			'schema_migrations',
+			'tenant',
+			'tenant_entitlement',
+			'tenant_feature_flag',
+			'tenant_hostname',
+			'user_account',
+			'worker',
+		].map(
+			/** Match the approved spine and bookkeeping tables without inventing business applications. */ (
+				tablename,
+			) => ({ tablename }),
+		),
+	)
 	await expect(runtime.query('SELECT * FROM hcm.schema_migrations')).rejects.toMatchObject({
 		code: '42501',
 	})
@@ -134,16 +161,16 @@ it('rejects historical edits and sequence gaps before changing the database', /*
 	await writeFile(join(directory, '000001_database_foundation.sql'), `${original}\n-- edited`)
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), directory)).rejects.toThrow('immutable')
 	await writeFile(join(directory, '000001_database_foundation.sql'), original)
-	await writeFile(join(directory, '000004_gap.sql'), 'SELECT 1;')
+	await writeFile(join(directory, '000007_gap.sql'), 'SELECT 1;')
 	await expect(loadSqlMigrations(directory)).rejects.toThrow('gap')
-	await rm(join(directory, '000004_gap.sql'))
-	await writeFile(join(directory, '000003_bad_encoding.sql'), Buffer.from([0xc3, 0x28]))
+	await rm(join(directory, '000007_gap.sql'))
+	await writeFile(join(directory, '000006_bad_encoding.sql'), Buffer.from([0xc3, 0x28]))
 	await expect(loadSqlMigrations(directory)).rejects.toThrow()
-	await rm(join(directory, '000003_bad_encoding.sql'))
+	await rm(join(directory, '000006_bad_encoding.sql'))
 })
 
 it('rolls back failed DDL and prevents SQL from committing outside the history transaction', /** Failed and transaction-ending scripts leave neither objects nor history, then allow a corrected unapplied retry. */ async () => {
-	const file = join(directory, '000003_transaction_probe.sql')
+	const file = join(directory, '000006_transaction_probe.sql')
 	await writeFile(file, 'CREATE TABLE hcm.transaction_probe (id integer); SELECT 1 / 0;')
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), directory)).rejects.toBeDefined()
 	expect(
@@ -158,17 +185,17 @@ it('rolls back failed DDL and prevents SQL from committing outside the history t
 	).toBeNull()
 	await writeFile(file, 'CREATE TABLE hcm.transaction_probe (id integer);')
 	await writeFile(
-		join(directory, '000004_order_probe.sql'),
+		join(directory, '000007_order_probe.sql'),
 		'ALTER TABLE hcm.transaction_probe ADD COLUMN verified boolean;',
 	)
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), directory)).toEqual([
-		'000003_transaction_probe.sql',
-		'000004_order_probe.sql',
+		'000006_transaction_probe.sql',
+		'000007_order_probe.sql',
 	])
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), directory)).toEqual([])
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), inventory)).rejects.toThrow('immutable')
 	await migrator.query(
-		"DROP TABLE hcm.transaction_probe; DELETE FROM hcm.schema_migrations WHERE name > '000002_development_seed_history.sql'",
+		"DROP TABLE hcm.transaction_probe; DELETE FROM hcm.schema_migrations WHERE name > '000005_identity_access_spine.sql'",
 	)
 })
 

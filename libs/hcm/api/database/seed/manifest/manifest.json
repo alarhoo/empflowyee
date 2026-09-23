@@ -1,5 +1,42 @@
 {
 	"formatVersion": 1,
 	"dataset": "dunder-mifflin",
-	"modules": []
+	"modules": [
+		{
+			"id": "runtime.tenant",
+			"domain": "runtime",
+			"version": 1,
+			"dependsOn": [],
+			"requiresMigrations": ["000003_runtime_tenant_projection.sql"],
+			"apply": "runtime.tenant.1.apply.sql",
+			"reset": "runtime.tenant.1.reset.sql"
+		},
+		{
+			"id": "workforce.foundation",
+			"domain": "workforce-foundation",
+			"version": 1,
+			"dependsOn": ["runtime.tenant@1"],
+			"requiresMigrations": ["000004_workforce_identity_spine.sql"],
+			"apply": "workforce.foundation.1.apply.sql",
+			"reset": "workforce.foundation.1.reset.sql"
+		},
+		{
+			"id": "identity.accounts",
+			"domain": "identity-access",
+			"version": 1,
+			"dependsOn": ["workforce.foundation@1"],
+			"requiresMigrations": ["000005_identity_access_spine.sql"],
+			"apply": "identity.accounts.1.apply.sql",
+			"reset": "identity.accounts.1.reset.sql"
+		},
+		{
+			"id": "access.discovery",
+			"domain": "access-control",
+			"version": 1,
+			"dependsOn": ["identity.accounts@1"],
+			"requiresMigrations": ["000005_identity_access_spine.sql"],
+			"apply": "access.discovery.1.apply.sql",
+			"reset": "access.discovery.1.reset.sql"
+		}
+	]
 }

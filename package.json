@@ -18,6 +18,7 @@
 		"hcm:db:test": "vitest run --config tools/hcm-database/vitest.config.mts",
 		"hcm:db:seed": "node tools/hcm-database/seed.mts",
 		"hcm:db:up": "node tools/hcm-database/local.mts",
+		"hcm:db:seed:check": "node tools/hcm-database/generate-spine-seeds.mjs --check",
 		"scaffold": "node tools/scaffold/scaffold.mjs",
 		"scaffold:projects": "node tools/scaffold/scaffold-projects.mjs",
 		"scaffold:ui": "node tools/scaffold/install-ui-stacks.mjs",

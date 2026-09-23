@@ -1,0 +1,23 @@
+-- Ownership: workforce-foundation. Approved fictional Dunder Mifflin development seed v1.
+PERFORM set_config('hcm.tenant_id', 'local-dunder-mifflin', true);
+INSERT INTO hcm.organisation (tenant_id,id,code,name) VALUES ('local-dunder-mifflin','dunder-mifflin/organisation/company','DM','Dunder Mifflin');
+INSERT INTO hcm.organisation (tenant_id,id,code,name,parent_id) VALUES ('local-dunder-mifflin','dunder-mifflin/organisation/scranton','scranton','Scranton Branch','dunder-mifflin/organisation/company');
+INSERT INTO hcm.location (tenant_id,id,organisation_id,name,city,country_code,timezone) VALUES ('local-dunder-mifflin','dunder-mifflin/location/scranton','dunder-mifflin/organisation/scranton','Scranton Branch','Scranton','US','America/New_York');
+INSERT INTO hcm.organisation (tenant_id,id,code,name,parent_id) VALUES ('local-dunder-mifflin','dunder-mifflin/organisation/new-york','new-york','New York Headquarters','dunder-mifflin/organisation/company');
+INSERT INTO hcm.location (tenant_id,id,organisation_id,name,city,country_code,timezone) VALUES ('local-dunder-mifflin','dunder-mifflin/location/new-york','dunder-mifflin/organisation/new-york','New York Headquarters','New York','US','America/New_York');
+INSERT INTO hcm.person (tenant_id,id,given_name,family_name,display_name) VALUES ('local-dunder-mifflin','dunder-mifflin/person/jim','Jim','Halpert','Jim Halpert');
+INSERT INTO hcm.worker (tenant_id,id,person_id,worker_code) VALUES ('local-dunder-mifflin','dunder-mifflin/worker/jim','dunder-mifflin/person/jim','DM-JIM');
+INSERT INTO hcm.employment (tenant_id,id,worker_id,organisation_id) VALUES ('local-dunder-mifflin','dunder-mifflin/employment/jim','dunder-mifflin/worker/jim','dunder-mifflin/organisation/company');
+INSERT INTO hcm.assignment (tenant_id,id,employment_id,organisation_id,location_id,job_title) VALUES ('local-dunder-mifflin','dunder-mifflin/assignment/jim','dunder-mifflin/employment/jim','dunder-mifflin/organisation/scranton','dunder-mifflin/location/scranton','Sales Representative');
+INSERT INTO hcm.person (tenant_id,id,given_name,family_name,display_name) VALUES ('local-dunder-mifflin','dunder-mifflin/person/michael','Michael','Scott','Michael Scott');
+INSERT INTO hcm.worker (tenant_id,id,person_id,worker_code) VALUES ('local-dunder-mifflin','dunder-mifflin/worker/michael','dunder-mifflin/person/michael','DM-MICHAEL');
+INSERT INTO hcm.employment (tenant_id,id,worker_id,organisation_id) VALUES ('local-dunder-mifflin','dunder-mifflin/employment/michael','dunder-mifflin/worker/michael','dunder-mifflin/organisation/company');
+INSERT INTO hcm.assignment (tenant_id,id,employment_id,organisation_id,location_id,job_title) VALUES ('local-dunder-mifflin','dunder-mifflin/assignment/michael','dunder-mifflin/employment/michael','dunder-mifflin/organisation/scranton','dunder-mifflin/location/scranton','Regional Manager');
+INSERT INTO hcm.person (tenant_id,id,given_name,family_name,display_name) VALUES ('local-dunder-mifflin','dunder-mifflin/person/toby','Toby','Flenderson','Toby Flenderson');
+INSERT INTO hcm.worker (tenant_id,id,person_id,worker_code) VALUES ('local-dunder-mifflin','dunder-mifflin/worker/toby','dunder-mifflin/person/toby','DM-TOBY');
+INSERT INTO hcm.employment (tenant_id,id,worker_id,organisation_id) VALUES ('local-dunder-mifflin','dunder-mifflin/employment/toby','dunder-mifflin/worker/toby','dunder-mifflin/organisation/company');
+INSERT INTO hcm.assignment (tenant_id,id,employment_id,organisation_id,location_id,job_title) VALUES ('local-dunder-mifflin','dunder-mifflin/assignment/toby','dunder-mifflin/employment/toby','dunder-mifflin/organisation/scranton','dunder-mifflin/location/scranton','HR Representative');
+INSERT INTO hcm.person (tenant_id,id,given_name,family_name,display_name) VALUES ('local-dunder-mifflin','dunder-mifflin/person/david','David','Wallace','David Wallace');
+INSERT INTO hcm.worker (tenant_id,id,person_id,worker_code) VALUES ('local-dunder-mifflin','dunder-mifflin/worker/david','dunder-mifflin/person/david','DM-DAVID');
+INSERT INTO hcm.employment (tenant_id,id,worker_id,organisation_id) VALUES ('local-dunder-mifflin','dunder-mifflin/employment/david','dunder-mifflin/worker/david','dunder-mifflin/organisation/company');
+INSERT INTO hcm.assignment (tenant_id,id,employment_id,organisation_id,location_id,job_title) VALUES ('local-dunder-mifflin','dunder-mifflin/assignment/david','dunder-mifflin/employment/david','dunder-mifflin/organisation/new-york','dunder-mifflin/location/new-york','Chief Financial Officer');
