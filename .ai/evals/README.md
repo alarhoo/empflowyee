@@ -1,3 +1,3 @@
-# Evals
+# HCM factory evals
 
-AI regression scenarios for architecture/security/quality.
+These are adversarial acceptance checks for AI-generated implementation. An agent should fail/reject the bad request rather than silently comply.

@@ -73,7 +73,15 @@
 			"executor": "@angular/build:dev-server",
 			"defaultConfiguration": "development",
 			"options": {
-				"port": 4302
+				"port": 4302,
+				"proxyConfig": "apps/hcm/web/proxy.conf.json",
+				"allowedHosts": [
+					"acme.localhost",
+					"suspended.localhost",
+					"grace.localhost",
+					"trial.localhost",
+					"deactivated.localhost"
+				]
 			},
 			"configurations": {
 				"production": {

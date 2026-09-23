@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "apps"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string"
+    },
+    "apps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "appCode",
+          "domain",
+          "deliveryWave",
+          "featurePath",
+          "implementationStatus",
+          "themeContract",
+          "dataPolicy"
+        ],
+        "properties": {
+          "appCode": {
+            "type": "string",
+            "pattern": "^[A-Z0-9_]+$"
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "deliveryWave": {
+            "type": "string",
+            "pattern": "^HCM-[0-9]+$"
+          },
+          "featurePath": {
+            "type": "string",
+            "pattern": "^libs/hcm/web/"
+          },
+          "implementationStatus": {
+            "enum": [
+              "planned",
+              "designing",
+              "implementing",
+              "complete"
+            ]
+          },
+          "themeContract": {
+            "const": "theme-agnostic"
+          },
+          "dataPolicy": {
+            "const": "real-api-only"
+          },
+          "customCssPolicy": {
+            "const": "forbidden-by-default"
+          },
+          "discoveryPolicy": {
+            "type": "object",
+            "required": [
+              "permission",
+              "entitlement"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "permission": {
+                "type": "string",
+                "minLength": 1
+              },
+              "entitlement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

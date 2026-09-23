@@ -37,6 +37,19 @@ If sources conflict, do not silently choose one. Report the conflict and identif
 - The HCM UI stack is Angular + Fundamental NGX/UI5 Web Components.
 - Deprecated `@ui5/webcomponents-ngx` must not be introduced.
 
+## HCM engineering factory
+
+- The current repository is the sole implementation context. Follow the source-of-truth order above and approved current HCM requirements, FDDs, TDDs, ADRs and domain documents; do not invent unresolved business behavior.
+- `docs/hcm/catalogue/hcm-app-catalogue.json` is the canonical app inventory; `docs/hcm/catalogue/hcm-launchpad.json` is the canonical navigation layout. Space/Page/Section placement never determines code ownership.
+- Do not add historical provenance or migration-lineage fields to current app/domain documents or catalogue metadata.
+- Business features are theme-agnostic: no HER/Horizon implementation imports, raw brand colors, deep UI5 styling or per-feature theme logic. The shell/UX foundation applies theme and tenant branding globally.
+- Business UI binds data/state through the TDD-selected approved floorplan and maintained UI5/Fundamental controls. Custom CSS is forbidden by default; genuine capability gaps require TDD justification and approved shared UX ownership.
+- Production business features consume real NestJS APIs through runtime-universal DTO contracts. Development business data is seeded into PostgreSQL; fixture arrays are restricted to tests, Storybook/isolated visual tooling and explicit seed tooling.
+- HCM persistence is SQL-first PostgreSQL with Kysely as the typed query layer, not schema authority. One `hcm_db` uses one main `hcm` namespace containing domain-owned tables. DTOs never expose persistence rows.
+- Tenant-owned data requires explicit ownership, RLS and negative cross-tenant tests. Follow `docs/hcm/architecture/DATABASE-STRATEGY.md`; migration orchestration remains explicit and never runs during ordinary API startup.
+- Deliver app-by-app/domain-by-domain within approved waves, using the repository Git workflow and coherent commits. Do not implement a whole wave in one giant feature branch; squash merge remains preferred.
+- Materialized empty HCM directories are visualization only. Generate real Nx libraries with approved tooling only when an approved app/domain needs them; do not generate project configuration for the full planned inventory.
+
 ## Frontend UX
 
 - Reuse maintained framework/library capabilities before creating custom components.

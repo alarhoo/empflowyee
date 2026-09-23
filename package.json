@@ -34,9 +34,16 @@
 		"dev:hcm": "nx serve hcm-web --port=4302",
 		"dev:console": "nx serve console-web --port=4301",
 		"dev:account-api": "nx serve account-api",
-		"dev:hcm-api": "nx serve hcm-api",
+		"dev:hcm-api": "node tools/hcm-factory/start-local-api.mjs",
 		"dev:console-api": "nx serve console-api",
-		"dev:hcm:preview": "nx serve hcm-web --port=4303 --host=127.0.0.1"
+		"dev:hcm:preview": "nx serve hcm-web --port=4303 --host=127.0.0.1",
+		"hcm:catalogue:validate": "node tools/hcm-factory/validate-catalogue.mjs",
+		"hcm:app:context": "node tools/hcm-factory/app-context.mjs",
+		"hcm:wave:context": "node tools/hcm-factory/wave-context.mjs",
+		"hcm:structure:materialize": "node tools/hcm-factory/materialize-hcm-structure.mjs",
+		"hcm:structure:dry-run": "node tools/hcm-factory/materialize-hcm-structure.mjs --dry-run",
+		"hcm:catalogue:generate": "node tools/hcm-factory/generate-runtime-catalogue.mjs",
+		"hcm:catalogue:check": "node tools/hcm-factory/generate-runtime-catalogue.mjs --check"
 	},
 	"devDependencies": {
 		"@analogjs/vite-plugin-angular": "~2.6.0",

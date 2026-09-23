@@ -1,103 +1,27 @@
 :host {
 	display: block;
-	min-height: 100%;
-	background: var(--ef-page-canvas);
-	color: var(--ef-text-strong);
+	height: 100dvh;
 }
-
-.hcm-shell {
-	min-height: 100%;
-}
-
-.space-nav {
-	min-height: 3rem;
+.hcm-runtime-shell {
 	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	padding: 0 1rem;
-	overflow-x: auto;
-	border-bottom: 1px solid var(--ef-border-subtle);
-	background: var(--ef-surface-base);
+	flex-direction: column;
+	height: 100%;
 }
-
-.space-nav__item {
-	padding: 0.9rem 1rem 0.75rem;
-	color: var(--ef-text-muted);
-	appearance: none;
-	background: transparent;
-	border-top: 0;
-	border-left: 0;
-	border-right: 0;
-	white-space: nowrap;
-	border-bottom: 0.2rem solid transparent;
-	font: inherit;
-	font-weight: 650;
-	cursor: pointer;
+ui5-shellbar {
+	flex-shrink: 0;
 }
-
-.space-nav__item:hover,
-.space-nav__item.is-active {
-	color: var(--ef-color-accent-strong);
-	border-bottom-color: var(--ef-color-accent);
+main {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
 }
-
-.space-nav__tenant {
-	margin-left: auto;
-	padding-left: 1rem;
-	color: var(--ef-text-subtle);
-	white-space: nowrap;
-	font-size: 0.8rem;
+.hcm-route-frame {
+	flex: 1;
+	min-height: 0;
 }
-
-.hcm-shell__content {
-	padding: 1rem;
-}
-
-.skip-link {
-	position: absolute;
-	transform: translateY(-200%);
-	z-index: 10;
-	background: var(--ef-surface-base);
-	color: var(--ef-text-strong);
-	padding: 1rem;
-}
-.skip-link:focus {
-	transform: none;
-}
-.catalog {
-	padding: 1rem 2rem;
-	background: var(--ef-surface-base);
-	border-bottom: 1px solid var(--ef-border-subtle);
-}
-.catalog__grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-	gap: 1rem;
-}
-.catalog__tile {
-	padding: 1rem;
-	border: 1px solid var(--ef-border-subtle);
-	border-radius: var(--ef-radius-surface);
-}
-.catalog__tile a {
-	color: var(--ef-color-accent-strong);
-	font-weight: 700;
-}
-.catalog__tile p,
-.catalog__notice {
-	color: var(--ef-text-muted);
-}
-.catalog__planned {
+ui5-page {
 	display: block;
-	margin-top: 0.35rem;
-	color: var(--ef-text-subtle);
-	font-size: 0.8rem;
-}
-@media (max-width: 640px) {
-	.space-nav__tenant {
-		display: none;
-	}
-	.catalog {
-		padding: 1rem;
-	}
+	flex: 1;
+	min-height: 0;
 }

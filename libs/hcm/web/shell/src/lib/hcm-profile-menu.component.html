@@ -1,0 +1,59 @@
+<ui5-popover
+	class="hcm-profile-menu"
+	[open]="open()"
+	[opener]="opener()"
+	accessibleName="Your workspace"
+	placement="Bottom"
+	horizontalAlign="End"
+	[hideArrow]="true"
+	(ui5Close)="afterClose()">
+	<div
+		slot="header"
+		class="hcm-profile-identity">
+		<ui5-title level="H2">{{ runtime.context()?.user.displayName }}</ui5-title>
+		@if (runtime.context()?.user.email; as email) {
+			<p>{{ email }}</p>
+		}
+		<p>{{ runtime.tenant()?.displayName }}</p>
+	</div>
+	<div class="hcm-profile-preferences">
+		<ui5-button
+			design="Transparent"
+			icon="employee"
+			(click)="openProfile()">
+			My profile
+		</ui5-button>
+		@if (runtime.context()?.development; as development) {
+			<p>Development persona</p>
+			<ui5-select
+				accessibleName="Development persona"
+				[value]="development.personaId"
+				(ui5Change)="selectPersona($event.detail.selectedOption.value ?? '')">
+				@for (persona of development.personas; track persona.id) {
+					<ui5-option
+						[value]="persona.id"
+						[additionalText]="persona.roleLabel">
+						{{ persona.displayName }}
+					</ui5-option>
+				}
+			</ui5-select>
+			@if (development.catalogueInspection) {
+				<p>
+					<ui5-checkbox
+						#inspection="ui5CheckBox"
+						text="Inspect all applications"
+						[checked]="applications.inspecting()"
+						(ui5Change)="applications.inspectAll.set(inspection.element.checked)"></ui5-checkbox>
+				</p>
+			}
+		}
+	</div>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			(click)="closed.emit()">
+			Done
+		</ui5-button>
+	</ui5-bar>
+</ui5-popover>

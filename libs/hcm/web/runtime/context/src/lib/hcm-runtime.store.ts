@@ -1,109 +1,135 @@
-import { Injectable, computed, signal } from '@angular/core'
-import { HcmRuntimeContext, HcmRole, HcmEntitlement } from './hcm-runtime.models'
-
-const DEMO_CONTEXT: HcmRuntimeContext = {
-	tenant: {
-		tenantId: 'tenant-acme-demo',
-		slug: 'acme',
-		displayName: 'Acme Corporation',
-		defaultTheme: 'horizon-light',
-		defaultLocale: 'en-IN',
-		defaultTimezone: 'Asia/Kolkata',
-		defaultDateFormat: 'DD/MM/YYYY',
-		defaultTimeFormat: '12h',
-		defaultNumberFormat: '1,23,456.78',
-	},
-	principal: {
-		userId: 'user-demo-001',
-		employeeId: 'EMP-0001',
-		displayName: 'Alex Morgan',
-		email: 'alex@acme.example',
-		roles: ['employee', 'manager', 'tenant-super-admin'],
-		entitlements: [
-			'employee-core',
-			'organisation',
-			'leave',
-			'time',
-			'expenses',
-			'notifications',
-			'analytics',
-			'administration',
-		],
-	},
-	preferences: {},
-}
+import { HttpClient, HttpErrorResponse } from '@angular/common/http'
+import { Injectable, computed, inject, signal } from '@angular/core'
+import { firstValueFrom, timeout } from 'rxjs'
+import {
+	isTenantAccessible,
+	resolveHcmPreferences,
+	parseHcmTenantDiscovery,
+	parseHcmRuntimeContext,
+	type HcmRuntimeContext,
+	type TenantDiscoveryResponse,
+	type RuntimeFailureCode,
+} from '@empflowyee/hcm-runtime-contract'
+import { HcmRuntimeState } from './hcm-runtime.models'
 
 @Injectable({ providedIn: 'root' })
 export class HcmRuntimeStore {
-	private readonly _context = signal<HcmRuntimeContext>(DEMO_CONTEXT)
-
-	readonly context = this._context.asReadonly()
-	readonly tenant = computed(
-		/** Expose tenant presentation defaults. */ () => this._context().tenant,
+	private readonly http = inject(HttpClient)
+	private readonly current = signal<HcmRuntimeState>({ kind: 'tenant-loading' })
+	private pending?: Promise<void>
+	private developmentPersona?: string
+	readonly state = this.current.asReadonly()
+	readonly context = computed(
+		/** Expose authenticated context only while the state is ready. */ () => {
+			const state = this.state()
+			return state.kind === 'ready' ? state.context : null
+		},
 	)
-	readonly principal = computed(
-		/** Expose the fixture principal without performing authentication. */ () =>
-			this._context().principal,
+	readonly tenant = computed(
+		/** Select safe tenant presentation during both bootstrap stages. */ () => {
+			const state = this.state()
+			if (state.kind === 'ready') return state.context.tenant
+			return 'discovery' in state ? state.discovery.tenant : undefined
+		},
 	)
 	readonly preferences = computed(
-		/** Expose optional user presentation overrides. */ () => this._context().preferences,
-	)
-	readonly roles = computed(
-		/** Project effective roles into a catalog lookup set. */ () => new Set(this.principal().roles),
-	)
-	readonly entitlements = computed(
-		/** Project licensed capabilities into a catalog lookup set. */ () =>
-			new Set(this.principal().entitlements),
+		/** Resolve user overrides independently of tenant branding. */ () =>
+			resolveHcmPreferences(this.tenant(), this.context()?.preferences),
 	)
 
-	/** Fixture-only mutation for Theme Lab. Replace with server bootstrap later. */
-	setContext(context: HcmRuntimeContext): void {
-		this._context.set(context)
+	/** Share one bootstrap between the shell and route guards; retries explicitly request a refresh. */
+	ensureLoaded(): Promise<void> {
+		this.pending ??= this.load()
+		return this.pending
 	}
 
-	/** Merge in-memory presentation preferences without persisting credentials or tenant data. */
-	updatePreferences(patch: Partial<HcmRuntimeContext['preferences']>): void {
-		this._context.update(
-			/** Preserve unrelated context and preference values. */ (current) => ({
-				...current,
-				preferences: { ...current.preferences, ...patch },
-			}),
+	/** Clear authenticated context and repeat tenant discovery before session loading. */
+	async refresh(): Promise<void> {
+		if (this.state().kind === 'tenant-loading' || this.state().kind === 'session-loading') {
+			await this.ensureLoaded()
+			return
+		}
+		this.pending = this.load()
+		await this.pending
+	}
+
+	/** Select a server-advertised local persona through the normal runtime API, never by editing access state. */
+	async selectDevelopmentPersona(id: string): Promise<void> {
+		if (
+			!this.context()?.development?.personas.some(
+				/** Restrict selection to choices returned by the server. */ (persona) => persona.id === id,
+			)
 		)
+			return
+		this.developmentPersona = id
+		await this.refresh()
 	}
 
-	/** Change fixture branding; the caller must validate the color before accepting it. */
-	setPrimaryColor(primaryColor: string | undefined): void {
-		this._context.update(
-			/** Preserve tenant identity while replacing the optional accent. */ (current) => ({
-				...current,
-				tenant: { ...current.tenant, primaryColor },
-			}),
-		)
-	}
-
-	/** Simulate roles for presentation testing only; this never grants backend permission. */
-	toggleRole(role: HcmRole): void {
-		const current = this.context()
-		const roles = new Set(current.principal.roles)
-		if (roles.has(role)) roles.delete(role)
-		else roles.add(role)
-		this.setContext({ ...current, principal: { ...current.principal, roles: [...roles] } })
-	}
-
-	/** Simulate licensed capabilities without bypassing any server-side authorization. */
-	toggleEntitlement(entitlement: HcmEntitlement): void {
-		const current = this.context()
-		const entitlements = new Set(current.principal.entitlements)
-		if (entitlements.has(entitlement)) entitlements.delete(entitlement)
-		else entitlements.add(entitlement)
-		this.setContext({
-			...current,
-			principal: { ...current.principal, entitlements: [...entitlements] },
-		})
-	}
-
-	/** Restore the original demo principal and presentation defaults after a lab experiment. */
-	resetFixture(): void {
-		this.setContext(DEMO_CONTEXT)
+	/** Fetch tenant and session after Angular startup, preserving distinct failure states. */
+	private async load(): Promise<void> {
+		this.current.set({ kind: 'tenant-loading' })
+		let discovery: TenantDiscoveryResponse | undefined
+		let requestId = crypto.randomUUID()
+		try {
+			discovery = parseHcmTenantDiscovery(
+				await firstValueFrom(
+					this.http
+						.get<TenantDiscoveryResponse>('/api/v1/runtime/tenant', {
+							headers: { 'X-Request-ID': requestId },
+						})
+						.pipe(timeout(15000)),
+				),
+			)
+			if (!isTenantAccessible(discovery.tenant)) {
+				this.current.set({ kind: 'tenant-suspended', discovery })
+				return
+			}
+			this.current.set({ kind: 'session-loading', discovery })
+			requestId = crypto.randomUUID()
+			const context = parseHcmRuntimeContext(
+				await firstValueFrom(
+					this.http
+						.get<HcmRuntimeContext>('/api/v1/runtime/session', {
+							headers: {
+								'X-Request-ID': requestId,
+								...(this.developmentPersona
+									? { 'X-HCM-Development-Persona': this.developmentPersona }
+									: {}),
+							},
+						})
+						.pipe(timeout(15000)),
+				),
+			)
+			if (context.tenant.slug !== discovery.tenant.slug) throw new Error('Runtime tenant mismatch')
+			if (!isTenantAccessible(context.tenant)) {
+				this.current.set({
+					kind: 'tenant-suspended',
+					discovery: { ...discovery, tenant: context.tenant },
+				})
+				return
+			}
+			this.current.set({ kind: 'ready', context })
+		} catch (error) {
+			if (error instanceof HttpErrorResponse) {
+				if (error.status === 404) {
+					this.current.set({ kind: 'tenant-not-found' })
+					return
+				}
+				if (error.status === 401 && discovery) {
+					this.current.set({ kind: 'auth-required', discovery })
+					return
+				}
+				if (error.status === 423 && discovery) {
+					this.current.set({ kind: 'tenant-suspended', discovery })
+					return
+				}
+			}
+			const code: RuntimeFailureCode =
+				error instanceof HttpErrorResponse && error.status === 403
+					? 'forbidden'
+					: 'runtime-unavailable'
+			console.warn('HCM runtime bootstrap failed', { code, requestId })
+			this.current.set({ kind: 'error', failure: { code, requestId } })
+		}
 	}
 }

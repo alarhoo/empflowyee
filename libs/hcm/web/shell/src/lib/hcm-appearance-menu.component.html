@@ -1,0 +1,24 @@
+<ui5-menu
+	headerText="Appearance"
+	[open]="open()"
+	[opener]="opener()"
+	horizontalAlign="End"
+	(ui5Close)="closed.emit()"
+	(ui5ItemClick)="appearance.select($event.detail.item.getAttribute('data-theme')); closed.emit()">
+	<ui5-menu-item-group checkMode="Single">
+		<ui5-menu-item
+			text="Follow device"
+			data-theme="system"
+			[checked]="!appearance.preference() || appearance.preference() === 'system'"></ui5-menu-item>
+		@for (option of themes; track option.id) {
+			<ui5-menu-item
+				[text]="option.label"
+				[attr.data-theme]="option.id"
+				[checked]="
+					appearance.preference() !== 'system' &&
+					!!appearance.preference() &&
+					theme.variant() === option.id
+				"></ui5-menu-item>
+		}
+	</ui5-menu-item-group>
+</ui5-menu>

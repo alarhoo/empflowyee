@@ -1,6 +1,6 @@
 # hcm-web-runtime-context
 
-Owns the in-memory HCM fixture context and explicit mutations for roles, entitlements and presentation defaults.
+Owns the explicit remote tenant/session bootstrap, validated read-only signal context, resolved presentation preferences, capability facade and catalog-driven route guard. Production code has no fixture principal or role/entitlement mutation API.
 
 Import through `@empflowyee/hcm-web-runtime-context`. See the [HCM maintainer guide](../../../../../docs/hcm/architecture/shell/README.md) for architecture, constraints and workflows.
 

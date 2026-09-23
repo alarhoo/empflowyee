@@ -1,0 +1,30 @@
+<div
+	fd-tile-container
+	class="hcm-app-grid">
+	@for (app of applications(); track app.id) {
+		<fd-tile
+			type="launch"
+			class="hcm-app-tile"
+			role="button"
+			[clickable]="true"
+			[ariaLabel]="app.title + ' — ' + (app.available ? 'Available' : 'Planned')"
+			[attr.data-app-code]="app.id"
+			(tileClick)="applicationSelected.emit(app)">
+			<div
+				fd-tile-header
+				class="hcm-app-tile-copy">
+				<h3 fd-tile-title>{{ app.title }}</h3>
+				<p fd-tile-subtitle>{{ app.description }}</p>
+			</div>
+			<div
+				fd-tile-footer
+				class="hcm-app-tile-footer">
+				<ui5-icon
+					[name]="domainIcon(app.domain)"
+					[accessibleName]="app.domain"
+					[showTooltip]="false"></ui5-icon>
+				<span fd-tile-footer-text>{{ app.available ? 'Available' : 'Planned' }}</span>
+			</div>
+		</fd-tile>
+	}
+</div>

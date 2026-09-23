@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-runtime-feature-placeholder",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/runtime/feature-placeholder/src",
+	"prefix": "ef-hcm",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:runtime", "type:feature"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "hcm-api-runtime-module",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/runtime/module/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:runtime", "type:module"],
+	"// targets": "to see all targets run: nx show project hcm-api-runtime-module --web",
+	"targets": {
+		"test": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "vitest run --config tools/milestones/hcm-production-shell/vitest.config.mts libs/hcm/api/runtime/module"
+			},
+			"cache": true
+		}
+	}
+}

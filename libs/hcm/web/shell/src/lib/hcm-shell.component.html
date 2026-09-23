@@ -1,82 +1,169 @@
-<div class="hcm-shell">
-	<a
-		class="skip-link"
-		[routerLink]="[]"
-		fragment="hcm-content">
-		Skip to content
-	</a>
-	<ui5-shellbar
-		primaryTitle="empFLOWyee"
-		secondaryTitle="workforce streamlined"></ui5-shellbar>
-	<nav
-		class="space-nav"
-		aria-label="HCM spaces">
-		@for (space of spaces(); track space.id) {
-			<button
-				type="button"
-				class="space-nav__item"
-				[class.is-active]="activeSpace()?.id === space.id"
-				[attr.aria-current]="activeSpace()?.id === space.id ? 'true' : null"
-				(click)="selectSpace(space.id)">
-				{{ space.title }}
-			</button>
-		}
-		<span class="space-nav__tenant">{{ tenantLabel() }}</span>
-		<ui5-button
-			design="Transparent"
-			(click)="catalogOpen.set(!catalogOpen())"
-			[attr.aria-expanded]="catalogOpen()"
-			aria-controls="hcm-catalog">
-			Browse apps
-		</ui5-button>
-	</nav>
-	@if (catalogOpen()) {
-		<section
-			class="catalog"
-			id="hcm-catalog"
-			aria-label="Application catalog">
-			@if (activeSpace(); as space) {
-				<h2>{{ space.title }}</h2>
-				@for (page of space.pages; track page.id) {
-					<h3>{{ page.title }}</h3>
-					@for (group of page.groups; track group.id) {
-						<h4>{{ group.title }}</h4>
-						<div class="catalog__grid">
-							@for (feature of group.features; track feature.id) {
-								<article class="catalog__tile">
-									@if (feature.id === 'theme-lab') {
-										<a
-											[routerLink]="feature.route"
-											(click)="catalogOpen.set(false)">
-											{{ feature.title }}
-										</a>
-									} @else {
-										<strong>{{ feature.title }}</strong>
-										<span class="catalog__planned">Planned</span>
-									}
-									<p>{{ feature.description }}</p>
-								</article>
-							}
-						</div>
-					}
+@if (lab()) {
+	<div class="hcm-app-canvas"><router-outlet></router-outlet></div>
+} @else {
+	<div
+		class="hcm-runtime-shell"
+		[fdContentDensity]="densityMode()">
+		@if (runtime.context(); as context) {
+			<ui5-shellbar
+				(ui5ProfileClick)="profileOpener.set($event.detail.targetRef); profileOpen.set(true)">
+				<ui5-shellbar-branding
+					slot="branding"
+					accessibleName="empFLOWyee home"
+					(ui5Click)="applications.search('')">
+					<img
+						slot="logo"
+						src="/assets/empflowyee-mark.svg"
+						width="28"
+						height="28"
+						alt="empFLOWyee" />
+					empFLOWyee
+				</ui5-shellbar-branding>
+				@if (runtime.tenant()?.allowUserTheme) {
+					<ui5-shellbar-item
+						[icon]="theme.dark() ? 'light-mode' : 'dark-mode'"
+						text="Appearance"
+						(ui5Click)="
+							appearanceOpener.set($event.detail.targetRef); appearanceOpen.set(true)
+						"></ui5-shellbar-item>
 				}
-			} @else {
-				<p>
-					No apps are visible for this mock session. Adjust roles and entitlements in Theme Lab.
-				</p>
-			}
-			<p class="catalog__notice">
-				Fixture navigation only. Backend authorization must independently protect every operation.
-			</p>
-		</section>
-	}
-	<main
-		class="hcm-shell__content"
-		id="hcm-content"
-		tabindex="-1">
-		@if (theme.error()) {
-			<p role="alert">{{ theme.error() }}</p>
+				<ui5-input
+					#applicationSearch="ui5Input"
+					slot="searchField"
+					accessibleName="Search applications"
+					placeholder="Search applications"
+					[showClearIcon]="true"
+					[value]="applications.query()"
+					(ui5Input)="applications.search(applicationSearch.element.value)"></ui5-input>
+				<ui5-avatar
+					slot="profile"
+					colorScheme="Placeholder"
+					[initials]="userInitials()"
+					[accessibleName]="context.user.displayName"></ui5-avatar>
+			</ui5-shellbar>
+		} @else {
+			<ui5-shellbar>
+				<ui5-shellbar-branding
+					slot="branding"
+					accessibleName="empFLOWyee">
+					<img
+						slot="logo"
+						src="/assets/empflowyee-mark.svg"
+						width="28"
+						height="28"
+						alt="empFLOWyee" />
+					empFLOWyee
+				</ui5-shellbar-branding>
+			</ui5-shellbar>
 		}
-		<router-outlet></router-outlet>
-	</main>
-</div>
+		@if (theme.error() || localeError()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				Presentation assets could not be loaded. Reload to retry.
+			</ui5-message-strip>
+		}
+		<main
+			id="hcm-content"
+			tabindex="-1">
+			@switch (runtime.state().kind) {
+				@case ('ready') {
+					@if (runtime.tenant()?.status === 'grace') {
+						<ui5-message-strip
+							design="Critical"
+							[hideCloseButton]="true">
+							Your tenant is in a grace period. Contact your tenant administrator.
+						</ui5-message-strip>
+					}
+					@if (denied()) {
+						<ui5-page class="hcm-app-canvas">
+							<ui5-bar
+								slot="header"
+								accessibleRole="None">
+								<ui5-title level="H1">Access denied</ui5-title>
+							</ui5-bar>
+							<p>Your session does not have access to this application.</p>
+							<ui5-button routerLink="/">Return home</ui5-button>
+						</ui5-page>
+					}
+					<ef-hcm-appearance-menu
+						[open]="appearanceOpen()"
+						[opener]="appearanceOpener()"
+						(closed)="
+							appearanceOpen.set(false); appearanceOpener.set(null)
+						"></ef-hcm-appearance-menu>
+					<ef-hcm-profile-menu
+						[opener]="profileOpener()"
+						[open]="profileOpen()"
+						(closed)="profileOpen.set(false); profileOpener.set(null)"></ef-hcm-profile-menu>
+					<div
+						class="hcm-route-frame"
+						[class.hcm-app-canvas]="!fullBleed()">
+						<router-outlet></router-outlet>
+					</div>
+				}
+				@default {
+					<ui5-page class="hcm-app-canvas">
+						<ui5-bar
+							slot="header"
+							accessibleRole="None">
+							<ui5-title level="H1">HCM workspace</ui5-title>
+						</ui5-bar>
+						@switch (runtime.state().kind) {
+							@case ('tenant-loading') {
+								<ui5-busy-indicator [active]="true">
+									<p role="status">Finding your tenant…</p>
+								</ui5-busy-indicator>
+							}
+							@case ('session-loading') {
+								<ui5-busy-indicator [active]="true">
+									<p role="status">Loading your session…</p>
+								</ui5-busy-indicator>
+							}
+							@case ('tenant-not-found') {
+								<p role="alert">Tenant not found. Check your organization’s HCM address.</p>
+							}
+							@case ('tenant-suspended') {
+								<p role="alert">
+									This tenant is suspended or deactivated. Contact your tenant administrator.
+								</p>
+							}
+							@case ('auth-required') {
+								<p>Sign in to continue to your workspace.</p>
+								@if (loginPath()) {
+									<ui5-button
+										design="Emphasized"
+										(click)="login()">
+										Sign in
+									</ui5-button>
+								} @else {
+									<p>Sign-in is not configured. Contact your tenant administrator.</p>
+								}
+							}
+							@case ('error') {
+								@if (runtime.state(); as state) {
+									@if (state.kind === 'error') {
+										<p role="alert">
+											{{
+												state.failure.code === 'forbidden'
+													? 'Access denied for this tenant.'
+													: 'Your workspace could not be loaded.'
+											}}
+										</p>
+										<p>Support reference: {{ state.failure.requestId }}</p>
+									}
+								}
+							}
+						}
+						@if (
+							runtime.state().kind !== 'tenant-loading' &&
+							runtime.state().kind !== 'session-loading'
+						) {
+							<ui5-button (click)="retry()">Try again</ui5-button>
+						}
+					</ui5-page>
+				}
+			}
+		</main>
+	</div>
+}

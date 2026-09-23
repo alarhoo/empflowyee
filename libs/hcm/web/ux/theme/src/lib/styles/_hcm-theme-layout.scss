@@ -19,11 +19,46 @@ body {
 	outline-offset: 2px;
 }
 
-// One HCM application/workshop canvas owns the width; nested FCL pages use its available space.
+// Constrain content once; shell chrome and launchpad landscapes remain full bleed.
 .hcm-app-canvas {
 	display: block;
 	inline-size: calc(100% - 2 * clamp(0.5rem, 2vw, 2rem));
 	max-inline-size: 90rem;
 	min-inline-size: 0;
 	margin-inline: auto;
+}
+
+// Global HCM scrollbar treatment, inherited by native component scroll containers.
+html[data-hcm-theme-family] {
+	--hcm-scrollbar-thumb: color-mix(in srgb, var(--sapContent_LabelColor) 38%, transparent);
+	--hcm-scrollbar-hover: color-mix(in srgb, var(--sapContent_LabelColor) 62%, transparent);
+	scrollbar-color: var(--hcm-scrollbar-thumb) transparent;
+	scrollbar-width: thin;
+	--sapScrollBar_FaceColor: var(--hcm-scrollbar-thumb);
+	--sapScrollBar_TrackColor: transparent;
+	--sapScrollBar_Hover_FaceColor: var(--hcm-scrollbar-hover);
+}
+// Public scrollable content parts cover native shadow roots without private selectors.
+ui5-page::part(content),
+ui5-tabcontainer::part(content) {
+	scrollbar-width: thin;
+	scrollbar-color: var(--hcm-scrollbar-thumb) transparent;
+}
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--hcm-scrollbar-thumb) transparent;
+}
+::-webkit-scrollbar {
+	width: 0.45rem;
+	height: 0.45rem;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--hcm-scrollbar-thumb);
+	border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: var(--hcm-scrollbar-hover);
 }

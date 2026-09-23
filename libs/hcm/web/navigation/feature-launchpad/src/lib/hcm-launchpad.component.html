@@ -1,0 +1,137 @@
+<ui5-page
+	class="hcm-launchpad"
+	backgroundDesign="Transparent"
+	[attr.data-space]="state.activeSpace()?.id">
+	<div
+		slot="header"
+		class="hcm-space-bar">
+		<ui5-tabcontainer
+			headerBackgroundDesign="Transparent"
+			class="hcm-space-tabs hcm-app-canvas"
+			[collapsed]="true"
+			tabLayout="Inline"
+			(ui5TabSelect)="state.selectSpace($event.detail.tab.getAttribute('data-space'))"
+			aria-label="HCM spaces">
+			@for (space of state.spaces(); track space.id) {
+				<ui5-tab
+					[text]="space.title"
+					[icon]="spaceIcon(space.id)"
+					[attr.data-space]="space.id"
+					[selected]="space.id === state.activeSpace()?.id"></ui5-tab>
+			}
+		</ui5-tabcontainer>
+	</div>
+	<div class="hcm-launchpad-content hcm-app-canvas">
+		@if (state.inspecting()) {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				Inspecting all applications. Your persona's route and API permissions remain unchanged.
+			</ui5-message-strip>
+		}
+		<div class="hcm-launchpad-intro">
+			<div class="hcm-launchpad-heading">
+				<span class="hcm-launchpad-eyebrow">{{ state.activeSpace()?.title ?? 'Workspace' }}</span>
+				<ui5-title
+					level="H1"
+					size="H2">
+					{{
+						state.query().trim()
+							? 'Application search'
+							: (state.activePage()?.title ?? 'Your workspace')
+					}}
+				</ui5-title>
+				<p>
+					{{
+						state.query().trim()
+							? 'Find applications across your workspace.'
+							: state.activePage()?.description
+					}}
+				</p>
+			</div>
+			@if (!state.query().trim() && state.activeSpace(); as space) {
+				<ui5-tabcontainer
+					class="hcm-page-tabs"
+					headerBackgroundDesign="Transparent"
+					[collapsed]="true"
+					tabLayout="Inline"
+					(ui5TabSelect)="state.selectPage($event.detail.tab.getAttribute('data-page'))"
+					aria-label="Space pages">
+					@for (page of space.pages; track page.id) {
+						<ui5-tab
+							[text]="page.title"
+							[attr.data-page]="page.id"
+							[selected]="page.id === state.activePage()?.id"></ui5-tab>
+					}
+				</ui5-tabcontainer>
+			}
+		</div>
+		@if (state.query().trim()) {
+			<section
+				class="hcm-launchpad-group"
+				aria-label="Search results">
+				<div class="hcm-launchpad-group-heading">
+					<ui5-title level="H2">
+						{{ state.results().length }} results for “{{ state.query() }}”
+					</ui5-title>
+					<ui5-button
+						design="Transparent"
+						(click)="state.query.set('')">
+						Clear search
+					</ui5-button>
+				</div>
+				<ef-hcm-application-tiles
+					[applications]="state.results()"
+					(applicationSelected)="state.open($event)"></ef-hcm-application-tiles>
+				@if (!state.results().length) {
+					<p role="status">No applications match your search.</p>
+				}
+			</section>
+		} @else if (state.activePage(); as page) {
+			@for (group of page.groups; track group.id) {
+				<section
+					class="hcm-launchpad-group"
+					[attr.aria-label]="group.title">
+					<div class="hcm-launchpad-group-heading">
+						<ui5-title
+							level="H2"
+							size="H4">
+							{{ group.title }}
+						</ui5-title>
+						<span>{{ group.features.length }} apps</span>
+					</div>
+					<ef-hcm-application-tiles
+						[applications]="group.features"
+						(applicationSelected)="state.open($event)"></ef-hcm-application-tiles>
+				</section>
+			}
+		} @else {
+			<p role="status">No applications are visible for your current access.</p>
+		}
+	</div>
+</ui5-page>
+<ui5-dialog
+	[open]="!!state.unavailable()"
+	[headerText]="state.unavailable()?.title ?? 'Application'"
+	(ui5Close)="state.unavailable.set(null)">
+	@if (state.unavailable(); as app) {
+		<ui5-message-strip
+			design="Information"
+			[hideCloseButton]="true">
+			{{
+				app.available
+					? 'This application is unavailable for your current access.'
+					: 'Planned application. This capability has not been implemented yet.'
+			}}
+		</ui5-message-strip>
+		<p>{{ app.title }} · {{ app.description }}</p>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			(click)="state.unavailable.set(null)">
+			Close
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

@@ -1,6 +1,6 @@
 # hcm-web-shell
 
-Composes fixture context, visible Spaces/Pages/catalog and theme preferences around the router outlet.
+Composes the validated runtime state machine, native status pages, global search/profile/appearance controls and resolved theme/language/density around the router outlet. The independent developer lab bypasses production bootstrap and scoped density. Business implementations remain lazy app-composed routes.
 
 Import through `@empflowyee/hcm-web-shell`. See the [HCM maintainer guide](../../../../docs/hcm/architecture/shell/README.md) for architecture, constraints and workflows.
 

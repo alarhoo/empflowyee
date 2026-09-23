@@ -1,9 +1,8 @@
 import { Component } from '@angular/core'
-import { RouterModule } from '@angular/router'
+import { HcmShellComponent } from '@empflowyee/hcm-web-shell'
 
 @Component({
-	host: { class: 'hcm-app-canvas' },
-	imports: [RouterModule],
+	imports: [HcmShellComponent],
 	selector: 'ef-hcm-root',
 	templateUrl: './app.html',
 	styleUrl: './app.scss',

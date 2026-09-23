@@ -1,0 +1,307 @@
+{
+  "bundle": "empflowyee-hcm-ai-engineering-factory",
+  "version": "1.1.0",
+  "fileCount": 60,
+  "files": [
+    {
+      "path": ".ai/agents/hcm-backend-engineer.md",
+      "sha256": "5ed0c3861abb1712728a1cbdb80dcfe66f30af4b8ff0d891b28f156ca9af1cb4",
+      "size": 268
+    },
+    {
+      "path": ".ai/agents/hcm-domain-data-architect.md",
+      "sha256": "451baa25d488ee112ae5c12e35a9ea466a7910116582d79313b3ff9d7f50fc41",
+      "size": 284
+    },
+    {
+      "path": ".ai/agents/hcm-release-engineer.md",
+      "sha256": "364f405bf89642c1a7693d30a31266feffbbac6f9fee20c13c12070d0df9133f",
+      "size": 217
+    },
+    {
+      "path": ".ai/agents/hcm-reviewer.md",
+      "sha256": "f12a0b4e7d89aa72dbaaa35198a648826a0e5e88de349246679de9691fc20113",
+      "size": 284
+    },
+    {
+      "path": ".ai/agents/hcm-solution-architect.md",
+      "sha256": "fa0275c7629abfe0c93aaa1d6c10073e6f34e05ca976551156f42a8b3e5c82a1",
+      "size": 362
+    },
+    {
+      "path": ".ai/agents/hcm-ui-engineer.md",
+      "sha256": "2f1aed0032751e52cc440854b2e3966547de91645820f679e8fb1ac5cb307fd5",
+      "size": 315
+    },
+    {
+      "path": ".ai/evals/README.md",
+      "sha256": "7c95878f5a58a1666489ffb944fa7af7b7d156f1d39e969bf404d065861064d1",
+      "size": 167
+    },
+    {
+      "path": ".ai/evals/contract-first.md",
+      "sha256": "498692306343d9b75ba853fa61636295609426706a462e0ea02d5bd506a189e6",
+      "size": 209
+    },
+    {
+      "path": ".ai/evals/no-dummy-data.md",
+      "sha256": "d41f170cb6b8fd5aeeedacd4c4c638d05b96d83909339530497a9404de811ec7",
+      "size": 261
+    },
+    {
+      "path": ".ai/evals/no-open-blockers.md",
+      "sha256": "75e6e6a2a2320953c72482e7492d73ecb0ec7ea892739e8cbf3336543d559db1",
+      "size": 252
+    },
+    {
+      "path": ".ai/evals/nx-boundaries.md",
+      "sha256": "375f9aad721d34916af35940aa31b1c481954c2ca15b63501ba64142278a28f3",
+      "size": 217
+    },
+    {
+      "path": ".ai/evals/tenant-isolation.md",
+      "sha256": "cc5d55f1dcee3d91e76e5594465efecd508b550598d8ddd5f2ace0dfa5ace8c5",
+      "size": 229
+    },
+    {
+      "path": ".ai/evals/ui-theme-agnostic.md",
+      "sha256": "589e1cf98a0052e0ad3e1a9148a82290bb711da95b62035d2b6332ea8a539f13",
+      "size": 323
+    },
+    {
+      "path": ".ai/skills/finalize-fdd/SKILL.md",
+      "sha256": "af263eb1ccf583de6163b4a388eab1ccfe58ca6a65df20197a9468d6aca4c0c0",
+      "size": 342
+    },
+    {
+      "path": ".ai/skills/finalize-tdd/SKILL.md",
+      "sha256": "57c39e3aa4b4454c83530fcb6ade412971b3c478a39a178739599eef38510ca5",
+      "size": 314
+    },
+    {
+      "path": ".ai/skills/hcm-app-blueprint/SKILL.md",
+      "sha256": "3b13451b496f864e426c699cf1dcbf6e38188c4dcad03c743db67dbf16fbb655",
+      "size": 505
+    },
+    {
+      "path": ".ai/skills/hcm-code-review/SKILL.md",
+      "sha256": "da55f764da3a4cddbe1b0fd6d2228386336599ff050c3a8b9fa052781825307c",
+      "size": 230
+    },
+    {
+      "path": ".ai/skills/hcm-contract-first/SKILL.md",
+      "sha256": "8f96a771743a3ade272637766bbc4d0814bf7527ad3fc29c6c6b91eccd965c90",
+      "size": 302
+    },
+    {
+      "path": ".ai/skills/hcm-launchpad-catalogue/SKILL.md",
+      "sha256": "722ad267dbbb97f6eefb0257a768046e5c239247e46f221aa8d69092a68b9f26",
+      "size": 338
+    },
+    {
+      "path": ".ai/skills/hcm-structure/SKILL.md",
+      "sha256": "e8de1f2d6653dea2e48e20d1cfc81c52cdc663941517b895908cfb486ae6788b",
+      "size": 482
+    },
+    {
+      "path": ".ai/skills/hcm-traceability/SKILL.md",
+      "sha256": "7fca9c5639d80da3537d08f186f84211daa298f3854d281c40adec32739a1677",
+      "size": 224
+    },
+    {
+      "path": ".ai/skills/hcm-ui5-feature/SKILL.md",
+      "sha256": "fca087e92cb62f583569dd7914e12bd13fe8e82d0bd1e94ad01f1e0fa9fbb98c",
+      "size": 701
+    },
+    {
+      "path": ".ai/skills/hcm-wave-planning/SKILL.md",
+      "sha256": "912b7e87c00f5ced7cc20bb76687d0be83d73069582b0a1e6f2e400610861f56",
+      "size": 242
+    },
+    {
+      "path": ".ai/skills/nestjs-domain/SKILL.md",
+      "sha256": "719c808c9191dfceade0c5743672dc26d2c939835a0f6852df13b427c45b15da",
+      "size": 294
+    },
+    {
+      "path": ".ai/skills/sql-first-kysely/SKILL.md",
+      "sha256": "9efd70f578bfe0c0fbb8aec56f164843fb2751a80d7cff123477e4fd3b852263",
+      "size": 310
+    },
+    {
+      "path": ".ai/skills/tenant-isolation/SKILL.md",
+      "sha256": "3a6b8e0bc868429e61430cae7677a0d9bf9ac908ba9c6f58a97ba46af9400dbf",
+      "size": 243
+    },
+    {
+      "path": ".ai/workflows/implement-hcm-app.md",
+      "sha256": "61eb9a85db6c82a8dd13df65aec78219b0061441e68727154cc6079f9b26ee19",
+      "size": 620
+    },
+    {
+      "path": ".ai/workflows/implement-hcm-domain.md",
+      "sha256": "f763f46b01dcf6aa9b53e971188dc03ca20c72bea35b43dde4a10d09176bed6d",
+      "size": 492
+    },
+    {
+      "path": ".ai/workflows/prepare-hcm-wave.md",
+      "sha256": "52eb6a46359c68efbe3b7efa546e57023983935f143a9d64d83fafa60bb3b0c1",
+      "size": 401
+    },
+    {
+      "path": ".ai/workflows/review-hcm-app.md",
+      "sha256": "a7448e2f9a60cc4a645d35ffabbdf3774cb45e7af797bc5dedf79bf9c695ffec",
+      "size": 274
+    },
+    {
+      "path": "AGENTS-HCM-FACTORY-ADDITIONS.md",
+      "sha256": "32b3b30d7ed156aeb97d6ddc247a434cfc20e10a404b26e4681f9f495cf200bc",
+      "size": 1930
+    },
+    {
+      "path": "APPLY-TO-REPO.md",
+      "sha256": "3b8f84fd285c4154028af801e9b3565e919a7b70f91c91e0e4f79100bad84aa6",
+      "size": 548
+    },
+    {
+      "path": "CODEX-IMPLEMENTATION-PROMPT.md",
+      "sha256": "93bc1e65752a1ed4f4d5d29661c01242ecb86ca62e222f0eff647458b0cbbf70",
+      "size": 3141
+    },
+    {
+      "path": "NEXT-STEPS.md",
+      "sha256": "37017daffe2df4b4ce0f9547e07e46de1b6551805a4cd97d07efd8ad94b885ed",
+      "size": 838
+    },
+    {
+      "path": "PACKAGE-SCRIPTS-ADDITIONS.json",
+      "sha256": "16cbae88d2ce292e16c7cae9a7c1ef0737a2bccd2dffa3952a6c313fc4c748a2",
+      "size": 388
+    },
+    {
+      "path": "README.md",
+      "sha256": "eebc412189625a87ac300e4af30123c9fdfd10bc58c0643a3a582d680f057b79",
+      "size": 1204
+    },
+    {
+      "path": "docs/hcm/architecture/APP-CATALOGUE-ARCHITECTURE.md",
+      "sha256": "91596c0541db26bfcad512f16c9faeec511e775d5a7ab55a08bcd44b9e51420a",
+      "size": 839
+    },
+    {
+      "path": "docs/hcm/architecture/DATABASE-STRATEGY.md",
+      "sha256": "ed1b4098d46e1b83c8cd1fc71c6f26112ad3f8f442e4b38d2d012923a9c87554",
+      "size": 3978
+    },
+    {
+      "path": "docs/hcm/architecture/HCM-AUTHORITY.md",
+      "sha256": "c0c716a3c7ee11af9bf49df2f186fede643bf4768bbde1e2dbd89fd2818faba0",
+      "size": 468
+    },
+    {
+      "path": "docs/hcm/architecture/HCM-CODEBASE-MAP.generated.md",
+      "sha256": "097caa80b531b69772decc0a17e3f33e36e7aac407b521e01634e213beaaba1e",
+      "size": 21338
+    },
+    {
+      "path": "docs/hcm/architecture/HCM-CODEBASE-STRUCTURE.md",
+      "sha256": "f578a932cb686567152a8a8ab18d7dd9fb9398ca8609d02ab665c56293e6c91c",
+      "size": 1464
+    },
+    {
+      "path": "docs/hcm/architecture/UI-BUSINESS-SCREEN-INVARIANTS.md",
+      "sha256": "7aba292240da7c0e2f6a2c0cd786bbc504509da342d810677322268020867e32",
+      "size": 1778
+    },
+    {
+      "path": "docs/hcm/catalogue/HCM-APP-CATALOGUE.md",
+      "sha256": "00aa3018b1a0181efc069516ea31b2b8ed3e7ce639317e40ddc8c8e6a9a96c06",
+      "size": 565
+    },
+    {
+      "path": "docs/hcm/catalogue/HCM-DOMAIN-CATALOGUE.md",
+      "sha256": "5a9856af37d867149000e9127fce3932ee2d3f69ade761d7d5be281b25dfd64d",
+      "size": 4989
+    },
+    {
+      "path": "docs/hcm/catalogue/hcm-app-catalogue.json",
+      "sha256": "0ceef1f5b37795f1608e700562ca8e16ccb245620dc78d040317d0ccc9011e25",
+      "size": 155138
+    },
+    {
+      "path": "docs/hcm/catalogue/hcm-app-catalogue.schema.json",
+      "sha256": "25043e3c762e927025f64e1874a14a4224c4002fa2a342ac31ed0cf5bf23cd12",
+      "size": 1400
+    },
+    {
+      "path": "docs/hcm/catalogue/hcm-domain-catalogue.json",
+      "sha256": "5afb408366a9ae26cabcc3f4ff17123bbb98a8b441789e123e3744996ed8797d",
+      "size": 7891
+    },
+    {
+      "path": "docs/hcm/catalogue/hcm-launchpad.json",
+      "sha256": "b6e51c7349ed5cacbd56e52f5e84b661e26ad06e2ef5efbbcafa1229f1d10751",
+      "size": 28150
+    },
+    {
+      "path": "docs/hcm/engineering/AI-APP-FACTORY.md",
+      "sha256": "06b66168b73e25c8559d05f2abda11afa19ae84d40cac06a8a28dd45c70dd0ad",
+      "size": 1094
+    },
+    {
+      "path": "docs/hcm/engineering/APP-DEFINITION-OF-DONE.md",
+      "sha256": "9365c7ca17d58ac6c123a528ce6f3b8ab3ac0d267e464b0b4fadcec7f7a3102d",
+      "size": 1047
+    },
+    {
+      "path": "docs/hcm/engineering/GIT-DELIVERY-FOR-HCM-APPS.md",
+      "sha256": "ef69442872be5e11a038827bdcea9085dc1f3470fa412b0cf1719eec13188d83",
+      "size": 792
+    },
+    {
+      "path": "docs/hcm/engineering/REAL-DATA-POLICY.md",
+      "sha256": "e12f3ba64022079b4f8cae22dd88a5cce888c7b833dadefaec49d96ec418c132",
+      "size": 629
+    },
+    {
+      "path": "docs/hcm/roadmap/HCM-0-AI-ENGINEERING-FACTORY.md",
+      "sha256": "7ee1ac0546193b43bcf18dac458359a86ecc09cf62aa7180c93af9676c0fed4d",
+      "size": 467
+    },
+    {
+      "path": "docs/hcm/roadmap/HCM-DELIVERY-WAVES.md",
+      "sha256": "964f53d76cb3643e4a9b6624c3f4b0b3775aed8739dd6e54fc9eb911d4ec806e",
+      "size": 1595
+    },
+    {
+      "path": "tools/hcm-factory/README.md",
+      "sha256": "76b32c6bb2c94826ff6f617a5fe55f6ee711cf68931f96a683df1e3347c1973a",
+      "size": 597
+    },
+    {
+      "path": "tools/hcm-factory/app-context.mjs",
+      "sha256": "93e3701dab81b5c232b1521fc830f1d276a7942b8ea8a721121974e9b1cc5fd6",
+      "size": 1975
+    },
+    {
+      "path": "tools/hcm-factory/lib.mjs",
+      "sha256": "759ebb94ddcce73b54a3922c7bce65e3f9f309ee8f3898524b2dbdbded984ee8",
+      "size": 690
+    },
+    {
+      "path": "tools/hcm-factory/materialize-hcm-structure.mjs",
+      "sha256": "5731a9b66baa8f0ef1050e0130c88c3781242d8306ed6e9c512e0055dfbaf21e",
+      "size": 3715
+    },
+    {
+      "path": "tools/hcm-factory/validate-catalogue.mjs",
+      "sha256": "870af287c47e28b5b81f59f1d47c8c9e897bace482ce77b155a5f7295b3e6409",
+      "size": 2183
+    },
+    {
+      "path": "tools/hcm-factory/wave-context.mjs",
+      "sha256": "cc87228b2372019a6b5ba1835b36ad8e44219fd007dd3b564b8ed9b8d9678d7e",
+      "size": 1037
+    }
+  ]
+}

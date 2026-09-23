@@ -1,261 +1,77 @@
+import { HCM_CATALOGUE } from '@empflowyee/hcm-runtime-contract/catalogue'
 import type { HcmFeatureDefinition, HcmSpaceDefinition } from './hcm-catalog.models'
 
-export const HCM_FEATURES: readonly HcmFeatureDefinition[] = [
+export const HCM_FEATURES: readonly HcmFeatureDefinition[] = HCM_CATALOGUE.apps.map(
+	/** Project one canonical business app without importing its implementation. */ (app) => ({
+		id: app.appCode,
+		title: app.title,
+		description:
+			app.domain
+				.replaceAll('-', ' ')
+				.replace(
+					/\b\w/g,
+					/** Capitalize the domain label without inventing application behavior. */ (letter) =>
+						letter.toUpperCase(),
+				) + ' workspace',
+		domain: app.domain,
+		route: app.route ?? '',
+		available:
+			app.implementationStatus === 'complete' &&
+			app.fddStatus === 'approved' &&
+			app.tddStatus === 'approved' &&
+			!!app.route,
+		requiredPermissions: [app.discoveryPolicy.permission],
+		requiredEntitlements: [app.discoveryPolicy.entitlement],
+	}),
+)
+
+// Foundation routing proof is deliberately outside the canonical business inventory.
+export const HCM_FOUNDATION_FEATURES: readonly HcmFeatureDefinition[] = [
 	{
-		id: 'tasks-approvals',
-		title: 'My Tasks and Approvals',
-		description: 'Open your work queue and approvals.',
-		route: '/tasks',
-		domain: 'workflow',
-		requiredRoles: ['employee'],
-		plannedPhase: '14',
-	},
-	{
-		id: 'leave-apply',
-		title: 'Apply for Leave',
-		description: 'Submit and track leave requests.',
-		route: '/leave/apply',
-		domain: 'leave',
-		requiredRoles: ['employee'],
-		requiredEntitlements: ['leave'],
-	},
-	{
-		id: 'timesheet',
-		title: 'My Timesheet',
-		description: 'Capture and review working time.',
-		route: '/time/timesheet',
-		domain: 'time',
-		requiredRoles: ['employee'],
-		requiredEntitlements: ['time'],
-	},
-	{
-		id: 'expenses',
-		title: 'My Expenses',
-		description: 'Create and track expense claims.',
-		route: '/expenses',
-		domain: 'expenses',
-		requiredRoles: ['employee'],
-		requiredEntitlements: ['expenses'],
-		plannedPhase: '20',
-	},
-	{
-		id: 'profile',
-		title: 'My Profile',
-		description: 'View personal and employment information.',
-		route: '/employee/profile',
-		domain: 'employee',
-		requiredRoles: ['employee'],
+		id: 'runtime-workspace',
+		title: 'Workspace preview',
+		description: 'Foundation routing proof',
+		route: '/workspace',
+		domain: 'runtime',
+		available: true,
+		requiredPermissions: ['employee.directory.read'],
 		requiredEntitlements: ['employee-core'],
-	},
-	{
-		id: 'hr-requests',
-		title: 'My HR Requests',
-		description: 'Submit and track HR service requests.',
-		route: '/hr/requests',
-		domain: 'hr-services',
-		requiredRoles: ['employee'],
-		plannedPhase: '11',
-	},
-	{
-		id: 'notifications',
-		title: 'Notification Centre',
-		description: 'Review notifications and actions.',
-		route: '/notifications',
-		domain: 'notifications',
-		requiredRoles: ['employee'],
-		requiredEntitlements: ['notifications'],
-		plannedPhase: '07',
-	},
-	{
-		id: 'directory',
-		title: 'Employee Directory',
-		description: 'Find colleagues and organisation information.',
-		route: '/employee/directory',
-		domain: 'employee',
-		requiredRoles: ['employee'],
-		requiredEntitlements: ['employee-core'],
-		plannedPhase: '11',
-	},
-	{
-		id: 'org-chart',
-		title: 'Organisation Chart',
-		description: 'Explore reporting relationships.',
-		route: '/organisation/chart',
-		domain: 'organisation',
-		requiredRoles: ['employee'],
-		requiredEntitlements: ['organisation'],
-		plannedPhase: '02',
-	},
-	{
-		id: 'announcements',
-		title: 'Announcements',
-		description: 'Read organisation announcements.',
-		route: '/communications/announcements',
-		domain: 'communications',
-		requiredRoles: ['employee'],
-		plannedPhase: '29',
-	},
-	{
-		id: 'team-overview',
-		title: 'Team Overview',
-		description: 'Review your direct and extended team.',
-		route: '/manager/team',
-		domain: 'employee',
-		requiredRoles: ['manager'],
-		requiredEntitlements: ['employee-core'],
-	},
-	{
-		id: 'leave-approvals',
-		title: 'Leave Approvals',
-		description: 'Review pending team leave requests.',
-		route: '/leave/approvals',
-		domain: 'leave',
-		requiredRoles: ['manager'],
-		requiredEntitlements: ['leave'],
-	},
-	{
-		id: 'hr-workforce',
-		title: 'Workforce Administration',
-		description: 'Manage workforce lifecycle operations.',
-		route: '/hr/workforce',
-		domain: 'employee',
-		requiredRoles: ['hr-operations'],
-		requiredEntitlements: ['employee-core'],
-	},
-	{
-		id: 'people-analytics',
-		title: 'People Analytics',
-		description: 'Analyse workforce trends and outcomes.',
-		route: '/analytics/people',
-		domain: 'analytics',
-		requiredRoles: ['analyst', 'tenant-admin', 'tenant-super-admin'],
-		requiredEntitlements: ['analytics'],
-	},
-	{
-		id: 'tenant-settings',
-		title: 'Tenant Configuration',
-		description: 'Configure HCM tenant behavior.',
-		route: '/administration/tenant',
-		domain: 'administration',
-		requiredRoles: ['tenant-admin', 'tenant-super-admin'],
-		requiredEntitlements: ['administration'],
-	},
-	{
-		id: 'theme-lab',
-		title: 'Theme Lab',
-		description: 'Validate HCM themes and UX foundations.',
-		route: '/ux/theme-lab',
-		domain: 'ux',
-		requiredRoles: ['tenant-super-admin'],
+		requiredFeatureFlags: ['shell-preview'],
 	},
 ]
 
-export const HCM_SPACES: readonly HcmSpaceDefinition[] = [
-	{
-		id: 'employee',
-		title: 'Employee',
-		description: 'Self-service, work queue, directory and communication.',
-		requiredRoles: ['employee'],
-		pages: [
-			{
-				id: 'employee-my-overview',
-				title: 'My Overview',
-				groups: [
-					{
-						id: 'employee-quick-actions',
-						title: 'Quick Actions',
-						featureIds: ['tasks-approvals', 'leave-apply', 'timesheet', 'expenses'],
-					},
-					{
-						id: 'employee-information-service',
-						title: 'Information and Service',
-						featureIds: [
-							'profile',
-							'hr-requests',
-							'notifications',
-							'directory',
-							'org-chart',
-							'announcements',
-						],
-					},
-				],
+export const HCM_SPACES: readonly HcmSpaceDefinition[] = HCM_CATALOGUE.spaces.map(
+	/** Preserve canonical Space, Page and Group order independently of source ownership. */ (
+		space,
+	) => ({
+		id: space.spaceId,
+		title: space.title,
+		description: space.description,
+		roleIds: HCM_CATALOGUE.businessRoles
+			.filter(
+				/** Resolve roles that place this Space in normal navigation. */ (role) =>
+					role.spaceIds.includes(space.spaceId),
+			)
+			.map(/** Retain stable role identity for placement only. */ (role) => role.roleId),
+		pages: space.pageIds.map(
+			/** Resolve a canonical Page and its group placements. */ (id) => {
+				const page = HCM_CATALOGUE.pages.find(
+					/** Locate the referenced Page metadata. */ (entry) => entry.pageId === id,
+				)
+				if (!page) throw new Error(`Unknown canonical page ${id}`)
+				return {
+					id,
+					title: page.title,
+					description: page.description,
+					groups: page.sections.map(
+						/** Translate canonical sections into existing group models. */ (section) => ({
+							id: section.sectionId,
+							title: section.title,
+							featureIds: section.appCodes,
+						}),
+					),
+				}
 			},
-		],
-	},
-	{
-		id: 'manager',
-		title: 'Manager',
-		description: 'Team leadership and approvals.',
-		requiredRoles: ['manager'],
-		pages: [
-			{
-				id: 'manager-overview',
-				title: 'Team Overview',
-				groups: [
-					{
-						id: 'manager-team',
-						title: 'My Team',
-						featureIds: ['team-overview', 'leave-approvals'],
-					},
-				],
-			},
-		],
-	},
-	{
-		id: 'hr-operations',
-		title: 'HR Operations',
-		description: 'Operational workforce administration.',
-		requiredRoles: ['hr-operations'],
-		pages: [
-			{
-				id: 'hr-operations-workforce',
-				title: 'Workforce',
-				groups: [
-					{
-						id: 'hr-workforce-group',
-						title: 'Workforce Operations',
-						featureIds: ['hr-workforce', 'directory', 'org-chart'],
-					},
-				],
-			},
-		],
-	},
-	{
-		id: 'analytics',
-		title: 'Analytics',
-		description: 'People and workforce insights.',
-		requiredRoles: ['analyst', 'tenant-admin', 'tenant-super-admin'],
-		pages: [
-			{
-				id: 'analytics-overview',
-				title: 'Analytics Overview',
-				groups: [
-					{
-						id: 'analytics-people-group',
-						title: 'People Analytics',
-						featureIds: ['people-analytics'],
-					},
-				],
-			},
-		],
-	},
-	{
-		id: 'administration',
-		title: 'Administration',
-		description: 'Tenant administration and UX validation.',
-		requiredRoles: ['tenant-admin', 'tenant-super-admin'],
-		pages: [
-			{
-				id: 'administration-overview',
-				title: 'Administration',
-				groups: [
-					{
-						id: 'administration-config',
-						title: 'Configuration',
-						featureIds: ['tenant-settings', 'theme-lab'],
-					},
-				],
-			},
-		],
-	},
-]
+		),
+	}),
+)

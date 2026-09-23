@@ -4,9 +4,13 @@ These decisions are intentionally not invented in the container foundation.
 
 ## ORM and database migration mechanism
 
-The PostgreSQL ORM/migration tool has not been selected yet.
+HCM has selected SQL-first PostgreSQL migrations and Kysely for typed queries; see
+the [HCM database strategy](../../hcm/architecture/DATABASE-STRATEGY.md).
+The runner, deployment orchestration and database adapters remain planned in
+[HCM-0](../../hcm/roadmap/HCM-0-AI-ENGINEERING-FACTORY.md). Account and Console
+persistence tooling is still undecided; the HCM choice does not select it for them.
 
-Until it is selected:
+For every product:
 
 - API containers must not run automatic schema migrations at startup.
 - production migrations must become a separate, auditable deployment step/job.

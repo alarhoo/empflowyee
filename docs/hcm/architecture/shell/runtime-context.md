@@ -1,16 +1,31 @@
-# HCM Runtime Context
+# Runtime Context
 
-The shell requires a single normalized runtime context before presenting the licensed/authorized experience.
+The HCM shell should expose one immutable/effectively read-only runtime context once ready.
 
-Current milestone uses fixture data. Future production bootstrap should resolve, in one server-owned transaction where practical:
+Conceptual sections:
 
-- validated tenant;
-- authenticated HCM principal;
-- employee/person reference;
-- effective roles/permissions;
-- tenant entitlements;
-- tenant branding/theme defaults;
-- user presentation preferences;
-- locale/timezone presentation configuration.
+```text
+RuntimeContext
+├── tenant
+├── user
+├── access
+│   ├── roles
+│   ├── permissions
+│   ├── entitlements
+│   └── featureFlags
+├── preferences
+├── branding
+└── session metadata
+```
 
-The browser hostname may identify a tenant candidate, but the server must validate tenant membership and session authorization.
+Features should consume narrow selectors/facades rather than mutate the context.
+
+Changes such as preference updates should go through explicit services/use cases and refresh/reconcile context deliberately.
+
+The implementation replaces the earlier fixture mutations with `ensureLoaded()` and `refresh()`. `context()` returns null until ready; `tenant()` and `preferences()` expose safe pre-auth presentation while loading the authenticated session. Responses are validated and recursively frozen. Tenant defaults and the independent branding overlay are carried inside `tenant`; the resolved preference selector applies user → tenant → platform per property, with `allowUserTheme` respected. There is no browser-persisted credential or editable access context.
+
+The presentation-only appearance service resolves a saved full variant or device mode
+without mutating runtime context. Global application navigation intents live in
+the runtime facade; Space/Page selection and rendering belong to the lazy launchpad.
+See [theme and locale resolution](THEME-LOCALE-RESOLUTION.md). The optional `user.email`
+comes from the session provider and is shown in the anchored profile dropdown.

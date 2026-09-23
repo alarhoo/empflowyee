@@ -1,17 +1,21 @@
-# Apply to the empFLOWyee repository
+# Apply to the empFLOWyee monorepo
 
-Extract this bundle over the repository root.
+Use the root [README](README.md#start-here) to prepare the existing Nx repository.
+The [installation report](docs/hcm/engineering/FACTORY-INSTALLATION-REPORT.md)
+records the integrated foundation. Preserve existing shell, theme and floorplan
+implementation and stronger current policies when updating factory material.
 
-Do not delete existing production libraries automatically. Treat existing Theme Lab/Storybook code as migration candidates and follow the cleanup plan in the TDD.
+Run:
 
-Recommended implementation order:
+```bash
+node tools/hcm-factory/validate-catalogue.mjs
+node tools/hcm-factory/materialize-hcm-structure.mjs
+node tools/hcm-factory/wave-context.mjs --wave=HCM-0
+node tools/hcm-factory/app-context.mjs --app=EMPLOYEE_DIRECTORY
+```
 
-1. Read `docs/hcm/fdd/FDD-HCM-UX-FOUNDATION-LAB.md`.
-2. Read `docs/hcm/tdd/TDD-HCM-UX-FOUNDATION-LAB.md`.
-3. Read the ADR and theme/control specs.
-4. Give Codex `CODEX-IMPLEMENTATION-PROMPT.md`.
-5. Implement the lab inside the existing HCM Angular app as a lazy feature.
-6. Run the acceptance criteria in `docs/hcm/ux/theme-lab/ACCEPTANCE-CRITERIA.md`.
-7. Only after this lab looks production quality should reusable floorplan libraries be extracted.
-
-The implementation must not create a new deployable app.
+The structure materializer validates metadata, creates empty planned directories
+and refreshes the generated map. It never creates Nx project configuration.
+See the [tool guide](tools/hcm-factory/README.md) for dry-run behavior and expected
+outputs, and [HCM-0 work breakdown](docs/hcm/roadmap/HCM-0-WORK-BREAKDOWN.md) for
+the next scoped PRs. Do not start business implementation from an unapproved context.

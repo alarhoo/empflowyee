@@ -1,0 +1,7 @@
+{
+  "hcm:catalogue:validate": "node tools/hcm-factory/validate-catalogue.mjs",
+  "hcm:app:context": "node tools/hcm-factory/app-context.mjs",
+  "hcm:wave:context": "node tools/hcm-factory/wave-context.mjs",
+  "hcm:structure:materialize": "node tools/hcm-factory/materialize-hcm-structure.mjs",
+  "hcm:structure:dry-run": "node tools/hcm-factory/materialize-hcm-structure.mjs --dry-run"
+}

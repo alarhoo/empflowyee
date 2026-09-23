@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "description": "Explicit ownership overrides for apps with multiple source phases. Operational facts may still come from source phases.",
+  "overrides": {
+    "ANNOUNCEMENTS": "29-engagement-and-wellbeing",
+    "MY_APPROVALS": "14-workflow-and-approvals",
+    "ASSET_UTILIZATION": "30-analytics-and-insights",
+    "COMPLIANCE_DASHBOARD": "30-analytics-and-insights",
+    "LEAVE_TRENDS": "30-analytics-and-insights",
+    "PERFORMANCE_INSIGHTS": "30-analytics-and-insights",
+    "PROJECT_UTILIZATION": "30-analytics-and-insights",
+    "SKILL_GAP_REPORT": "30-analytics-and-insights"
+  }
+}

@@ -30,11 +30,20 @@ Start with the [repository README](../README.md) for setup, application URLs, re
 
 ## HCM frontend milestone
 
-The [HCM index](hcm/README.md) and [Shell + Theme Lab maintainer guide](hcm/architecture/shell/README.md)
-document the implemented fixture, five library boundaries, theme controls, catalog,
-tests and troubleshooting. The [TDD](hcm/tdd/TDD-HCM-SHELL-THEME-LAB.md) records actual
-generator options and template adaptations. These source changes do not update the
-historical DEV deployment record until a release is promoted.
+The [engineering factory](hcm/engineering/AI-APP-FACTORY.md) adds canonical
+[app/launchpad metadata](hcm/catalogue/HCM-APP-CATALOGUE.md),
+[context/materialization tools](../tools/hcm-factory/README.md) and an
+[HCM-0 work breakdown](hcm/roadmap/HCM-0-WORK-BREAKDOWN.md). The
+[installation report](hcm/engineering/FACTORY-INSTALLATION-REPORT.md) distinguishes
+installed tooling from planned runtime/database work. Existing UX and shell
+requirements remain in force.
+
+The [HCM index](hcm/README.md) and [production shell guide](hcm/architecture/shell/README.md)
+document runtime bootstrap, library boundaries, access filtering, tests and
+production-adapter prerequisites. The [shell TDD](hcm/tdd/TDD-HCM-PRODUCTION-SHELL.md)
+and [UX workshop](hcm/ux/storybook.md) govern their respective implementations.
+Source changes do not update the historical DEV deployment record until a release
+is promoted.
 
 ## Architectural decisions
 

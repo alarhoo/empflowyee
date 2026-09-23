@@ -226,7 +226,7 @@ test('disables the lazy lab in PROD and when explicitly disabled', /** The route
 			'**/assets/config.json',
 			/** Supply an isolated runtime configuration without changing deployment files. */ (route) =>
 				route.fulfill({
-					json: { ...config, releaseId: 'test', apiBaseUrl: 'https://example.test/api' },
+					json: { ...config, releaseId: 'test', apiBaseUrl: '/api' },
 				}),
 		)
 		await page.goto('/ux/theme-lab')

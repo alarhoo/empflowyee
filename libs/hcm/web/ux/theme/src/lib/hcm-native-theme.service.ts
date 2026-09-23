@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common'
 import { Injectable, inject } from '@angular/core'
 import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js'
+import { boot } from '@ui5/webcomponents-base/dist/Boot.js'
 import { ThemingService } from '@fundamental-ngx/core/theming'
 
 // UI5 theme state is document-global, including across Angular/Storybook root remounts.
@@ -35,6 +36,10 @@ export class HcmNativeThemeService {
 	private async load(theme: 'sap_horizon' | 'sap_horizon_dark', generation: number): Promise<void> {
 		// Semantic edits and tenant accents do not require reloading an unchanged native base.
 		if (loadedThemes.get(this.document) === theme) return
+		// Finish initial UI5 asset application before selecting a saved variant.
+		// Otherwise an in-flight default light palette can overwrite the requested dark one.
+		await boot()
+		if (generation !== this.generation) return
 		await setTheme(theme)
 		if (generation !== this.generation) return
 		if (!this.fundamental.setTheme(theme)) throw new Error('Unsupported Fundamental theme')

@@ -1,66 +1,79 @@
-# HCM Shell and Theme Lab
+# Production HCM shell
 
-This guide supports developers and maintainers working on the first HCM frontend milestone. Architecture is defined in the [TDD](../../tdd/TDD-HCM-SHELL-THEME-LAB.md), [theme ADR](../../adr/ADR-0002-her-theme-as-horizon-overlay.md), and adjacent shell documents.
+The [production-shell TDD](../../tdd/TDD-HCM-PRODUCTION-SHELL.md) supersedes the earlier fixture shell. Its [HCM-0 addendum](../../tdd/TDD-HCM-0-LAUNCHPAD.md) defines the implemented catalogue launchpad and isolated local sessions. The application uses the existing theme engine and maintained native controls. No business feature or production sign-in adapter is included.
 
-## Current developer entry point
+## Ownership
 
-The [Foundation Lab v2 guide](../../ux/theme-lab/README.md) supersedes the old schematic lab, role-toggle playground and two-preview workflow. Use `pnpm dev:hcm --host=127.0.0.1` and open port **4302**, `/ux/theme-lab`. It has its own native ShellBar and Home/Demo/Settings tabs outside the business shell. Runtime configuration defaults it off in PROD.
+| Project                               | Responsibility                                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `hcm-runtime-contract`                | Universal discovery/session DTOs, response validation and preference precedence                 |
+| `hcm-web-runtime-context`             | Read-only signal context, HTTP bootstrap, explicit states, access facade and route guard        |
+| `hcm-web-navigation-catalog`          | Pure feature metadata, placements and capability filtering; never imports implementations       |
+| `hcm-web-shell`                       | Native chrome, status pages, Space/Page/Group navigation and theme/language/density composition |
+| `hcm-web-runtime-feature-placeholder` | Lazy native Page used to prove routing; no employee implementation                              |
+| `hcm-api-runtime-domain`              | Tenant/session ports, internal authority and exact Host normalization                           |
+| `hcm-api-runtime-application`         | Discovery allowlist, lifecycle, verified membership and expiry policies                         |
+| `hcm-api-runtime-infrastructure`      | Fail-closed adapters and isolated local tenant/persona infrastructure                           |
+| `hcm-api-runtime-transport`           | HTTP endpoints, request-scoped tenant context and sanitized correlation errors                  |
+| `hcm-api-runtime-module`              | Nest composition and exported request context for downstream HCM modules                        |
 
-The original business shell and catalog libraries remain in place at `/`. Their role/entitlement visibility rules remain separate from route authorization. Their fixture composition is described below for maintainers; the new lab no longer edits that runtime fixture.
+`apps/hcm/web` owns lazy feature imports. Its immediately deferred shell keeps native controls out of the initial application chunk without delaying local configuration initialization. A transient loading announcement is rendered while that chunk loads. Remote bootstrap starts after Angular initialization and is shared by shell and route guards.
 
-## Library map
+The canonical inventory supplies all 170 planned business applications across five
+Spaces and 20 Pages. Persona mode applies role placement plus explicit discovery
+permissions and tenant entitlements. Planned tiles remain visible and open one
+shared dialog. Search matches app title, code, domain and placement labels. The
+anchored profile dropdown exposes identity, email and server-advertised local
+controls. A separate native appearance menu selects Horizon Light/Dark, HER Light/Dark
+or Follow device, and persists that choice locally. The lazy navigation feature owns
+the launchpad; the global shell owns chrome and frames routed content.
+No valid MY_PROFILE implementation exists in this checkout, so it remains Planned.
 
-All five libraries were created with the official Nx Angular generator. Import from their public `src/index.ts` aliases.
+`runtime-workspace` at `/workspace` is a separate routing proof, outside the
+business launchpad. It requires `employee-core`, `employee.directory.read` and
+`shell-preview`; local personas receive no such business permissions. A denied
+direct route redirects to `/access-denied` before the lazy loader runs. Navigation
+visibility is never backend authorization.
 
-| Project / import suffix after `@empflowyee/` | Source from repository root         | Responsibility                                                                 |
-| -------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
-| `hcm-web-runtime-context`                    | `libs/hcm/web/runtime/context`      | Fixture tenant/principal data and explicit signal-store mutations              |
-| `hcm-web-navigation-catalog`                 | `libs/hcm/web/navigation/catalog`   | Pure Space → Page → Group → Feature definitions and visibility filtering |
-| `hcm-web-ux-theme`                           | `libs/hcm/web/ux/theme`             | Theme selection, native UI5 switching, semantic tokens and validated accents   |
-| `hcm-web-shell`                              | `libs/hcm/web/shell`                | Global chrome, visible catalog and preference composition                      |
-| `hcm-web-ux-feature-theme-lab`               | `libs/hcm/web/ux/feature-theme-lab` | Native Foundation Lab and retained independent story examples               |
+## Local operation
 
-```mermaid
-flowchart TD
-    App["hcm-web · thin application root"]
-    Shell["hcm-web-shell"]
-    Lab["hcm-web-ux-feature-theme-lab"]
-    Runtime["hcm-web-runtime-context"]
-    Catalog["hcm-web-navigation-catalog"]
-    Theme["hcm-web-ux-theme"]
-    App -->|"lazy shell"| Shell
-    App -->|"/ux/theme-lab · lazy routes"| Lab
-    Shell --> Runtime
-    Shell --> Catalog
-    Shell --> Theme
-    Lab --> Theme
-```
+Follow the root [developer setup](../../../../README.md#start-here). Run
+`pnpm dev:hcm --host=127.0.0.1` and `pnpm dev:hcm-api`, then open
+`http://acme.localhost:4302`. The proxy forwards `/api/**` to `127.0.0.1:4402`
+and preserves Host. The API launcher explicitly enables isolated local tenants
+and sessions; it rejects production/cloud/nonlocal configuration. Direct API
+startup without these flags retains the unconfigured adapters.
 
-The catalog receives role/entitlement identifier sets; it does not import the runtime store. The theme library does not import runtime context. The shell composes them, and the feature never imports the shell.
+The default Dunder Mifflin session is Jim Halpert (Employee). The native profile
+menu selects Michael Scott (Manager), Toby Flenderson (HR Operations) or David
+Wallace (Tenant Administrator). Reload restores Jim. **Inspect all applications**
+exposes all five Spaces without changing any route or backend permissions. Persona
+selection resets inspection and search, refreshes the normal runtime DTO and
+returns home. Tenant licensing stays constant across personas.
 
-## Theme lifecycle
+`HCM_LOCAL_TENANTS=true` and `HCM_LOCAL_SESSION=true` require
+`APP_ENVIRONMENT=local`, a non-production Node process, no Cloud Run `K_SERVICE`,
+and loopback request peers. Unknown personas are denied; session membership is
+restricted to Dunder Mifflin. The additional lifecycle hosts `trial.localhost`,
+`grace.localhost`, `suspended.localhost` and `deactivated.localhost` remain discovery
+fixtures and do not acquire that membership. Other hosts return 404.
 
-`apps/hcm/web/src/ui5-init.ts` registers core/Fiori assets and ignores Angular's `ef-` element prefix before Angular bootstrap. Global SCSS enters through the app stylesheet, outside component encapsulation.
+Set `HCM_LOCAL_SESSION=false` when starting the local launcher to exercise the
+normal authentication-required state. The session selection header is confined
+to the runtime facade; there are no feature-level development authorization
+branches, browser principal fixtures, stored tokens or mutable authentication
+endpoints. See the [accepted local-session ADR](../../adr/ADR-HCM-LOCAL-DEVELOPMENT-SESSION.md).
 
-```mermaid
-sequenceDiagram
-    participant Lab as Foundation Lab settings
-    participant Theme as Theme service
-    participant UI5 as Native UI5
-    participant DOM as Document tokens
-    Lab->>Theme: Select variant, semantic overrides or tenant accent
-    Theme->>UI5: Load native base only when changed
-    UI5-->>Theme: Native assets ready
-    Theme->>DOM: Clear owned inline tokens
-    Theme->>DOM: Apply HER semantics and independent tenant accent
-```
+## Production integration prerequisites
 
-Horizon uses native SAP parameters. HER keeps native Horizon controls and adds the supplied empFLOWyee surface palette. See [theming](theming.md) for the bridge parameter list, contrast behavior and source integrity requirement.
+Managed ingress must route `/api/*` to HCM API and preserve the tenant Host. Forwarded and X-Forwarded-Host headers are deliberately ignored until there is an explicitly reviewed trusted-proxy policy. An exact server-side hostname registration must resolve to an internal tenant identity. The request-scoped `HcmRequestTenantContext` resolves once and is the future input to RLS; no database/RLS implementation is introduced here.
 
-The new lab uses Signal Forms for disposable profile, request, branding and JSON drafts. These do not implement business transactions.
+Replace the unconfigured `TenantDirectory` with a real provisioning/persistence adapter and `HcmSessionReader` with verified server session resolution. The reader must check authenticity, revocation and membership; the application also checks expiry and tenant identity. Session cookies must be Secure, HttpOnly and use an appropriate SameSite policy. State-changing cookie APIs need explicit CSRF protection before introduction. No state-changing runtime endpoint exists in this milestone. The discovery adapter supplies an optional `/api/v1/auth/...` login path only when that boundary exists.
 
-## Validation and next milestone
+HCM `/assets/config.json` requires `apiBaseUrl: "/api"`. Container deployment must set `API_BASE_URL=/api` with the existing environment/release coordinates. Existing direct Cloud Run web/API topology is not activated by this source change; do not promote until ingress and real adapters are configured. No IAM or infrastructure policy was relaxed.
 
-Use the current [Foundation Lab validation commands](../../ux/theme-lab/README.md#validation-and-next-work). The [original validation record](validation.md) is historical evidence for the shell milestone, not acceptance of the new workspace. The [new acceptance record](../../ux/theme-lab/ACCEPTANCE-CRITERIA.md) tracks this milestone.
+## Presentation and verification
 
-The existing Storybook Dynamic/Object Page examples remain separate; no Storybook work is included in Foundation Lab v2. Human visual approval precedes extraction of new reusable patterns. Authentication, persistence and real employee transactions require their own FDD/TDD. See [next steps](../../../../NEXT-STEPS.md).
+`UX-FP-STANDARD-PAGE`, NATIVE mode, uses maintained UI5 Page/Bar/Title for status, catalog and placeholder content, plus ShellBar, Avatar, Button, BusyIndicator and MessageStrip. The application applies the shared 90rem canvas once. The shell composes the existing `HcmThemeService`, public UI5 language API and Fundamental density service. See [locale resolution](localization.md).
+
+Use the [test strategy](../../testing/HCM-SHELL-TEST-STRATEGY.md) and [validation record](../../testing/HCM-SHELL-VALIDATION.md). The independent [Foundation Lab](../../ux/theme-lab/README.md) and curated [Storybook](../../ux/storybook.md) remain available; this milestone introduces no reusable floorplan implementation or new canonical Storybook entry. Earlier [fixture-shell validation](validation.md) remains historical evidence only.

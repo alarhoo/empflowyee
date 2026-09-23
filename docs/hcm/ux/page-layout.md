@@ -5,6 +5,7 @@ Every screen needs a page container with a header and an optional footer. Use th
 ## Content ownership
 
 - Native Page supplies a `header` slot and optional `footer` slot. Project native Bar with a meaningful title and relevant page actions.
+- The launchpad has an approved shell-specific composition: native Space tabs occupy the Page header, with a meaningful current-page heading and description in the content introduction. See the [launchpad design](../tdd/TDD-HCM-0-LAUNCHPAD.md#launchpad-visual-refinement). Business screens retain the Bar/title rule.
 - Native DynamicPage supplies `titleArea`, optional collapsible `headerArea` and optional `footerArea`. UI5 owns header behavior, scrolling and footer placement.
 - `HcmObjectPage` provides title, actions, section templates and header regions. Set `showFooter` and project `[hcmFooter]` content when a feature needs a footer. The footer is shown only in the content state. The feature owns its actions and editability.
 - ToolPageLayout owns workspace navigation and its workspace header. Its content still needs a Page or a native FCL containing pages. A workspace header does not replace a column's page header.
@@ -15,9 +16,9 @@ The employee directory, leave list and project list use Page with title and sort
 
 ## Centered application canvas
 
-The shared `.hcm-app-canvas` class caps HCM at **90rem (1440px at the default root font size)** and centers it with equal logical margins. Responsive side gutters range from **0.5rem to 2rem**. The rule lives in `libs/hcm/web/ux/theme/src/lib/styles/_hcm-theme-layout.scss` and is applied to the HCM application root and Storybook theme frame.
+The shared `.hcm-app-canvas` class caps HCM content at **90rem (1440px at the default root font size)** and centers it with equal logical margins. Responsive side gutters range from **0.5rem to 2rem**. The rule lives in `libs/hcm/web/ux/theme/src/lib/styles/_hcm-theme-layout.scss` and is applied at the shell route-content boundary and Storybook theme frame. The application root and ShellBar remain full width.
 
-Apply this frame once. Nested pages and FCL columns use the available container width; do not repeat the maximum width or add independent outer gutters per feature. This keeps shell, navigation, headers, content and footer aligned on large displays. Phone content remains fluid within its small gutters. Other products retain their own UI architecture and layout decisions.
+Apply this frame once. Nested pages and FCL columns use the available container width; do not repeat the maximum width or add independent outer gutters per feature. For the approved launchpad full-bleed route, apply the frame to its content and align its Space labels with the same shared width rule. Its native Page, navigation surface and landscape remain full width. Other routes inherit the shell content frame. Phone content remains fluid within its small gutters. Other products retain their own UI architecture and layout decisions.
 
 Use native responsive behavior and public host sizing. Do not deep-style Shadow DOM internals or replace FCL with a CSS grid.
 

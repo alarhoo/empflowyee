@@ -50,6 +50,7 @@ for (const project of projects) {
 	const user = docker('image', 'inspect', '--format', '{{.Config.User}}', image)
 	assert.ok(user && user !== 'root' && user !== '0', 'Images must run as a non-root user')
 	for (const environment of ['dev', 'qa']) {
+		const apiBaseUrl = project === 'hcm-web' ? '/api' : `https://${environment}.example.test/api`
 		const port = deployable.runtime === 'angular-static' ? 8080 : 9090
 		const args = [
 			'run',
@@ -61,8 +62,7 @@ for (const project of projects) {
 			'--env',
 			`APP_ENVIRONMENT=${environment}`,
 		]
-		if (deployable.runtime === 'angular-static')
-			args.push('--env', `API_BASE_URL=https://${environment}.example.test/api`)
+		if (deployable.runtime === 'angular-static') args.push('--env', `API_BASE_URL=${apiBaseUrl}`)
 		const container = docker(...args, image)
 		try {
 			const address = docker('port', container, `${port}/tcp`)
@@ -76,7 +76,7 @@ for (const project of projects) {
 				assert.deepEqual(await response.json(), {
 					environment,
 					releaseId,
-					apiBaseUrl: `https://${environment}.example.test/api`,
+					apiBaseUrl,
 				})
 				const html = await (await fetch(`${baseUrl}/nested/route`)).text()
 				assert.ok(html.includes('<!doctype html>') || html.includes('<!DOCTYPE html>'))

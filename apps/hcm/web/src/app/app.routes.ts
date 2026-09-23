@@ -1,7 +1,7 @@
 import { inject } from '@angular/core'
 import type { Routes } from '@angular/router'
 import { RUNTIME_CONFIG } from '@empflowyee/platform-web-runtime-shell'
-import { isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-context'
+import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-context'
 
 export const appRoutes: Routes = [
 	{
@@ -16,10 +16,23 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'workspace',
+		data: { catalogId: 'runtime-workspace' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the guarded placeholder feature. */ () =>
+			import('@empflowyee/hcm-web-runtime-feature-placeholder').then(
+				/** Select the isolated feature component. */ (m) => m.HcmWebRuntimeFeaturePlaceholder,
+			),
+	},
+	{ path: 'access-denied', children: [] },
+	{
 		path: '',
 		pathMatch: 'full',
-		loadComponent: /** Keep ordinary HCM shell composition independent of the lab. */ () =>
-			import('@empflowyee/hcm-web-shell').then(/** Select the shell. */ (m) => m.HcmShellComponent),
+		data: { fullBleed: true },
+		loadComponent: /** Load the catalogue screen independently of global shell chrome. */ () =>
+			import('@empflowyee/hcm-web-navigation-feature-launchpad').then(
+				/** Select the navigation-owned launchpad. */ (m) => m.HcmLaunchpadComponent,
+			),
 	},
 	{ path: '**', redirectTo: '' },
 ]

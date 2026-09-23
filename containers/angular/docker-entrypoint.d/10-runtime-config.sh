@@ -12,6 +12,8 @@ case "$APP_ENVIRONMENT" in
 esac
 
 case "$APP_ENVIRONMENT:$API_BASE_URL" in
+  # HCM uses an exact same-origin path; browser parsers retain their product policies.
+  local:/api|dev:/api|qa:/api|prod:/api) ;;
   local:http://*|local:https://*|dev:https://*|qa:https://*|prod:https://*) ;;
   *) echo 'Invalid API_BASE_URL scheme' >&2; exit 1 ;;
 esac
@@ -31,7 +33,7 @@ jq -en \
   --arg apiBaseUrl "$API_BASE_URL" \
   --arg labEnabled "${HCM_THEME_LAB_ENABLED:-}" \
   'if ($releaseId | test("\\S")) and ($releaseId | length) <= 128
-      and ($apiBaseUrl | test("^https?://[^/?#@\\s]+(/[^?#\\s]*)?$"))
+      and (($apiBaseUrl == "/api") or ($apiBaseUrl | test("^https?://[^/?#@\\s]+(/[^?#\\s]*)?$")))
    then {environment:$environment,releaseId:$releaseId,apiBaseUrl:$apiBaseUrl}
      + (if $labEnabled == "" then {} else {hcmThemeLabEnabled:($labEnabled == "true")} end)
    else error("Invalid public runtime configuration") end' \

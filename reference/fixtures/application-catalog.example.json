@@ -1,0 +1,30 @@
+{
+  "spaces": [
+    {
+      "id": "space.employee",
+      "title": "Employee",
+      "pages": [
+        {
+          "id": "page.employee.my-overview",
+          "title": "My Overview",
+          "groups": [
+            {
+              "id": "group.employee.information-service",
+              "title": "Information and Service",
+              "features": [
+                {
+                  "id": "feature.employee.my-profile",
+                  "title": "My Profile",
+                  "route": "/employee/my-profile",
+                  "requiredEntitlements": ["employee-core"],
+                  "requiredPermissions": ["employee.profile.read.self"],
+                  "featureFlag": null
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

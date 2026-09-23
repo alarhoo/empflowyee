@@ -1,0 +1,383 @@
+{
+  "schemaVersion": "1.0.0",
+  "domains": [
+    {
+      "domain": "access-control",
+      "deliveryWaves": [
+        "HCM-1"
+      ],
+      "apps": [
+        "ACCESS_ASSIGNMENTS",
+        "APP_CATALOGUE_CONFIGURATION",
+        "ROLE_MANAGEMENT",
+        "TENANT_ACCESS_REVIEWS"
+      ]
+    },
+    {
+      "domain": "analytics",
+      "deliveryWaves": [
+        "HCM-9"
+      ],
+      "apps": [
+        "ASSET_UTILIZATION",
+        "ATTENDANCE_REPORT",
+        "ATTRITION_DASHBOARD",
+        "BENEFITS_COST_ANALYSIS",
+        "COMPENSATION_ANALYSIS",
+        "COMPLIANCE_DASHBOARD",
+        "EXPENSE_ANALYSIS",
+        "HEADCOUNT_ANALYSIS",
+        "HIRING_FUNNEL",
+        "HR_ANALYTICS",
+        "LEAVE_TRENDS",
+        "ONBOARDING_METRICS",
+        "PAYROLL_SUMMARY",
+        "PERFORMANCE_INSIGHTS",
+        "PROJECT_UTILIZATION",
+        "REPORT_BUILDER",
+        "SKILL_GAP_REPORT",
+        "TIMESHEET_COMPLIANCE",
+        "TRAINING_EFFECTIVENESS"
+      ]
+    },
+    {
+      "domain": "assets",
+      "deliveryWaves": [
+        "HCM-8"
+      ],
+      "apps": [
+        "ASSET_ADMINISTRATION",
+        "ASSET_CATEGORIES",
+        "ASSET_MAINTENANCE",
+        "MY_ASSETS"
+      ]
+    },
+    {
+      "domain": "attendance",
+      "deliveryWaves": [
+        "HCM-3"
+      ],
+      "apps": [
+        "APPROVE_ATTENDANCE",
+        "ATTENDANCE_CORRECTIONS",
+        "ATTENDANCE_MANAGEMENT",
+        "HOLIDAY_CALENDARS",
+        "MY_ATTENDANCE",
+        "MY_SCHEDULE",
+        "SHIFT_PLANNING",
+        "TEAM_ATTENDANCE",
+        "WORK_SCHEDULES",
+        "WORK_SCHEDULE_TEMPLATES"
+      ]
+    },
+    {
+      "domain": "audit",
+      "deliveryWaves": [
+        "HCM-1"
+      ],
+      "apps": [
+        "AUDIT_LOG",
+        "DATA_EXPORT_LOG",
+        "MY_ACTIVITY",
+        "SENSITIVE_ACCESS_LOG"
+      ]
+    },
+    {
+      "domain": "compensation-benefits",
+      "deliveryWaves": [
+        "HCM-6"
+      ],
+      "apps": [
+        "BENEFIT_CATALOGUE",
+        "BENEFIT_PROGRAMS",
+        "COMPENSATION_COMPONENTS",
+        "COMPENSATION_CYCLES",
+        "MY_BENEFITS",
+        "MY_COMPENSATION",
+        "SALARY_REVISIONS"
+      ]
+    },
+    {
+      "domain": "documents",
+      "deliveryWaves": [
+        "HCM-1"
+      ],
+      "apps": [
+        "DOCUMENT_REQUESTS",
+        "DOCUMENT_TEMPLATES",
+        "DOCUMENT_TYPES",
+        "EMPLOYEE_DOCUMENTS",
+        "MY_DOCUMENTS"
+      ]
+    },
+    {
+      "domain": "employee",
+      "deliveryWaves": [
+        "HCM-2"
+      ],
+      "apps": [
+        "EMPLOYEE_DIRECTORY",
+        "EMPLOYEE_IMPORT",
+        "EMPLOYEE_PROFILE_CONFIGURATION",
+        "EMPLOYEE_RECORDS",
+        "EMPLOYMENT_CHANGES",
+        "HR_SERVICE_DESK",
+        "MY_HR_REQUESTS",
+        "MY_PROFILE",
+        "PROBATION_MANAGEMENT",
+        "PROBATION_REVIEW",
+        "TEAM_DIRECTORY"
+      ]
+    },
+    {
+      "domain": "engagement",
+      "deliveryWaves": [
+        "HCM-8"
+      ],
+      "apps": [
+        "ANNOUNCEMENTS",
+        "ANNOUNCEMENT_MANAGEMENT",
+        "ENGAGEMENT_SURVEYS",
+        "GIVE_RECOGNITION",
+        "RECOGNITION",
+        "RECOGNITION_PROGRAMS",
+        "SURVEYS"
+      ]
+    },
+    {
+      "domain": "expenses",
+      "deliveryWaves": [
+        "HCM-6"
+      ],
+      "apps": [
+        "APPROVE_EXPENSES",
+        "EXPENSE_ADMINISTRATION",
+        "EXPENSE_POLICIES",
+        "MY_EXPENSES",
+        "MY_TRAVEL_ADVANCES",
+        "REIMBURSEMENT_RUNS",
+        "TEAM_EXPENSES",
+        "TRAVEL_ADVANCE_ADMIN"
+      ]
+    },
+    {
+      "domain": "governance",
+      "deliveryWaves": [
+        "HCM-8"
+      ],
+      "apps": [
+        "COMPLIANCE_TRACKING",
+        "DATA_RIGHTS_REQUESTS",
+        "POLICY_ACKNOWLEDGEMENTS",
+        "POLICY_MANAGEMENT",
+        "RETENTION_POLICIES"
+      ]
+    },
+    {
+      "domain": "identity-access",
+      "deliveryWaves": [
+        "HCM-1"
+      ],
+      "apps": [
+        "ACTIVE_SESSIONS",
+        "API_CREDENTIALS",
+        "DOMAIN_CONFIGURATION",
+        "IDENTITY_ADMINISTRATION",
+        "MY_SECURITY",
+        "SECURITY_POLICIES",
+        "SSO_CONFIGURATION"
+      ]
+    },
+    {
+      "domain": "job-architecture",
+      "deliveryWaves": [
+        "HCM-2"
+      ],
+      "apps": [
+        "JOB_CATALOGUE",
+        "POSITIONS",
+        "POSITION_REQUIREMENTS"
+      ]
+    },
+    {
+      "domain": "learning",
+      "deliveryWaves": [
+        "HCM-7"
+      ],
+      "apps": [
+        "LEARNING_PATHS",
+        "LEARNING_PROGRAMS",
+        "MY_LEARNING",
+        "TEAM_LEARNING"
+      ]
+    },
+    {
+      "domain": "leave",
+      "deliveryWaves": [
+        "HCM-3"
+      ],
+      "apps": [
+        "APPLY_LEAVE",
+        "APPROVE_LEAVES",
+        "COMP_OFF_ADMINISTRATION",
+        "COMP_OFF_ENCASHMENT",
+        "LEAVE_ADMINISTRATION",
+        "LEAVE_BALANCE",
+        "LEAVE_ENCASHMENT",
+        "LEAVE_POLICIES",
+        "TEAM_CALENDAR"
+      ]
+    },
+    {
+      "domain": "notifications",
+      "deliveryWaves": [
+        "HCM-1"
+      ],
+      "apps": [
+        "EMAIL_SENDER_CONFIGURATION",
+        "MY_NOTIFICATIONS",
+        "MY_NOTIFICATION_PREFERENCES",
+        "NOTIFICATION_RULES",
+        "NOTIFICATION_TEMPLATES",
+        "OUTBOUND_WEBHOOKS"
+      ]
+    },
+    {
+      "domain": "offboarding",
+      "deliveryWaves": [
+        "HCM-5"
+      ],
+      "apps": [
+        "ALUMNI_MANAGEMENT",
+        "FINAL_SETTLEMENTS",
+        "MY_EXIT",
+        "OFFBOARDING_OPERATIONS",
+        "REFERENCE_LETTERS",
+        "TEAM_OFFBOARDING"
+      ]
+    },
+    {
+      "domain": "onboarding",
+      "deliveryWaves": [
+        "HCM-5"
+      ],
+      "apps": [
+        "MY_ONBOARDING",
+        "ONBOARDING_OPERATIONS",
+        "TASK_TEMPLATES",
+        "TEAM_ONBOARDING"
+      ]
+    },
+    {
+      "domain": "payroll",
+      "deliveryWaves": [
+        "HCM-6"
+      ],
+      "apps": [
+        "MY_PAYSLIPS",
+        "MY_TAX_DECLARATIONS",
+        "MY_TAX_DOCUMENTS",
+        "PAYROLL_COMPLIANCE",
+        "PAYROLL_INPUTS",
+        "PAYROLL_RUNS",
+        "TAX_DECLARATION_ADMIN"
+      ]
+    },
+    {
+      "domain": "performance",
+      "deliveryWaves": [
+        "HCM-7"
+      ],
+      "apps": [
+        "GIVE_FEEDBACK",
+        "INITIATE_PIP",
+        "MY_GOALS",
+        "MY_PERFORMANCE",
+        "MY_PIP",
+        "PERFORMANCE_CYCLES",
+        "PERF_REVIEW",
+        "PIP_MANAGEMENT",
+        "TEAM_GOALS"
+      ]
+    },
+    {
+      "domain": "projects",
+      "deliveryWaves": [
+        "HCM-4"
+      ],
+      "apps": [
+        "ASSIGN_PROJECTS",
+        "CLIENT_MANAGEMENT",
+        "MY_PROJECTS",
+        "PROJECT_DATA_IMPORT",
+        "PROJECT_MANAGEMENT",
+        "TEAM_UTILIZATION",
+        "UTILIZATION_POLICIES"
+      ]
+    },
+    {
+      "domain": "recruitment",
+      "deliveryWaves": [
+        "HCM-5"
+      ],
+      "apps": [
+        "BACKGROUND_CHECKS",
+        "CANDIDATE_PIPELINE",
+        "EMPLOYEE_REFERRALS",
+        "INTERVIEW_OPERATIONS",
+        "INTERVIEW_PANEL",
+        "JOB_REQUISITIONS",
+        "OFFER_MANAGEMENT",
+        "REFERRAL_MANAGEMENT"
+      ]
+    },
+    {
+      "domain": "skills",
+      "deliveryWaves": [
+        "HCM-7"
+      ],
+      "apps": [
+        "COMPETENCY_CATALOGUE",
+        "MY_SKILLS",
+        "SKILLS_CATALOGUE",
+        "TEAM_SKILLS"
+      ]
+    },
+    {
+      "domain": "timesheet",
+      "deliveryWaves": [
+        "HCM-4"
+      ],
+      "apps": [
+        "APPROVE_TIMESHEETS",
+        "MY_TIMESHEET",
+        "TEAM_TIMESHEET",
+        "TIMESHEET_ADMINISTRATION",
+        "TIMESHEET_POLICIES"
+      ]
+    },
+    {
+      "domain": "workflow",
+      "deliveryWaves": [
+        "HCM-3"
+      ],
+      "apps": [
+        "MY_APPROVALS",
+        "MY_TASKS",
+        "WORKFLOW_DEFINITIONS",
+        "WORKFLOW_OPERATIONS"
+      ]
+    },
+    {
+      "domain": "workforce-foundation",
+      "deliveryWaves": [
+        "HCM-2"
+      ],
+      "apps": [
+        "IDENTIFICATION_TYPES",
+        "LOOKUP_VALUES",
+        "ORG_CHART"
+      ]
+    }
+  ]
+}

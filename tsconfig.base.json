@@ -48,6 +48,25 @@
 			],
 			"@empflowyee/hcm-web-ux-floorplan-tool-page-layout": [
 				"./libs/hcm/web/ux/floorplans/tool-page-layout/src/index.ts"
+			],
+			"@empflowyee/hcm-runtime-contract": ["./libs/hcm/contracts/runtime/src/index.ts"],
+			"@empflowyee/hcm-runtime-contract/catalogue": [
+				"./libs/hcm/contracts/runtime/src/catalogue.ts"
+			],
+			"@empflowyee/hcm-api-runtime-domain": ["./libs/hcm/api/runtime/domain/src/index.ts"],
+			"@empflowyee/hcm-api-runtime-application": [
+				"./libs/hcm/api/runtime/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-runtime-infrastructure": [
+				"./libs/hcm/api/runtime/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-runtime-transport": ["./libs/hcm/api/runtime/transport/src/index.ts"],
+			"@empflowyee/hcm-api-runtime-module": ["./libs/hcm/api/runtime/module/src/index.ts"],
+			"@empflowyee/hcm-web-runtime-feature-placeholder": [
+				"./libs/hcm/web/runtime/feature-placeholder/src/index.ts"
+			],
+			"@empflowyee/hcm-web-navigation-feature-launchpad": [
+				"./libs/hcm/web/navigation/feature-launchpad/src/index.ts"
 			]
 		}
 	},

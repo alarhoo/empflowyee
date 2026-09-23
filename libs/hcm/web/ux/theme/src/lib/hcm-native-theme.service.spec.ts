@@ -2,6 +2,15 @@ import { TestBed } from '@angular/core/testing'
 import { ThemingService } from '@fundamental-ngx/core/theming'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { HcmNativeThemeService } from './hcm-native-theme.service'
+import { boot } from '@ui5/webcomponents-base/dist/Boot.js'
+import { setTheme as setUi5Theme } from '@ui5/webcomponents-base/dist/config/Theme.js'
+
+vi.mock(
+	'@ui5/webcomponents-base/dist/Boot.js',
+	/** Control initial native asset startup. */ () => ({
+		boot: vi.fn().mockResolvedValue(undefined),
+	}),
+)
 
 vi.mock(
 	'@ui5/webcomponents-base/dist/config/Theme.js',
@@ -27,11 +36,38 @@ describe('HcmNativeThemeService', /** Verify failed assets and discarded roots c
 			TestBed.resetTestingModule()
 			for (const id of ids) document.getElementById(id)?.remove()
 			setTheme.mockClear()
+			vi.mocked(setUi5Theme).mockClear()
 			TestBed.configureTestingModule({
 				providers: [{ provide: ThemingService, useValue: { setTheme } }],
 			})
 		},
 	)
+	it('waits for UI5 startup before selecting the saved dark palette', /** Prevent the initial light asset load from racing and overwriting an applied preference. */ async () => {
+		let finishBoot!: () => void
+		vi.mocked(boot).mockImplementationOnce(
+			/** Hold the default native palette in flight. */ () =>
+				new Promise<void>(
+					/** Expose startup completion to the test. */ (resolve) => {
+						finishBoot = resolve
+					},
+				),
+		)
+		const service = TestBed.inject(HcmNativeThemeService)
+		const applied = service.apply('sap_horizon_dark')
+		await vi.waitFor(
+			/** Ensure startup has been requested. */ () => expect(finishBoot).toBeDefined(),
+		)
+		expect(setUi5Theme).not.toHaveBeenCalled()
+		finishBoot()
+		await vi.waitFor(
+			/** Observe native theme selection after startup. */ () =>
+				expect(setTheme).toHaveBeenCalledOnce(),
+		)
+		for (const id of ids) document.getElementById(id)?.dispatchEvent(new Event('load'))
+		await applied
+		expect(setUi5Theme).toHaveBeenCalledWith('sap_horizon_dark')
+		service.clear()
+	})
 	it('waits for a changed href even while the browser retains its previous stylesheet', /** Firefox must not expose an applied marker while its native palette is still loading. */ async () => {
 		setTheme.mockImplementationOnce(
 			/** Simulate retained old sheets during a native theme URL change. */ () => {
