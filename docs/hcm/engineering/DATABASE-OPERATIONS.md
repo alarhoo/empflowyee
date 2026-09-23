@@ -29,6 +29,27 @@ existing tenant/session HTTP regressions.
 
 ## Provision a dedicated local database
 
+For a persistent Docker-managed local instance, run the explicit provisioning command:
+
+```sh
+pnpm hcm:db:up
+```
+
+It starts `empflowyee-hcm-postgres` on `127.0.0.1:55432`, using the named volume
+`empflowyee-hcm-postgres-data`, then explicitly applies current migrations and seeds.
+It manages only its own labeled resources. Reruns retain data and report zero changes
+when up to date. The container restarts with Docker; ordinary API startup still
+never provisions, migrates or seeds.
+
+Random local credentials are stored in `.local/hcm/database.json`, restricted to
+the current OS user and excluded from Git and Docker build contexts. Preserve this
+file along with the volume; if resources exist but credentials are missing, the
+command fails rather than deleting/recreating data. No database reset is implicit.
+This does not yet populate workforce tables or replace the current runtime adapters.
+
+The following administrator procedure remains available for a separately managed
+dedicated local PostgreSQL instance.
+
 On a new, dedicated PostgreSQL instance, have an administrator set
 `HCM_MIGRATOR_PASSWORD` and `HCM_RUNTIME_PASSWORD` in their process environment
 using secure, distinct values. Configure psql's normal connection settings for

@@ -53,6 +53,7 @@ separately in [DEV deployment](docs/platform/engineering/dev-deployment.md).
 HCM0-02 supplies the SQL migration runner, restricted PostgreSQL roles and verified
 tenant-scoped Kysely transactions. Run `pnpm hcm:db:test` with Docker running to
 verify against a disposable database. See [database operations](docs/hcm/engineering/DATABASE-OPERATIONS.md)
+for `pnpm hcm:db:up`, which provisions persistent local PostgreSQL on port 55432, and
 for explicit provisioning/migration commands. API startup never migrates; domain
 tables and production Cloud SQL deployment remain future work. HCM0-03 adds
 the [versioned development seed framework](docs/hcm/engineering/DEVELOPMENT-SEEDS.md):

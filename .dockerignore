@@ -1,6 +1,7 @@
 .git
 .github
 .tmp
+.local
 .container-output
 **/node_modules
 **/dist
