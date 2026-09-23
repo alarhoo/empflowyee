@@ -80,6 +80,12 @@ Run `pnpm hcm:app:readiness --app=APP_CODE --check` before implementing a busine
 app. All 170 current apps remain planned and blocked pending their real designs;
 passing catalogue validation alone is not approval.
 
+HCM-1 preparation now has a [local delivery proposal](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md)
+covering all 26 wave apps: 20 proposed local capabilities and six deferred apps.
+Production authentication and external integrations are excluded from this phase.
+The [business decisions and staged-readiness exception](docs/hcm/roadmap/HCM-1-DECISIONS.md)
+remain under review; no HCM-1 business implementation is claimed.
+
 ```sh
 pnpm hcm:catalogue:validate
 pnpm hcm:structure:materialize

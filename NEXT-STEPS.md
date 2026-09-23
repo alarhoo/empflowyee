@@ -19,8 +19,9 @@ implemented with app/wave context reports, adversarial tests and CI enforcement 
 apps claiming approval or implementation. All 170 planned apps still require their
 own reviewed designs before implementation.
 
-1. Prepare HCM-1 app/domain designs and blueprints; resolve business blockers and run the readiness gate before implementing each slice.
-2. Extend domain-owned Dunder Mifflin seed modules only alongside approved domain migrations; the minimal workforce identity spine is already populated.
-3. Design production authentication and database deployment separately; local runtime success does not approve either deployment boundary.
-4. Implement admitted HCM-1 domain/app slices one at a time, preserving real-data and tenant-isolation requirements.
-5. Finalize HCM-2 FDD/TDD set and use Employee Directory as the first from-zero reference business app.
+1. Resolve the [HCM-1 local-stage decisions](docs/hcm/roadmap/HCM-1-DECISIONS.md) against the [concrete scope proposal](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md). Production authentication and external integrations are deferred. The proposed staged-readiness exception is not yet approved.
+2. Prepare and review the approved stage's app/domain designs and blueprints before implementation; retain the full-wave gate for eventual HCM-1 completion.
+3. Extend domain-owned Dunder Mifflin seed modules only alongside approved domain migrations; the minimal workforce identity spine is already populated.
+4. Design production authentication and database deployment separately; local runtime success does not approve either deployment boundary.
+5. Implement admitted HCM-1 domain/app slices one at a time, preserving real-data and tenant-isolation requirements.
+6. Finalize HCM-2 FDD/TDD set and use Employee Directory as the first from-zero reference business app.
