@@ -1,0 +1,174 @@
+<ef-hcm-dynamic-page
+	title="Role Management"
+	summary="Manage tenant roles and registered permissions"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="open('create')"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		accessibleName="Role filters"
+		accessibleMode="Edit"
+		layout="S1 M2 L4 XL4">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="roles-query">
+				Role name
+			</ui5-label>
+			<ui5-input
+				id="roles-query"
+				accessibleName="Search role names"
+				type="Search"
+				[formField]="filterForm.q"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="roles-type">
+				Role type
+			</ui5-label>
+			<ui5-select
+				id="roles-type"
+				accessibleName="Role type"
+				[formField]="filterForm.systemRole">
+				<ui5-option value="">All roles</ui5-option>
+				<ui5-option value="true">System roles</ui5-option>
+				<ui5-option value="false">Custom roles</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="roles-sort">
+				Sort
+			</ui5-label>
+			<ui5-select
+				id="roles-sort"
+				accessibleName="Role sort order"
+				[formField]="filterForm.sort">
+				<ui5-option value="label:asc">Name ascending</ui5-option>
+				<ui5-option value="label:desc">Name descending</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-button
+				[disabled]="busy()"
+				(click)="load()">
+				Apply filters
+			</ui5-button>
+		</ui5-form-item>
+	</ui5-form>
+	@if (notice()) {
+		<ui5-message-strip
+			[hideCloseButton]="true"
+			design="Positive">
+			{{ notice() }}
+		</ui5-message-strip>
+	}
+	@if (message()) {
+		<ui5-message-strip
+			[hideCloseButton]="true"
+			design="Negative">
+			{{ message() }}
+		</ui5-message-strip>
+	}
+	<ui5-table
+		accessibleName="Tenant roles"
+		overflowMode="Popin"
+		noDataText="No roles match these filters"
+		[loading]="busy()">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem">
+				Role
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="80"
+				minWidth="9rem"
+				popinText="Status">
+				Status
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="7rem"
+				popinText="Permissions">
+				Permissions
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="20"
+				minWidth="7rem"
+				popinText="Assignees">
+				Assignees
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="10"
+				minWidth="6rem"
+				popinText="Revision">
+				Revision
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="90"
+				minWidth="15rem"
+				popinText="Actions">
+				Actions
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (row of rows(); track row.id) {
+			<ui5-table-row [rowKey]="row.id">
+				<ui5-table-cell>{{ row.label }}</ui5-table-cell>
+				<ui5-table-cell>
+					{{
+						row.protectedAdmin
+							? 'Protected administrator'
+							: row.systemRole
+								? 'System role'
+								: 'Custom role'
+					}}
+				</ui5-table-cell>
+				<ui5-table-cell>{{ row.permissionCount }}</ui5-table-cell>
+				<ui5-table-cell>{{ row.assigneeCount }}</ui5-table-cell>
+				<ui5-table-cell>{{ row.revision }}</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-button
+						[accessibleName]="'View ' + row.label"
+						[disabled]="busy()"
+						(click)="open('view', row)">
+						View
+					</ui5-button>
+					@if (canManage() && !row.systemRole) {
+						<ui5-button
+							[accessibleName]="'Edit ' + row.label"
+							[disabled]="busy()"
+							(click)="open('update', row)">
+							Edit
+						</ui5-button>
+						<ui5-button
+							[accessibleName]="'Delete ' + row.label"
+							[disabled]="busy() || row.assigneeCount > 0"
+							(click)="open('delete', row)">
+							Delete
+						</ui5-button>
+					}
+				</ui5-table-cell>
+			</ui5-table-row>
+		}
+		@if (cursor()) {
+			<ui5-table-growing
+				slot="features"
+				mode="Button"
+				text="Load more roles"
+				(ui5LoadMore)="more()"></ui5-table-growing>
+		}
+	</ui5-table>
+</ef-hcm-dynamic-page>
+@if (edit(); as editing) {
+	<ef-hcm-role-editor
+		[edit]="editing"
+		[options]="permissions()"
+		(saved)="saved()"
+		(closed)="closeEditor()"></ef-hcm-role-editor>
+}

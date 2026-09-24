@@ -19,7 +19,7 @@ implemented with app/wave context reports, adversarial tests and CI enforcement 
 apps claiming approval or implementation. The 20 approved HCM-1 local apps now
 pass their document admission gates; remaining planned apps require their own designs.
 
-1. Deliver Role Management on its own feature branch after the completed [access/audit foundation](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md). The [20-app approval](docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md) is recorded against the reviewed document hashes.
+1. Review the completed [Role Management slice](docs/hcm/testing/HCM-1-ROLE-MANAGEMENT-VALIDATION.md), then deliver Access Assignments and Identity Administration on their next granular feature branch. The [access/audit foundation](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md) and [20-app approval](docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md) are in place.
 2. Follow the [local implementation order](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md), one coherent app/domain slice at a time. Each slice requires API/RLS, native UI, real-browser acceptance and review gates before becoming Available.
 3. Extend domain-owned seed modules with forward migrations; never rewrite applied HCM-0 or HCM-1 versions. The persistent local database now includes the business permission register and protected development roles.
 4. Keep the six deferred apps Planned. Production authentication and external integrations require separate approved designs.

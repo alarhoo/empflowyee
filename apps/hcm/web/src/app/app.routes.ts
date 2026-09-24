@@ -5,6 +5,20 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'access-control/role-management',
+		data: { catalogId: 'ROLE_MANAGEMENT' },
+		canMatch: [hcmRouteAccess],
+		canDeactivate: [
+			/** Preserve dirty role drafts before navigation or persona replacement. */ (component: {
+				canLeave: () => Promise<boolean>
+			}) => component.canLeave(),
+		],
+		loadComponent: /** Lazy-load the domain-owned screen. */ () =>
+			import('@empflowyee/hcm-web-access-control-feature-role-management').then(
+				/** Select only the admitted role feature. */ (module) => module.RoleManagementComponent,
+			),
+	},
+	{
 		path: 'ux/theme-lab',
 		canMatch: [
 			/** Gate lazy loading with public configuration; this is not authorization. */ () =>

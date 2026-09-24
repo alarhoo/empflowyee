@@ -1,6 +1,6 @@
 # ADR: isolated local HCM development sessions
 
-Status: accepted for the explicitly requested HCM-0 local-development milestone.
+Status: accepted for HCM-0; extended for the approved HCM-1 local business stage.
 
 ## Decision
 
@@ -17,8 +17,12 @@ Dunder Mifflin development tenant. Default session is Jim Halpert. Approved seed
 modules persist the Jim, Michael, Toby and David personas and their accounts/grants;
 the API queries them on each session read. A client cannot submit
 permissions, entitlements or a tenant identity. An optional
-`X-HCM-Development-Persona` header selects an allowlisted persona for a read-only
-runtime request. Unknown selections are denied. There is no cookie mutation,
+`X-HCM-Development-Persona` header selects an allowlisted persona through the existing runtime contract.
+HCM-1 business requests use the same verified context and re-read current database
+authority inside their transaction. Local writes require the exact configured
+`HCM_LOCAL_WRITE_ORIGIN`, JSON content type and same-origin fetch metadata when
+present. The launcher defaults the origin to `http://acme.localhost:4302`; a different
+local browser origin must be configured explicitly. Unknown selections are denied. There is no cookie mutation,
 login endpoint, token persistence or production authentication in this milestone.
 
 The existing session DTO is returned. Its optional `development` presentation
@@ -48,3 +52,14 @@ Test explicit activation, prohibited environments, non-loopback peers, unknown
 personas, wrong tenants, absence of production activation, capability filtering,
 all-catalogue inspection and direct-route denial. Verify the real local API and
 browser together, without intercepted authentication responses.
+
+## HCM-1 extension
+
+The [implementation approval](../roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md) and
+[shared transaction contract](../tdd/TDD-HCM-1-LOCAL-COMMON.md#auth) authorize local
+business commands without introducing another authentication provider. The existing
+loopback peer, environment and tenant checks remain mandatory. A runtime-owned
+browser interceptor scopes persona propagation to same-origin HCM API requests;
+features never implement persona-specific authorization. Origin checks mitigate
+cross-origin browser writes, not an authorized local process selecting a persona.
+Production authentication and external integrations remain deferred.

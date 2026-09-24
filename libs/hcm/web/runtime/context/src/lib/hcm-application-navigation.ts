@@ -36,7 +36,7 @@ export class HcmApplicationNavigation {
 		this.inspectAll.set(false)
 		this.query.set('')
 		this.unavailable.set(null)
-		await this.router.navigateByUrl('/')
+		if (this.router.url !== '/' && !(await this.router.navigateByUrl('/'))) return
 		await this.runtime.selectDevelopmentPersona(id)
 	}
 }

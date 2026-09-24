@@ -11,6 +11,9 @@ if (
 )
 	throw new Error('The local HCM launcher cannot run in a deployed environment')
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+const args = process.argv.slice(2)
+if (args.length > 1 || (args.length === 1 && args[0] !== '--no-watch'))
+	throw new Error('Usage: start-local-api.mjs [--no-watch]')
 let databaseUrl = process.env.HCM_DATABASE_URL
 if (!databaseUrl) {
 	try {
@@ -27,19 +30,24 @@ if (!databaseUrl) {
 const require = createRequire(import.meta.url)
 const nxPackage = require('nx/package.json')
 const nxCli = path.resolve(path.dirname(require.resolve('nx/package.json')), nxPackage.bin.nx)
-const child = spawn(process.execPath, [nxCli, 'serve', 'hcm-api'], {
-	cwd: root,
-	stdio: 'inherit',
-	env: {
-		...process.env,
-		APP_ENVIRONMENT: 'local',
-		NODE_ENV: 'development',
-		HCM_DATABASE_URL: databaseUrl,
-		HCM_LOCAL_TENANTS: 'true',
-		HCM_LOCAL_SESSION: process.env.HCM_LOCAL_SESSION ?? 'true',
-		PORT: process.env.PORT ?? '4402',
+const child = spawn(
+	process.execPath,
+	[nxCli, 'serve', 'hcm-api', ...(args.length ? ['--watch=false'] : [])],
+	{
+		cwd: root,
+		stdio: 'inherit',
+		env: {
+			...process.env,
+			APP_ENVIRONMENT: 'local',
+			NODE_ENV: 'development',
+			HCM_DATABASE_URL: databaseUrl,
+			HCM_LOCAL_TENANTS: 'true',
+			HCM_LOCAL_WRITE_ORIGIN: process.env.HCM_LOCAL_WRITE_ORIGIN ?? 'http://acme.localhost:4302',
+			HCM_LOCAL_SESSION: process.env.HCM_LOCAL_SESSION ?? 'true',
+			PORT: process.env.PORT ?? '4402',
+		},
 	},
-})
+)
 child.on(
 	'exit',
 	/** Preserve the development server's exit code for shell tooling. */ (code) => {

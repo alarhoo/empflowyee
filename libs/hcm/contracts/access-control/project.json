@@ -1,0 +1,9 @@
+{
+	"name": "hcm-access-control-contract",
+	"$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/contracts/access-control/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:universal", "domain:access-control", "type:contract"],
+	"// targets": "to see all targets run: nx show project hcm-access-control-contract --web",
+	"targets": {}
+}

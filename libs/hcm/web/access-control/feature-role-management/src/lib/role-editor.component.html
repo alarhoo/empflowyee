@@ -1,0 +1,116 @@
+<ui5-dialog
+	[open]="open()"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[stretch]="true"
+	initialFocus="role-label"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finishClose($event)">
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	@if (edit().mode === 'delete') {
+		<ui5-message-strip
+			design="Critical"
+			[hideCloseButton]="true">
+			Delete this unassigned custom role? This action cannot be undone.
+		</ui5-message-strip>
+	}
+	@if (edit().role?.systemRole) {
+		<ui5-message-strip [hideCloseButton]="true">
+			System role. Its label and permissions are read-only.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Role information"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="role-label">
+				Role name
+			</ui5-label>
+			<ui5-input
+				id="role-label"
+				accessibleName="Role name"
+				[formField]="fields.label"
+				[readonly]="edit().mode === 'view' || edit().mode === 'delete'"
+				[disabled]="saving()"
+				[valueState]="fields.label().touched() && fields.label().invalid() ? 'Negative' : 'None'">
+				<span slot="valueStateMessage">Enter a role name of 1–100 characters.</span>
+			</ui5-input>
+		</ui5-form-item>
+		@if (edit().mode !== 'view') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="role-reason">
+					Reason for change
+				</ui5-label>
+				<ui5-textarea
+					id="role-reason"
+					accessibleName="Reason for change"
+					[formField]="fields.reason"
+					[rows]="3"
+					[disabled]="saving()"
+					[valueState]="
+						fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'
+					">
+					<span slot="valueStateMessage">Enter a reason of 1–500 characters.</span>
+				</ui5-textarea>
+				<p>Required for the audit record. Do not include sensitive personal information.</p>
+			</ui5-form-item>
+		}
+	</ui5-form>
+	@if (edit().mode !== 'delete') {
+		<ef-hcm-role-permissions
+			[options]="options()"
+			[selected]="selected()"
+			[readOnly]="edit().mode === 'view' || saving()"
+			(selectedChange)="selectPermissions($event)"></ef-hcm-role-permissions>
+	}
+	<ui5-bar slot="footer">
+		@if (edit().mode !== 'view') {
+			<ui5-button
+				slot="endContent"
+				[design]="edit().mode === 'delete' ? 'Negative' : 'Emphasized'"
+				[disabled]="saving()"
+				(click)="save()">
+				{{ saving() ? 'Saving…' : edit().mode === 'delete' ? 'Delete role' : 'Save role' }}
+			</ui5-button>
+		}
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			{{ edit().mode === 'view' ? 'Close' : 'Cancel' }}
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirmOpen()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	initialFocus="keep-role-draft"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved role changes will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			id="keep-role-draft"
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

@@ -1,0 +1,9 @@
+{
+	"name": "hcm-web-access-control-data-access",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/access-control/data-access/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:access-control", "type:data-access"],
+	"// targets": "to see all targets run: nx show project hcm-web-access-control-data-access --web",
+	"targets": {}
+}

@@ -82,6 +82,24 @@
 			"@empflowyee/hcm-api-audit-application": ["./libs/hcm/api/audit/application/src/index.ts"],
 			"@empflowyee/hcm-api-audit-infrastructure": [
 				"./libs/hcm/api/audit/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-access-control-contract": [
+				"./libs/hcm/contracts/access-control/src/index.ts"
+			],
+			"@empflowyee/hcm-api-access-control-domain": [
+				"./libs/hcm/api/access-control/domain/src/index.ts"
+			],
+			"@empflowyee/hcm-api-access-control-transport": [
+				"./libs/hcm/api/access-control/transport/src/index.ts"
+			],
+			"@empflowyee/hcm-api-access-control-module": [
+				"./libs/hcm/api/access-control/module/src/index.ts"
+			],
+			"@empflowyee/hcm-web-access-control-data-access": [
+				"./libs/hcm/web/access-control/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-access-control-feature-role-management": [
+				"./libs/hcm/web/access-control/feature-role-management/src/index.ts"
 			]
 		}
 	},
