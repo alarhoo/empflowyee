@@ -1,0 +1,220 @@
+<ui5-flexible-column-layout
+	[layout]="selectedId() ? 'TwoColumnsMidExpanded' : 'OneColumn'"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Catalogue list' },
+		midColumn: { role: 'region', name: 'Application details' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="App Catalogue Configuration"
+		summary="Read-only applications and discovery"
+		[state]="state()"
+		[errorMessage]="error()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Catalogue filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-search">
+					Search
+				</ui5-label>
+				<ui5-input
+					id="catalogue-search"
+					accessibleName="Search catalogue metadata"
+					[formField]="filterForm.q"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-domain">
+					Domain
+				</ui5-label>
+				<ui5-select
+					id="catalogue-domain"
+					accessibleName="Catalogue domain"
+					[formField]="filterForm.domain">
+					<ui5-option value="">All domains</ui5-option>
+					@for (domain of domains(); track domain) {
+						<ui5-option [value]="domain">{{ domain }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-status">
+					Status
+				</ui5-label>
+				<ui5-select
+					id="catalogue-status"
+					accessibleName="Catalogue status"
+					[formField]="filterForm.status">
+					<ui5-option value="">All statuses</ui5-option>
+					@for (status of statuses(); track status) {
+						<ui5-option [value]="status">
+							{{ status === 'complete' ? 'Available' : status }}
+						</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-entitled">
+					Entitlement
+				</ui5-label>
+				<ui5-select
+					id="catalogue-entitled"
+					accessibleName="Catalogue entitlement"
+					[formField]="filterForm.entitled">
+					<ui5-option value="">All entitlements</ui5-option>
+					<ui5-option value="true">Enabled</ui5-option>
+					<ui5-option value="false">Not enabled</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-sort">
+					Sort
+				</ui5-label>
+				<ui5-select
+					id="catalogue-sort"
+					accessibleName="Catalogue sort"
+					[formField]="filterForm.sort">
+					<ui5-option value="title">Title</ui5-option>
+					<ui5-option value="appCode">App code</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-form
+			accessibleName="Discovery account selection"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-account-search">
+					Find account
+				</ui5-label>
+				<ui5-input
+					id="catalogue-account-search"
+					accessibleName="Find discovery account"
+					[formField]="accountForm.q"
+					[disabled]="accountBusy()"></ui5-input>
+				<ui5-button
+					[disabled]="accountBusy()"
+					(click)="loadAccounts()">
+					Search accounts
+				</ui5-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="catalogue-account">
+					Explain discovery for
+				</ui5-label>
+				<ui5-select
+					id="catalogue-account"
+					accessibleName="Discovery account"
+					[formField]="accountForm.id"
+					[disabled]="accountBusy()">
+					<ui5-option value="">No account selected</ui5-option>
+					@for (account of accounts(); track account.id) {
+						<ui5-option [value]="account.id">
+							{{ account.displayName }} — {{ account.email }}
+						</ui5-option>
+					}
+				</ui5-select>
+				@if (accountCursor()) {
+					<ui5-button
+						[disabled]="accountBusy()"
+						(click)="loadAccounts(true)">
+						Load more accounts
+					</ui5-button>
+				}
+			</ui5-form-item>
+		</ui5-form>
+		@if (accountError()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ accountError() }}
+			</ui5-message-strip>
+		}
+		<p>{{ rows().length }} of {{ entries().length }} applications</p>
+		<ui5-table
+			accessibleName="Canonical applications"
+			overflowMode="Popin"
+			noDataText="No applications match the filters">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Application
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="70"
+					minWidth="12rem"
+					popinText="App code">
+					App code
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="50"
+					minWidth="10rem"
+					popinText="Domain">
+					Domain
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="6rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="6rem"
+					popinText="Entitlement">
+					Entitlement
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="6rem">
+					Action
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (app of rows(); track app.appCode) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ app.title }}</ui5-table-cell>
+					<ui5-table-cell>{{ app.appCode }}</ui5-table-cell>
+					<ui5-table-cell>{{ app.domain }}</ui5-table-cell>
+					<ui5-table-cell>{{ app.status === 'complete' ? 'Available' : 'Planned' }}</ui5-table-cell>
+					<ui5-table-cell>{{ app.entitled ? 'Enabled' : 'Not enabled' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'Inspect ' + app.title"
+							(click)="select(app.appCode)">
+							Inspect
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selectedId()) {
+		<ef-hcm-catalogue-detail
+			slot="midColumn"
+			[entry]="selected()"
+			[parentState]="state()"
+			[subject]="subject()"
+			[explanation]="selectedExplanation()"
+			[pending]="explanationBusy()"
+			[error]="explanationError()"
+			(closed)="close()"
+			(retry)="explain()"></ef-hcm-catalogue-detail>
+	}
+</ui5-flexible-column-layout>

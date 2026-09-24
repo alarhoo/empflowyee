@@ -28,11 +28,11 @@
 		},
 		{
 			"document": "TRACE",
-			"sha256": "f9b8215e379bb5bd10fbc274480c31751f7bdcc7322a0cca0c4d8f1d1a0dfead",
+			"sha256": "ef92fc527dc12ea7a64d9162cf5b16219d8684f8e8625fbab35077e27428b102",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit implementation instruction; acceptance evidence attached without changing approved business requirements"
 		},
 		{
 			"document": "DECISIONS",

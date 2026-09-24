@@ -1,0 +1,121 @@
+<ef-hcm-object-page
+	[title]="entry()?.title || 'Application details'"
+	summary="Catalogue inspection"
+	[state]="parentState() === 'loading' ? 'loading' : entry() ? 'content' : 'empty'"
+	[readOnly]="true"
+	[actions]="[{ id: 'back', label: 'Back to catalogue' }]"
+	(action)="closed.emit()">
+	<ng-template
+		efHcmObjectSection="overview"
+		label="Overview">
+		@if (entry(); as app) {
+			<dl>
+				<dt>App code</dt>
+				<dd>
+					<ui5-text>{{ app.appCode }}</ui5-text>
+				</dd>
+				<dt>Domain</dt>
+				<dd>
+					<ui5-text>{{ app.domain }}</ui5-text>
+				</dd>
+				<dt>Availability</dt>
+				<dd>
+					<ui5-text>{{ app.status === 'complete' ? 'Available' : 'Planned' }}</ui5-text>
+				</dd>
+				<dt>Implementation status</dt>
+				<dd>
+					<ui5-text>{{ app.status }}</ui5-text>
+				</dd>
+				<dt>Route</dt>
+				<dd>
+					<ui5-text>{{ app.route || 'Not finalized' }}</ui5-text>
+				</dd>
+				<dt>Discovery permission</dt>
+				<dd>
+					<ui5-text>{{ app.discoveryPermission }}</ui5-text>
+				</dd>
+				<dt>Entitlement</dt>
+				<dd>
+					<ui5-text>{{ app.entitlement }}</ui5-text>
+				</dd>
+				<dt>Tenant entitlement</dt>
+				<dd>
+					<ui5-text>{{ app.entitled ? 'Enabled' : 'Not enabled' }}</ui5-text>
+				</dd>
+			</dl>
+			<p>
+				Routes, placements, implementation status and commercial entitlements are read-only here.
+				Navigation visibility is not business API authorization.
+			</p>
+		}
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="placements"
+		label="Placements">
+		<ui5-table
+			accessibleName="Application placements"
+			overflowMode="Popin"
+			noDataText="No canonical placements">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell [importance]="100">Space</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="12rem"
+					popinText="Page">
+					Page
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="10rem"
+					popinText="Group">
+					Group
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="20"
+					minWidth="6rem"
+					popinText="Display">
+					Display
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (
+				place of entry()?.placements || [];
+				track place.spaceId + place.pageId + place.sectionId
+			) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ place.spaceTitle }}</ui5-table-cell>
+					<ui5-table-cell>{{ place.pageTitle }}</ui5-table-cell>
+					<ui5-table-cell>{{ place.sectionTitle }}</ui5-table-cell>
+					<ui5-table-cell>{{ place.display }}</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="discovery"
+		label="Discovery">
+		@if (pending()) {
+			<p role="status">Loading discovery explanation…</p>
+		} @else if (error()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ error() }}
+			</ui5-message-strip>
+			<ui5-button (click)="retry.emit()">Retry discovery</ui5-button>
+		} @else if (explanation(); as result) {
+			<p>Selected account: {{ subject() }}</p>
+			<p>{{ result.discoverable ? 'Discoverable' : 'Not discoverable' }}</p>
+			<ul>
+				@for (code of result.reasons; track code) {
+					<li>{{ reason(code) }}</li>
+				}
+			</ul>
+			<p>
+				This explanation does not impersonate the account. Discoverable applications can remain
+				Planned, and every business API authorizes its own operation.
+			</p>
+		} @else {
+			<p>Choose an account in the list column to inspect effective discovery.</p>
+		}
+	</ng-template>
+</ef-hcm-object-page>

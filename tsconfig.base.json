@@ -127,6 +127,9 @@
 			],
 			"@empflowyee/hcm-web-identity-access-feature-identity-administration": [
 				"./libs/hcm/web/identity-access/feature-identity-administration/src/index.ts"
+			],
+			"@empflowyee/hcm-web-access-control-feature-app-catalogue-configuration": [
+				"./libs/hcm/web/access-control/feature-app-catalogue-configuration/src/index.ts"
 			]
 		}
 	},

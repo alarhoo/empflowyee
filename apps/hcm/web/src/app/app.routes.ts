@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'access-control/app-catalogue-configuration',
+		data: { catalogId: 'APP_CATALOGUE_CONFIGURATION' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Lazy-load read-only canonical catalogue inspection. */ () =>
+			import('@empflowyee/hcm-web-access-control-feature-app-catalogue-configuration').then(
+				/** Resolve the domain-owned screen outside this bootstrap root. */ (module) =>
+					module.CatalogueConfigurationComponent,
+			),
+	},
+	{
 		path: 'identity-access/identity-administration',
 		data: { catalogId: 'IDENTITY_ADMINISTRATION' },
 		canMatch: [hcmRouteAccess],

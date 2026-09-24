@@ -1,10 +1,10 @@
 # App Catalogue Configuration — requirement traceability
 
-Status: design coverage complete; all test entries below are **planned, not executed**.
+Status: implemented and verified. See [validation evidence](../../testing/HCM-1-CATALOGUE-CONFIGURATION-VALIDATION.md).
 
 ## MATRIX
 
-| Requirement                                                                       | Design                      | Planned test                         |
+| Requirement                                                                       | Design                      | Executed test                        |
 | --------------------------------------------------------------------------------- | --------------------------- | ------------------------------------ |
 | [REQ-APP-CATALOGUE-CONFIGURATION-001](FDD.md#req-app-catalogue-configuration-001) | [TDD#READ](TDD.md#read)     | TEST-APP-CATALOGUE-CONFIGURATION-001 |
 | [REQ-APP-CATALOGUE-CONFIGURATION-002](FDD.md#req-app-catalogue-configuration-002) | [TDD#ACTION](TDD.md#action) | TEST-APP-CATALOGUE-CONFIGURATION-002 |
@@ -23,7 +23,7 @@ Exercise: Verify 170 entries against the canonical generated projection, not han
 
 Assert: Show the full current canonical metadata with tenant entitlement projection; Planned and Available are distinct.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/access-control/module/src/lib/catalogue-inspection.database.spec.ts` and `apps/hcm/web-e2e/live/catalogue-configuration.spec.ts`; see the linked validation record for executed cases and limitations.
 
 ## TEST-APP-CATALOGUE-CONFIGURATION-002
 
@@ -35,7 +35,7 @@ Exercise: Changing the selected account updates only the explanation and never i
 
 Assert: Optionally choose a tenant account and inspect effective discovery reasons from server grants and entitlements.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/access-control/module/src/lib/catalogue-inspection.database.spec.ts` and `apps/hcm/web-e2e/live/catalogue-configuration.spec.ts`; see the linked validation record for executed cases and limitations.
 
 ## TEST-APP-CATALOGUE-CONFIGURATION-003
 
@@ -47,7 +47,7 @@ Exercise: Attempt mutation methods and tenant/account injection; no correspondin
 
 Assert: No UI/API edits to catalogue routes, placements, implementation status or Account-owned entitlements.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/access-control/module/src/lib/catalogue-inspection.database.spec.ts` and `apps/hcm/web-e2e/live/catalogue-configuration.spec.ts`; see the linked validation record for executed cases and limitations.
 
 ## TEST-APP-CATALOGUE-CONFIGURATION-004
 
@@ -59,7 +59,7 @@ Exercise: Test direct requests with missing grant/entitlement, disabled actor, f
 
 Assert: Every API enforces verified tenant, enabled actor, listed business permission, entitlement hcm.access-control and subject scope. Browser visibility never authorizes an action.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/access-control/module/src/lib/catalogue-inspection.database.spec.ts` and `apps/hcm/web-e2e/live/catalogue-configuration.spec.ts`; see the linked validation record for executed cases and limitations.
 
 ## TEST-APP-CATALOGUE-CONFIGURATION-005
 
@@ -71,7 +71,7 @@ Exercise: Exercise keyboard, responsive widths, all four themes, tenant-overlay 
 
 Assert: Use real API data with loading, empty, error/retry, unavailable/denied and read-only states. Preserve failed drafts and focus; no silent fallback to fixtures.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/access-control/module/src/lib/catalogue-inspection.database.spec.ts` and `apps/hcm/web-e2e/live/catalogue-configuration.spec.ts`; see the linked validation record for executed cases and limitations.
 
 ## TEST-APP-CATALOGUE-CONFIGURATION-006
 
@@ -83,4 +83,4 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 
 Assert: Read models preserve source ownership and never write configuration or invent historical rows. Downloads, where offered, create actual sensitive-read evidence.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/access-control/module/src/lib/catalogue-inspection.database.spec.ts` and `apps/hcm/web-e2e/live/catalogue-configuration.spec.ts`; see the linked validation record for executed cases and limitations.
