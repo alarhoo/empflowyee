@@ -45,6 +45,19 @@ function auditReader(database: HcmAccessDatabase | null): AuditReader {
 					work(scope.transaction as unknown as Kysely<AuditTables>, scope.actor.tenantId),
 			)
 		},
+		/** Sensitive metadata requires its own operation permission, never document-content authority. */ async (
+			context,
+			work,
+		) => {
+			if (!database) throw new Error('Business runtime unavailable')
+			return database.execute(
+				context,
+				{ permission: 'hcm.audit.sensitive-access.read', entitlement: 'hcm.audit' },
+				false,
+				/** Keep all reads on the already authorized tenant executor. */ (scope) =>
+					work(scope.transaction as unknown as Kysely<AuditTables>, scope.actor.tenantId),
+			)
+		},
 	)
 }
 @Module({

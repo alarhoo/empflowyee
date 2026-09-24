@@ -20,19 +20,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "8766bdc573ae2fb50a92e783e57d247efcf957a0f37cce8f98522d385fa3aa6e",
+			"sha256": "9778a2ec745e44beeab638d2b0004412f6af0bd4f298f1a974c2164b55fcb87c",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit UX instruction reconciles native read-only rows without a detail dialog; safe stream metadata follows approved domain policy"
 		},
 		{
 			"document": "TRACE",
-			"sha256": "ae63b791b72fb99edee74c21a70f8af7e38a844aaeeb6356a5fda667a882277a",
+			"sha256": "daedc835ce20eb6753b1a137d67acdb8962d81d744dc443429c0bd1e378ddd4b",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; approved scope unchanged; execution evidence and pending producer acceptance in docs/hcm/testing/HCM-1-SENSITIVE-ACCESS-LOG-VALIDATION.md"
 		},
 		{
 			"document": "DECISIONS",

@@ -146,3 +146,48 @@ export function parseExportQuery(params: URLSearchParams): ExportQuery {
 	if (params.has('action') || params.has('outcome')) throw new AuditQueryError()
 	return parseAuditQuery(params)
 }
+
+/** Approved document stream lifecycle; authorization never means successful client receipt. */
+export const SENSITIVE_ACTIONS = [
+	'document.download-authorized',
+	'document.download-completed',
+	'document.download-failed',
+] as const
+export const SENSITIVE_OUTCOMES = ['Authorized', 'Completed', 'Failed'] as const
+export type SensitiveAction = (typeof SENSITIVE_ACTIONS)[number]
+export type SensitiveOutcome = (typeof SENSITIVE_OUTCOMES)[number]
+export interface SensitiveAccessQuery extends Omit<AuditQuery, 'action' | 'outcome'> {
+	action?: SensitiveAction
+	outcome?: SensitiveOutcome
+}
+export interface SensitiveAccessItem extends Omit<AuditItem, 'action' | 'outcome' | 'summary'> {
+	action: SensitiveAction
+	outcome: SensitiveOutcome
+	phase: 'authorization' | 'stream-completion'
+	relatedEventId: string | null
+	summary: Record<string, never>
+}
+export interface SensitiveAccessPage {
+	items: SensitiveAccessItem[]
+	nextCursor: string | null
+}
+/** Validate registered stream phases and reuse bounded date, actor, sort and cursor controls. */
+export function parseSensitiveAccessQuery(params: URLSearchParams): SensitiveAccessQuery {
+	const action = params.get('action') ?? undefined,
+		outcome = params.get('outcome') ?? undefined
+	if (
+		params.getAll('action').length > 1 ||
+		params.getAll('outcome').length > 1 ||
+		(action !== undefined && !SENSITIVE_ACTIONS.includes(action as SensitiveAction)) ||
+		(outcome !== undefined && !SENSITIVE_OUTCOMES.includes(outcome as SensitiveOutcome))
+	)
+		throw new AuditQueryError()
+	const common = new URLSearchParams(params)
+	common.delete('action')
+	common.delete('outcome')
+	return {
+		...parseAuditQuery(common),
+		action: action as SensitiveAction | undefined,
+		outcome: outcome as SensitiveOutcome | undefined,
+	}
+}

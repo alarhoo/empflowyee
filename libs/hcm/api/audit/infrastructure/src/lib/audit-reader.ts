@@ -7,6 +7,10 @@ import {
 } from '@empflowyee/hcm-api-audit-application'
 import {
 	AUDIT_ACTIONS,
+	SENSITIVE_ACTIONS,
+	type SensitiveAccessQuery,
+	type SensitiveAccessItem,
+	type SensitiveAccessPage,
 	EXPORT_ACTIONS,
 	type ExportQuery,
 	type ExportItem,
@@ -32,7 +36,12 @@ export type AuditReadExecutor<Result = AuditPage> = (
 ) => Promise<Result>
 
 /** Bind a continuation to every control and tenant without treating it as an authorization token. */
-function binding(query: AuditQuery, tenantId: string, projection = 'tenant'): string {
+type AuditPositionQuery = Omit<AuditQuery, 'action' | 'outcome'> & {
+	action?: string
+	outcome?: string
+}
+/** Hash only explicit bounded controls, preserving distinct endpoint projections. */
+function binding(query: AuditPositionQuery, tenantId: string, projection = 'tenant'): string {
 	return createHash('sha256')
 		.update(
 			JSON.stringify([
@@ -51,7 +60,7 @@ function binding(query: AuditQuery, tenantId: string, projection = 'tenant'): st
 }
 /** Retain PostgreSQL microsecond precision and reject malformed or cross-query continuations. */
 function position(
-	query: AuditQuery,
+	query: AuditPositionQuery,
 	tenantId: string,
 	projection = 'tenant',
 ): { time: string; id: string } | undefined {
@@ -97,6 +106,7 @@ export class KyselyAuditReader extends AuditReader {
 		private readonly execute: AuditReadExecutor,
 		private readonly executeSelf: AuditReadExecutor<MyActivityPage>,
 		private readonly executeExports: AuditReadExecutor<ExportPage>,
+		private readonly executeSensitive: AuditReadExecutor<SensitiveAccessPage>,
 	) {
 		super()
 	}
@@ -109,6 +119,67 @@ export class KyselyAuditReader extends AuditReader {
 				tenantId,
 			) => {
 				return businessPage(database, tenantId, query)
+			},
+		)
+	}
+
+	/** Inspect authorized and observed document streams without exposing the underlying content. */
+	sensitive(
+		context: AuthenticatedHcmContext,
+		query: SensitiveAccessQuery,
+	): Promise<SensitiveAccessPage> {
+		return this.executeSensitive(
+			context,
+			/** Query only registered sensitive events in the verified tenant. */ async (
+				database,
+				tenantId,
+			) => {
+				const after = position(query, tenantId, 'sensitive-access'),
+					asc = query.sort === 'occurredAt:asc',
+					order = asc ? sql`ASC` : sql`DESC`,
+					compare = asc ? sql`>` : sql`<`
+				const rows = (
+					await sql<
+						Omit<SensitiveAccessItem, 'phase' | 'summary'>
+					>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",related_event_id AS "relatedEventId" FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='sensitive-access' AND action IN (${sql.join([...SENSITIVE_ACTIONS])})
+   ${query.from ? sql`AND occurred_at>=${query.from}::timestamptz` : sql``}
+   ${query.to ? sql`AND occurred_at<=${query.to}::timestamptz` : sql``}
+   ${query.actorAccountId ? sql`AND actor_account_id=${query.actorAccountId}` : sql``}
+   ${query.action ? sql`AND action=${query.action}` : sql``}
+   ${query.outcome ? sql`AND outcome=${query.outcome}` : sql``}
+   ${after ? sql`AND (occurred_at,id) ${compare} (${after.time}::timestamptz,${after.id})` : sql``}
+   ORDER BY occurred_at ${order},id ${order} LIMIT ${query.limit + 1}`.execute(database)
+				).rows
+				const items = rows.slice(0, query.limit).map(
+					/** Keep stream phases truthful and project no payload-derived summary. */ (row) => {
+						const authorization = row.action === 'document.download-authorized'
+						let expected = 'Authorized'
+						if (row.action === 'document.download-completed') expected = 'Completed'
+						if (row.action === 'document.download-failed') expected = 'Failed'
+						if (
+							row.outcome !== expected ||
+							(authorization ? row.relatedEventId !== null : !row.relatedEventId)
+						)
+							throw new Error('Invalid stored sensitive access evidence')
+						return {
+							...row,
+							phase: authorization ? ('authorization' as const) : ('stream-completion' as const),
+							summary: {},
+						}
+					},
+				)
+				const last = items.at(-1)
+				let nextCursor: string | null = null
+				if (rows.length > query.limit && last)
+					nextCursor = Buffer.from(
+						JSON.stringify({
+							version: 1,
+							binding: binding(query, tenantId, 'sensitive-access'),
+							time: last.occurredAt,
+							id: last.id,
+						}),
+					).toString('base64url')
+				return { items, nextCursor }
 			},
 		)
 	}

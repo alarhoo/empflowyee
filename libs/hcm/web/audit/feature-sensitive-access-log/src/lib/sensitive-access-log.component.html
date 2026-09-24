@@ -1,0 +1,225 @@
+<ef-hcm-dynamic-page
+	title="Sensitive Access Log"
+	summary="Document authorization and observed server streams"
+	[state]="state()"
+	[readOnly]="true">
+	<ui5-form
+		hcmHeader
+		accessibleName="Sensitive access filters"
+		accessibleMode="Edit"
+		layout="S1 M2 L3 XL3">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="sensitive-from">
+				From (ISO date-time with timezone)
+			</ui5-label>
+			<ui5-input
+				id="sensitive-from"
+				accessibleName="Sensitive access from"
+				[formField]="filterForm.from"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="sensitive-to">
+				To (ISO date-time with timezone)
+			</ui5-label>
+			<ui5-input
+				id="sensitive-to"
+				accessibleName="Sensitive access to"
+				[formField]="filterForm.to"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="sensitive-actorAccountId">
+				Actor account ID
+			</ui5-label>
+			<ui5-input
+				id="sensitive-actorAccountId"
+				accessibleName="Sensitive access actor account"
+				[formField]="filterForm.actorAccountId"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="sensitive-action">
+				Action
+			</ui5-label>
+			<ui5-select
+				id="sensitive-action"
+				accessibleName="Sensitive access action"
+				[formField]="filterForm.action">
+				<ui5-option value="">All document stream actions</ui5-option>
+				@for (action of actions; track action) {
+					<ui5-option [value]="action">{{ action }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="sensitive-outcome">
+				Outcome
+			</ui5-label>
+			<ui5-select
+				id="sensitive-outcome"
+				accessibleName="Sensitive access outcome"
+				[formField]="filterForm.outcome">
+				<ui5-option value="">All recorded outcomes</ui5-option>
+				@for (outcome of outcomes; track outcome) {
+					<ui5-option [value]="outcome">{{ outcome }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="sensitive-sort">
+				Sort
+			</ui5-label>
+			<ui5-select
+				id="sensitive-sort"
+				accessibleName="Sensitive access sort"
+				[formField]="filterForm.sort">
+				<ui5-option value="occurredAt:desc">Newest first</ui5-option>
+				<ui5-option value="occurredAt:asc">Oldest first</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load()">
+			Apply filters
+		</ui5-button>
+	</ui5-form>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load()">
+			Retry access log
+		</ui5-button>
+	}
+	@if (pending()) {
+		<p role="status">Loading sensitive access events…</p>
+	}
+	<ui5-message-strip [hideCloseButton]="true">
+		Authorization alone does not confirm completion. A completion event records the server stream
+		outcome, not proof of client receipt.
+	</ui5-message-strip>
+	<ui5-table
+		accessibleName="Sensitive access events"
+		overflowMode="Popin"
+		noDataText="No sensitive access matches the filters">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="10rem"
+				popinText="Action">
+				Action
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="90"
+				minWidth="15rem"
+				popinText="Time (UTC)">
+				Time (UTC)
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="60"
+				minWidth="10rem"
+				popinText="Target type">
+				Target type
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="50"
+				minWidth="12rem"
+				popinText="Target ID">
+				Target ID
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="12rem"
+				popinText="Actor account">
+				Actor account
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="7rem"
+				popinText="Outcome">
+				Outcome
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="20"
+				minWidth="12rem"
+				popinText="Request correlation">
+				Request correlation
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="10"
+				minWidth="12rem"
+				popinText="Event ID">
+				Event ID
+			</ui5-table-header-cell>
+
+			<ui5-table-header-cell
+				[importance]="80"
+				minWidth="10rem"
+				popinText="Stream phase">
+				Stream phase
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="0"
+				minWidth="12rem"
+				popinText="Related authorization">
+				Related authorization
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (item of rows(); track item.id) {
+			<ui5-table-row>
+				<ui5-table-cell>
+					<ui5-text>{{ item.action }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.occurredAt }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.targetType }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.targetId }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.actorAccountId }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.outcome }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.requestId }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.id }}</ui5-text>
+				</ui5-table-cell>
+
+				<ui5-table-cell>
+					<ui5-text>{{ item.phase }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.relatedEventId ?? 'Initial authorization' }}</ui5-text>
+				</ui5-table-cell>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	@if (cursor()) {
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load(true)">
+			Load more events
+		</ui5-button>
+	}
+</ef-hcm-dynamic-page>

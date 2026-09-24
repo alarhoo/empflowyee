@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'audit/sensitive-access-log',
+		data: { catalogId: 'SENSITIVE_ACCESS_LOG' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the protected stream metadata view. */ () =>
+			import('@empflowyee/hcm-web-audit-feature-sensitive-access-log').then(
+				/** Keep business screen ownership in audit. */ (m) => m.SensitiveAccessLogComponent,
+			),
+	},
+	{
 		path: 'audit/data-export-log',
 		data: { catalogId: 'DATA_EXPORT_LOG' },
 		canMatch: [hcmRouteAccess],

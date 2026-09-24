@@ -149,6 +149,9 @@
 			],
 			"@empflowyee/hcm-web-audit-feature-data-export-log": [
 				"./libs/hcm/web/audit/feature-data-export-log/src/index.ts"
+			],
+			"@empflowyee/hcm-web-audit-feature-sensitive-access-log": [
+				"./libs/hcm/web/audit/feature-sensitive-access-log/src/index.ts"
 			]
 		}
 	},

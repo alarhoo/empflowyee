@@ -5,6 +5,7 @@ import {
 	parseAuditQuery,
 	parseMyActivityQuery,
 	parseExportQuery,
+	parseSensitiveAccessQuery,
 } from '@empflowyee/hcm-audit-contract'
 import { HcmRequestTenantContext } from '@empflowyee/hcm-api-runtime-transport'
 import {
@@ -32,6 +33,33 @@ export class AuditLogController {
 					return await this.reader.exports(
 						context,
 						parseExportQuery(new URL(request.originalUrl, 'http://local.invalid').searchParams),
+					)
+				} catch (error) {
+					if (error instanceof AuditQueryError)
+						throw new HttpException(
+							{ code: 'invalid-request', requestId: this.context.requestId },
+							400,
+						)
+					throw error
+				}
+			},
+		)
+	}
+
+	/** Expose metadata only; no document body, filename or download route is provided. */
+	@Get('sensitive-access')
+	sensitive(@Req() request: RoleRequest, @Res({ passthrough: true }) response: RoleResponse) {
+		return runAccessRequest(
+			this.context,
+			this.logger,
+			response,
+			/** Translate validation without returning raw selectors. */ async (context) => {
+				try {
+					return await this.reader.sensitive(
+						context,
+						parseSensitiveAccessQuery(
+							new URL(request.originalUrl, 'http://local.invalid').searchParams,
+						),
 					)
 				} catch (error) {
 					if (error instanceof AuditQueryError)
