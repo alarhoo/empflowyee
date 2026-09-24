@@ -63,3 +63,10 @@ browser interceptor scopes persona propagation to same-origin HCM API requests;
 features never implement persona-specific authorization. Origin checks mitigate
 cross-origin browser writes, not an authorized local process selecting a persona.
 Production authentication and external integrations remain deferred.
+
+Identity Administration's approved local commands create person-linked records
+without credentials, invitation, persona or role membership and enable/disable
+existing accounts. They use this same trust boundary and the access-control tenant
+lock/invariant; a disabled persona fails its next runtime request. The SQL grant
+permits only lifecycle columns, while email/person relinking and account deletion
+remain unavailable. No authentication trust boundary is added.

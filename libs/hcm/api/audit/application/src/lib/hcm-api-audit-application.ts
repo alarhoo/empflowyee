@@ -10,13 +10,27 @@ export interface AssignmentAuditEvent {
 	requestId: string
 	summary: { reason: string; roleId: string; grantId: string }
 }
-export type AccessAuditEvent = RoleAuditEvent | AssignmentAuditEvent
+export interface AccountAuditEvent {
+	action: 'account.created' | 'account.enabled' | 'account.disabled'
+	targetId: string
+	requestId: string
+	summary: { reason: string; enabled: boolean }
+}
+export type AccessAuditEvent = RoleAuditEvent | AssignmentAuditEvent | AccountAuditEvent
 export interface AppendAudit {
 	/** Append safe evidence in the existing business transaction, deriving actor from its verified scope. */
 	append(event: AccessAuditEvent): Promise<string>
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (
+		event?.action === 'account.created' ||
+		event?.action === 'account.enabled' ||
+		event?.action === 'account.disabled'
+	) {
+		validateAccountAudit(event)
+		return
+	}
 	if (event?.action !== 'role.granted' && event?.action !== 'role.revoked') {
 		validateRoleAudit(event as RoleAuditEvent)
 		return
@@ -66,4 +80,26 @@ export function validateRoleAudit(event: RoleAuditEvent): void {
 		)
 	)
 		throw new Error('Invalid role audit envelope')
+}
+
+/** Account evidence records opaque identity and enablement only; email and person names are prohibited. */
+export function validateAccountAudit(event: AccountAuditEvent): void {
+	if (
+		!event ||
+		Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+		!['account.created', 'account.enabled', 'account.disabled'].includes(event.action) ||
+		typeof event.targetId !== 'string' ||
+		!event.targetId.length ||
+		event.targetId.length > 200 ||
+		typeof event.requestId !== 'string' ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!event.summary ||
+		Object.keys(event.summary).sort().join(',') !== 'enabled,reason' ||
+		typeof event.summary.reason !== 'string' ||
+		!event.summary.reason.trim() ||
+		event.summary.reason.length > 500 ||
+		typeof event.summary.enabled !== 'boolean' ||
+		event.summary.enabled !== (event.action !== 'account.disabled')
+	)
+		throw new Error('Invalid account audit envelope')
 }

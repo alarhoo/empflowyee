@@ -45,7 +45,9 @@ export class TransactionalAudit implements AppendAudit {
 				actor_account_id: requireAuthenticatedAccount(this.context),
 				action: event.action,
 				target_type:
-					event.action === 'role.granted' || event.action === 'role.revoked'
+					event.action === 'role.granted' ||
+					event.action === 'role.revoked' ||
+					event.action.startsWith('account.')
 						? 'user-account'
 						: 'access-role',
 				target_id: event.targetId,

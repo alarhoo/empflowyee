@@ -66,6 +66,7 @@ function writeOrigin(): string | null {
 @Module({
 	imports: [HcmRuntimeModule],
 	controllers: [RoleManagementController, AssignmentController],
+	exports: [HcmAccessDatabase, HCM_ROLE_WRITE_ORIGIN],
 	providers: [
 		{
 			provide: AssignmentUnitOfWork,

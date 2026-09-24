@@ -137,6 +137,7 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'development_seed_history',
 			'employment',
 			'entitlement_definition',
+			'identity_command_receipt',
 			'location',
 			'organisation',
 			'person',

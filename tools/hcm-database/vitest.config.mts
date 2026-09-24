@@ -10,6 +10,7 @@ export default mergeConfig(
 				'libs/hcm/api/runtime/**/*.database.spec.ts',
 				'libs/hcm/api/access-control/**/*.spec.ts',
 				'libs/hcm/api/audit/**/*.spec.ts',
+				'libs/hcm/api/identity-access/**/*.spec.ts',
 			],
 			globalSetup: ['tools/hcm-database/test-postgres.mts'],
 			fileParallelism: false,

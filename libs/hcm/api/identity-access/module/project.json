@@ -1,0 +1,16 @@
+{
+	"name": "hcm-api-identity-access-module",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/identity-access/module/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:identity-access", "type:module"],
+	"// targets": "to see all targets run: nx show project hcm-api-identity-access-module --web",
+	"targets": {
+		"test": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "pnpm exec vitest run --config tools/hcm-database/vitest.config.mts libs/hcm/api/identity-access"
+			}
+		}
+	}
+}

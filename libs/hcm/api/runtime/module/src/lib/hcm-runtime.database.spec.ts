@@ -226,7 +226,11 @@ it('enforces RLS, composite tenant foreign keys and separate tenant persona reso
 	).toEqual([])
 	await runtime.query('COMMIT')
 	expect((await runtime.query('SELECT * FROM hcm.person')).rows).toEqual([])
-	await expect(runtime.query('UPDATE hcm.user_account SET enabled=true')).rejects.toMatchObject({
+	// Identity Administration grants lifecycle updates, but absent tenant context still selects no rows.
+	expect((await runtime.query('UPDATE hcm.user_account SET enabled=true')).rowCount).toBe(0)
+	await expect(
+		runtime.query("UPDATE hcm.user_account SET email='forbidden@example.test'"),
+	).rejects.toMatchObject({
 		code: '42501',
 	})
 	await expect(runtime.query('SET ROLE hcm_migrator')).rejects.toMatchObject({ code: '42501' })
