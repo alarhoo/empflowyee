@@ -332,6 +332,18 @@ const manifest = {
 		}),
 	),
 }
+// This generator owns only the four immutable HCM-0 modules. Keep later domain
+// modules registered when checking or regenerating the foundation projection.
+const registered = JSON.parse(readFileSync(resolve(directory, 'manifest.json'), 'utf8'))
+manifest.modules.push(
+	...registered.modules.filter(
+		/** Preserve forward modules without regenerating their independently owned SQL. */ (module) =>
+			!definitions.some(
+				/** Match only the exact foundation version owned by this generator. */ ([id]) =>
+					module.id === id && module.version === 1,
+			),
+	),
+)
 emit(
 	'manifest.json',
 	await format(JSON.stringify(manifest), {

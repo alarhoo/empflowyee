@@ -37,6 +37,15 @@
 			"requiresMigrations": ["000005_identity_access_spine.sql"],
 			"apply": "access.discovery.1.apply.sql",
 			"reset": "access.discovery.1.reset.sql"
+		},
+		{
+			"id": "access.business",
+			"domain": "access-control",
+			"version": 1,
+			"dependsOn": ["access.discovery@1"],
+			"requiresMigrations": ["000006_access_audit_foundation.sql"],
+			"apply": "access.business.1.apply.sql",
+			"reset": "access.business.1.reset.sql"
 		}
 	]
 }

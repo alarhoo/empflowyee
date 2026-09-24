@@ -19,6 +19,12 @@ interface TestDatabase {
 
 const inventory = resolve('libs/hcm/api/database/migrations/sql')
 let directory: string
+let nextSequence: number
+let lastMigration: string
+/** Allocate probe filenames after the evolving approved migration inventory. */
+function probe(offset: number, label: string): string {
+	return `${String(nextSequence + offset).padStart(6, '0')}_${label}.sql`
+}
 let migrator: Client
 let runtime: Client
 let database: HcmTenantDatabase<TestDatabase>
@@ -75,7 +81,10 @@ async function rows(transaction: Transaction<TestDatabase>) {
 beforeAll(
 	/** Prepare clients and a private temporary SQL inventory owned by this test. */ async () => {
 		directory = await mkdtemp(join(tmpdir(), 'hcm-database-test-'))
-		for (const migration of await loadSqlMigrations(inventory))
+		const baseline = await loadSqlMigrations(inventory)
+		nextSequence = baseline.length + 1
+		lastMigration = baseline[baseline.length - 1].name
+		for (const migration of baseline)
 			await writeFile(join(directory, migration.name), migration.sql)
 		migrator = new Client({ connectionString: connection('MIGRATOR') })
 		runtime = new Client({ connectionString: connection('RUNTIME') })
@@ -99,7 +108,7 @@ afterAll(
 	},
 )
 
-it('serializes concurrent runners, applies once and exposes only foundation objects', /** Race two sessions and verify the protected history plus no business tables. */ async () => {
+it('serializes concurrent runners, applies once and exposes only approved objects', /** Race two sessions and verify the protected history and exact approved tables. */ async () => {
 	const results = await Promise.all([
 		migrateHcmDatabase(connection('MIGRATOR'), inventory),
 		migrateHcmDatabase(connection('MIGRATOR'), inventory),
@@ -118,10 +127,12 @@ it('serializes concurrent runners, applies once and exposes only foundation obje
 		).rows,
 	).toEqual(
 		[
+			'access_command_receipt',
 			'access_permission',
 			'access_role',
 			'account_role',
 			'assignment',
+			'audit_event',
 			'development_persona',
 			'development_seed_history',
 			'employment',
@@ -161,16 +172,16 @@ it('rejects historical edits and sequence gaps before changing the database', /*
 	await writeFile(join(directory, '000001_database_foundation.sql'), `${original}\n-- edited`)
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), directory)).rejects.toThrow('immutable')
 	await writeFile(join(directory, '000001_database_foundation.sql'), original)
-	await writeFile(join(directory, '000007_gap.sql'), 'SELECT 1;')
+	await writeFile(join(directory, probe(1, 'gap')), 'SELECT 1;')
 	await expect(loadSqlMigrations(directory)).rejects.toThrow('gap')
-	await rm(join(directory, '000007_gap.sql'))
-	await writeFile(join(directory, '000006_bad_encoding.sql'), Buffer.from([0xc3, 0x28]))
+	await rm(join(directory, probe(1, 'gap')))
+	await writeFile(join(directory, probe(0, 'bad_encoding')), Buffer.from([0xc3, 0x28]))
 	await expect(loadSqlMigrations(directory)).rejects.toThrow()
-	await rm(join(directory, '000006_bad_encoding.sql'))
+	await rm(join(directory, probe(0, 'bad_encoding')))
 })
 
 it('rolls back failed DDL and prevents SQL from committing outside the history transaction', /** Failed and transaction-ending scripts leave neither objects nor history, then allow a corrected unapplied retry. */ async () => {
-	const file = join(directory, '000006_transaction_probe.sql')
+	const file = join(directory, probe(0, 'transaction_probe'))
 	await writeFile(file, 'CREATE TABLE hcm.transaction_probe (id integer); SELECT 1 / 0;')
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), directory)).rejects.toBeDefined()
 	expect(
@@ -185,18 +196,17 @@ it('rolls back failed DDL and prevents SQL from committing outside the history t
 	).toBeNull()
 	await writeFile(file, 'CREATE TABLE hcm.transaction_probe (id integer);')
 	await writeFile(
-		join(directory, '000007_order_probe.sql'),
+		join(directory, probe(1, 'order_probe')),
 		'ALTER TABLE hcm.transaction_probe ADD COLUMN verified boolean;',
 	)
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), directory)).toEqual([
-		'000006_transaction_probe.sql',
-		'000007_order_probe.sql',
+		probe(0, 'transaction_probe'),
+		probe(1, 'order_probe'),
 	])
 	expect(await migrateHcmDatabase(connection('MIGRATOR'), directory)).toEqual([])
 	await expect(migrateHcmDatabase(connection('MIGRATOR'), inventory)).rejects.toThrow('immutable')
-	await migrator.query(
-		"DROP TABLE hcm.transaction_probe; DELETE FROM hcm.schema_migrations WHERE name > '000005_identity_access_spine.sql'",
-	)
+	await migrator.query('DROP TABLE hcm.transaction_probe')
+	await migrator.query('DELETE FROM hcm.schema_migrations WHERE name > $1', [lastMigration])
 })
 
 it('runs the explicit CLI without exposing credentials and does not migrate on pool creation', /** Exercise Node 24 TypeScript execution and verify idle pool construction is side-effect free. */ async () => {

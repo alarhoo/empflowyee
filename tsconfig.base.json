@@ -72,7 +72,17 @@
 				"./libs/hcm/api/database/migrations/src/index.ts"
 			],
 			"@empflowyee/hcm-api-database-kysely": ["./libs/hcm/api/database/kysely/src/index.ts"],
-			"@empflowyee/hcm-api-database-seed": ["./libs/hcm/api/database/seed/src/index.ts"]
+			"@empflowyee/hcm-api-database-seed": ["./libs/hcm/api/database/seed/src/index.ts"],
+			"@empflowyee/hcm-api-access-control-application": [
+				"./libs/hcm/api/access-control/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-access-control-infrastructure": [
+				"./libs/hcm/api/access-control/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-audit-application": ["./libs/hcm/api/audit/application/src/index.ts"],
+			"@empflowyee/hcm-api-audit-infrastructure": [
+				"./libs/hcm/api/audit/infrastructure/src/index.ts"
+			]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

@@ -16,12 +16,11 @@ Do not reinstall the factory or regenerate the planned tree to repeat those mile
 
 HCM0-05's [blueprint/readiness gate](docs/hcm/engineering/APP-READINESS.md) is now
 implemented with app/wave context reports, adversarial tests and CI enforcement for
-apps claiming approval or implementation. All 170 planned apps still require their
-own reviewed designs before implementation.
+apps claiming approval or implementation. The 20 approved HCM-1 local apps now
+pass their document admission gates; remaining planned apps require their own designs.
 
-1. Review the completed [20-app HCM-1 design package](docs/hcm/roadmap/HCM-1-DESIGN-REVIEW.md). The stage, access policy and bounded document/notification behavior are approved; no business-policy question remains open for the local scope. Production authentication and external integrations remain deferred.
-2. Record actual approval of the exact app/shared document revisions, publish reviewed route/floorplan/readiness catalogue summaries and rerun every local-stage app gate before separately authorized implementation; retain the full-wave gate for eventual HCM-1 completion.
-3. Extend domain-owned Dunder Mifflin seed modules only alongside approved domain migrations; the minimal workforce identity spine is already populated.
-4. Design production authentication and database deployment separately; local runtime success does not approve either deployment boundary.
-5. Implement admitted HCM-1 domain/app slices one at a time, preserving real-data and tenant-isolation requirements.
-6. Finalize HCM-2 FDD/TDD set and use Employee Directory as the first from-zero reference business app.
+1. Deliver Role Management on its own feature branch after the completed [access/audit foundation](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md). The [20-app approval](docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md) is recorded against the reviewed document hashes.
+2. Follow the [local implementation order](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md), one coherent app/domain slice at a time. Each slice requires API/RLS, native UI, real-browser acceptance and review gates before becoming Available.
+3. Extend domain-owned seed modules with forward migrations; never rewrite applied HCM-0 or HCM-1 versions. The persistent local database now includes the business permission register and protected development roles.
+4. Keep the six deferred apps Planned. Production authentication and external integrations require separate approved designs.
+5. Finalize HCM-2 FDD/TDD separately; it is not authorized by HCM-1 local-stage admission.

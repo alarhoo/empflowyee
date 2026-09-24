@@ -77,17 +77,20 @@ generated projection of the canonical catalogue. See the
 HCM0-05's [app readiness gate](docs/hcm/engineering/APP-READINESS.md) checks reviewed
 blueprints/documents, approval hashes, blockers, design selections and traceability.
 Run `pnpm hcm:app:readiness --app=APP_CODE --check` before implementing a business
-app. All 170 current apps remain planned and blocked pending their real designs;
-passing catalogue validation alone is not approval.
+app. Apps remain Planned until implemented and verified; passing catalogue
+validation alone is not approval.
 
 HCM-1 preparation now has an [approved local delivery stage](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md)
 covering 20 of the 26 wave apps, with six deferred apps remaining Planned.
 Production authentication and external integrations are excluded from this phase.
 The staged-readiness exception and [business policies](docs/hcm/roadmap/HCM-1-DECISIONS.md)
 are approved. All [20 app design packages](docs/hcm/roadmap/HCM-1-DESIGN-REVIEW.md)
-are complete for document-revision review, with explicit API, SQL/RLS, UI and test
-selections. Implementation admission still requires actual reviewed hashes and
-catalogue publication. No HCM-1 application code is implemented by this design work.
+have [recorded implementation approval](docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md)
+and pass their design admission gates. The first implementation slice adds
+transactional business authorization, protected-role metadata, 39 persisted business
+permissions and append-only audit storage. See the
+[slice validation and delivery status](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md).
+Business application endpoints/screens are delivered next, beginning with Role Management.
 
 ```sh
 pnpm hcm:catalogue:validate

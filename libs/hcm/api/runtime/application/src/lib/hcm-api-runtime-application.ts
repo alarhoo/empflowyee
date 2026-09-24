@@ -25,7 +25,7 @@ export interface AuthenticatedHcmContext {
 
 const authenticatedScopes = new WeakMap<
 	AuthenticatedHcmContext,
-	{ tenantId: string; expiresAt: number }
+	{ tenantId: string; accountId: string; expiresAt: number }
 >()
 
 /** Accept only a still-valid context issued by server verification, never a copied public DTO. */
@@ -33,6 +33,12 @@ export function requireAuthenticatedTenant(context: AuthenticatedHcmContext): st
 	const scope = authenticatedScopes.get(context)
 	if (!scope || scope.expiresAt <= Date.now()) throw new HcmRuntimeError('unauthenticated')
 	return scope.tenantId
+}
+
+/** Resolve actor authority from the verified private scope, never mutable public session fields. */
+export function requireAuthenticatedAccount(context: AuthenticatedHcmContext): string {
+	requireAuthenticatedTenant(context)
+	return authenticatedScopes.get(context)!.accountId
 }
 
 export class HcmRuntimeApplication {
@@ -115,6 +121,7 @@ export class HcmRuntimeApplication {
 		})
 		authenticatedScopes.set(context, {
 			tenantId: record.id,
+			accountId: session.user.id,
 			expiresAt: Date.parse(session.expiresAt),
 		})
 		return context
