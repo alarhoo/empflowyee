@@ -11,6 +11,19 @@ vi.mock(
 	}),
 )
 
+vi.mock(
+	'@ui5/webcomponents-base/dist/Boot.js',
+	/** Unit-test application settings without starting browser-only UI5 font/style installation. */ () => ({
+		boot: vi.fn().mockResolvedValue(undefined),
+	}),
+)
+vi.mock(
+	'@ui5/webcomponents-base/dist/config/Language.js',
+	/** Locale asset loading is verified in the real browser, not jsdom. */ () => ({
+		setLanguage: vi.fn().mockResolvedValue(undefined),
+	}),
+)
+
 it('imports atomically and resets tokens independently from tenant branding', /** Exercise the workshop using the real validated theme service without browser asset loading. */ async () => {
 	TestBed.configureTestingModule({
 		providers: [
