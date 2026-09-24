@@ -110,6 +110,7 @@ beforeAll(
 			'000007_assignment_account_revision.sql',
 			'000008_identity_administration.sql',
 			'000009_access_reviews.sql',
+			'000010_notification_self_service.sql',
 		])
 		await runDevelopmentSeeds({
 			env: { ...env, HCM_SEED_TARGET: tenant, HCM_SEED_DATABASE_URL: connection('MIGRATOR') },

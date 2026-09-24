@@ -1,4 +1,6 @@
 export const AUDIT_ACTIONS = [
+	'notification.read',
+	'notification.preference-changed',
 	'role.created',
 	'role.updated',
 	'role.deleted',

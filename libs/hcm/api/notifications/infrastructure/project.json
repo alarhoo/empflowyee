@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-notifications-infrastructure",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/notifications/infrastructure/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:infrastructure"],
+	"// targets": "to see all targets run: nx show project hcm-api-notifications-infrastructure --web",
+	"targets": {}
+}

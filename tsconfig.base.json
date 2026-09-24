@@ -155,6 +155,22 @@
 			],
 			"@empflowyee/hcm-web-access-control-feature-tenant-access-reviews": [
 				"./libs/hcm/web/access-control/feature-tenant-access-reviews/src/index.ts"
+			],
+			"@empflowyee/hcm-notifications-contract": ["./libs/hcm/contracts/notifications/src/index.ts"],
+			"@empflowyee/hcm-api-notifications-domain": [
+				"./libs/hcm/api/notifications/domain/src/index.ts"
+			],
+			"@empflowyee/hcm-api-notifications-application": [
+				"./libs/hcm/api/notifications/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-notifications-infrastructure": [
+				"./libs/hcm/api/notifications/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-notifications-transport": [
+				"./libs/hcm/api/notifications/transport/src/index.ts"
+			],
+			"@empflowyee/hcm-api-notifications-module": [
+				"./libs/hcm/api/notifications/module/src/index.ts"
 			]
 		}
 	},

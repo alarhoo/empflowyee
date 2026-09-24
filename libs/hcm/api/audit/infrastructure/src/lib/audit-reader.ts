@@ -90,6 +90,7 @@ function safeSummary(row: AuditItem): AuditItem {
 	let summary: AuditItem['summary']
 	if (row.action.startsWith('review.'))
 		summary = { reason: raw.reason, fromState: raw.fromState, toState: raw.toState }
+	else if (row.action.startsWith('notification.')) summary = { changedFields: raw.changedFields }
 	else if (row.action.startsWith('account.')) summary = { reason: raw.reason, enabled: raw.enabled }
 	else if (row.action === 'role.granted' || row.action === 'role.revoked')
 		summary = { reason: raw.reason, roleId: raw.roleId, grantId: raw.grantId }

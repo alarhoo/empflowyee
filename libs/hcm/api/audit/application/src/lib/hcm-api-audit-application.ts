@@ -22,14 +22,28 @@ export interface ReviewAuditEvent {
 	requestId: string
 	summary: { reason: string; fromState: string | null; toState: string }
 }
+export interface NotificationAuditEvent {
+	action: 'notification.read' | 'notification.preference-changed'
+	targetId: string
+	requestId: string
+	summary: { changedFields: ('enabled' | 'readAt')[] }
+}
 export type AccessAuditEvent =
-	RoleAuditEvent | AssignmentAuditEvent | AccountAuditEvent | ReviewAuditEvent
+	| RoleAuditEvent
+	| AssignmentAuditEvent
+	| AccountAuditEvent
+	| ReviewAuditEvent
+	| NotificationAuditEvent
 export interface AppendAudit {
 	/** Append safe evidence in the existing business transaction, deriving actor from its verified scope. */
 	append(event: AccessAuditEvent): Promise<string>
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (event?.action?.startsWith('notification.')) {
+		validateNotificationAudit(event as NotificationAuditEvent)
+		return
+	}
 	if (event?.action?.startsWith('review.')) {
 		validateReviewAudit(event as ReviewAuditEvent)
 		return
@@ -147,4 +161,25 @@ export function validateReviewAudit(event: ReviewAuditEvent): void {
 		!validTransition
 	)
 		throw new Error('Invalid review audit envelope')
+}
+
+/** Notification evidence records field names only, never inbox text or preference payloads. */
+export function validateNotificationAudit(event: NotificationAuditEvent): void {
+	const field = event?.action === 'notification.read' ? 'readAt' : 'enabled'
+	if (
+		!event ||
+		Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+		!['notification.read', 'notification.preference-changed'].includes(event.action) ||
+		typeof event.targetId !== 'string' ||
+		!event.targetId ||
+		event.targetId.length > 200 ||
+		typeof event.requestId !== 'string' ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!event.summary ||
+		Object.keys(event.summary).join(',') !== 'changedFields' ||
+		!Array.isArray(event.summary.changedFields) ||
+		event.summary.changedFields.length !== 1 ||
+		event.summary.changedFields[0] !== field
+	)
+		throw new Error('Invalid notification audit envelope')
 }

@@ -1,3 +1,4 @@
+import { HcmNotificationsModule } from '@empflowyee/hcm-api-notifications-module'
 import { HcmAuditModule } from '@empflowyee/hcm-api-audit-module'
 import { HcmIdentityAccessModule } from '@empflowyee/hcm-api-identity-access-module'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
@@ -9,6 +10,7 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 
 @Module({
 	imports: [
+		HcmNotificationsModule,
 		HcmAuditModule,
 		RuntimeModule,
 		HcmRuntimeModule,
