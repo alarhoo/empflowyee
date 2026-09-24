@@ -4,7 +4,6 @@ import { HcmObjectPage, HcmObjectSection } from '@empflowyee/hcm-web-ux-floorpla
 import { AvatarComponent } from '@fundamental-ngx/core/avatar'
 import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
-import { FormGroup } from '@fundamental-ngx/ui5-webcomponents/form-group'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
@@ -26,7 +25,6 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 		AvatarComponent,
 		ObjectStatusComponent,
 		Form,
-		FormGroup,
 		FormItem,
 		Input,
 		Label,

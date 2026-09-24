@@ -1,6 +1,11 @@
 <ui5-dynamic-page
 	[showFooter]="showFooter() && state() === 'content'"
-	[accessibilityAttributes]="{ root: { role: 'region', name: title() } }">
+	[accessibilityAttributes]="{
+		root: { role: 'region', name: title() },
+		header: { role: 'region', name: title() + ' header' },
+		content: { role: 'region', name: title() + ' content' },
+		footer: { role: 'region', name: title() + ' footer' },
+	}">
 	<ui5-dynamic-page-title slot="titleArea">
 		<ui5-title
 			slot="heading"
@@ -14,24 +19,24 @@
 		</ui5-title>
 		<ui5-text slot="subheading">{{ summary() }}</ui5-text>
 		<ng-content select="[hcmKeyInfo]" />
-		@if (state() === 'content') {
-			<ui5-toolbar
-				slot="actionsBar"
-				design="Transparent"
-				accessibleName="Object actions">
-				@for (item of visibleActions(); track item.id) {
-					<ui5-toolbar-button
-						[text]="item.label"
-						[icon]="item.icon || ''"
-						[design]="item.emphasized ? 'Emphasized' : 'Default'"
-						[disabled]="item.disabled ?? false"
-						(ui5Click)="action.emit(item.id)" />
-				}
-			</ui5-toolbar>
-		}
+		<ui5-toolbar
+			slot="actionsBar"
+			design="Transparent"
+			accessibleName="Object actions">
+			@for (item of visibleActions(); track item.id) {
+				<ui5-toolbar-button
+					[text]="item.label"
+					[icon]="item.icon || ''"
+					[design]="item.emphasized ? 'Emphasized' : 'Default'"
+					[disabled]="item.disabled ?? false"
+					(ui5Click)="action.emit(item.id)" />
+			}
+		</ui5-toolbar>
 	</ui5-dynamic-page-title>
 	@if (state() === 'content') {
-		<ui5-dynamic-page-header slot="headerArea">
+		<ui5-dynamic-page-header
+			slot="headerArea"
+			[accessibleName]="title() + ' context'">
 			<ng-content select="[hcmImage]" />
 			<ng-content select="[hcmHeader]" />
 		</ui5-dynamic-page-header>

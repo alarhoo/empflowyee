@@ -76,7 +76,7 @@ export class HcmObjectPage {
 		/** Keep non-mutating object actions available to read-only users. */ () =>
 			this.actions().filter(
 				/** Hide only actions explicitly marked as mutations. */ (item) =>
-					!this.readOnly() || !item.mutates,
+					!item.mutates || (!this.readOnly() && this.state() === 'content'),
 			),
 	)
 }

@@ -1,6 +1,6 @@
 # hcm-web-ux-floorplan-object-page
 
-**Acceptance pending:** installed native tab/form markup has unresolved accessibility findings. This production-code proof is available in Theme Lab and Storybook Review, but is not approved for feature adoption.
+The current tabbed UI5 composition passes the shared acceptance checks. See the linked validation record for supported content compositions and remaining upstream Form limitations.
 
 HCM floorplan with domain-neutral state/action and content-region contracts. Import from `@empflowyee/hcm-web-ux-floorplan-object-page`. Maintained UI5/Fundamental components own layout and interaction; the consuming feature owns data, permissions and business behavior.
 
@@ -16,10 +16,10 @@ Supply `title`, optional `summary`, `actions`, `state`, `readOnly` and `errorMes
 
 ```html
 <ef-hcm-object-page title="Record details" [actions]="actions()" (action)="handleAction($event)">
-  <ui5-text hcmHeader>Feature-owned summary</ui5-text>
-  <ng-template efHcmObjectSection="details" label="Details">
-    <!-- Feature-owned native Form or other content. -->
-  </ng-template>
+	<ui5-text hcmHeader>Feature-owned summary</ui5-text>
+	<ng-template efHcmObjectSection="details" label="Details">
+		<!-- Feature-owned native Form or other content. -->
+	</ng-template>
 </ef-hcm-object-page>
 ```
 

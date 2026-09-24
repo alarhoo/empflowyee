@@ -28,6 +28,18 @@ body {
 	margin-inline: auto;
 }
 
+// Fill the bounded shell frame through public hosts, without per-feature CSS.
+.hcm-route-frame > router-outlet + *,
+.hcm-route-frame ui5-flexible-column-layout,
+ui5-flexible-column-layout > [slot='startColumn'],
+ui5-flexible-column-layout > [slot='midColumn'],
+ui5-flexible-column-layout > [slot='endColumn'] {
+	display: block;
+	block-size: 100%;
+	min-block-size: 0;
+	min-inline-size: 0;
+}
+
 // Global HCM scrollbar treatment, inherited by native component scroll containers.
 html[data-hcm-theme-family] {
 	--hcm-scrollbar-thumb: color-mix(in srgb, var(--sapContent_LabelColor) 38%, transparent);

@@ -30,7 +30,9 @@
 		}
 	</ui5-dynamic-page-title>
 	@if (state() === 'content') {
-		<ui5-dynamic-page-header slot="headerArea">
+		<ui5-dynamic-page-header
+			slot="headerArea"
+			[accessibleName]="title() + ' context'">
 			<ng-content select="[hcmHeader]" />
 		</ui5-dynamic-page-header>
 	}

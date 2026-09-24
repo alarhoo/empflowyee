@@ -24,22 +24,14 @@
 				size="m"
 				ariaLabel="Alex Morgan"
 				[circle]="true" />
-			<ui5-form
-				accessibleName="Employee summary"
-				layout="S1 M2 L3 XL3">
-				<ui5-form-item>
-					<ui5-label slot="labelContent">Team</ui5-label>
-					<span>People Operations</span>
-				</ui5-form-item>
-				<ui5-form-item>
-					<ui5-label slot="labelContent">Manager</ui5-label>
-					<span>Jordan Lee</span>
-				</ui5-form-item>
-				<ui5-form-item>
-					<ui5-label slot="labelContent">Location</ui5-label>
-					<span>{{ saved().location }}</span>
-				</ui5-form-item>
-			</ui5-form>
+			<dl aria-label="Employee summary">
+				<dt>Team</dt>
+				<dd>People Operations</dd>
+				<dt>Manager</dt>
+				<dd>Jordan Lee</dd>
+				<dt>Location</dt>
+				<dd>{{ saved().location }}</dd>
+			</dl>
 			@if (notice()) {
 				<ui5-message-strip [hideCloseButton]="true">{{ notice() }}</ui5-message-strip>
 			}
@@ -47,42 +39,20 @@
 		<ng-template
 			efHcmObjectSection="personal"
 			label="Personal information">
-			<ui5-form
-				accessibleName="Personal information"
-				layout="S1 M2 L2 XL2">
-				<ui5-form-group
-					headerText="Identity"
-					headerLevel="H3">
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Preferred name</ui5-label>
-						<span>Alex Morgan</span>
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Employee ID</ui5-label>
-						<span>DEMO-042</span>
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Display language</ui5-label>
-						<span>English</span>
-					</ui5-form-item>
-				</ui5-form-group>
-				<ui5-form-group
-					headerText="Work contact"
-					headerLevel="H3">
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Email</ui5-label>
-						<span>alex.morgan&#64;example.com</span>
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Office</ui5-label>
-						<span>Bengaluru / Central campus</span>
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Time zone</ui5-label>
-						<span>Asia/Kolkata</span>
-					</ui5-form-item>
-				</ui5-form-group>
-			</ui5-form>
+			<dl aria-label="Personal information">
+				<dt>Preferred name</dt>
+				<dd>Alex Morgan</dd>
+				<dt>Employee ID</dt>
+				<dd>DEMO-042</dd>
+				<dt>Display language</dt>
+				<dd>English</dd>
+				<dt>Email</dt>
+				<dd>alex.morgan&#64;example.com</dd>
+				<dt>Office</dt>
+				<dd>Bengaluru / Central campus</dd>
+				<dt>Time zone</dt>
+				<dd>Asia/Kolkata</dd>
+			</dl>
 		</ng-template>
 		<ng-template
 			efHcmObjectSection="employment"
@@ -90,54 +60,42 @@
 			<ui5-form
 				accessibleName="Employment details"
 				accessibleMode="Edit"
+				headerText="Assignment"
+				headerLevel="H2"
 				layout="S1 M2 L2 XL2">
-				<ui5-form-group
-					headerText="Assignment"
-					headerLevel="H3">
-					<ui5-form-item>
-						<ui5-label
-							slot="labelContent"
-							for="profile-job">
-							Job title
-						</ui5-label>
-						<ui5-input
-							id="profile-job"
-							accessibleName="Job title"
-							[formField]="fields.jobTitle" />
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label
-							slot="labelContent"
-							for="profile-location">
-							Location
-						</ui5-label>
-						<ui5-input
-							id="profile-location"
-							accessibleName="Location"
-							[formField]="fields.location" />
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Manager</ui5-label>
-						<span>Jordan Lee</span>
-					</ui5-form-item>
-				</ui5-form-group>
-				<ui5-form-group
-					headerText="Employment terms"
-					headerLevel="H3">
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Start date</ui5-label>
-						<span>15 June 2025</span>
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Employment type</ui5-label>
-						<span>Permanent / Full time</span>
-					</ui5-form-item>
-					<ui5-form-item>
-						<ui5-label slot="labelContent">Working hours</ui5-label>
-						<span>40 hours per week</span>
-					</ui5-form-item>
-				</ui5-form-group>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="profile-job">
+						Job title
+					</ui5-label>
+					<ui5-input
+						id="profile-job"
+						accessibleName="Job title"
+						[formField]="fields.jobTitle" />
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="profile-location">
+						Location
+					</ui5-label>
+					<ui5-input
+						id="profile-location"
+						accessibleName="Location"
+						[formField]="fields.location" />
+				</ui5-form-item>
 			</ui5-form>
+			<dl aria-label="Employment terms">
+				<dt>Manager</dt>
+				<dd>Jordan Lee</dd>
+				<dt>Start date</dt>
+				<dd>15 June 2025</dd>
+				<dt>Employment type</dt>
+				<dd>Permanent / Full time</dd>
+				<dt>Working hours</dt>
+				<dd>40 hours per week</dd>
+			</dl>
 		</ng-template>
 		<ng-template
 			efHcmObjectSection="history"

@@ -76,10 +76,7 @@ try {
 				assert.equal(state.accent, '#7a4de8')
 				assert.ok(state.overflow <= 2, `${proof.id}/${theme}/${width}: overflow`)
 				assert.equal(state.renderError, false)
-				const audit = await new AxeBuilder({ page })
-					.include(proof.selector)
-					.withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-					.analyze()
+				const audit = await new AxeBuilder({ page }).include(proof.selector).analyze()
 				accessibility.push({
 					id: proof.id,
 					theme,
@@ -151,13 +148,13 @@ async function nativeInteractions() {
 	await expect(page.getByRole('heading', { name: 'Employees (32)', exact: true })).toBeVisible()
 	await page.goto(`${origin}/iframe.html?id=${proofs[1].id}&viewMode=story`)
 	await settled(page, 'horizon-light')
-	const history = page.getByRole('tab', { name: 'History Section', exact: true })
+	const history = page.getByRole('tab', { name: 'History', exact: true })
 	await history.click()
 	await expect(history).toHaveAttribute('aria-selected', 'true')
-	await expect(page.getByRole('heading', { name: 'History', exact: true })).toBeInViewport()
+	await expect(page.getByRole('grid', { name: 'Employment history' })).toBeInViewport()
 	await history.press('ArrowLeft')
-	await expect(page.getByRole('tab', { name: 'Employment Section', exact: true })).toBeFocused()
-	await page.getByRole('tab', { name: 'Employment Section', exact: true }).press('Enter')
+	await expect(page.getByRole('tab', { name: 'Employment', exact: true })).toBeFocused()
+	await page.getByRole('tab', { name: 'Employment', exact: true }).press('Enter')
 	await expect(page.locator('#profile-job')).toHaveJSProperty('readonly', true)
 	await page.getByRole('button', { name: 'Edit preview', exact: true }).click()
 	await expect(page.locator('#profile-job')).toHaveJSProperty('readonly', false)
@@ -166,11 +163,15 @@ async function nativeInteractions() {
 	await expect(page.getByRole('textbox', { name: 'Job title', exact: true })).toHaveValue(
 		'Preview role',
 	)
+	assert.deepEqual(
+		(await new AxeBuilder({ page }).include('ef-hcm-object-page').analyze()).violations,
+		[],
+	)
 	await expect(page.locator('#profile-job')).toHaveJSProperty('readonly', true)
 	await page.setViewportSize({ width: 390, height: 844 })
 	await page
-		.locator('fd-dynamic-page-global-actions')
-		.getByRole('button', { name: 'More', exact: true })
+		.locator('ui5-toolbar')
+		.getByRole('button', { name: 'Additional Options', exact: true })
 		.click()
 	await page.getByRole('button', { name: 'Show reference', exact: true }).click()
 	await expect(page.getByText('Employee reference: DEMO-042.', { exact: true })).toBeVisible()
@@ -190,6 +191,9 @@ async function themeTransitions() {
 		)
 	assert.ok(frame)
 	await settled(frame, 'horizon-light')
+	await page.getByRole('button', { name: /^Content density / }).click()
+	await page.getByRole('option', { name: 'cozy', exact: true }).click()
+	await expect(frame.locator('ef-hcm-story-frame')).not.toHaveClass(/ui5-content-density-compact/)
 	const baseline = await palette(frame)
 	const input = frame.locator('ui5-input').first()
 	const cozyHeight = await input.evaluate(
