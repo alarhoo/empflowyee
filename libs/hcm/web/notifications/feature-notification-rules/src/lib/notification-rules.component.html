@@ -1,0 +1,86 @@
+<ef-hcm-dynamic-page
+	title="Notification Rules"
+	summary="Supported in-app document events"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[errorMessage]="message()"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		accessibleName="Rules sorting"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="configuration-sort">
+				Sort
+			</ui5-label>
+			<ui5-select
+				id="configuration-sort"
+				accessibleName="Configuration sort"
+				[formField]="fields.sort">
+				<ui5-option value="label">Event label</ui5-option>
+				<ui5-option value="event">Event code</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item><ui5-button (click)="load()">Reload rules</ui5-button></ui5-form-item>
+	</ui5-form>
+	<ui5-table
+		accessibleName="Notification rules"
+		overflowMode="Popin"
+		noDataText="No configured events are available">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem">
+				Event
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="12rem"
+				popinText="State">
+				State
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="20"
+				minWidth="6rem"
+				popinText="Revision">
+				Revision
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="8rem">
+				Actions
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (item of ordered(); track item.eventType) {
+			<ui5-table-row>
+				<ui5-table-cell>{{ eventLabel(item.eventType) }}</ui5-table-cell>
+				<ui5-table-cell>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-table-cell>
+				<ui5-table-cell>{{ item.revision }}</ui5-table-cell>
+				<ui5-table-cell>
+					@if (canManage()) {
+						<ui5-button
+							[accessibleName]="
+								(item.enabled ? 'Disable ' : 'Enable ') + eventLabel(item.eventType)
+							"
+							(click)="change(item)">
+							{{ item.enabled ? 'Disable' : 'Enable' }}
+						</ui5-button>
+					}
+				</ui5-table-cell>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	<p>
+		Requested and replacement events notify enabled accounts linked to the requested worker.
+		Submitted events notify the requesting HR account. A disabled tenant rule suppresses future
+		messages even if the recipient preference is enabled. No external delivery is configured here.
+	</p>
+</ef-hcm-dynamic-page>
+@if (edit(); as item) {
+	<ef-hcm-rules-dialog
+		[action]="item"
+		(closed)="changed($event)"></ef-hcm-rules-dialog>
+}

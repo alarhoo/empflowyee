@@ -3,6 +3,10 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { timeout } from 'rxjs'
 import type {
 	InboxQuery,
+	NotificationTemplate,
+	NotificationRule,
+	TemplateSave,
+	RuleSave,
 	NotificationPage,
 	NotificationItem,
 	NotificationPreferences,
@@ -14,6 +18,37 @@ import type {
 export class NotificationApi {
 	private readonly http = inject(HttpClient)
 	private readonly base = '/api/v1/notifications/me'
+	/** Fetch the bounded persisted template collection. */
+	templates() {
+		return this.http
+			.get<{ items: NotificationTemplate[] }>('/api/v1/notifications/templates')
+			.pipe(timeout(15000))
+	}
+	/** Fetch the three supported rule switches. */
+	rules() {
+		return this.http
+			.get<{ items: NotificationRule[] }>('/api/v1/notifications/rules')
+			.pipe(timeout(15000))
+	}
+	/** Save an explicit template revision with an unchanged retry key. */
+	saveTemplate(event: NotificationEvent, body: TemplateSave, key: string) {
+		return this.http
+			.put<NotificationTemplate>(
+				'/api/v1/notifications/templates/' + encodeURIComponent(event),
+				body,
+				{ headers: { 'Idempotency-Key': key } },
+			)
+			.pipe(timeout(15000))
+	}
+	/** Toggle one event rule, never its recipient policy. */
+	saveRule(event: NotificationEvent, body: RuleSave, key: string) {
+		return this.http
+			.put<NotificationRule>('/api/v1/notifications/rules/' + encodeURIComponent(event), body, {
+				headers: { 'Idempotency-Key': key },
+			})
+			.pipe(timeout(15000))
+	}
+
 	/** Query only the current server-authenticated account's inbox. */
 	inbox(query: InboxQuery) {
 		let params = new HttpParams()

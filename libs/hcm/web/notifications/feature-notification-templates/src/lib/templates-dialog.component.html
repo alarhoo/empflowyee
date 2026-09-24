@@ -1,0 +1,101 @@
+<ui5-dialog
+	[open]="open()"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finish($event)">
+	<p>Changes affect future in-app messages only.</p>
+	<ui5-form
+		accessibleName="Configuration change"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="config-title">
+				Title
+			</ui5-label>
+			<ui5-input
+				id="config-title"
+				accessibleName="Title"
+				[formField]="fields.title"
+				[disabled]="saving()"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="config-body">
+				Body
+			</ui5-label>
+			<ui5-textarea
+				id="config-body"
+				accessibleName="Body"
+				[formField]="fields.body"
+				[disabled]="saving()"></ui5-textarea>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="config-reason">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="config-reason"
+				accessibleName="Reason"
+				[formField]="fields.reason"
+				[disabled]="saving()"></ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<p>
+		Plain text only. Allowed placeholders:
+		<code>{{ '{requestId}' }}</code>
+		and
+		<code>{{ '{dueDate}' }}</code>
+		. Use the selected template's preview to substitute your sample values. No message is sent.
+	</p>
+	<h2>Draft preview</h2>
+	<p>{{ preview('title') }}</p>
+	<p>{{ preview('body') }}</p>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="saving()"
+			(click)="save()">
+			{{ saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved configuration change will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

@@ -5,6 +5,25 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'notifications/notification-templates',
+		data: { catalogId: 'NOTIFICATION_TEMPLATES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the owning notification administration page lazily. */ () =>
+			import('@empflowyee/hcm-web-notifications-feature-notification-templates').then(
+				/** Retain focused-action route guards. */ (m) => m.NOTIFICATION_TEMPLATES_ROUTES,
+			),
+	},
+	{
+		path: 'notifications/notification-rules',
+		data: { catalogId: 'NOTIFICATION_RULES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the owning notification administration page lazily. */ () =>
+			import('@empflowyee/hcm-web-notifications-feature-notification-rules').then(
+				/** Retain focused-action route guards. */ (m) => m.NOTIFICATION_RULES_ROUTES,
+			),
+	},
+
+	{
 		path: 'notifications/my-notifications',
 		data: { catalogId: 'MY_NOTIFICATIONS' },
 		canMatch: [hcmRouteAccess],

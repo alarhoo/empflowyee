@@ -1581,7 +1581,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['tenant-administration'],
 			route: '/notifications/notification-rules',
 			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
@@ -1596,7 +1596,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['tenant-administration'],
 			route: '/notifications/notification-templates',
 			floorplan: 'UX-FP-FCL',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

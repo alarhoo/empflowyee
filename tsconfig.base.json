@@ -180,6 +180,12 @@
 			],
 			"@empflowyee/hcm-web-notifications-feature-my-notification-preferences": [
 				"./libs/hcm/web/notifications/feature-my-notification-preferences/src/index.ts"
+			],
+			"@empflowyee/hcm-web-notifications-feature-notification-templates": [
+				"./libs/hcm/web/notifications/feature-notification-templates/src/index.ts"
+			],
+			"@empflowyee/hcm-web-notifications-feature-notification-rules": [
+				"./libs/hcm/web/notifications/feature-notification-rules/src/index.ts"
 			]
 		}
 	},

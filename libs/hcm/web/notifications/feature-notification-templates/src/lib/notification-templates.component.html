@@ -1,0 +1,154 @@
+<ui5-flexible-column-layout
+	[layout]="selectedId() ? 'TwoColumnsMidExpanded' : 'OneColumn'"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Template list' },
+		midColumn: { role: 'region', name: 'Selected template' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Notification Templates"
+		summary="Supported in-app document events"
+		[state]="state()"
+		[readOnly]="!canManage()"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Templates sorting"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="configuration-sort">
+					Sort
+				</ui5-label>
+				<ui5-select
+					id="configuration-sort"
+					accessibleName="Configuration sort"
+					[formField]="fields.sort">
+					<ui5-option value="label">Event label</ui5-option>
+					<ui5-option value="event">Event code</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item><ui5-button (click)="load()">Reload templates</ui5-button></ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			accessibleName="Notification templates"
+			overflowMode="Popin"
+			noDataText="No configured events are available">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Event
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="12rem"
+					popinText="Title">
+					Title
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="20"
+					minWidth="6rem"
+					popinText="Revision">
+					Revision
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="8rem">
+					Actions
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of ordered(); track item.eventType) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ eventLabel(item.eventType) }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.title }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.revision }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'View ' + eventLabel(item.eventType)"
+							(click)="select(item.eventType)">
+							View template
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selectedId()) {
+		<ef-hcm-object-page
+			slot="midColumn"
+			[title]="selected() ? eventLabel(selected()!.eventType) : 'Template'"
+			summary="Plain-text in-app template"
+			[state]="state() === 'content' ? (selected() ? 'content' : 'unavailable') : state()"
+			[readOnly]="!canManage()"
+			[actions]="actions()"
+			[errorMessage]="message()"
+			(action)="action($event)"
+			(retry)="load()">
+			<ng-template
+				efHcmObjectSection="overview"
+				label="Overview">
+				@if (selected(); as item) {
+					<dl>
+						<dt>Event</dt>
+						<dd>{{ item.eventType }}</dd>
+						<dt>Title</dt>
+						<dd>{{ item.title }}</dd>
+						<dt>Body</dt>
+						<dd>{{ item.body }}</dd>
+						<dt>Revision</dt>
+						<dd>{{ item.revision }}</dd>
+					</dl>
+					<p>Edits affect future in-app messages. Existing inbox content remains unchanged.</p>
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="preview"
+				label="Plain-text preview">
+				<p>Enter your own sample values. This preview sends no message and persists no data.</p>
+				<ui5-form
+					accessibleName="Template preview samples"
+					accessibleMode="Edit"
+					layout="S1 M1 L1 XL1">
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="preview-request">
+							Sample request ID
+						</ui5-label>
+						<ui5-input
+							id="preview-request"
+							accessibleName="Sample request ID"
+							[formField]="sampleFields.requestId"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="preview-due">
+							Sample due date
+						</ui5-label>
+						<ui5-input
+							id="preview-due"
+							accessibleName="Sample due date"
+							[formField]="sampleFields.dueDate"></ui5-input>
+					</ui5-form-item>
+				</ui5-form>
+				@if (selected(); as item) {
+					<h2>Title preview</h2>
+					<p>{{ preview(item.title) }}</p>
+					<h2>Body preview</h2>
+					<p>{{ preview(item.body) }}</p>
+				}
+			</ng-template>
+		</ef-hcm-object-page>
+	}
+</ui5-flexible-column-layout>
+@if (edit(); as item) {
+	<ef-hcm-templates-dialog
+		[action]="item"
+		[samples]="samples()"
+		(closed)="changed($event)"></ef-hcm-templates-dialog>
+}
