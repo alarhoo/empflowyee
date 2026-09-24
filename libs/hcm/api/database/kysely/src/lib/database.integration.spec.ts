@@ -143,6 +143,8 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'document_template_version',
 			'document_type',
 			'document_upload_attempt',
+			'employee_document',
+			'employee_document_version',
 			'employment',
 			'entitlement_definition',
 			'identity_command_receipt',

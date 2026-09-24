@@ -1,5 +1,7 @@
+import { queryKey, after, page } from './document-pages'
+import { DocumentReservations } from './document-reservations'
 import type { DocumentDownloadAuditEvent } from '@empflowyee/hcm-api-audit-application'
-import { createHash, randomUUID } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import { sql } from 'kysely'
 import {
 	DocumentError,
@@ -34,59 +36,6 @@ import {
 } from '@empflowyee/hcm-api-runtime-application'
 import { KyselyDocumentTypes } from './hcm-api-documents-infrastructure'
 
-/** Scope continuations to actor, tenant, endpoint target and every query control. */
-function queryKey(
-	scope: AuthorizedAccessWork,
-	query: TemplateQuery | VersionQuery,
-	target = 'list',
-): string {
-	const filters = { ...query, cursor: undefined }
-	return createHash('sha256')
-		.update(JSON.stringify([scope.actor.tenantId, scope.actor.accountId, target, filters]))
-		.digest('hex')
-}
-/** Decode only bounded exact tuple cursors; never trust a cursor as authority. */
-function after(
-	value: string | undefined,
-	binding: string,
-): { position: string | number; id: string } | null {
-	if (!value) return null
-	try {
-		if (value.length > 2048 || !/^[A-Za-z0-9_-]+$/.test(value)) throw new Error('cursor')
-		const parsed = JSON.parse(Buffer.from(value, 'base64url').toString('utf8'))
-		if (
-			Object.keys(parsed).sort().join(',') !== 'binding,id,position' ||
-			parsed.binding !== binding ||
-			typeof parsed.id !== 'string' ||
-			!parsed.id ||
-			parsed.id.length > 200 ||
-			!(
-				(typeof parsed.position === 'string' && parsed.position.length <= 100) ||
-				(Number.isSafeInteger(parsed.position) && parsed.position > 0)
-			)
-		)
-			throw new Error('cursor')
-		return parsed
-	} catch {
-		throw new DocumentError('invalid-request')
-	}
-}
-/** Build a continuation only when an extra server row proves another page exists. */
-function page<T extends { id: string }>(
-	rows: T[],
-	limit: number,
-	binding: string,
-	position: (row: T) => string | number,
-): DocumentPage<T> {
-	const items = rows.slice(0, limit),
-		last = items.at(-1)
-	let nextCursor: string | null = null
-	if (rows.length > limit && last)
-		nextCursor = Buffer.from(
-			JSON.stringify({ binding, id: last.id, position: position(last) }),
-		).toString('base64url')
-	return { items, nextCursor }
-}
 const templateColumns = sql`id,type_id AS "typeId",label,revision`
 const versionColumns = sql`v.id,v.version_number AS "versionNumber",b.safe_filename AS filename,b.media_type AS "mediaType",b.byte_length AS "byteLength",to_char(v.created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt"`
 class TemplateRepository implements TemplateFileRepository {
@@ -167,41 +116,21 @@ class TemplateRepository implements TemplateFileRepository {
 				intent.value.expectedRevision,
 			)
 	}
-	/** Read reserved evidence and a completed response only for the original actor and command key. */
-	async find(operation: string, key: string): Promise<UploadReservation | null> {
-		const row = (
-			await sql<UploadReservation>`SELECT a.id,a.aggregate_id AS "aggregateId",a.state,a.payload_hash AS "payloadHash",jsonb_build_object('key',b.storage_key,'sha256',b.sha256,'byteLength',b.byte_length,'mediaType',b.media_type,'filename',b.safe_filename) AS file,r.response AS result FROM hcm.document_upload_attempt a JOIN hcm.document_blob b ON b.tenant_id=a.tenant_id AND b.id=a.blob_id LEFT JOIN hcm.document_command_receipt r ON r.tenant_id=a.tenant_id AND r.actor_account_id=a.actor_account_id AND r.operation=a.operation AND r.idempotency_key=a.idempotency_key WHERE a.tenant_id=${this.scope.actor.tenantId} AND a.actor_account_id=${this.scope.actor.accountId} AND a.operation=${operation} AND a.idempotency_key=${key}::uuid`.execute(
-				this.scope.transaction,
-			)
-		).rows[0]
-		if (row?.state === 'Ready' && !row.result) throw new DocumentError('storage-unavailable')
-		return row ?? null
+	/** Read actor-bound upload evidence through the shared reservation adapter. */
+	find(operation: string, key: string) {
+		return new DocumentReservations<TemplateIntent, TemplateUploadResult>(this.scope).find(
+			operation,
+			key,
+		)
 	}
-	/** Reserve immutable file evidence without exposing any template or version yet. */
-	async reserve(
-		intent: TemplateIntent,
-		key: string,
-		hash: string,
-		file: DocumentFile,
-	): Promise<UploadReservation> {
-		const id = randomUUID(),
-			blobId = randomUUID(),
-			tenant = this.scope.actor.tenantId,
-			actor = this.scope.actor.accountId
-		await sql`INSERT INTO hcm.document_blob(tenant_id,id,storage_key,sha256,byte_length,media_type,safe_filename,state,created_by_account_id) VALUES(${tenant},${blobId}::uuid,${file.key}::uuid,${file.sha256},${file.byteLength},${file.mediaType},${file.filename},'Staged',${actor})`.execute(
-			this.scope.transaction,
-		)
-		await sql`INSERT INTO hcm.document_upload_attempt(tenant_id,id,actor_account_id,operation,idempotency_key,payload_hash,blob_id,aggregate_id,expected_revision,safe_intent,state) VALUES(${tenant},${id}::uuid,${actor},${intent.kind},${key}::uuid,${hash},${blobId}::uuid,${intent.targetId},${intent.kind === 'template-append' ? intent.value.expectedRevision : null},${JSON.stringify(intent)}::jsonb,'Staged')`.execute(
-			this.scope.transaction,
-		)
-		return {
-			id,
-			aggregateId: intent.targetId,
-			state: 'Staged',
-			payloadHash: hash,
+	/** Reserve bytes through the shared storage metadata writer. */
+	reserve(intent: TemplateIntent, key: string, hash: string, file: DocumentFile) {
+		return new DocumentReservations<TemplateIntent, TemplateUploadResult>(this.scope).reserve(
+			intent,
+			key,
+			hash,
 			file,
-			result: null,
-		}
+		)
 	}
 	/** Finalize immutable bytes and a version exactly once with attributed audit and receipt. */
 	async finish(

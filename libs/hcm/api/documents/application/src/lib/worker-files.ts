@@ -1,56 +1,69 @@
 import {
 	DocumentError,
 	documentId,
-	parseTemplateCreate,
-	parseTemplateAppend,
-	type TemplateCreate,
-	type TemplateAppend,
-	type DocumentTemplate,
-	type DocumentVersion,
-	type TemplateQuery,
+	parseWorkerDocumentCreate,
+	parseWorkerDocumentAppend,
+	type WorkerDocumentCreate,
+	type WorkerDocumentAppend,
+	type WorkerDocument,
+	type WorkerDocumentVersion,
+	type WorkerDocumentQuery,
+	type WorkerChoice,
+	type WorkerQuery,
 	type VersionQuery,
 	type DocumentPage,
-	type TemplateUploadResult,
+	type WorkerUploadResult,
 	type DocumentTypeQuery,
 } from '@empflowyee/hcm-documents-contract'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import { DocumentFiles, type DocumentFile } from './document-files'
 import { DocumentFileCommands, type FileReservation } from './document-file-commands'
 
-export type TemplateIntent =
-	| { kind: 'template-create'; targetId: string; value: TemplateCreate }
-	| { kind: 'template-append'; targetId: string; value: TemplateAppend }
-export type UploadReservation = FileReservation<TemplateUploadResult>
-export interface TemplateFileRepository {
-	/** Query only template metadata under current read authority. */
-	list(query: TemplateQuery): Promise<DocumentPage<DocumentTemplate>>
-	/** Read one exact tenant-owned template without revealing foreign records. */
-	get(id: string): Promise<DocumentTemplate>
+export type WorkerIntent =
+	| { kind: 'worker-create'; targetId: string; value: WorkerDocumentCreate }
+	| { kind: 'worker-append'; targetId: string; value: WorkerDocumentAppend }
+export type WorkerReservation = FileReservation<WorkerUploadResult>
+export interface WorkerFileRepository {
+	/** Resolve real workforce choices through a read-only consumer port. */ workers(
+		query: WorkerQuery,
+	): Promise<DocumentPage<WorkerChoice>>
+	/** Change one version sharing flag under its own revision and record receipt/audit atomically. */ share(
+		id: string,
+		versionId: string,
+		value: WorkerDocumentAppend,
+		key: string,
+		requestId: string,
+	): Promise<WorkerDocumentVersion>
+
+	/** Query only worker document metadata under current read authority. */
+	list(query: WorkerDocumentQuery): Promise<DocumentPage<WorkerDocument>>
+	/** Read one exact tenant-owned worker document without revealing foreign records. */
+	get(id: string): Promise<WorkerDocument>
 	/** Project only committed Ready versions. */
-	versions(id: string, query: VersionQuery): Promise<DocumentPage<DocumentVersion>>
-	/** Supply enabled type choices under template-management authority. */
+	versions(id: string, query: VersionQuery): Promise<DocumentPage<WorkerDocumentVersion>>
+	/** Supply enabled type choices under worker document-management authority. */
 	types(
 		query: DocumentTypeQuery,
 	): Promise<DocumentPage<{ id: string; code: string; label: string }>>
 	/** Revalidate enabled type or exact existing aggregate revision. */
-	validate(intent: TemplateIntent): Promise<void>
+	validate(intent: WorkerIntent): Promise<void>
 	/** Inspect one actor/operation-bound reservation. */
-	find(operation: string, key: string): Promise<UploadReservation | null>
+	find(operation: string, key: string): Promise<WorkerReservation | null>
 	/** Persist a staged file and enough safe intent for an authenticated retry. */
 	reserve(
-		intent: TemplateIntent,
+		intent: WorkerIntent,
 		key: string,
 		hash: string,
 		file: DocumentFile,
-	): Promise<UploadReservation>
+	): Promise<WorkerReservation>
 	/** Commit Ready bytes, version, audit and response receipt atomically. */
 	finish(
-		intent: TemplateIntent,
+		intent: WorkerIntent,
 		key: string,
-		reservation: UploadReservation,
+		reservation: WorkerReservation,
 		requestId: string,
-	): Promise<TemplateUploadResult>
-	/** Read only a Ready file attached to the specified template/version. */
+	): Promise<WorkerUploadResult>
+	/** Read only a Ready file attached to the specified worker document/version. */
 	download(id: string, versionId: string): Promise<DocumentFile>
 	/** Append authorization before releasing bytes or record an observed related outcome. */
 	auditDownload(
@@ -60,31 +73,31 @@ export interface TemplateFileRepository {
 		relatedId?: string,
 	): Promise<string>
 }
-export abstract class TemplateFileUnitOfWork {
+export abstract class WorkerFileUnitOfWork {
 	/** Authorize from persisted grants inside the tenant transaction. */
 	abstract execute<T>(
 		context: AuthenticatedHcmContext,
 		permission: string,
 		write: boolean,
-		work: (repo: TemplateFileRepository) => Promise<T>,
+		work: (repo: WorkerFileRepository) => Promise<T>,
 	): Promise<T>
 	/** Mark only a previously reserved actor-owned attempt failed; never perform a business mutation. */
 	abstract fail(context: AuthenticatedHcmContext, reservationId: string): Promise<void>
 }
-export class TemplateFiles extends DocumentFileCommands<
-	TemplateIntent,
-	TemplateUploadResult,
-	TemplateFileRepository
+export class WorkerFiles extends DocumentFileCommands<
+	WorkerIntent,
+	WorkerUploadResult,
+	WorkerFileRepository
 > {
 	/** Compose authorized metadata transactions with durable private storage. */
-	constructor(unit: TemplateFileUnitOfWork, files: DocumentFiles) {
-		super(unit, files, 'templates.manage', 'templates.download')
+	constructor(unit: WorkerFileUnitOfWork, files: DocumentFiles) {
+		super(unit, files, 'worker.manage', 'worker.download')
 	}
-	/** Read a bounded template list through the owning query repository. */
-	list(context: AuthenticatedHcmContext, query: TemplateQuery) {
+	/** Read a bounded worker document list through the owning query repository. */
+	list(context: AuthenticatedHcmContext, query: WorkerDocumentQuery) {
 		return this.unit.execute(
 			context,
-			'templates.read',
+			'worker.read',
 			false,
 			/** Preserve server query ownership. */ (repo) => repo.list(query),
 		)
@@ -94,7 +107,7 @@ export class TemplateFiles extends DocumentFileCommands<
 		documentId(id)
 		return this.unit.execute(
 			context,
-			'templates.read',
+			'worker.read',
 			false,
 			/** Resolve one tenant-owned target. */ (repo) => repo.get(id),
 		)
@@ -104,7 +117,7 @@ export class TemplateFiles extends DocumentFileCommands<
 		documentId(id)
 		return this.unit.execute(
 			context,
-			'templates.read',
+			'worker.read',
 			false,
 			/** Scope children to the selected aggregate. */ (repo) => repo.versions(id, query),
 		)
@@ -114,9 +127,39 @@ export class TemplateFiles extends DocumentFileCommands<
 		if (query.enabled !== true) throw new DocumentError('invalid-request')
 		return this.unit.execute(
 			context,
-			'templates.manage',
+			'worker.manage',
 			false,
 			/** Return only bounded picker fields. */ (repo) => repo.types(query),
+		)
+	}
+	/** Search tenant workers without requiring or creating login accounts. */
+	workers(context: AuthenticatedHcmContext, query: WorkerQuery) {
+		return this.unit.execute(
+			context,
+			'worker.read',
+			false,
+			/** Keep workforce projections read-only. */ (repo) => repo.workers(query),
+		)
+	}
+	/** Share only the exact selected version; earlier and later versions remain unchanged. */
+	share(
+		context: AuthenticatedHcmContext,
+		id: string,
+		versionId: string,
+		body: unknown,
+		key: string,
+		requestId: string,
+	) {
+		documentId(id)
+		documentId(versionId)
+		documentId(key)
+		const value = parseWorkerDocumentAppend(body)
+		return this.unit.execute(
+			context,
+			'worker.manage',
+			true,
+			/** Serialize visibility, audit and retry evidence. */ (repo) =>
+				repo.share(id, versionId, value, key, requestId),
 		)
 	}
 	/** Parse and authorize target metadata before transport starts streaming the file. */
@@ -125,21 +168,21 @@ export class TemplateFiles extends DocumentFileCommands<
 		target: string | null,
 		body: unknown,
 		key: string,
-	): Promise<TemplateIntent> {
+	): Promise<WorkerIntent> {
 		if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key))
 			throw new DocumentError('invalid-request')
-		let intent: TemplateIntent
+		let intent: WorkerIntent
 		if (target === null)
-			intent = { kind: 'template-create', targetId: '', value: parseTemplateCreate(body) }
+			intent = { kind: 'worker-create', targetId: '', value: parseWorkerDocumentCreate(body) }
 		else
 			intent = {
-				kind: 'template-append',
+				kind: 'worker-append',
 				targetId: documentId(target),
-				value: parseTemplateAppend(body),
+				value: parseWorkerDocumentAppend(body),
 			}
 		await this.unit.execute(
 			context,
-			'templates.manage',
+			'worker.manage',
 			false,
 			/** Existing receipt replay remains possible after its original revision changes. */ async (
 				repo,

@@ -1,3 +1,6 @@
 export * from './lib/hcm-api-documents-application'
 export * from './lib/document-files'
 export * from './lib/template-files'
+export * from './lib/document-file-commands'
+export * from './lib/worker-files'
+export * from './lib/workforce-reader'

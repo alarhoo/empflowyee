@@ -41,16 +41,19 @@ export interface DocumentTypeAuditEvent {
 	summary: { reason: string; changedFields: ('code' | 'label' | 'description' | 'enabled')[] }
 }
 export interface TemplateVersionAuditEvent {
-	action: 'document.template-version-added'
+	action:
+		| 'document.template-version-added'
+		| 'document.worker-version-added'
+		| 'document.visibility-changed'
 	targetId: string
 	requestId: string
-	summary: { reason: string; changedFields: 'version'[] }
+	summary: { reason: string; changedFields: ('version' | 'employeeVisible')[] }
 }
 export interface DocumentDownloadAuditEvent {
 	action:
 		'document.download-authorized' | 'document.download-completed' | 'document.download-failed'
 	targetId: string
-	targetType: 'document-template-version'
+	targetType: 'document-template-version' | 'employee-document-version'
 	requestId: string
 	relatedEventId: string | null
 	summary: Record<string, never>
@@ -75,7 +78,11 @@ export function validateAccessAudit(event: AccessAuditEvent): void {
 		validateDocumentDownloadAudit(event)
 		return
 	}
-	if (event.action === 'document.template-version-added') {
+	if (
+		event.action === 'document.template-version-added' ||
+		event.action === 'document.worker-version-added' ||
+		event.action === 'document.visibility-changed'
+	) {
 		if (
 			Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
 			typeof event.targetId !== 'string' ||
@@ -89,7 +96,8 @@ export function validateAccessAudit(event: AccessAuditEvent): void {
 			event.summary.reason.length > 500 ||
 			!Array.isArray(event.summary.changedFields) ||
 			event.summary.changedFields.length !== 1 ||
-			event.summary.changedFields[0] !== 'version'
+			event.summary.changedFields[0] !==
+				(event.action === 'document.visibility-changed' ? 'employeeVisible' : 'version')
 		)
 			throw new Error('Invalid template audit envelope')
 		return
@@ -311,7 +319,7 @@ export function validateDocumentDownloadAudit(event: DocumentDownloadAuditEvent)
 			'document.download-completed',
 			'document.download-failed',
 		].includes(event.action) ||
-		event.targetType !== 'document-template-version' ||
+		!['document-template-version', 'employee-document-version'].includes(event.targetType) ||
 		typeof event.targetId !== 'string' ||
 		!event.targetId ||
 		event.targetId.length > 200 ||

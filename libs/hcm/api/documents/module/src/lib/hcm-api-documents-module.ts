@@ -5,6 +5,8 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	WorkerFiles,
+	WorkerFileUnitOfWork,
 	DocumentFiles,
 	TemplateFiles,
 	TemplateFileUnitOfWork,
@@ -12,11 +14,13 @@ import {
 	DocumentUnitOfWork,
 } from '@empflowyee/hcm-api-documents-application'
 import {
+	KyselyWorkerFileUnit,
 	LocalDocumentFiles,
 	KyselyTemplateFileUnit,
 	KyselyDocumentUnitOfWork,
 } from '@empflowyee/hcm-api-documents-infrastructure'
 import {
+	WorkerDocumentController,
 	TemplateController,
 	DocumentTypesController,
 } from '@empflowyee/hcm-api-documents-transport'
@@ -37,8 +41,25 @@ class UnconfiguredFiles extends DocumentFiles {
 
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [DocumentTypesController, TemplateController],
+	controllers: [DocumentTypesController, TemplateController, WorkerDocumentController],
 	providers: [
+		{
+			provide: WorkerFileUnitOfWork,
+			inject: [HcmAccessDatabase, TemplateFileUnitOfWork],
+			useFactory: /** Bind worker file persistence. */ (
+				database: HcmAccessDatabase | null,
+				reservations: TemplateFileUnitOfWork,
+			) => new KyselyWorkerFileUnit(database, reservations),
+		},
+		{
+			provide: WorkerFiles,
+			inject: [WorkerFileUnitOfWork, DocumentFiles],
+			useFactory: /** Use the same private storage protocol for worker attachments. */ (
+				unit: WorkerFileUnitOfWork,
+				files: DocumentFiles,
+			) => new WorkerFiles(unit, files),
+		},
+
 		{
 			provide: DocumentFiles,
 			useFactory: /** Inspect private storage without repairs. */ async () => {

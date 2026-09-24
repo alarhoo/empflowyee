@@ -115,6 +115,7 @@ beforeAll(
 			'000012_notification_rendered_text.sql',
 			'000013_document_types.sql',
 			'000014_document_template_files.sql',
+			'000015_employee_documents.sql',
 		])
 		await runDevelopmentSeeds({
 			env: { ...env, HCM_SEED_TARGET: tenant, HCM_SEED_DATABASE_URL: connection('MIGRATOR') },
