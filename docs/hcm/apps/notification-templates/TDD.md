@@ -86,10 +86,10 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep the bounded template list and sorting in a begin-column HcmDynamicPage. Open the selected event template in a mid-column approved HcmObjectPage with Overview and Plain-text preview sections. Selection uses an event query parameter. A focused three-field title/body/reason edit uses a native dialog; meaningful template details never live in that dialog.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection. The installed native FlexibleColumnLayout exposes startColumn/midColumn slots and responsive layouts; the existing approved Object Page composition supplies page-backed detail sections. No custom CSS or floorplan is added. This reconciles the older dialog-only selection under [the mandatory UX instruction](../../roadmap/HCM-1-UX-REVISION.md).
 
 Content columns/fields: Event label; title; body; revision; allowed placeholder help.
 

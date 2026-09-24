@@ -4,11 +4,11 @@
 	"approvals": [
 		{
 			"document": "BLUEPRINT",
-			"sha256": "639282d5c7eae8ba5e4c9b5c1e2bf4f60fa39cd8b25e163481fcf9054aa84666",
+			"sha256": "4e8c1b200daa67435567ef38539c5fd2ff83e8a470814f4adc85fd06ed4a31a9",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit mandatory FCL/Object Page instruction and implementation authorization; approved business rules unchanged"
 		},
 		{
 			"document": "FDD",
@@ -20,11 +20,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "e4b8979c90dc24d5ee29b625f32b33a8d339415c4f510ccf4402eb29ed81e6a7",
+			"sha256": "7d60538300f4f6f68855dd00c9e697a66c632bb93c6b6b4d72d850edd118e190",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit mandatory FCL/Object Page instruction and implementation authorization; approved business rules unchanged"
 		},
 		{
 			"document": "TRACE",

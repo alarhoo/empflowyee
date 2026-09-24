@@ -3439,7 +3439,7 @@
 			],
 			"featurePath": "libs/hcm/web/notifications/feature-notification-templates",
 			"route": "/notifications/notification-templates",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
