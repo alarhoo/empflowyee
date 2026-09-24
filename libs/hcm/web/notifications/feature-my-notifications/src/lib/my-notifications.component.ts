@@ -1,3 +1,11 @@
+import { NotificationSummary } from './notification-summary'
+import { NgTemplateOutlet } from '@angular/common'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { MenuItem } from '@fundamental-ngx/ui5-webcomponents/menu-item'
+import { Menu } from '@fundamental-ngx/ui5-webcomponents/menu'
+import { Avatar } from '@fundamental-ngx/ui5-webcomponents/avatar'
+import { NotificationListItem } from '@fundamental-ngx/ui5-webcomponents-fiori/notification-list-item'
+import { NotificationList } from '@fundamental-ngx/ui5-webcomponents-fiori/notification-list'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -7,6 +15,7 @@ import {
 	computed,
 	effect,
 	inject,
+	input,
 	signal,
 	untracked,
 	viewChild,
@@ -38,15 +47,16 @@ import { Select } from '@fundamental-ngx/ui5-webcomponents/select'
 import { Option } from '@fundamental-ngx/ui5-webcomponents/option'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
-import { ExpandableText } from '@fundamental-ngx/ui5-webcomponents/expandable-text'
-import { Table } from '@fundamental-ngx/ui5-webcomponents/table'
-import { TableHeaderRow } from '@fundamental-ngx/ui5-webcomponents/table-header-row'
-import { TableHeaderCell } from '@fundamental-ngx/ui5-webcomponents/table-header-cell'
-import { TableRow } from '@fundamental-ngx/ui5-webcomponents/table-row'
-import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-my-notifications',
 	imports: [
+		NgTemplateOutlet,
+		Text,
+		MenuItem,
+		Menu,
+		Avatar,
+		NotificationListItem,
+		NotificationList,
 		HcmDynamicPage,
 		Form,
 		FormItem,
@@ -56,20 +66,16 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 		Option,
 		Button,
 		MessageStrip,
-		ExpandableText,
+
 		FormField,
-		Table,
-		TableHeaderRow,
-		TableHeaderCell,
-		TableRow,
-		TableCell,
 	],
 	templateUrl: './my-notifications.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyNotificationsComponent {
 	private readonly api = inject(NotificationApi)
-	private readonly runtime = inject(HcmRuntimeStore)
+	private readonly summary = inject(NotificationSummary)
+	readonly runtime = inject(HcmRuntimeStore)
 	private readonly router = inject(Router)
 	private readonly destroy = inject(DestroyRef)
 	private readonly injector = inject(Injector)
@@ -77,7 +83,8 @@ export class MyNotificationsComponent {
 	private applied: InboxQuery = { q: '', sort: 'createdAt:desc', limit: 25 }
 	private readonly attempts = new Map<string, { revision: number; key: string }>()
 	private focusAfterLoad = false
-	readonly table = viewChild(Table)
+	readonly table = viewChild(NotificationList)
+	readonly embedded = input(false)
 	readonly events = NOTIFICATION_EVENTS
 	readonly eventLabel = notificationEventLabel
 	readonly filters = signal({ q: '', unread: '', eventType: '', sort: 'createdAt:desc' })
@@ -185,6 +192,7 @@ export class MyNotificationsComponent {
 				next: /** Refresh filters only after the committed first-read timestamp is acknowledged. */ () => {
 					this.reading.set(null)
 					this.notice.set('Notification marked as read.')
+					this.summary.refresh()
 					this.focusAfterLoad = true
 					this.load()
 				},

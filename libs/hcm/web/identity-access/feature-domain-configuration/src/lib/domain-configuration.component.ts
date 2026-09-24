@@ -1,3 +1,6 @@
+import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
+import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
+import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -22,7 +25,7 @@ import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 
 @Component({
 	selector: 'ef-hcm-domain-configuration',
-	imports: [Page, Bar, Title, Button, MessageStrip, Text],
+	imports: [Label, FormItem, Form, Page, Bar, Title, Button, MessageStrip, Text],
 	templateUrl: './domain-configuration.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

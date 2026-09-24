@@ -11,20 +11,30 @@
 		efHcmObjectSection="overview"
 		label="Overview">
 		@if (account(); as item) {
-			<dl>
-				<dt>Name</dt>
-				<dd>{{ item.displayName }}</dd>
-				<dt>Email</dt>
-				<dd>{{ item.email }}</dd>
-				<dt>Status</dt>
-				<dd>{{ item.enabled ? 'Enabled' : 'Disabled' }}</dd>
-				<dt>Revision</dt>
-				<dd>{{ item.revision }}</dd>
-			</dl>
-			<p>
+			<ui5-form
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Name</ui5-label>
+					<ui5-text>{{ item.displayName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Email</ui5-label>
+					<ui5-text>{{ item.email }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<ui5-text>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Revision</ui5-label>
+					<ui5-text>{{ item.revision }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
 				Account identity is managed by Identity Administration. Role changes take effect on the next
 				verified request.
-			</p>
+			</ui5-text>
 		}
 	</ng-template>
 	<ng-template

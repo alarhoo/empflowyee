@@ -9,7 +9,8 @@
 		hcmHeader
 		accessibleName="Rules sorting"
 		accessibleMode="Edit"
-		layout="S1 M1 L1 XL1">
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
 		<ui5-form-item>
 			<ui5-label
 				slot="labelContent"
@@ -24,7 +25,10 @@
 				<ui5-option value="event">Event code</ui5-option>
 			</ui5-select>
 		</ui5-form-item>
-		<ui5-form-item><ui5-button (click)="load()">Reload rules</ui5-button></ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Actions</ui5-label>
+			<ui5-button (click)="load()">Reload rules</ui5-button>
+		</ui5-form-item>
 	</ui5-form>
 	<ui5-table
 		accessibleName="Notification rules"
@@ -73,11 +77,11 @@
 			</ui5-table-row>
 		}
 	</ui5-table>
-	<p>
+	<ui5-text>
 		Requested and replacement events notify enabled accounts linked to the requested worker.
 		Submitted events notify the requesting HR account. A disabled tenant rule suppresses future
 		messages even if the recipient preference is enabled. No external delivery is configured here.
-	</p>
+	</ui5-text>
 </ef-hcm-dynamic-page>
 @if (edit(); as item) {
 	<ef-hcm-rules-dialog

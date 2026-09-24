@@ -36,6 +36,8 @@ describe('HCM remote bootstrap', /** Exercise real HTTP sequencing and state tra
 			TestBed.configureTestingModule({
 				providers: [provideHttpClient(), provideHttpClientTesting()],
 			})
+			window.localStorage.clear()
+			window.sessionStorage.clear()
 			http = TestBed.inject(HttpTestingController)
 			runtime = TestBed.inject(HcmRuntimeStore)
 		},
@@ -168,5 +170,44 @@ describe('HCM remote bootstrap', /** Exercise real HTTP sequencing and state tra
 		await switching
 		expect(runtime.context()?.user.displayName).toBe('Toby Flenderson')
 		expect(runtime.context()?.access.permissions).toEqual([])
+	})
+	it('persists only supported presentation choices per account and ends a local workspace', /** Local storage must never replace runtime identity, authorization or notification preferences. */ async () => {
+		const pending = runtime.ensureLoaded()
+		http.expectOne('/api/v1/runtime/tenant').flush(discovery)
+		await Promise.resolve()
+		http.expectOne('/api/v1/runtime/session').flush({
+			...context,
+			development: { personaId: 'jim', personas: [], catalogueInspection: false },
+		})
+		await pending
+		runtime.setPresentationPreference('timeFormat', '12h')
+		runtime.setPresentationPreference('dateFormat', 'long')
+		runtime.setPresentationPreference('language', 'javascript:invalid')
+		expect(runtime.preferences().timeFormat).toBe('12h')
+		expect(runtime.preferences().dateFormat).toBe('long')
+		expect(runtime.preferences().language).toBe('en')
+		expect(JSON.parse(window.localStorage.getItem('hcm.preferences.acme.test') ?? '{}')).toEqual({
+			timeFormat: '12h',
+			dateFormat: 'long',
+		})
+		runtime.signOutDevelopment()
+		expect(runtime.context()).toBeNull()
+		expect(runtime.state().kind).toBe('signed-out')
+		expect(window.sessionStorage.getItem('hcm.development.signed-out')).toBe('true')
+		const resumed = runtime.resumeDevelopment()
+		http.expectOne('/api/v1/runtime/tenant').flush(discovery)
+		await Promise.resolve()
+		http.expectOne('/api/v1/runtime/session').flush(context)
+		await resumed
+		expect(runtime.preferences().timeFormat).toBe('12h')
+		expect(window.sessionStorage.getItem('hcm.development.signed-out')).toBeNull()
+		const replaced = runtime.refresh()
+		http.expectOne('/api/v1/runtime/tenant').flush(discovery)
+		await Promise.resolve()
+		http
+			.expectOne('/api/v1/runtime/session')
+			.flush({ ...context, user: { id: 'different', displayName: 'Other account' } })
+		await replaced
+		expect(runtime.preferences().timeFormat).toBe('24h')
 	})
 })

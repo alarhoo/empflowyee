@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import type { Observable } from 'rxjs'
 import {
 	ChangeDetectionStrategy,
@@ -27,7 +28,7 @@ import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-request-action-dialog',
-	imports: [Dialog, FileUploader, TextArea, Label, Button, Bar, MessageStrip, FormField],
+	imports: [Text, Dialog, FileUploader, TextArea, Label, Button, Bar, MessageStrip, FormField],
 	templateUrl: 'request-action-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

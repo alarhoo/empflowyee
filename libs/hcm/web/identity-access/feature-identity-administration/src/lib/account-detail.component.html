@@ -11,31 +11,45 @@
 		efHcmObjectSection="overview"
 		label="Overview">
 		@if (account(); as item) {
-			<dl>
-				<dt>Name</dt>
-				<dd>{{ item.displayName }}</dd>
-				<dt>Email</dt>
-				<dd>{{ item.email }}</dd>
-				<dt>Status</dt>
-				<dd>{{ item.enabled ? 'Enabled' : 'Disabled' }}</dd>
-				<dt>Person</dt>
-				<dd>{{ item.personId }}</dd>
-				<dt>Revision</dt>
-				<dd>{{ item.revision }}</dd>
-				<dt>Created</dt>
-				<dd>{{ item.createdAt }}</dd>
-			</dl>
-			<p>
+			<ui5-form
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Name</ui5-label>
+					<ui5-text>{{ item.displayName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Email</ui5-label>
+					<ui5-text>{{ item.email }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<ui5-text>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Person</ui5-label>
+					<ui5-text>{{ item.personId }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Revision</ui5-label>
+					<ui5-text>{{ item.revision }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Created</ui5-label>
+					<ui5-text>{{ item.createdAt }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
 				Names come from the workforce person record. Account creation does not create credentials,
 				invitations, development personas or role grants.
-			</p>
+			</ui5-text>
 		}
 	</ng-template>
 	<ng-template
 		efHcmObjectSection="roles"
 		label="Roles">
 		@if (!canReadRoles()) {
-			<p>You do not have permission to inspect account role assignments.</p>
+			<ui5-text>You do not have permission to inspect account role assignments.</ui5-text>
 		} @else {
 			@if (roleError()) {
 				<ui5-message-strip

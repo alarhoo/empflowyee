@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -52,14 +53,14 @@ async function sharedDocument(page: Page) {
 /** Enter through real catalogue discovery as the default employee persona. */
 async function openDocuments(page: Page) {
 	await page.goto('/')
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('MY_DOCUMENTS')
 	await page.getByRole('button', { name: 'My Documents — Available', exact: true }).click()
 	await expect(page.getByRole('grid', { name: 'My documents', exact: true })).toBeVisible()
 }
 /** Follow the native selected-object action including responsive overflow. */
 async function back(page: Page) {
-	const button = page.getByRole('button', { name: 'Back to documents', exact: true }),
+	const button = page.getByRole('button', { name: 'Close detail', exact: true }),
 		overflow = page
 			.locator('ef-hcm-object-page')
 			.getByRole('button', { name: 'Additional Options', exact: true })
@@ -100,7 +101,11 @@ test('downloads only shared own versions and rejects a stale download after HR r
 		.getByRole('textbox', { name: 'Search document labels', exact: true })
 		.fill(item.document.label)
 	await page.getByRole('button', { name: 'Apply filters', exact: true }).click()
-	await page.getByRole('button', { name: 'View ' + item.document.label, exact: true }).click()
+	await page
+		.getByRole('row')
+		.filter({ hasText: '' + item.document.label })
+		.first()
+		.click()
 	await page.getByRole('tab', { name: 'Versions', exact: true }).click()
 	await expect(page.getByRole('button', { name: 'Download version 1', exact: true })).toBeVisible()
 	await expect(page.getByRole('button', { name: 'Download version 2', exact: true })).toHaveCount(0)
@@ -138,7 +143,10 @@ test('downloads only shared own versions and rejects a stale download after HR r
 	await back(page)
 	await page.getByRole('button', { name: 'Apply filters', exact: true }).click()
 	await expect(
-		page.getByRole('button', { name: 'View ' + item.document.label, exact: true }),
+		page
+			.getByRole('row')
+			.filter({ hasText: '' + item.document.label })
+			.first(),
 	).toHaveCount(0)
 })
 test('keeps self list and Object Page accessible across all themes and responsive widths', /** Use the approved production floorplans, without feature styling or synthetic HTTP responses. */ async ({
@@ -158,8 +166,7 @@ test('keeps self list and Object Page accessible across all themes and responsiv
 		['her-dark', 'HER Dark'],
 	]) {
 		await page.setViewportSize({ width: 1440, height: 1000 })
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {
@@ -167,7 +174,11 @@ test('keeps self list and Object Page accessible across all themes and responsiv
 			expect(
 				(await new AxeBuilder({ page }).include('ef-hcm-my-documents').analyze()).violations,
 			).toEqual([])
-			await page.getByRole('button', { name: 'View ' + item.document.label, exact: true }).click()
+			await page
+				.getByRole('row')
+				.filter({ hasText: '' + item.document.label })
+				.first()
+				.click()
 			await page.getByRole('tab', { name: 'Versions', exact: true }).click()
 			await expect(
 				page.getByRole('button', { name: 'Download version 1', exact: true }),
@@ -184,7 +195,11 @@ test('keeps self list and Object Page accessible across all themes and responsiv
 			await back(page)
 		}
 		await page.setViewportSize({ width: 1440, height: 1000 })
-		await page.getByRole('button', { name: 'View ' + item.document.label, exact: true }).click()
+		await page
+			.getByRole('row')
+			.filter({ hasText: '' + item.document.label })
+			.first()
+			.click()
 		await page.getByRole('tab', { name: 'Versions', exact: true }).click()
 		await page.screenshot({ path: '.tmp/hcm-my-documents/' + variant + '.png', fullPage: true })
 		await back(page)

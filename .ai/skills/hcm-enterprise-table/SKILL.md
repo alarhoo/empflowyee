@@ -12,5 +12,7 @@ Designing or implementing a tabular HCM feature.
 4. Enable only required features (selection, growing, virtualization, etc.).
 5. Keep HTTP/query execution in feature/data-access code, never in the UX table library.
 6. Define loading, empty, error and responsive behavior.
-7. Add a Storybook fixture for the selected mode.
+7. Follow the current Storybook hold in the HCM UI5 feature skill; validate changed native table interactions without workshop work.
 8. Test query-state mapping or our table orchestration; do not test UI5's own selection implementation.
+
+Whole-row detail navigation must use native row-click and a navigation action. Preserve independent mutation actions and keyboard behavior.

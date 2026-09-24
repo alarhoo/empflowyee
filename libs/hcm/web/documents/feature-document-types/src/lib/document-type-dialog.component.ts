@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -31,6 +32,7 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-document-type-dialog',
 	imports: [
+		Text,
 		CheckBox,
 		Dialog,
 		Form,

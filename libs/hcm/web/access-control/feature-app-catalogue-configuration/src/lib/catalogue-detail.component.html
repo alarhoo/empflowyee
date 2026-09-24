@@ -9,44 +9,46 @@
 		efHcmObjectSection="overview"
 		label="Overview">
 		@if (entry(); as app) {
-			<dl>
-				<dt>App code</dt>
-				<dd>
+			<ui5-form
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">App code</ui5-label>
 					<ui5-text>{{ app.appCode }}</ui5-text>
-				</dd>
-				<dt>Domain</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Domain</ui5-label>
 					<ui5-text>{{ app.domain }}</ui5-text>
-				</dd>
-				<dt>Availability</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Availability</ui5-label>
 					<ui5-text>{{ app.status === 'complete' ? 'Available' : 'Planned' }}</ui5-text>
-				</dd>
-				<dt>Implementation status</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Implementation status</ui5-label>
 					<ui5-text>{{ app.status }}</ui5-text>
-				</dd>
-				<dt>Route</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Route</ui5-label>
 					<ui5-text>{{ app.route || 'Not finalized' }}</ui5-text>
-				</dd>
-				<dt>Discovery permission</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Discovery permission</ui5-label>
 					<ui5-text>{{ app.discoveryPermission }}</ui5-text>
-				</dd>
-				<dt>Entitlement</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Entitlement</ui5-label>
 					<ui5-text>{{ app.entitlement }}</ui5-text>
-				</dd>
-				<dt>Tenant entitlement</dt>
-				<dd>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Tenant entitlement</ui5-label>
 					<ui5-text>{{ app.entitled ? 'Enabled' : 'Not enabled' }}</ui5-text>
-				</dd>
-			</dl>
-			<p>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
 				Routes, placements, implementation status and commercial entitlements are read-only here.
 				Navigation visibility is not business API authorization.
-			</p>
+			</ui5-text>
 		}
 	</ng-template>
 	<ng-template
@@ -94,7 +96,7 @@
 		efHcmObjectSection="discovery"
 		label="Discovery">
 		@if (pending()) {
-			<p role="status">Loading discovery explanation…</p>
+			<ui5-text role="status">Loading discovery explanation…</ui5-text>
 		} @else if (error()) {
 			<ui5-message-strip
 				design="Negative"
@@ -103,19 +105,19 @@
 			</ui5-message-strip>
 			<ui5-button (click)="retry.emit()">Retry discovery</ui5-button>
 		} @else if (explanation(); as result) {
-			<p>Selected account: {{ subject() }}</p>
-			<p>{{ result.discoverable ? 'Discoverable' : 'Not discoverable' }}</p>
+			<ui5-text>Selected account: {{ subject() }}</ui5-text>
+			<ui5-text>{{ result.discoverable ? 'Discoverable' : 'Not discoverable' }}</ui5-text>
 			<ul>
 				@for (code of result.reasons; track code) {
 					<li>{{ reason(code) }}</li>
 				}
 			</ul>
-			<p>
+			<ui5-text>
 				This explanation does not impersonate the account. Discoverable applications can remain
 				Planned, and every business API authorizes its own operation.
-			</p>
+			</ui5-text>
 		} @else {
-			<p>Choose an account in the list column to inspect effective discovery.</p>
+			<ui5-text>Choose an account in the list column to inspect effective discovery.</ui5-text>
 		}
 	</ng-template>
 </ef-hcm-object-page>

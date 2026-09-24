@@ -1,3 +1,5 @@
+import { NgTemplateOutlet } from '@angular/common'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -6,6 +8,7 @@ import {
 	computed,
 	effect,
 	inject,
+	input,
 	signal,
 	untracked,
 	type OnDestroy,
@@ -36,11 +39,25 @@ import { Dialog } from '@fundamental-ngx/ui5-webcomponents/dialog'
 import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 @Component({
 	selector: 'ef-hcm-notification-preferences',
-	imports: [Page, Title, Form, FormItem, CheckBox, FormField, Button, MessageStrip, Dialog, Bar],
+	imports: [
+		NgTemplateOutlet,
+		Text,
+		Page,
+		Title,
+		Form,
+		FormItem,
+		CheckBox,
+		FormField,
+		Button,
+		MessageStrip,
+		Dialog,
+		Bar,
+	],
 	templateUrl: './notification-preferences.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationPreferencesComponent implements OnDestroy {
+	readonly embedded = input(false)
 	private readonly api = inject(NotificationApi)
 	private readonly runtime = inject(HcmRuntimeStore)
 	private readonly destroy = inject(DestroyRef)

@@ -18,7 +18,8 @@
 			hcmHeader
 			accessibleName="Worker document filters"
 			accessibleMode="Edit"
-			layout="S1 M1 L2 XL2">
+			layout="S1 M1 L2 XL2"
+			labelSpan="S12 M12 L12 XL12">
 			<ui5-form-item>
 				<ui5-label
 					slot="labelContent"
@@ -67,6 +68,7 @@
 				</ui5-select>
 			</ui5-form-item>
 			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
 					[disabled]="busy()"
 					(click)="load()">
@@ -75,6 +77,8 @@
 			</ui5-form-item>
 		</ui5-form>
 		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
 			accessibleName="Employee documents"
 			overflowMode="Popin"
 			noDataText="No worker documents match the filters">
@@ -96,24 +100,19 @@
 					popinText="Revision">
 					Revision
 				</ui5-table-header-cell>
-				<ui5-table-header-cell
-					[importance]="100"
-					minWidth="7rem">
-					Actions
-				</ui5-table-header-cell>
 			</ui5-table-header-row>
 			@for (item of rows(); track item.id) {
-				<ui5-table-row>
+				<ui5-table-row
+					[rowKey]="item.id"
+					[interactive]="true">
 					<ui5-table-cell>{{ item.label }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.typeId }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.revision }}</ui5-table-cell>
-					<ui5-table-cell>
-						<ui5-button
-							[accessibleName]="'View ' + item.label"
-							(click)="select(item.id)">
-							View document
-						</ui5-button>
-					</ui5-table-cell>
+
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="select(item.id)"></ui5-table-row-action-navigation>
 				</ui5-table-row>
 			}
 		</ui5-table>
@@ -140,20 +139,30 @@
 				efHcmObjectSection="overview"
 				label="Overview">
 				@if (selected(); as item) {
-					<dl>
-						<dt>Label</dt>
-						<dd>{{ item.label }}</dd>
-						<dt>Worker ID</dt>
-						<dd>{{ item.workerId }}</dd>
-						<dt>Document type ID</dt>
-						<dd>{{ item.typeId }}</dd>
-						<dt>Revision</dt>
-						<dd>{{ item.revision }}</dd>
-					</dl>
-					<p>
+					<ui5-form
+						accessibleMode="Display"
+						layout="S1 M1 L2 XL2">
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Label</ui5-label>
+							<ui5-text>{{ item.label }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Worker ID</ui5-label>
+							<ui5-text>{{ item.workerId }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Document type ID</ui5-label>
+							<ui5-text>{{ item.typeId }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Revision</ui5-label>
+							<ui5-text>{{ item.revision }}</ui5-text>
+						</ui5-form-item>
+					</ui5-form>
+					<ui5-text>
 						Each version is shared independently. Uploading a new version preserves earlier files
 						and their sharing settings.
-					</p>
+					</ui5-text>
 				}
 			</ng-template>
 			<ng-template
@@ -199,18 +208,15 @@
 							popinText="Created">
 							Created
 						</ui5-table-header-cell>
-						<ui5-table-header-cell
-							[importance]="100"
-							minWidth="7rem">
-							Actions
-						</ui5-table-header-cell>
 					</ui5-table-header-row>
 					@for (version of versions(); track version.id) {
 						<ui5-table-row>
 							<ui5-table-cell>{{ version.versionNumber }}</ui5-table-cell>
 							<ui5-table-cell>
 								{{ version.filename }}
-								<p>{{ version.employeeVisible ? 'Shared with employee' : 'HR only' }}</p>
+								<ui5-text>
+									{{ version.employeeVisible ? 'Shared with employee' : 'HR only' }}
+								</ui5-text>
 							</ui5-table-cell>
 							<ui5-table-cell>{{ version.byteLength }}</ui5-table-cell>
 							<ui5-table-cell>{{ version.createdAt }}</ui5-table-cell>

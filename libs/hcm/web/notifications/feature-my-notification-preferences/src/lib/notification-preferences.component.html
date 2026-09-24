@@ -1,17 +1,24 @@
-<ui5-page>
-	<ui5-bar
-		slot="header"
-		accessibleRole="None">
-		<ui5-title level="H1">My Notification Preferences</ui5-title>
-		<ui5-button
-			slot="endContent"
-			[disabled]="pending() || !!saving()"
-			(click)="reload()">
-			Reload preferences
-		</ui5-button>
-	</ui5-bar>
+@if (embedded()) {
+	<ng-container [ngTemplateOutlet]="content"></ng-container>
+} @else {
+	<ui5-page>
+		<ui5-bar
+			slot="header"
+			accessibleRole="None">
+			<ui5-title level="H1">My Notification Preferences</ui5-title>
+			<ui5-button
+				slot="endContent"
+				[disabled]="pending() || !!saving()"
+				(click)="reload()">
+				Reload preferences
+			</ui5-button>
+		</ui5-bar>
+		<ng-container [ngTemplateOutlet]="content"></ng-container>
+	</ui5-page>
+}
+<ng-template #content>
 	@if (pending()) {
-		<p role="status">Loading notification preferences…</p>
+		<ui5-text role="status">Loading notification preferences…</ui5-text>
 	}
 	@if (error()) {
 		<ui5-message-strip
@@ -32,10 +39,10 @@
 			</ui5-message-strip>
 		}
 
-		<p>
+		<ui5-text>
 			Your choices apply to future in-app messages. Existing messages remain in your inbox. A
 			category disabled by your organisation stays disabled.
-		</p>
+		</ui5-text>
 		@if (notice()) {
 			<ui5-message-strip
 				design="Positive"
@@ -73,17 +80,18 @@
 			}
 		</ui5-form>
 		@if (!pending() && !preferences().length) {
-			<p>No supported notification categories are available.</p>
+			<ui5-text>No supported notification categories are available.</ui5-text>
 		}
 	}
-</ui5-page>
+</ng-template>
+
 <ui5-dialog
 	[open]="confirm()"
 	headerText="Discard changes?"
 	accessibleName="Discard changes?"
 	initialFocus="keep-preference-draft"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved notification preferences will be discarded.</p>
+	<ui5-text>Your unsaved notification preferences will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

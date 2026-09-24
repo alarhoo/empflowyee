@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -37,6 +38,7 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-template-upload-dialog',
 	imports: [
+		Text,
 		FileUploader,
 		Select,
 		Option,

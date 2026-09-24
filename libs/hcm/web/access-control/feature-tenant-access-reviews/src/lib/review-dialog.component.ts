@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -31,7 +32,19 @@ export interface ReviewAction {
 }
 @Component({
 	selector: 'ef-hcm-review-dialog',
-	imports: [Dialog, Form, FormItem, Label, Input, TextArea, Button, Bar, MessageStrip, FormField],
+	imports: [
+		Text,
+		Dialog,
+		Form,
+		FormItem,
+		Label,
+		Input,
+		TextArea,
+		Button,
+		Bar,
+		MessageStrip,
+		FormField,
+	],
 	templateUrl: './review-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

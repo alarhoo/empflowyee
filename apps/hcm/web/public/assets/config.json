@@ -1,5 +1,15 @@
 {
 	"environment": "local",
 	"releaseId": "local",
-	"apiBaseUrl": "/api"
+	"apiBaseUrl": "/api",
+	"productLinks": [
+		{
+			"title": "Account",
+			"url": "http://localhost:4300"
+		},
+		{
+			"title": "Console",
+			"url": "http://localhost:4301"
+		}
+	]
 }

@@ -1,3 +1,4 @@
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -41,6 +42,7 @@ import { ReviewDetailComponent } from './review-detail.component'
 @Component({
 	selector: 'ef-hcm-tenant-access-reviews',
 	imports: [
+		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		Form,
@@ -187,5 +189,14 @@ export class TenantAccessReviewsComponent {
 	/** Delegate route/context leave protection to the sole pending review dialog. */
 	canLeave(): Promise<boolean> {
 		return this.dialog()?.canLeave() ?? this.detail()?.canLeave() ?? Promise.resolve(true)
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const item = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.id === key,
+		)
+		if (item) void this.select(item.id)
 	}
 }

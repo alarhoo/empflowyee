@@ -1,3 +1,6 @@
+import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -46,6 +49,9 @@ import { TemplateDialogComponent } from './templates-dialog.component'
 @Component({
 	selector: 'ef-hcm-notification-templates',
 	imports: [
+		Title,
+		TableRowActionNavigation,
+		Text,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		HcmObjectPage,
@@ -195,5 +201,14 @@ export class NotificationTemplatesComponent {
 			},
 			{ injector: this.injector },
 		)
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const item = this.ordered().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.eventType === key,
+		)
+		if (item) void this.select(item.eventType)
 	}
 }

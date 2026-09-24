@@ -15,7 +15,8 @@
 			hcmHeader
 			accessibleName="Catalogue filters"
 			accessibleMode="Edit"
-			layout="S1 M2 L3 XL3">
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
 			<ui5-form-item>
 				<ui5-label
 					slot="labelContent"
@@ -146,8 +147,10 @@
 				{{ accountError() }}
 			</ui5-message-strip>
 		}
-		<p>{{ rows().length }} of {{ entries().length }} applications</p>
+		<ui5-text>{{ rows().length }} of {{ entries().length }} applications</ui5-text>
 		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
 			accessibleName="Canonical applications"
 			overflowMode="Popin"
 			noDataText="No applications match the filters">
@@ -181,26 +184,21 @@
 					popinText="Entitlement">
 					Entitlement
 				</ui5-table-header-cell>
-				<ui5-table-header-cell
-					[importance]="100"
-					minWidth="6rem">
-					Action
-				</ui5-table-header-cell>
 			</ui5-table-header-row>
 			@for (app of rows(); track app.appCode) {
-				<ui5-table-row>
+				<ui5-table-row
+					[rowKey]="app.appCode"
+					[interactive]="true">
 					<ui5-table-cell>{{ app.title }}</ui5-table-cell>
 					<ui5-table-cell>{{ app.appCode }}</ui5-table-cell>
 					<ui5-table-cell>{{ app.domain }}</ui5-table-cell>
 					<ui5-table-cell>{{ app.status === 'complete' ? 'Available' : 'Planned' }}</ui5-table-cell>
 					<ui5-table-cell>{{ app.entitled ? 'Enabled' : 'Not enabled' }}</ui5-table-cell>
-					<ui5-table-cell>
-						<ui5-button
-							[accessibleName]="'Inspect ' + app.title"
-							(click)="select(app.appCode)">
-							Inspect
-						</ui5-button>
-					</ui5-table-cell>
+
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="select(app.appCode)"></ui5-table-row-action-navigation>
 				</ui5-table-row>
 			}
 		</ui5-table>

@@ -1,3 +1,4 @@
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -40,6 +41,7 @@ import { AccountDialogComponent } from './account-dialog.component'
 @Component({
 	selector: 'ef-hcm-identity-administration',
 	imports: [
+		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		Form,
@@ -221,5 +223,14 @@ export class IdentityAdministrationComponent {
 				),
 			{ injector: this.injector },
 		)
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const item = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.id === key,
+		)
+		if (item) void this.select(item.id)
 	}
 }

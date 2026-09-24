@@ -16,7 +16,8 @@
 			hcmHeader
 			accessibleName="Templates sorting"
 			accessibleMode="Edit"
-			layout="S1 M1 L1 XL1">
+			layout="S1 M1 L1 XL1"
+			labelSpan="S12 M12 L12 XL12">
 			<ui5-form-item>
 				<ui5-label
 					slot="labelContent"
@@ -31,9 +32,14 @@
 					<ui5-option value="event">Event code</ui5-option>
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item><ui5-button (click)="load()">Reload templates</ui5-button></ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load()">Reload templates</ui5-button>
+			</ui5-form-item>
 		</ui5-form>
 		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
 			accessibleName="Notification templates"
 			overflowMode="Popin"
 			noDataText="No configured events are available">
@@ -55,24 +61,19 @@
 					popinText="Revision">
 					Revision
 				</ui5-table-header-cell>
-				<ui5-table-header-cell
-					[importance]="100"
-					minWidth="8rem">
-					Actions
-				</ui5-table-header-cell>
 			</ui5-table-header-row>
 			@for (item of ordered(); track item.eventType) {
-				<ui5-table-row>
+				<ui5-table-row
+					[rowKey]="item.eventType"
+					[interactive]="true">
 					<ui5-table-cell>{{ eventLabel(item.eventType) }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.title }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.revision }}</ui5-table-cell>
-					<ui5-table-cell>
-						<ui5-button
-							[accessibleName]="'View ' + eventLabel(item.eventType)"
-							(click)="select(item.eventType)">
-							View template
-						</ui5-button>
-					</ui5-table-cell>
+
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="select(item.eventType)"></ui5-table-row-action-navigation>
 				</ui5-table-row>
 			}
 		</ui5-table>
@@ -92,23 +93,37 @@
 				efHcmObjectSection="overview"
 				label="Overview">
 				@if (selected(); as item) {
-					<dl>
-						<dt>Event</dt>
-						<dd>{{ item.eventType }}</dd>
-						<dt>Title</dt>
-						<dd>{{ item.title }}</dd>
-						<dt>Body</dt>
-						<dd>{{ item.body }}</dd>
-						<dt>Revision</dt>
-						<dd>{{ item.revision }}</dd>
-					</dl>
-					<p>Edits affect future in-app messages. Existing inbox content remains unchanged.</p>
+					<ui5-form
+						accessibleMode="Display"
+						layout="S1 M1 L2 XL2">
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Event</ui5-label>
+							<ui5-text>{{ item.eventType }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Title</ui5-label>
+							<ui5-text>{{ item.title }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Body</ui5-label>
+							<ui5-text>{{ item.body }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Revision</ui5-label>
+							<ui5-text>{{ item.revision }}</ui5-text>
+						</ui5-form-item>
+					</ui5-form>
+					<ui5-text>
+						Edits affect future in-app messages. Existing inbox content remains unchanged.
+					</ui5-text>
 				}
 			</ng-template>
 			<ng-template
 				efHcmObjectSection="preview"
 				label="Plain-text preview">
-				<p>Enter your own sample values. This preview sends no message and persists no data.</p>
+				<ui5-text>
+					Enter your own sample values. This preview sends no message and persists no data.
+				</ui5-text>
 				<ui5-form
 					accessibleName="Template preview samples"
 					accessibleMode="Edit"
@@ -137,10 +152,10 @@
 					</ui5-form-item>
 				</ui5-form>
 				@if (selected(); as item) {
-					<h2>Title preview</h2>
-					<p>{{ preview(item.title) }}</p>
-					<h2>Body preview</h2>
-					<p>{{ preview(item.body) }}</p>
+					<ui5-title level="H2">Title preview</ui5-title>
+					<ui5-text>{{ preview(item.title) }}</ui5-text>
+					<ui5-title level="H2">Body preview</ui5-title>
+					<ui5-text>{{ preview(item.body) }}</ui5-text>
 				}
 			</ng-template>
 		</ef-hcm-object-page>

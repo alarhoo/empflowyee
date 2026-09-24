@@ -1,3 +1,5 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -44,6 +46,8 @@ import { CatalogueDetailComponent } from './catalogue-detail.component'
 @Component({
 	selector: 'ef-hcm-catalogue-configuration',
 	imports: [
+		Text,
+		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		Form,
@@ -278,5 +282,14 @@ export class CatalogueConfigurationComponent {
 				),
 			{ injector: this.injector },
 		)
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const app = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.appCode === key,
+		)
+		if (app) void this.select(app.appCode)
 	}
 }

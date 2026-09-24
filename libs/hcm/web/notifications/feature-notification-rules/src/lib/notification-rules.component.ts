@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -38,6 +39,7 @@ import { RuleDialogComponent } from './rules-dialog.component'
 @Component({
 	selector: 'ef-hcm-notification-rules',
 	imports: [
+		Text,
 		HcmDynamicPage,
 		Form,
 		FormItem,

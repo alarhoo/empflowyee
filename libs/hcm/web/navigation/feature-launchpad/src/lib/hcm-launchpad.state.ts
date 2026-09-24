@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core'
+import { Injectable, computed, inject } from '@angular/core'
 import { HcmRuntimeStore, HcmApplicationNavigation } from '@empflowyee/hcm-web-runtime-context'
 import {
 	getVisibleHcmSpaces,
@@ -12,8 +12,8 @@ export class HcmLaunchpadState {
 	private readonly runtime = inject(HcmRuntimeStore)
 	readonly navigation = inject(HcmApplicationNavigation)
 	readonly query = this.navigation.query
-	readonly selectedSpaceId = signal('employee')
-	readonly selectedPageId = signal('employee-overview')
+	readonly selectedSpaceId = this.navigation.selectedSpaceId
+	readonly selectedPageId = this.navigation.selectedPageId
 	readonly unavailable = this.navigation.unavailable
 	readonly inspecting = this.navigation.inspecting
 	readonly spaces = computed(

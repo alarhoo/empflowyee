@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -26,7 +27,7 @@ import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-worker-share-dialog',
-	imports: [Dialog, CheckBox, TextArea, Label, Button, Bar, MessageStrip, FormField],
+	imports: [Text, Dialog, CheckBox, TextArea, Label, Button, Bar, MessageStrip, FormField],
 	templateUrl: 'worker-share-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

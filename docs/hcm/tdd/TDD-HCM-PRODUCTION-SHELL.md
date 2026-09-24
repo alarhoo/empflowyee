@@ -247,3 +247,36 @@ The source implements the tenant/session boundary, not real authentication. Unco
 Tenant context uses exact preserved Host registration and ignores forwarded headers. Managed ingress, production tenant-directory persistence, verified IdP/session adapters and cookie/CSRF implementation are prerequisites for activation. No Cloud Run IAM/ingress or database policy is changed. HCM container configuration must use `API_BASE_URL=/api`; existing direct-service environment values need reviewed IaC updates before deployment.
 
 Language and native density are applied through supported APIs. Every other presentation preference is resolved and exposed for future feature formatters. The shell does not change Angular's immutable bootstrap locale token or use private UI5 timezone APIs. See [localization](../architecture/shell/localization.md) and the [validation record](../testing/HCM-SHELL-VALIDATION.md).
+
+## Native shell interaction revision
+
+Use the installed Fundamental wrappers for UI5 ShellBar (branding/context content,
+start button), UserMenu, UserMenuAccount, UserSettingsDialog/Item/View/AccountView,
+NotificationList/NotificationListItem and ProductSwitch/Item. The existing UI5
+ShellBar content slot with its native separator fulfills the context-area responsibility; do not mix
+Fundamental Core shellbar internals into the web-component shellbar.
+
+`HcmApplicationNavigation` owns retained Space/Page signals and guarded return/sign-out
+intents. `HcmLaunchpadState` references these signals instead of resetting selection.
+`HcmRuntimeStore` resolves validated local language/date/time overrides after server
+preferences; storage contains presentation choices only, never access/session tokens.
+Development sign-out clears context and uses a tab-local signed-out flag. Explicit
+re-entry repeats the normal tenant/session discovery. Production logout remains deferred.
+
+The shell embeds the existing notification feature in an embedded mode, preserving
+its cursor, revision and idempotent read behavior. Settings embeds the existing
+notification-preference editor and honors its pending-save/dirty guard before closing
+or replacing persona. No new notification commands or recipient policies are introduced.
+`productLinks` is optional public deployment configuration (up to four HTTP(S) links,
+no URL credentials); destinations authenticate independently. Local Account/Console
+links require those development servers to be running.
+
+Business filters use native Form label spans of 12 at each breakpoint. Object detail
+properties use native Forms. The shared Object Page uses native FCL layout values for
+maximize/restore and resolves the existing non-mutating back/close action separately
+from mutating close commands. Native table row-click and row navigation actions share
+the feature's existing selection method. No business CSS or theme forks are added.
+
+Storybook remains on hold. Validate navigation, profile/settings persistence, dirty
+close protection, notifications, row keyboard activation and FCL controls directly
+in the app, with focused unit tests and normal architecture/lint/build gates.

@@ -5,6 +5,24 @@ import {
 	tenantHostnameHint,
 } from './theme-lab-policy'
 
+it('accepts only bounded web product destinations', /** Product navigation cannot execute scripts or embed credentials in public links. */ () => {
+	const base = { environment: 'local', releaseId: 'test', apiBaseUrl: '/api' }
+	const link = { title: 'Account', url: 'http://localhost:4300' }
+	expect(parseHcmBrowserRuntimeConfig({ ...base, productLinks: [link] }).productLinks).toEqual([
+		link,
+	])
+	for (const url of ['javascript:alert(1)', 'https://user:password@example.com', '/relative']) {
+		expect(
+			/** Reject an unsafe or ambiguous destination. */ () =>
+				parseHcmBrowserRuntimeConfig({ ...base, productLinks: [{ ...link, url }] }),
+		).toThrow()
+	}
+	expect(
+		/** Bound the native product menu to configured product destinations. */ () =>
+			parseHcmBrowserRuntimeConfig({ ...base, productLinks: Array(5).fill(link) }),
+	).toThrow('Invalid product links')
+})
+
 it('validates the HCM flag without passing arbitrary configuration fields through', /** Accept only the declared boolean extension of the public base contract. */ () => {
 	const config = { environment: 'prod', releaseId: 'test', apiBaseUrl: '/api' }
 	expect(

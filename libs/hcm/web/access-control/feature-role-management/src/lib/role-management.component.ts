@@ -1,3 +1,4 @@
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -44,6 +45,7 @@ import { RoleEditorComponent, type RoleEdit } from './role-editor.component'
 @Component({
 	selector: 'ef-hcm-role-management',
 	imports: [
+		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		RoleDetailComponent,
@@ -254,5 +256,14 @@ export class RoleManagementComponent {
 	/** Let the native editor confirm dirty navigation, including persona changes. */
 	canLeave(): Promise<boolean> {
 		return this.editor()?.canLeave() ?? Promise.resolve(true)
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const row = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.id === key,
+		)
+		if (row) void this.open('view', row)
 	}
 }

@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -40,6 +41,7 @@ import { ReviewDialogComponent, type ReviewAction } from './review-dialog.compon
 @Component({
 	selector: 'ef-hcm-review-detail',
 	imports: [
+		Text,
 		HcmObjectPage,
 		HcmObjectSection,
 		Table,

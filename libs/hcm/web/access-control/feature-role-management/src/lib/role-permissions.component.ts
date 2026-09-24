@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core'
 import { FormField, form } from '@angular/forms/signals'
 import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
@@ -7,7 +8,7 @@ import type { PermissionOption, PermissionKind } from '@empflowyee/hcm-access-co
 
 @Component({
 	selector: 'ef-hcm-role-permissions',
-	imports: [Input, CheckBox, Title, FormField],
+	imports: [Text, Input, CheckBox, Title, FormField],
 	templateUrl: './role-permissions.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

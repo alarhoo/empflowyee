@@ -1,7 +1,13 @@
+import { FlexibleColumnLayout } from '@fundamental-ngx/ui5-webcomponents-fiori/flexible-column-layout'
+import '@ui5/webcomponents-icons/dist/full-screen.js'
+import '@ui5/webcomponents-icons/dist/exit-full-screen.js'
+import '@ui5/webcomponents-icons/dist/decline.js'
 import {
 	ChangeDetectionStrategy,
 	Component,
 	computed,
+	inject,
+	signal,
 	contentChildren,
 	input,
 	output,
@@ -59,6 +65,17 @@ export interface HcmObjectAction {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HcmObjectPage {
+	readonly columns = inject(FlexibleColumnLayout, { optional: true })
+	readonly maximized = signal(false)
+	/** Expand the native middle column or restore its list/detail split. */
+	toggleMaximized(): void {
+		if (!this.columns) return
+		this.maximized.update(/** Toggle the selected detail's presentation only. */ (value) => !value)
+		this.columns.elementRef.nativeElement.layout = this.maximized()
+			? 'MidColumnFullScreen'
+			: 'TwoColumnsMidExpanded'
+	}
+
 	readonly title = input.required<string>()
 	readonly summary = input('')
 	readonly state = input<'content' | 'loading' | 'empty' | 'error' | 'denied' | 'unavailable'>(
@@ -72,11 +89,24 @@ export class HcmObjectPage {
 	readonly retry = output<void>()
 	readonly sectionChange = output<string>()
 	readonly sections = contentChildren(HcmObjectSection)
+	readonly navigationAction = computed(
+		/** Separate closing a detail column from business commands such as closing a review. */ () =>
+			this.actions().find(
+				/** Identify only a non-mutating return action. */ (item) =>
+					!item.mutates && (item.id === 'back' || item.id === 'close'),
+			),
+	)
+	/** Delegate closing to the feature so its route and dirty-state policy remain authoritative. */
+	closeDetail(): void {
+		const item = this.navigationAction()
+		if (item) this.action.emit(item.id)
+	}
 	readonly visibleActions = computed(
 		/** Keep non-mutating object actions available to read-only users. */ () =>
 			this.actions().filter(
 				/** Hide only actions explicitly marked as mutations. */ (item) =>
-					!item.mutates || (!this.readOnly() && this.state() === 'content'),
+					(item !== this.navigationAction() || !this.columns) &&
+					(!item.mutates || (!this.readOnly() && this.state() === 'content')),
 			),
 	)
 }

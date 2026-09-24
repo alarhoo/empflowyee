@@ -15,26 +15,38 @@
 					System role. Its label and permissions are read-only.
 				</ui5-message-strip>
 			}
-			<dl>
-				<dt>Role name</dt>
-				<dd>{{ item.label }}</dd>
-				<dt>Type</dt>
-				<dd>
-					{{
-						item.protectedAdmin
-							? 'Protected administrator'
-							: item.systemRole
-								? 'System role'
-								: 'Custom role'
-					}}
-				</dd>
-				<dt>Revision</dt>
-				<dd>{{ item.revision }}</dd>
-				<dt>Permissions</dt>
-				<dd>{{ item.permissionCount }}</dd>
-				<dt>Assignees</dt>
-				<dd>{{ item.assigneeCount }}</dd>
-			</dl>
+			<ui5-form
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Role name</ui5-label>
+					<ui5-text>{{ item.label }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Type</ui5-label>
+					<ui5-text>
+						{{
+							item.protectedAdmin
+								? 'Protected administrator'
+								: item.systemRole
+									? 'System role'
+									: 'Custom role'
+						}}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Revision</ui5-label>
+					<ui5-text>{{ item.revision }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Permissions</ui5-label>
+					<ui5-text>{{ item.permissionCount }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Assignees</ui5-label>
+					<ui5-text>{{ item.assigneeCount }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
 		}
 	</ng-template>
 	<ng-template
@@ -48,12 +60,12 @@
 	<ng-template
 		efHcmObjectSection="assignees"
 		label="Assignees">
-		<p>
+		<ui5-text>
 			Assignments are managed by Access Assignments. This section shows current role membership.
-		</p>
+		</ui5-text>
 		@switch (assigneeState()) {
 			@case ('loading') {
-				<p role="status">Loading assignees…</p>
+				<ui5-text role="status">Loading assignees…</ui5-text>
 			}
 			@case ('denied') {
 				<ui5-message-strip [hideCloseButton]="true">
@@ -111,7 +123,7 @@
 		label="History / Audit">
 		@switch (historyState()) {
 			@case ('loading') {
-				<p role="status">Loading history…</p>
+				<ui5-text role="status">Loading history…</ui5-text>
 			}
 			@case ('denied') {
 				<ui5-message-strip [hideCloseButton]="true">

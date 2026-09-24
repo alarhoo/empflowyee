@@ -1,3 +1,6 @@
+import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
+import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
+import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core'
 import { HcmObjectPage, HcmObjectSection } from '@empflowyee/hcm-web-ux-floorplan-object-page'
 import type { HcmPageState } from '@empflowyee/hcm-web-ux-floorplan-dynamic-page'
@@ -13,6 +16,9 @@ import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
 @Component({
 	selector: 'ef-hcm-catalogue-detail',
 	imports: [
+		Label,
+		FormItem,
+		Form,
 		HcmObjectPage,
 		HcmObjectSection,
 		Table,

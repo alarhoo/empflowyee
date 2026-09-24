@@ -1,3 +1,4 @@
+import { NotificationSummary } from '@empflowyee/hcm-web-notifications-feature-my-notifications'
 import { signal } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { Router, provideRouter } from '@angular/router'
@@ -25,6 +26,7 @@ it('composes resolved presentation and global search without owning launchpad st
 	})
 	TestBed.configureTestingModule({
 		providers: [
+			{ provide: NotificationSummary, useValue: { count: signal('') } },
 			provideRouter([{ path: '', children: [] }]),
 			{ provide: HcmThemeService, useValue: theme },
 			{

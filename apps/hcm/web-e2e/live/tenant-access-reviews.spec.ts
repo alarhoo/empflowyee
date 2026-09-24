@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -13,10 +14,11 @@ async function openReviews(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('TENANT_ACCESS_REVIEWS')
 	await page.getByRole('button', { name: 'Tenant Access Reviews — Available', exact: true }).click()
 	await expect(page.getByRole('grid', { name: 'Access reviews', exact: true })).toBeVisible()
@@ -128,14 +130,19 @@ test('creates, reviews and closes persisted evidence in native FCL with safe dra
 	)
 	expect(activity.status()).toBe(200)
 	expect(JSON.stringify(await activity.json())).not.toContain('Completed local acceptance review')
-	await detail.getByRole('button', { name: 'Back to reviews', exact: true }).click()
+	await detail.getByRole('button', { name: 'Close detail', exact: true }).click()
 	await expect(detail).toHaveCount(0)
-	await view.getByRole('button', { name: `View ${label}`, exact: true }).click()
+	await view
+		.getByRole('row')
+		.filter({ hasText: `${label}` })
+		.first()
+		.click()
 	await expect(detail.getByText('This review is closed and read-only.')).toBeVisible()
 	await page
 		.getByRole('banner', { name: 'Shell Bar' })
 		.getByRole('button', { name: 'David Wallace', exact: true })
 		.click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Jim Halpert', exact: false }).click()
 	await page.goto('/access-control/tenant-access-reviews')
@@ -153,8 +160,7 @@ test('keeps the native review list and Object Page accessible across themes and 
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {
@@ -180,7 +186,8 @@ test('keeps the native review list and Object Page accessible across themes and 
 			).toBeVisible()
 		}
 		await page
-			.getByRole('button', { name: /^View Browser review / })
+			.getByRole('row')
+			.filter({ hasText: /^Browser review / })
 			.first()
 			.click()
 		const detail = page.locator('ef-hcm-review-detail')
@@ -205,7 +212,7 @@ test('keeps the native review list and Object Page accessible across themes and 
 			path: `.tmp/hcm-tenant-access-reviews/${variant}-detail.png`,
 			fullPage: true,
 		})
-		await detail.getByRole('button', { name: 'Back to reviews', exact: true }).click()
+		await detail.getByRole('button', { name: 'Close detail', exact: true }).click()
 		await page.setViewportSize({ width: 1440, height: 1000 })
 		await expect(
 			page.getByRole('combobox', { name: 'Review sort order', exact: true }),

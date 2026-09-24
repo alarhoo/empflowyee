@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -39,6 +40,7 @@ export interface AssignmentAction {
 @Component({
 	selector: 'ef-hcm-assignment-dialog',
 	imports: [
+		Text,
 		Dialog,
 		Form,
 		FormItem,

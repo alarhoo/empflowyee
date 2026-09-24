@@ -11,7 +11,8 @@
 		hcmHeader
 		accessibleName="Classification filters"
 		accessibleMode="Edit"
-		layout="S1 M2 L3 XL3">
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
 		<ui5-form-item>
 			<ui5-label
 				slot="labelContent"
@@ -53,6 +54,7 @@
 			</ui5-select>
 		</ui5-form-item>
 		<ui5-form-item>
+			<ui5-label slot="labelContent">Actions</ui5-label>
 			<ui5-button
 				[disabled]="busy()"
 				(click)="load()">

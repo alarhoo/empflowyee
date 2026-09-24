@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { NgTemplateOutlet } from '@angular/common'
 import { Router } from '@angular/router'
 import { HcmDynamicPage } from '@empflowyee/hcm-web-ux-floorplan-dynamic-page'
@@ -45,6 +46,7 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-worker-upload',
 	imports: [
+		Text,
 		FileUploader,
 		NgTemplateOutlet,
 		HcmDynamicPage,

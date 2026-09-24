@@ -7,7 +7,9 @@
 		(ui5BeforeClose)="beforeClose($event)"
 		(ui5Close)="finishClose($event)">
 		<ng-container [ngTemplateOutlet]="fieldsContent"></ng-container>
-		<div slot="footer"><ng-container [ngTemplateOutlet]="actionsContent"></ng-container></div>
+		<ui5-bar slot="footer">
+			<ng-container [ngTemplateOutlet]="actionsContent"></ng-container>
+		</ui5-bar>
 	</ui5-dialog>
 } @else {
 	<ef-hcm-dynamic-page
@@ -15,7 +17,7 @@
 		summary="Role identity, registered permissions and change reason"
 		[showFooter]="true">
 		<ng-container [ngTemplateOutlet]="fieldsContent"></ng-container>
-		<div hcmFooter><ng-container [ngTemplateOutlet]="actionsContent"></ng-container></div>
+		<ui5-bar hcmFooter><ng-container [ngTemplateOutlet]="actionsContent"></ng-container></ui5-bar>
 	</ef-hcm-dynamic-page>
 }
 <ng-template #fieldsContent>
@@ -55,7 +57,7 @@
 				[readonly]="edit().mode === 'view' || edit().mode === 'delete'"
 				[disabled]="saving()"
 				[valueState]="fields.label().touched() && fields.label().invalid() ? 'Negative' : 'None'">
-				<span slot="valueStateMessage">Enter a role name of 1–100 characters.</span>
+				<ui5-text slot="valueStateMessage">Enter a role name of 1–100 characters.</ui5-text>
 			</ui5-input>
 		</ui5-form-item>
 		@if (edit().mode !== 'view') {
@@ -74,9 +76,11 @@
 					[valueState]="
 						fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'
 					">
-					<span slot="valueStateMessage">Enter a reason of 1–500 characters.</span>
+					<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
 				</ui5-textarea>
-				<p>Required for the audit record. Do not include sensitive personal information.</p>
+				<ui5-text>
+					Required for the audit record. Do not include sensitive personal information.
+				</ui5-text>
 			</ui5-form-item>
 		}
 	</ui5-form>
@@ -89,23 +93,21 @@
 	}
 </ng-template>
 <ng-template #actionsContent>
-	<ui5-bar>
-		@if (edit().mode !== 'view') {
-			<ui5-button
-				slot="endContent"
-				[design]="edit().mode === 'delete' ? 'Negative' : 'Emphasized'"
-				[disabled]="saving()"
-				(click)="save()">
-				{{ saving() ? 'Saving…' : edit().mode === 'delete' ? 'Delete role' : 'Save role' }}
-			</ui5-button>
-		}
+	@if (edit().mode !== 'view') {
 		<ui5-button
 			slot="endContent"
+			[design]="edit().mode === 'delete' ? 'Negative' : 'Emphasized'"
 			[disabled]="saving()"
-			(click)="cancel()">
-			{{ edit().mode === 'view' ? 'Close' : 'Cancel' }}
+			(click)="save()">
+			{{ saving() ? 'Saving…' : edit().mode === 'delete' ? 'Delete role' : 'Save role' }}
 		</ui5-button>
-	</ui5-bar>
+	}
+	<ui5-button
+		slot="endContent"
+		[disabled]="saving()"
+		(click)="cancel()">
+		{{ edit().mode === 'view' ? 'Close' : 'Cancel' }}
+	</ui5-button>
 </ng-template>
 <ui5-dialog
 	[open]="confirmOpen()"
@@ -113,7 +115,7 @@
 	accessibleName="Discard changes?"
 	initialFocus="keep-role-draft"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved role changes will be discarded.</p>
+	<ui5-text>Your unsaved role changes will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

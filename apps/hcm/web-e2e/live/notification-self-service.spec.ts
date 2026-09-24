@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { randomUUID } from 'node:crypto'
@@ -19,7 +20,7 @@ function headers() {
 /** Enter a real catalogue app using the default persisted employee account. */
 async function openApp(page: Page, code: string, title: string): Promise<void> {
 	await page.goto('/')
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill(code)
 	await page.getByRole('button', { name: title + ' — Available', exact: true }).click()
 }
@@ -90,7 +91,7 @@ test('filters the real inbox and retries a failed read without losing filters', 
 }) => {
 	await openApp(page, 'MY_NOTIFICATIONS', 'My Notifications')
 	const view = page.locator('ef-hcm-my-notifications')
-	await expect(view.getByRole('grid', { name: 'Your notifications' })).toBeVisible()
+	await expect(view.locator('ui5-notification-list')).toBeVisible()
 	const query = view.getByRole('textbox', { name: 'Search notification title or body' })
 	await query.fill('literal acceptance search')
 	await context.setOffline(true)
@@ -122,8 +123,7 @@ test('keeps both self-service pages accessible across four themes and sizes', /*
 			['her-light', 'HER Light'],
 			['her-dark', 'HER Dark'],
 		]) {
-			await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-			await page.getByRole('menuitemradio', { name: label }).click()
+			await selectAppearance(page, label)
 			await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 			await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 			for (const width of [390, 768, 1440, 2560]) {

@@ -6,7 +6,23 @@
 		[fdContentDensity]="densityMode()">
 		@if (runtime.context(); as context) {
 			<ui5-shellbar
+				[notificationsCount]="notifications.count()"
+				[showNotifications]="canReadNotifications()"
+				[showProductSwitch]="true"
+				(ui5NotificationsClick)="
+					notificationsOpener.set($event.detail.targetRef); notificationsOpen.set(true)
+				"
+				(ui5ProductSwitchClick)="
+					productsOpener.set($event.detail.targetRef); productsOpen.set(true)
+				"
 				(ui5ProfileClick)="profileOpener.set($event.detail.targetRef); profileOpen.set(true)">
+				@if (inApp()) {
+					<ui5-button
+						slot="startButton"
+						icon="nav-back"
+						accessibleName="Back to launchpad"
+						(ui5Click)="applications.back()"></ui5-button>
+				}
 				<ui5-shellbar-branding
 					slot="branding"
 					accessibleName="empFLOWyee home"
@@ -19,14 +35,11 @@
 						alt="empFLOWyee" />
 					empFLOWyee
 				</ui5-shellbar-branding>
-				@if (runtime.tenant()?.allowUserTheme) {
-					<ui5-shellbar-item
-						[icon]="theme.dark() ? 'light-mode' : 'dark-mode'"
-						text="Appearance"
-						(ui5Click)="
-							appearanceOpener.set($event.detail.targetRef); appearanceOpen.set(true)
-						"></ui5-shellbar-item>
-				}
+				<ui5-title
+					slot="content"
+					level="H2">
+					{{ appTitle() }}
+				</ui5-title>
 				<ui5-input
 					#applicationSearch="ui5Input"
 					slot="searchField"
@@ -39,7 +52,13 @@
 					slot="profile"
 					colorScheme="Placeholder"
 					[initials]="userInitials()"
-					[accessibleName]="context.user.displayName"></ui5-avatar>
+					[accessibleName]="context.user.displayName">
+					@if (context.user.avatarUrl; as photo) {
+						<img
+							[src]="photo"
+							[alt]="context.user.displayName" />
+					}
+				</ui5-avatar>
 			</ui5-shellbar>
 		} @else {
 			<ui5-shellbar>
@@ -82,16 +101,50 @@
 								accessibleRole="None">
 								<ui5-title level="H1">Access denied</ui5-title>
 							</ui5-bar>
-							<p>Your session does not have access to this application.</p>
+							<ui5-text>Your session does not have access to this application.</ui5-text>
 							<ui5-button routerLink="/">Return home</ui5-button>
 						</ui5-page>
 					}
-					<ef-hcm-appearance-menu
-						[open]="appearanceOpen()"
-						[opener]="appearanceOpener()"
-						(closed)="
-							appearanceOpen.set(false); appearanceOpener.set(null)
-						"></ef-hcm-appearance-menu>
+					<ui5-popover
+						headerText="Notifications"
+						[open]="notificationsOpen()"
+						[opener]="notificationsOpener()"
+						placement="Bottom"
+						horizontalAlign="End"
+						(ui5Close)="notificationsOpen.set(false)">
+						@if (notificationsOpen() && canReadNotifications()) {
+							<ef-hcm-my-notifications [embedded]="true"></ef-hcm-my-notifications>
+						}
+						<ui5-bar slot="footer">
+							<ui5-button
+								slot="endContent"
+								(ui5Click)="openNotifications()">
+								Open My Notifications
+							</ui5-button>
+						</ui5-bar>
+					</ui5-popover>
+					<ui5-popover
+						headerText="Products"
+						[open]="productsOpen()"
+						[opener]="productsOpener()"
+						placement="Bottom"
+						horizontalAlign="End"
+						(ui5Close)="productsOpen.set(false)">
+						<ui5-product-switch>
+							<ui5-product-switch-item
+								titleText="empFLOWyee HCM"
+								subtitleText="Your workforce workspace"
+								icon="employee"
+								(ui5Click)="productsOpen.set(false); applications.back()"></ui5-product-switch-item>
+							@for (product of productLinks(); track product.url) {
+								<ui5-product-switch-item
+									[titleText]="product.title"
+									[targetSrc]="product.url"
+									target="_blank"
+									icon="home"></ui5-product-switch-item>
+							}
+						</ui5-product-switch>
+					</ui5-popover>
 					<ef-hcm-profile-menu
 						[opener]="profileOpener()"
 						[open]="profileOpen()"
@@ -112,24 +165,34 @@
 						@switch (runtime.state().kind) {
 							@case ('tenant-loading') {
 								<ui5-busy-indicator [active]="true">
-									<p role="status">Finding your tenant…</p>
+									<ui5-text role="status">Finding your tenant…</ui5-text>
 								</ui5-busy-indicator>
 							}
 							@case ('session-loading') {
 								<ui5-busy-indicator [active]="true">
-									<p role="status">Loading your session…</p>
+									<ui5-text role="status">Loading your session…</ui5-text>
 								</ui5-busy-indicator>
 							}
 							@case ('tenant-not-found') {
-								<p role="alert">Tenant not found. Check your organization’s HCM address.</p>
+								<ui5-text role="alert">
+									Tenant not found. Check your organization’s HCM address.
+								</ui5-text>
 							}
 							@case ('tenant-suspended') {
-								<p role="alert">
+								<ui5-text role="alert">
 									This tenant is suspended or deactivated. Contact your tenant administrator.
-								</p>
+								</ui5-text>
+							}
+							@case ('signed-out') {
+								<ui5-title level="H2">Signed out of the development workspace</ui5-title>
+								<ui5-button
+									design="Emphasized"
+									(ui5Click)="runtime.resumeDevelopment()">
+									Enter development workspace
+								</ui5-button>
 							}
 							@case ('auth-required') {
-								<p>Sign in to continue to your workspace.</p>
+								<ui5-text>Sign in to continue to your workspace.</ui5-text>
 								@if (loginPath()) {
 									<ui5-button
 										design="Emphasized"
@@ -137,27 +200,28 @@
 										Sign in
 									</ui5-button>
 								} @else {
-									<p>Sign-in is not configured. Contact your tenant administrator.</p>
+									<ui5-text>Sign-in is not configured. Contact your tenant administrator.</ui5-text>
 								}
 							}
 							@case ('error') {
 								@if (runtime.state(); as state) {
 									@if (state.kind === 'error') {
-										<p role="alert">
+										<ui5-text role="alert">
 											{{
 												state.failure.code === 'forbidden'
 													? 'Access denied for this tenant.'
 													: 'Your workspace could not be loaded.'
 											}}
-										</p>
-										<p>Support reference: {{ state.failure.requestId }}</p>
+										</ui5-text>
+										<ui5-text>Support reference: {{ state.failure.requestId }}</ui5-text>
 									}
 								}
 							}
 						}
 						@if (
 							runtime.state().kind !== 'tenant-loading' &&
-							runtime.state().kind !== 'session-loading'
+							runtime.state().kind !== 'session-loading' &&
+							runtime.state().kind !== 'signed-out'
 						) {
 							<ui5-button (click)="retry()">Try again</ui5-button>
 						}

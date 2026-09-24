@@ -1,3 +1,4 @@
+import { FlexibleColumnLayout } from '@fundamental-ngx/ui5-webcomponents-fiori/flexible-column-layout'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it } from 'vitest'
 import { HcmObjectPage } from './object-page.component'
@@ -31,4 +32,34 @@ describe('HcmObjectPage', /** Verify the product-owned action policy; browser ch
 				.map(/** Compare the stable public identities. */ (item) => item.id),
 		).toEqual(['reference'])
 	})
+})
+
+it('restores the native split and separates navigation close from business close', /** The toolbar must not accidentally submit the Close review command. */ () => {
+	const native = { layout: 'TwoColumnsMidExpanded' }
+	TestBed.configureTestingModule({
+		providers: [
+			{ provide: FlexibleColumnLayout, useValue: { elementRef: { nativeElement: native } } },
+		],
+	})
+	const fixture = TestBed.createComponent(HcmObjectPage)
+	fixture.componentRef.setInput('title', 'Review')
+	fixture.componentRef.setInput('actions', [
+		{ id: 'back', label: 'Back to reviews' },
+		{ id: 'close', label: 'Close review', mutates: true },
+	])
+	const page = fixture.componentInstance
+	const emitted: string[] = []
+	page.action.subscribe(
+		/** Observe delegated navigation rather than a business mutation. */ (value) =>
+			emitted.push(value),
+	)
+	page.toggleMaximized()
+	expect(native.layout).toBe('MidColumnFullScreen')
+	page.toggleMaximized()
+	expect(native.layout).toBe('TwoColumnsMidExpanded')
+	page.closeDetail()
+	expect(emitted).toEqual(['back'])
+	expect(
+		page.visibleActions().map(/** Identify the retained business action. */ (item) => item.id),
+	).toEqual(['close'])
 })

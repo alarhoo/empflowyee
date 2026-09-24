@@ -7,13 +7,18 @@
 		footer: { role: 'region', name: title() + ' footer' },
 	}">
 	<ui5-dynamic-page-title slot="titleArea">
-		<h1 slot="heading">{{ title() }}</h1>
-		<h1
+		<ui5-title
+			level="H1"
+			slot="heading">
+			{{ title() }}
+		</ui5-title>
+		<ui5-title
+			level="H1"
 			slot="snappedHeading"
 			class="snapped-title">
 			{{ title() }}
-		</h1>
-		<span slot="subheading">{{ summary() }}</span>
+		</ui5-title>
+		<ui5-text slot="subheading">{{ summary() }}</ui5-text>
 		@if (state() === 'content' && visibleActions().length) {
 			<ui5-toolbar
 				slot="actionsBar"

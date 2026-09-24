@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -13,10 +14,11 @@ async function openTemplates(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('NOTIFICATION_TEMPLATES')
 	await page
 		.getByRole('button', { name: 'Notification Templates — Available', exact: true })
@@ -51,7 +53,7 @@ test('edits plain-text templates in a focused dialog from native Object Page det
 	try {
 		await openTemplates(page)
 		const view = page.locator('ef-hcm-notification-templates')
-		await view.getByRole('button', { name: 'View Document requested', exact: true }).click()
+		await view.getByRole('row').filter({ hasText: 'Document requested' }).first().click()
 		await expect(page).toHaveURL(/event=document.requested/)
 		await view.getByRole('tab', { name: 'Plain-text preview', exact: true }).click()
 		await view
@@ -94,7 +96,7 @@ test('edits plain-text templates in a focused dialog from native Object Page det
 				item.eventType === 'document.requested',
 		)
 		expect(saved.revision).toBe(original.revision + 1)
-		await view.getByRole('button', { name: 'Back to templates', exact: true }).click()
+		await view.getByRole('button', { name: 'Close detail', exact: true }).click()
 		await expect(view.getByRole('tab', { name: 'Overview', exact: true })).toHaveCount(0)
 	} finally {
 		await context.setOffline(false)
@@ -195,15 +197,14 @@ test('keeps template list-detail and rule actions accessible across four themes'
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const mode of ['list', 'detail', 'rules']) {
 			if (mode === 'detail')
-				await page.getByRole('button', { name: 'View Document requested', exact: true }).click()
+				await page.getByRole('row').filter({ hasText: 'Document requested' }).first().click()
 			if (mode === 'rules') {
-				await page.getByRole('button', { name: 'Back to templates', exact: true }).click()
+				await page.getByRole('button', { name: 'Close detail', exact: true }).click()
 				await page.getByRole('textbox', { name: 'Search applications' }).fill('NOTIFICATION_RULES')
 				await page
 					.getByRole('button', { name: 'Notification Rules — Available', exact: true })

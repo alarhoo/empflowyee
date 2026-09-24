@@ -1,3 +1,7 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
+import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
+import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { map } from 'rxjs'
 import {
 	ChangeDetectionStrategy,
@@ -34,6 +38,10 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-account-detail',
 	imports: [
+		Text,
+		Label,
+		FormItem,
+		Form,
 		HcmObjectPage,
 		HcmObjectSection,
 		Button,

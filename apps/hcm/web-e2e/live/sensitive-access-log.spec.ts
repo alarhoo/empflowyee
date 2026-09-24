@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -12,10 +13,11 @@ async function openSensitive(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('SENSITIVE_ACCESS_LOG')
 	await page.getByRole('button', { name: 'Sensitive Access Log — Available', exact: true }).click()
 	await expect(
@@ -73,6 +75,7 @@ test('TEST-SENSITIVE-ACCESS-LOG-005 keeps stream evidence truthful through retry
 		.getByRole('banner', { name: 'Shell Bar' })
 		.getByRole('button', { name: 'David Wallace', exact: true })
 		.click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Jim Halpert', exact: false }).click()
 	await page.goto('/audit/sensitive-access-log')
@@ -90,8 +93,7 @@ test('keeps the native sensitive-access filters and table accessible across them
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {

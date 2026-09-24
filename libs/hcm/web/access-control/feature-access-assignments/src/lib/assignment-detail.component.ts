@@ -1,3 +1,7 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
+import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
+import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -36,6 +40,10 @@ import { AssignmentDialogComponent, type AssignmentAction } from './assignment-d
 @Component({
 	selector: 'ef-hcm-assignment-detail',
 	imports: [
+		Text,
+		Label,
+		FormItem,
+		Form,
 		HcmObjectPage,
 		HcmObjectSection,
 		Table,

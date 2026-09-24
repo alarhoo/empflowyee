@@ -18,7 +18,8 @@
 			hcmHeader
 			accessibleName="Role filters"
 			accessibleMode="Edit"
-			layout="S1 M2 L4 XL4">
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
 			<ui5-form-item>
 				<ui5-label
 					slot="labelContent"
@@ -61,6 +62,7 @@
 				</ui5-select>
 			</ui5-form-item>
 			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
 					[disabled]="busy()"
 					(click)="load()">
@@ -83,6 +85,8 @@
 			</ui5-message-strip>
 		}
 		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
 			accessibleName="Tenant roles"
 			overflowMode="Popin"
 			noDataText="No roles match these filters"
@@ -125,7 +129,9 @@
 				</ui5-table-header-cell>
 			</ui5-table-header-row>
 			@for (row of rows(); track row.id) {
-				<ui5-table-row [rowKey]="row.id">
+				<ui5-table-row
+					[rowKey]="row.id"
+					[interactive]="true">
 					<ui5-table-cell>{{ row.label }}</ui5-table-cell>
 					<ui5-table-cell>
 						{{
@@ -140,12 +146,6 @@
 					<ui5-table-cell>{{ row.assigneeCount }}</ui5-table-cell>
 					<ui5-table-cell>{{ row.revision }}</ui5-table-cell>
 					<ui5-table-cell>
-						<ui5-button
-							[accessibleName]="'View ' + row.label"
-							[disabled]="busy()"
-							(click)="open('view', row)">
-							View
-						</ui5-button>
 						@if (canManage() && !row.systemRole) {
 							<ui5-button
 								[accessibleName]="'Edit ' + row.label"
@@ -161,6 +161,10 @@
 							</ui5-button>
 						}
 					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open('view', row)"></ui5-table-row-action-navigation>
 				</ui5-table-row>
 			}
 			@if (cursor()) {

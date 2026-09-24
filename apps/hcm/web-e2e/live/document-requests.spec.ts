@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { randomUUID } from 'node:crypto'
@@ -23,11 +24,12 @@ test.use({ actionTimeout: 20000 })
 	await page.goto('/')
 	if (hr) {
 		await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+		await page.getByRole('menuitem', { name: /^Settings/ }).click()
 		await page.getByRole('combobox', { name: 'Development persona' }).click()
 		await page.getByRole('option', { name: /Toby Flenderson/ }).click()
 		await expect(page.getByRole('button', { name: 'Toby Flenderson', exact: true })).toBeVisible()
 	}
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('DOCUMENT_REQUESTS')
 	await page.getByRole('button', { name: 'Document Requests — Available', exact: true }).click()
 	await expect(page.getByRole('grid', { name: 'Document requests', exact: true })).toBeVisible()
@@ -38,7 +40,11 @@ test.use({ actionTimeout: 20000 })
 ) {
 	await page.getByRole('textbox', { name: 'Search request IDs', exact: true }).fill(id)
 	await page.getByRole('button', { name: 'Apply filters', exact: true }).click()
-	await page.getByRole('button', { name: 'View ' + id, exact: true }).click()
+	await page
+		.getByRole('row')
+		.filter({ hasText: '' + id })
+		.first()
+		.click()
 	await expect(page.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
 }
 /** Follow native action relocation while FCL animates between responsive columns. */ async function action(
@@ -205,8 +211,7 @@ test('keeps request list and Object Page accessible across all themes and respon
 		['her-dark', 'HER Dark'],
 	]) {
 		await page.setViewportSize({ width: 1440, height: 1000 })
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {
@@ -214,7 +219,11 @@ test('keeps request list and Object Page accessible across all themes and respon
 			expect(
 				(await new AxeBuilder({ page }).include('ef-hcm-document-requests').analyze()).violations,
 			).toEqual([])
-			await page.getByRole('button', { name: 'View ' + item.id, exact: true }).click()
+			await page
+				.getByRole('row')
+				.filter({ hasText: '' + item.id })
+				.first()
+				.click()
 			await page.getByRole('tab', { name: 'Submissions', exact: true }).click()
 			await expect(
 				page.getByRole('button', { name: 'Download version 1', exact: true }),
@@ -228,16 +237,20 @@ test('keeps request list and Object Page accessible across all themes and respon
 						document.documentElement.scrollWidth <= innerWidth,
 				),
 			).toBe(true)
-			await action(page, 'Back to requests')
+			await action(page, 'Close detail')
 		}
 		await page.setViewportSize({ width: 1440, height: 1000 })
-		await page.getByRole('button', { name: 'View ' + item.id, exact: true }).click()
+		await page
+			.getByRole('row')
+			.filter({ hasText: '' + item.id })
+			.first()
+			.click()
 		await page.getByRole('tab', { name: 'Submissions', exact: true }).click()
 		await page.screenshot({
 			path: '.tmp/hcm-document-requests/' + variant + '.png',
 			fullPage: true,
 		})
-		await action(page, 'Back to requests')
+		await action(page, 'Close detail')
 	}
 })
 test('applies and removes persisted tenant branding on the real self-service screen', /** Temporarily change only local tenant presentation and restore its exact prior value even after failure. */ async ({

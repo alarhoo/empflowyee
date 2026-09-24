@@ -11,7 +11,7 @@
 		</ui5-button>
 	</ui5-bar>
 	@if (busy()) {
-		<p role="status">Loading domain information…</p>
+		<ui5-text role="status">Loading domain information…</ui5-text>
 	} @else if (error()) {
 		<ui5-message-strip
 			design="Negative"
@@ -26,16 +26,22 @@
 			Read-only Account projection. Domain registration, verification and removal are not available
 			here.
 		</ui5-message-strip>
-		<dl>
-			<dt>Tenant</dt>
-			<dd>
+		<ui5-form
+			accessibleMode="Display"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Tenant</ui5-label>
 				<ui5-text>{{ projection.tenantSlug }}</ui5-text>
-			</dd>
-			<dt>Tenant state</dt>
-			<dd>{{ projection.tenantStatus }}</dd>
-			<dt>Source</dt>
-			<dd>Account projection</dd>
-		</dl>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Tenant state</ui5-label>
+				<ui5-text>{{ projection.tenantStatus }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Source</ui5-label>
+				<ui5-text>Account projection</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
 		<ui5-title level="H2">Current hostnames</ui5-title>
 		@if (projection.hostnames.length) {
 			<ul aria-label="Current hostnames">

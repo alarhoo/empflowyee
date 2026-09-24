@@ -11,18 +11,28 @@
 		efHcmObjectSection="overview"
 		label="Overview">
 		@if (review(); as item) {
-			<dl>
-				<dt>Status</dt>
-				<dd>{{ item.status }}</dd>
-				<dt>Snapshot time</dt>
-				<dd>{{ item.createdAt }}</dd>
-				<dt>Revision</dt>
-				<dd>{{ item.revision }}</dd>
+			<ui5-form
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<ui5-text>{{ item.status }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Snapshot time</ui5-label>
+					<ui5-text>{{ item.createdAt }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Revision</ui5-label>
+					<ui5-text>{{ item.revision }}</ui5-text>
+				</ui5-form-item>
 				@if (item.closedAt) {
-					<dt>Closed at</dt>
-					<dd>{{ item.closedAt }}</dd>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Closed at</ui5-label>
+						<ui5-text>{{ item.closedAt }}</ui5-text>
+					</ui5-form-item>
 				}
-			</dl>
+			</ui5-form>
 		}
 		<ui5-message-strip
 			design="Information"
@@ -31,7 +41,7 @@
 			scope; closure does not certify future access.
 		</ui5-message-strip>
 		@if (review()?.status === 'Closed') {
-			<p>This review is closed and read-only.</p>
+			<ui5-text>This review is closed and read-only.</ui5-text>
 		}
 	</ng-template>
 	<ng-template

@@ -4,7 +4,7 @@
 	[accessibleName]="title()"
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
-	<p>Changes affect future in-app messages only.</p>
+	<ui5-text>Changes affect future in-app messages only.</ui5-text>
 	<ui5-form
 		accessibleName="Configuration change"
 		accessibleMode="Edit"
@@ -50,7 +50,7 @@
 	headerText="Discard changes?"
 	accessibleName="Discard changes?"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved configuration change will be discarded.</p>
+	<ui5-text>Your unsaved configuration change will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

@@ -7,19 +7,19 @@
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
 	@if (account(); as item) {
-		<p>{{ item.displayName }} — {{ item.email }}</p>
-		<p>
+		<ui5-text>{{ item.displayName }} — {{ item.email }}</ui5-text>
+		<ui5-text>
 			{{
 				item.enabled
 					? 'Disable this account. Its roles and history will be retained.'
 					: 'Enable this account without changing its roles.'
 			}}
-		</p>
+		</ui5-text>
 	} @else {
-		<p>
+		<ui5-text>
 			Create a local account for an existing person. This does not create credentials, an
 			invitation, a development persona or role grants.
-		</p>
+		</ui5-text>
 	}
 	@if (error()) {
 		<ui5-message-strip
@@ -96,7 +96,9 @@
 					[formField]="fields.email"
 					[disabled]="saving()"
 					[valueState]="fields.email().touched() && fields.email().invalid() ? 'Negative' : 'None'">
-					<span slot="valueStateMessage">Enter a valid email of at most 254 characters.</span>
+					<ui5-text slot="valueStateMessage">
+						Enter a valid email of at most 254 characters.
+					</ui5-text>
 				</ui5-input>
 			</ui5-form-item>
 		}
@@ -113,9 +115,9 @@
 				[formField]="fields.reason"
 				[disabled]="saving()"
 				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
-				<span slot="valueStateMessage">Enter a reason of 1–500 characters.</span>
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
 			</ui5-textarea>
-			<p>Required for audit. Do not include sensitive personal information.</p>
+			<ui5-text>Required for audit. Do not include sensitive personal information.</ui5-text>
 		</ui5-form-item>
 	</ui5-form>
 	<ui5-bar slot="footer">
@@ -140,7 +142,7 @@
 	accessibleName="Discard changes?"
 	initialFocus="keep-account-draft"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved account changes will be discarded.</p>
+	<ui5-text>Your unsaved account changes will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

@@ -32,6 +32,21 @@
 					(ui5Click)="action.emit(item.id)" />
 			}
 		</ui5-toolbar>
+		@if (columns) {
+			<ui5-toolbar
+				slot="navigationBar"
+				design="Transparent"
+				accessibleName="Detail navigation">
+				<ui5-toolbar-button
+					[icon]="maximized() ? 'exit-full-screen' : 'full-screen'"
+					[accessibleName]="maximized() ? 'Minimize detail' : 'Maximize detail'"
+					(ui5Click)="toggleMaximized()"></ui5-toolbar-button>
+				<ui5-toolbar-button
+					icon="decline"
+					accessibleName="Close detail"
+					(ui5Click)="closeDetail()"></ui5-toolbar-button>
+			</ui5-toolbar>
+		}
 	</ui5-dynamic-page-title>
 	@if (state() === 'content') {
 		<ui5-dynamic-page-header

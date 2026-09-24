@@ -63,7 +63,9 @@
 					[disabled]="saving()"></ui5-input>
 			</ui5-form-item>
 		} @else {
-			<p>{{ item()?.label }} · Revision {{ item()?.revision }}. Type and label remain unchanged.</p>
+			<ui5-text>
+				{{ item()?.label }} · Revision {{ item()?.revision }}. Type and label remain unchanged.
+			</ui5-text>
 		}
 		<ui5-form-item>
 			<ui5-label
@@ -95,10 +97,10 @@
 				[disabled]="saving()"></ui5-textarea>
 		</ui5-form-item>
 	</ui5-form>
-	<p>
+	<ui5-text>
 		PDF, PNG or JPEG up to 10 MiB. Reference files are HR-only. Do not enter sensitive details in
 		the reason.
-	</p>
+	</ui5-text>
 	@if (error()) {
 		<ui5-message-strip
 			design="Negative"
@@ -127,7 +129,7 @@
 	headerText="Discard changes?"
 	accessibleName="Discard changes?"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved file upload will be discarded.</p>
+	<ui5-text>Your unsaved file upload will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

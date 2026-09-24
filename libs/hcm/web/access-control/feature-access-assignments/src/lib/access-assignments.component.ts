@@ -1,3 +1,5 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -42,6 +44,8 @@ import { AssignmentDetailComponent } from './assignment-detail.component'
 @Component({
 	selector: 'ef-hcm-access-assignments',
 	imports: [
+		Text,
+		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		Form,
@@ -161,5 +165,14 @@ export class AccessAssignmentsComponent {
 	/** Delegate route/context leave protection to the sole pending assignment dialog. */
 	canLeave(): Promise<boolean> {
 		return this.detail()?.canLeave() ?? Promise.resolve(true)
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const item = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.accountId === key,
+		)
+		if (item) void this.select(item.accountId)
 	}
 }

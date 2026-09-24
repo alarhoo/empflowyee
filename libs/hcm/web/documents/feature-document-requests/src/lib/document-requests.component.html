@@ -18,7 +18,8 @@
 			hcmHeader
 			accessibleName="Request filters"
 			accessibleMode="Edit"
-			layout="S1 M1 L2 XL2">
+			layout="S1 M1 L2 XL2"
+			labelSpan="S12 M12 L12 XL12">
 			@if (canChooseScope()) {
 				<ui5-form-item>
 					<ui5-label
@@ -110,6 +111,7 @@
 				</ui5-select>
 			</ui5-form-item>
 			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
 					[disabled]="busy()"
 					(click)="load()">
@@ -118,6 +120,8 @@
 			</ui5-form-item>
 		</ui5-form>
 		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
 			accessibleName="Document requests"
 			overflowMode="Popin"
 			noDataText="No requests match the filters">
@@ -145,25 +149,20 @@
 					popinText="Due date">
 					Due date
 				</ui5-table-header-cell>
-				<ui5-table-header-cell
-					[importance]="100"
-					minWidth="7rem">
-					Actions
-				</ui5-table-header-cell>
 			</ui5-table-header-row>
 			@for (item of rows(); track item.id) {
-				<ui5-table-row>
+				<ui5-table-row
+					[rowKey]="item.id"
+					[interactive]="true">
 					<ui5-table-cell>{{ item.id }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.typeId }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.status }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.dueDate ?? 'No due date' }}</ui5-table-cell>
-					<ui5-table-cell>
-						<ui5-button
-							[accessibleName]="'View ' + item.id"
-							(click)="select(item.id)">
-							View request
-						</ui5-button>
-					</ui5-table-cell>
+
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="select(item.id)"></ui5-table-row-action-navigation>
 				</ui5-table-row>
 			}
 		</ui5-table>
@@ -190,36 +189,60 @@
 				efHcmObjectSection="overview"
 				label="Overview">
 				@if (selected(); as item) {
-					<dl>
-						<dt>Request ID</dt>
-						<dd>{{ item.id }}</dd>
-						<dt>Status</dt>
-						<dd>{{ item.status }}</dd>
-						<dt>Revision</dt>
-						<dd>{{ item.revision }}</dd>
-						<dt>Document type ID</dt>
-						<dd>{{ item.typeId }}</dd>
+					<ui5-form
+						accessibleMode="Display"
+						layout="S1 M1 L2 XL2">
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Request ID</ui5-label>
+							<ui5-text>{{ item.id }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Status</ui5-label>
+							<ui5-text>{{ item.status }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Revision</ui5-label>
+							<ui5-text>{{ item.revision }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Document type ID</ui5-label>
+							<ui5-text>{{ item.typeId }}</ui5-text>
+						</ui5-form-item>
 						@if (scope() === 'hr') {
-							<dt>Worker ID</dt>
-							<dd>{{ worker(item) }}</dd>
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Worker ID</ui5-label>
+								<ui5-text>{{ worker(item) }}</ui5-text>
+							</ui5-form-item>
 						}
-						<dt>Requested by</dt>
-						<dd>{{ requester(item) }}</dd>
-						<dt>Instructions</dt>
-						<dd>{{ item.instructions || 'No additional instructions' }}</dd>
-						<dt>Due date</dt>
-						<dd>{{ item.dueDate ?? 'No due date' }}</dd>
-						<dt>Created</dt>
-						<dd>{{ item.createdAt }}</dd>
-						<dt>Accepted submission</dt>
-						<dd>{{ item.acceptedVersionId ?? 'None' }}</dd>
-						<dt>Latest submission</dt>
-						<dd>{{ versions()[0]?.filename ?? 'No submissions loaded' }}</dd>
-					</dl>
-					<p>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Requested by</ui5-label>
+							<ui5-text>{{ requester(item) }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Instructions</ui5-label>
+							<ui5-text>{{ item.instructions || 'No additional instructions' }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Due date</ui5-label>
+							<ui5-text>{{ item.dueDate ?? 'No due date' }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Created</ui5-label>
+							<ui5-text>{{ item.createdAt }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Accepted submission</ui5-label>
+							<ui5-text>{{ item.acceptedVersionId ?? 'None' }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Latest submission</ui5-label>
+							<ui5-text>{{ versions()[0]?.filename ?? 'No submissions loaded' }}</ui5-text>
+						</ui5-form-item>
+					</ui5-form>
+					<ui5-text>
 						Due dates are informational. Previous submissions remain available after replacement or
 						completion.
-					</p>
+					</ui5-text>
 				}
 			</ng-template>
 			<ng-template
@@ -264,11 +287,6 @@
 							minWidth="10rem"
 							popinText="Created">
 							Created
-						</ui5-table-header-cell>
-						<ui5-table-header-cell
-							[importance]="100"
-							minWidth="7rem">
-							Actions
 						</ui5-table-header-cell>
 					</ui5-table-header-row>
 					@for (version of versions(); track version.id) {

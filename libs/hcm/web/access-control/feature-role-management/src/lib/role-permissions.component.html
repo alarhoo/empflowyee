@@ -3,10 +3,10 @@
 	placeholder="Filter by permission code or description"
 	type="Search"
 	[formField]="searchForm.q"></ui5-input>
-<p>
+<ui5-text>
 	{{ selected().length }} permissions selected. Discovery controls navigation; business operations
 	require independent API authorization.
-</p>
+</ui5-text>
 @for (group of groups; track group.kind) {
 	<ui5-title
 		level="H2"
@@ -15,17 +15,17 @@
 	</ui5-title>
 	@for (option of visible(); track option.code) {
 		@if (option.kind === group.kind) {
-			<p>
+			<ui5-text>
 				<ui5-checkbox
 					[text]="option.code + ' — ' + option.description"
 					[checked]="selected().includes(option.code)"
 					[readonly]="readOnly()"
 					wrappingType="Normal"
 					(ui5Change)="toggle(option.code, !selected().includes(option.code))"></ui5-checkbox>
-			</p>
+			</ui5-text>
 		}
 	}
 }
 @if (!visible().length) {
-	<p>No permissions match this selection.</p>
+	<ui5-text>No permissions match this selection.</ui5-text>
 }

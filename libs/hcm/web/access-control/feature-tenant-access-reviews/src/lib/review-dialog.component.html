@@ -5,20 +5,22 @@
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
 	@if (action().item; as item) {
-		<p>{{ item.accountLabel }} — {{ item.roleLabel }}</p>
-		<p>
+		<ui5-text>{{ item.accountLabel }} — {{ item.roleLabel }}</ui5-text>
+		<ui5-text>
 			Snapshot decision: {{ item.decision }}.
 			{{ item.stale ? 'Evidence has changed.' : 'Evidence is current.' }}
-		</p>
+		</ui5-text>
 	}
 	@if (action().operation === 'close') {
-		<p>
+		<ui5-text>
 			Close this snapshot only after all items are decided and retained evidence is current. Later
 			assignments are outside this review.
-		</p>
+		</ui5-text>
 	}
 	@if (action().decision === 'Revoke') {
-		<p>This removes the exact reviewed assignment. Other assignments remain unchanged.</p>
+		<ui5-text>
+			This removes the exact reviewed assignment. Other assignments remain unchanged.
+		</ui5-text>
 	}
 	@if (error()) {
 		<ui5-message-strip
@@ -43,7 +45,7 @@
 					[formField]="fields.label"
 					[disabled]="saving()"
 					[valueState]="fields.label().touched() && fields.label().invalid() ? 'Negative' : 'None'">
-					<span slot="valueStateMessage">Enter a label of 1–100 characters.</span>
+					<ui5-text slot="valueStateMessage">Enter a label of 1–100 characters.</ui5-text>
 				</ui5-input>
 			</ui5-form-item>
 		}
@@ -60,9 +62,9 @@
 				[rows]="3"
 				[disabled]="saving()"
 				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
-				<span slot="valueStateMessage">Enter a reason of 1–500 characters.</span>
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
 			</ui5-textarea>
-			<p>Required for audit. Do not include sensitive personal information.</p>
+			<ui5-text>Required for audit. Do not include sensitive personal information.</ui5-text>
 		</ui5-form-item>
 	</ui5-form>
 	<ui5-bar slot="footer">
@@ -87,7 +89,7 @@
 	accessibleName="Discard changes?"
 	initialFocus="keep-review-draft"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved review changes will be discarded.</p>
+	<ui5-text>Your unsaved review changes will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

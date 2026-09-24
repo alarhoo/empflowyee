@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -11,7 +12,7 @@ async function openSecurity(page: Page): Promise<void> {
 			console.log('BROWSER ERROR', error.message),
 	)
 	await page.goto('/')
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('MY_SECURITY')
 	await page.getByRole('button', { name: 'My Security — Available', exact: true }).click()
 	await expect(page.getByRole('heading', { name: 'Assigned roles', exact: true })).toBeVisible()
@@ -43,6 +44,7 @@ test('TEST-MY-SECURITY-005 reads own identity and real role search with retry', 
 		.getByRole('banner', { name: 'Shell Bar' })
 		.getByRole('button', { name: 'Jim Halpert', exact: true })
 		.click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Michael Scott', exact: false }).click()
 	await expect(
@@ -51,7 +53,7 @@ test('TEST-MY-SECURITY-005 reads own identity and real role search with retry', 
 			.getByRole('button', { name: 'Michael Scott', exact: true }),
 	).toBeVisible()
 	await expect(view).toHaveCount(0)
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('MY_SECURITY')
 	await page.getByRole('button', { name: 'My Security — Available', exact: true }).click()
 	await expect(view.getByText('Michael Scott', { exact: true })).toBeVisible()
@@ -69,8 +71,7 @@ test('keeps the native singleton page accessible across themes and sizes', /** C
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {

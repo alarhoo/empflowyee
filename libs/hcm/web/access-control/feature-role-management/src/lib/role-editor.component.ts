@@ -1,3 +1,4 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	HostListener,
@@ -41,6 +42,7 @@ export interface RoleEdit {
 @Component({
 	selector: 'ef-hcm-role-editor',
 	imports: [
+		Text,
 		Dialog,
 		NgTemplateOutlet,
 		HcmDynamicPage,

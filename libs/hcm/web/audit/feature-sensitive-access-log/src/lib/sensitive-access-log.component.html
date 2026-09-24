@@ -7,7 +7,8 @@
 		hcmHeader
 		accessibleName="Sensitive access filters"
 		accessibleMode="Edit"
-		layout="S1 M2 L3 XL3">
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
 		<ui5-form-item>
 			<ui5-label
 				slot="labelContent"
@@ -106,7 +107,7 @@
 		</ui5-button>
 	}
 	@if (pending()) {
-		<p role="status">Loading sensitive access events…</p>
+		<ui5-text role="status">Loading sensitive access events…</ui5-text>
 	}
 	<ui5-message-strip [hideCloseButton]="true">
 		Authorization alone does not confirm completion. A completion event records the server stream

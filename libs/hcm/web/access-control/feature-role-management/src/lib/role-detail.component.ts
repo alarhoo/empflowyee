@@ -1,3 +1,7 @@
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
+import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
+import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -34,6 +38,10 @@ import { RolePermissionsComponent } from './role-permissions.component'
 @Component({
 	selector: 'ef-hcm-role-detail',
 	imports: [
+		Text,
+		Label,
+		FormItem,
+		Form,
 		HcmObjectPage,
 		HcmObjectSection,
 		Button,

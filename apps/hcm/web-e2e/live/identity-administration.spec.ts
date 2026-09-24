@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -13,10 +14,11 @@ async function openIdentity(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('IDENTITY_ADMINISTRATION')
 	await page
 		.getByRole('button', { name: 'Identity Administration — Available', exact: true })
@@ -148,11 +150,10 @@ test('keeps native list/detail accessible across all themes and responsive width
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
-		await page.getByRole('button', { name: 'View Jim Halpert', exact: true }).click()
+		await page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first().click()
 		const detail = page.locator('ef-hcm-account-detail')
 		await expect(detail.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
 		for (const width of [390, 768, 1440, 2560]) {
@@ -179,15 +180,15 @@ test('keeps native list/detail accessible across all themes and responsive width
 			path: `.tmp/hcm-identity-administration/${variant}.png`,
 			fullPage: true,
 		})
-		await detail.getByRole('button', { name: 'Back to accounts', exact: true }).click()
-		await expect(page.getByRole('button', { name: 'View Jim Halpert', exact: true })).toBeFocused()
+		await detail.getByRole('button', { name: 'Close detail', exact: true }).click()
+		await expect(page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first()).toBeFocused()
 	}
 })
 test('protects the last administrator and preserves rejected status drafts', /** Verify the real invariant response rather than a disabled cosmetic control. */ async ({
 	page,
 }) => {
 	await openIdentity(page)
-	await page.getByRole('button', { name: 'View David Wallace', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'David Wallace' }).first().click()
 	await page
 		.locator('ef-hcm-account-detail')
 		.getByRole('button', { name: 'Disable account', exact: true })
@@ -210,6 +211,7 @@ test('protects the last administrator and preserves rejected status drafts', /**
 		.getByRole('banner', { name: 'Shell Bar' })
 		.getByRole('button', { name: 'David Wallace', exact: true })
 		.click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Jim Halpert', exact: false }).click()
 	await page.goto('/identity-access/identity-administration')
@@ -283,7 +285,7 @@ test('keeps authorized reads usable after management permission is removed', /**
 	try {
 		await openIdentity(page)
 		await expect(page.getByRole('button', { name: 'Create account', exact: true })).toHaveCount(0)
-		await page.getByRole('button', { name: 'View Jim Halpert', exact: true }).click()
+		await page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first().click()
 		const detail = page.locator('ef-hcm-account-detail')
 		await expect(detail.getByRole('button', { name: 'Disable account', exact: true })).toHaveCount(
 			0,

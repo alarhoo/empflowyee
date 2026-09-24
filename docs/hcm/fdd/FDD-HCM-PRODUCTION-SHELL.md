@@ -142,11 +142,24 @@ The launchpad uses landscape backgrounds, separated responsive tiles with mainta
 icons, canonical page descriptions and clear group counts. All theme adaptation is
 owned by the shared UX foundation and retains native controls and accessibility.
 
-The avatar opens an anchored dropdown with the server-provided name, optional email,
-tenant, My Profile action and development persona preferences. A separate native
-appearance menu immediately left of the avatar offers all four Horizon/HER variants
-and Follow device. The shell and landscape span the viewport; only content uses
-the shared centered width. Glass tiles and global transparent-track scrollbars
-follow the approved reference skin. The launchpad is a lazy navigation feature;
-global shell chrome remains independent of that screen.
-Manual changes persist across reloads; otherwise appearance follows the device.
+The avatar opens the native UI5 User Menu with the server-provided photo (initials
+fallback), name, email and tenant. Settings opens the native User Settings Dialog
+with User Information, Appearance, Language & Region and Notifications. Development
+persona and catalogue-inspection controls belong to User Information. Appearance
+includes all four Horizon/HER variants and Follow device, honoring tenant policy.
+Language/date/time presentation choices persist per account and tenant in this browser;
+notification choices use the existing database-backed self-preference service.
+
+The native shellbar displays branding and the current canonical app title, search,
+notifications, avatar and Product Switch. The notification tray and My Notifications
+share one domain-owned inbox implementation. Only existing read transitions are
+exposed; the reference image does not authorize deletion or bulk clearing. Product
+links come from public runtime configuration and grant no cross-product access.
+
+Every business route exposes Back to launchpad and preserves the selected Space/Page
+across lazy-screen recreation, including browser Back. Local-development Sign Out
+clears the workspace context and suspends automatic entry for this tab until explicit
+re-entry. This is not production identity-provider logout or token revocation.
+
+The shell and landscape span the viewport; only content uses the shared centered
+width. The launchpad remains a lazy navigation feature independent of shell chrome.

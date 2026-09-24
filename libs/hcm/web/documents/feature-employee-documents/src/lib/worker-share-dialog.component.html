@@ -4,10 +4,10 @@
 	accessibleName="Change version sharing"
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
-	<p>
+	<ui5-text>
 		Version {{ version().versionNumber }} · {{ version().filename }}. Other versions keep their
 		existing sharing settings.
-	</p>
+	</ui5-text>
 	<ui5-checkbox
 		text="Share this version with employee"
 		[formField]="fields.employeeVisible"
@@ -46,7 +46,7 @@
 	headerText="Discard changes?"
 	accessibleName="Discard changes?"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved sharing change will be discarded.</p>
+	<ui5-text>Your unsaved sharing change will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

@@ -26,15 +26,18 @@ pnpm dev:hcm-api
 ```
 
 Open `http://acme.localhost:4302`. The local API reads the persisted Dunder
-Mifflin tenant, Jim Halpert account and grants from PostgreSQL. Use the profile button to
-switch to Michael Scott, Toby Flenderson or David Wallace, or enable
-**Inspect all applications** to explore all five Spaces, 20 Pages and 170 apps.
-The appearance button beside the avatar offers Horizon Light/Dark, HER Light/Dark
-and Follow device, and remembers your choice
-locally. Until a preference is set, appearance follows the device. The anchored
-profile dropdown shows identity, email and persona preferences.
+Mifflin tenant, Jim Halpert account and grants from PostgreSQL. Open the avatar
+menu, then **Settings > User Information** to switch development personas or
+inspect all five Spaces, 20 Pages and 170 apps. **Appearance** offers Horizon
+Light/Dark, HER Light/Dark and Follow device. **Language & Region** saves account-scoped
+browser presentation preferences; **Notifications** edits the existing server-backed
+preferences. The bell opens the same native notification list as My Notifications.
+App Back returns to the selected Space/Page; detail columns offer close and
+maximize/minimize controls. Sign Out ends the local browser development session;
+explicit re-entry is available on the signed-out screen. See the
+[native interaction validation](docs/hcm/testing/HCM-NATIVE-INTERACTIONS-VALIDATION.md).
 Normal persona mode filters navigation by canonical roles and explicit discovery
-capabilities. Planned apps open one shared explanation; none has a business
+capabilities. Planned apps open one shared explanation; apps marked Planned have no business
 implementation yet, including My Profile.
 
 The Angular proxy preserves Host when forwarding `/api` to port 4402. Local

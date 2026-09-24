@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -11,14 +12,14 @@ test('retains begin-column filters and guards routed draft navigation', /** Brow
 	await openRoles(page)
 	await page.getByRole('searchbox', { name: 'Search role names' }).fill('Tenant')
 	await page.getByRole('button', { name: 'Apply filters', exact: true }).click()
-	await page.getByRole('button', { name: 'View Tenant Administrator', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'Tenant Administrator' }).first().click()
 	await expect(
 		page.locator('ef-hcm-role-detail').getByRole('tab', { name: 'Overview', exact: true }),
 	).toBeVisible()
 	await page.goBack()
 	await expect(page.locator('ef-hcm-role-detail')).toHaveCount(0)
 	await expect(page.getByRole('searchbox', { name: 'Search role names' })).toHaveValue('Tenant')
-	await expect(page.getByRole('button', { name: 'View Employee', exact: true })).toHaveCount(0)
+	await expect(page.getByRole('row').filter({ hasText: 'Employee' }).first()).toHaveCount(0)
 	await page.getByRole('button', { name: 'Create role', exact: true }).click()
 	await page.getByRole('textbox', { name: 'Role name', exact: true }).fill('Unsaved routed draft')
 	await page.getByRole('button', { name: 'empFLOWyee home', exact: true }).click()
@@ -49,10 +50,11 @@ async function openRoles(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('ROLE_MANAGEMENT')
 	await page.getByRole('button', { name: 'Role Management \u2014 Available', exact: true }).click()
 	await expect(page).toHaveURL(/\/access-control\/role-management$/, { timeout: 15000 })
@@ -104,9 +106,12 @@ test('TEST-ROLE-MANAGEMENT-005 manages real roles and preserves dirty drafts', /
 	await remove.getByRole('button', { name: 'Delete role', exact: true }).click()
 	await expect(remove).toBeHidden()
 	await expect(
-		page.getByRole('button', { name: `View ${label} updated`, exact: true }),
+		page
+			.getByRole('row')
+			.filter({ hasText: `${label} updated` })
+			.first(),
 	).toHaveCount(0)
-	await page.getByRole('button', { name: 'View Tenant Administrator', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'Tenant Administrator' }).first().click()
 	const view = page.locator('ef-hcm-role-detail')
 	await expect(
 		view.getByText('System role. Its label and permissions are read-only.'),
@@ -117,7 +122,7 @@ test('TEST-ROLE-MANAGEMENT-005 manages real roles and preserves dirty drafts', /
 	await expect(view.getByText('David Wallace', { exact: true })).toBeVisible()
 	await view.getByRole('tab', { name: 'History / Audit', exact: true }).click()
 	await expect(view.getByRole('grid', { name: 'Role audit history' })).toBeVisible()
-	await view.getByRole('button', { name: 'Back to roles', exact: true }).click()
+	await view.getByRole('button', { name: 'Close detail', exact: true }).click()
 	await expect(view).toBeHidden()
 })
 
@@ -132,8 +137,7 @@ test('uses all four native themes, responsive popins and accessible controls', /
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {
@@ -149,7 +153,7 @@ test('uses all four native themes, responsive popins and accessible controls', /
 			expect(result.violations).toEqual([])
 		}
 		await page.setViewportSize({ width: 1440, height: 1000 })
-		await page.getByRole('button', { name: 'View Tenant Administrator', exact: true }).click()
+		await page.getByRole('row').filter({ hasText: 'Tenant Administrator' }).first().click()
 		const detail = page.locator('ef-hcm-role-detail')
 		await expect(detail.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
 		for (const width of [390, 768, 1440, 2560]) {
@@ -170,9 +174,9 @@ test('uses all four native themes, responsive popins and accessible controls', /
 		}
 		await detail.getByRole('tab', { name: 'Overview', exact: true }).click()
 		await page.screenshot({ path: `.tmp/hcm-role-management/${variant}.png`, fullPage: true })
-		await detail.getByRole('button', { name: 'Back to roles', exact: true }).click()
+		await detail.getByRole('button', { name: 'Close detail', exact: true }).click()
 		await expect(
-			page.getByRole('button', { name: 'View Tenant Administrator', exact: true }),
+			page.getByRole('row').filter({ hasText: 'Tenant Administrator' }).first(),
 		).toBeFocused()
 	}
 	await page.getByRole('button', { name: 'Create role', exact: true }).click()
@@ -202,7 +206,7 @@ test('preserves failed commands and supports real query recovery', /** Disconnec
 	await context.setOffline(false)
 	await page.getByRole('button', { name: 'Retry', exact: true }).click()
 	await expect(
-		page.getByRole('button', { name: 'View Tenant Administrator', exact: true }),
+		page.getByRole('row').filter({ hasText: 'Tenant Administrator' }).first(),
 	).toBeVisible()
 	await page.getByRole('button', { name: 'Create role', exact: true }).click()
 	const editor = page.locator('ef-hcm-role-edit-page ef-hcm-role-editor')
@@ -226,6 +230,7 @@ test('preserves failed commands and supports real query recovery', /** Disconnec
 	await page.getByRole('button', { name: 'Discard changes', exact: true }).click()
 	await expect(editor).toBeHidden()
 	await page.getByRole('button', { name: 'David Wallace', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Jim Halpert', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'Jim Halpert', exact: true })).toBeVisible()

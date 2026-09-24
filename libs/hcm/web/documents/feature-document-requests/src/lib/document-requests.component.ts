@@ -1,3 +1,5 @@
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { viewChild } from '@angular/core'
 import { RequestActionDialogComponent } from './request-action-dialog.component'
 import getActiveElement from '@ui5/webcomponents-base/dist/util/getActiveElement.js'
@@ -50,6 +52,8 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-document-requests',
 	imports: [
+		TableRowActionNavigation,
+		Text,
 		RequestActionDialogComponent,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
@@ -409,5 +413,14 @@ export class DocumentRequestsComponent {
 					this.downloading.set(null)
 				},
 			})
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const item = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.id === key,
+		)
+		if (item) void this.select(item.id)
 	}
 }

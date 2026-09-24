@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -12,10 +13,11 @@ async function openCatalogue(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page
 		.getByRole('textbox', { name: 'Search applications' })
 		.fill('APP_CATALOGUE_CONFIGURATION')
@@ -33,14 +35,14 @@ test('TEST-APP-CATALOGUE-CONFIGURATION-005 inspects canonical data and real acco
 	await expect(page.getByText('170 of 170 applications', { exact: true })).toBeVisible()
 	await page.getByRole('textbox', { name: 'Search catalogue metadata' }).fill('SSO_CONFIGURATION')
 	await expect(page.getByText('1 of 170 applications', { exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Inspect SSO Configuration', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'SSO Configuration' }).first().click()
 	const detail = page.locator('ef-hcm-catalogue-detail')
 	await expect(detail.getByText('Planned', { exact: true })).toBeVisible()
-	await detail.getByRole('button', { name: 'Back to catalogue' }).click()
+	await detail.getByRole('button', { name: 'Close detail' }).click()
 	await page.getByRole('textbox', { name: 'Search catalogue metadata' }).fill('ROLE_MANAGEMENT')
 	await page.getByRole('combobox', { name: 'Discovery account', exact: true }).click()
 	await page.getByRole('option', { name: 'Jim Halpert', exact: false }).click()
-	await page.getByRole('button', { name: 'Inspect Role Management', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'Role Management' }).first().click()
 	await detail.getByRole('tab', { name: 'Discovery', exact: true }).click()
 	await expect(detail.getByText('Not discoverable', { exact: true })).toBeVisible()
 	await expect(
@@ -85,11 +87,10 @@ test('keeps native list/detail accessible across all themes and responsive width
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
-		await page.getByRole('button', { name: 'Inspect Role Management', exact: true }).click()
+		await page.getByRole('row').filter({ hasText: 'Role Management' }).first().click()
 		const detail = page.locator('ef-hcm-catalogue-detail')
 		await expect(detail.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
 		for (const width of [390, 768, 1440, 2560]) {
@@ -116,10 +117,8 @@ test('keeps native list/detail accessible across all themes and responsive width
 			path: `.tmp/hcm-catalogue-configuration/${variant}.png`,
 			fullPage: true,
 		})
-		await detail.getByRole('button', { name: 'Back to catalogue', exact: true }).click()
-		await expect(
-			page.getByRole('button', { name: 'Inspect Role Management', exact: true }),
-		).toBeFocused()
+		await detail.getByRole('button', { name: 'Close detail', exact: true }).click()
+		await expect(page.getByRole('row').filter({ hasText: 'Role Management' }).first()).toBeFocused()
 	}
 })
 test('applies and removes persisted tenant branding on the real catalogue screen', /** Temporarily change only local tenant presentation and restore its exact prior value even after failure. */ async ({

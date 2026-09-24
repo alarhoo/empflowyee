@@ -4,7 +4,9 @@
 	[accessibleName]="title()"
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
-	<p>Request {{ item().id }} · {{ item().status }} · Revision {{ item().revision }}</p>
+	<ui5-text>
+		Request {{ item().id }} · {{ item().status }} · Revision {{ item().revision }}
+	</ui5-text>
 	@if (action() === 'submit') {
 		<ui5-label for="request-file">Document file</ui5-label>
 		<ui5-file-uploader
@@ -17,13 +19,13 @@
 			[disabled]="saving()"
 			(ui5Change)="chooseFile($event)"
 			(ui5FileSizeExceed)="rejectFile()"></ui5-file-uploader>
-		<p>PDF, PNG or JPEG, up to 10 MiB. Submit one file for HR review.</p>
+		<ui5-text>PDF, PNG or JPEG, up to 10 MiB. Submit one file for HR review.</ui5-text>
 	} @else {
 		@if (action() === 'accept') {
-			<p>
+			<ui5-text>
 				Accept latest submission: {{ submission()?.filename ?? 'Unavailable' }} (version
 				{{ submission()?.versionNumber }}).
-			</p>
+			</ui5-text>
 		}
 		<ui5-label
 			for="request-reason"
@@ -64,7 +66,7 @@
 	headerText="Discard changes?"
 	accessibleName="Discard changes?"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved request action will be discarded.</p>
+	<ui5-text>Your unsaved request action will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

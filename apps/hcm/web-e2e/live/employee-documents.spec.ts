@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -13,10 +14,11 @@ async function openDocuments(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Toby Flenderson', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'Toby Flenderson', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('EMPLOYEE_DOCUMENTS')
 	await page.getByRole('button', { name: 'Employee Documents — Available', exact: true }).click()
 	await expect(page.getByRole('grid', { name: 'Employee documents', exact: true })).toBeVisible()
@@ -146,7 +148,11 @@ test('uploads worker documents on a routed page and changes sharing per version'
 	await expect(page.getByRole('button', { name: 'Download version 2', exact: true })).toBeVisible()
 	await expect(page.getByRole('button', { name: 'Download version 1', exact: true })).toBeVisible()
 	await detailAction(page, 'Back to documents')
-	await page.getByRole('button', { name: 'View ' + label, exact: true }).click()
+	await page
+		.getByRole('row')
+		.filter({ hasText: '' + label })
+		.first()
+		.click()
 	await page.getByRole('tab', { name: 'Versions', exact: true }).click()
 	await expect(page.getByRole('button', { name: 'Download version 2', exact: true })).toBeVisible()
 })
@@ -161,8 +167,7 @@ test('keeps employee document list, Object Page and focused upload accessible ac
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {
@@ -172,7 +177,8 @@ test('keeps employee document list, Object Page and focused upload accessible ac
 				(await new AxeBuilder({ page }).include('ef-hcm-employee-documents').analyze()).violations,
 			).toEqual([])
 			await page
-				.getByRole('button', { name: /^View Browser reference / })
+				.getByRole('row')
+				.filter({ hasText: /^Browser reference / })
 				.first()
 				.click()
 			await page.getByRole('tab', { name: 'Versions', exact: true }).click()
@@ -204,7 +210,8 @@ test('keeps employee document list, Object Page and focused upload accessible ac
 		}
 		await page.setViewportSize({ width: 1440, height: 1000 })
 		await page
-			.getByRole('button', { name: /^View Browser reference / })
+			.getByRole('row')
+			.filter({ hasText: /^Browser reference / })
 			.first()
 			.click()
 		await page.getByRole('tab', { name: 'Versions', exact: true }).click()

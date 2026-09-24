@@ -1,3 +1,5 @@
+import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -33,7 +35,20 @@ import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-templates-dialog',
-	imports: [Dialog, Form, FormItem, Label, Input, TextArea, Button, Bar, MessageStrip, FormField],
+	imports: [
+		Title,
+		Text,
+		Dialog,
+		Form,
+		FormItem,
+		Label,
+		Input,
+		TextArea,
+		Button,
+		Bar,
+		MessageStrip,
+		FormField,
+	],
 	templateUrl: './templates-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

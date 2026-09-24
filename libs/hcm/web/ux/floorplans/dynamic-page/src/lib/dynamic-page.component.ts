@@ -1,3 +1,5 @@
+import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core'
 import { DynamicPage } from '@fundamental-ngx/ui5-webcomponents-fiori/dynamic-page'
 import { DynamicPageTitle } from '@fundamental-ngx/ui5-webcomponents-fiori/dynamic-page-title'
@@ -25,6 +27,8 @@ export interface HcmPageAction {
 @Component({
 	selector: 'ef-hcm-dynamic-page',
 	imports: [
+		Title,
+		Text,
 		DynamicPage,
 		DynamicPageTitle,
 		DynamicPageHeader,

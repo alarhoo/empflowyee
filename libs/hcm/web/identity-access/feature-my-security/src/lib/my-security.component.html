@@ -11,7 +11,7 @@
 		</ui5-button>
 	</ui5-bar>
 	@if (busy()) {
-		<p role="status">Loading your security summary…</p>
+		<ui5-text role="status">Loading your security summary…</ui5-text>
 	} @else if (error()) {
 		<ui5-message-strip
 			design="Negative"
@@ -26,27 +26,35 @@
 			Local development persona session. Password, MFA and production session controls are not
 			available.
 		</ui5-message-strip>
-		<dl>
-			<dt>Name</dt>
-			<dd>
+		<ui5-form
+			accessibleMode="Display"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Name</ui5-label>
 				<ui5-text>{{ summary.displayName }}</ui5-text>
-			</dd>
-			<dt>Email</dt>
-			<dd>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Email</ui5-label>
 				<ui5-text>{{ summary.email }}</ui5-text>
-			</dd>
-			<dt>Account state</dt>
-			<dd>{{ summary.enabled ? 'Enabled' : 'Disabled' }}</dd>
-			<dt>Session mode</dt>
-			<dd>{{ summary.sessionMode }}</dd>
-			<dt>Current runtime context expires</dt>
-			<dd>{{ summary.expiresAt | date: 'medium' }}</dd>
-		</dl>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Account state</ui5-label>
+				<ui5-text>{{ summary.enabled ? 'Enabled' : 'Disabled' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Session mode</ui5-label>
+				<ui5-text>{{ summary.sessionMode }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Current runtime context expires</ui5-label>
+				<ui5-text>{{ summary.expiresAt | date: 'medium' }}</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
 		<ui5-title level="H2">Assigned roles</ui5-title>
-		<p>
+		<ui5-text>
 			Role visibility does not authorize every application. Each business API checks its own
 			permissions.
-		</p>
+		</ui5-text>
 		<ui5-form
 			accessibleName="Own role search"
 			accessibleMode="Edit"
@@ -77,7 +85,7 @@
 			<ui5-button (click)="loadRoles()">Retry roles</ui5-button>
 		}
 		@if (roleBusy()) {
-			<p role="status">Loading roles…</p>
+			<ui5-text role="status">Loading roles…</ui5-text>
 		}
 		<ui5-table
 			accessibleName="Your assigned roles"

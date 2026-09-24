@@ -11,6 +11,7 @@ export type {
 
 export type HcmRuntimeState =
 	| { kind: 'tenant-loading' }
+	| { kind: 'signed-out' }
 	| { kind: 'tenant-not-found' }
 	| { kind: 'tenant-suspended'; discovery: TenantDiscoveryResponse }
 	| { kind: 'auth-required'; discovery: TenantDiscoveryResponse }

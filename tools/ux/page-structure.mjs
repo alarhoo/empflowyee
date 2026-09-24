@@ -65,6 +65,15 @@ export function checkPageStructure(templates) {
 
 	for (const template of parsed.values()) {
 		for (const { node, ancestors } of elements(template.nodes)) {
+			if (
+				/libs\/hcm\/web\/[^/]+\/feature-/.test(template.file.replaceAll('\\', '/')) &&
+				!template.file.replaceAll('\\', '/').includes('/ux/') &&
+				['dl', 'dt', 'dd'].includes(node.name)
+			) {
+				problems.push(
+					`${template.file}: business details must use UI5 Form/FormItem, not ${node.name}`,
+				)
+			}
 			const expectedSlot = node.name === 'ui5-page' ? 'header' : 'titleArea'
 			if (node.name === 'ui5-page' || node.name === 'ui5-dynamic-page') {
 				const header = [...elements(node.children)].some(

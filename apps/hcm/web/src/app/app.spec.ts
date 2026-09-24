@@ -1,4 +1,4 @@
-import { ApplicationInitStatus, Component } from '@angular/core'
+import { ApplicationInitStatus, Component, input } from '@angular/core'
 import { DeferBlockState } from '@angular/core/testing'
 import { TestBed } from '@angular/core/testing'
 import { HcmShellComponent } from '@empflowyee/hcm-web-shell'
@@ -7,7 +7,9 @@ import { provideRuntimeConfig, RUNTIME_CONFIG } from '@empflowyee/platform-web-r
 import { parseHcmBrowserRuntimeConfig } from '@empflowyee/hcm-web-runtime-context'
 
 @Component({ selector: 'ef-hcm-shell', template: 'Production shell boundary' })
-class ShellBoundary {}
+class ShellBoundary {
+	readonly productLinks = input<readonly { title: string; url: string }[]>([])
+}
 
 it('composes a full-width shell with content framing delegated to routed screens', /** Keep the application root free of business implementation and viewport width constraints. */ async () => {
 	TestBed.configureTestingModule({ imports: [App] }).overrideComponent(App, {

@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -18,8 +19,7 @@ test('offers and persists all four themes, then resumes device appearance', /** 
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		await page.reload()
@@ -50,8 +50,7 @@ test('offers and persists all four themes, then resumes device appearance', /** 
 		expect(Math.abs((content?.x ?? 0) - (width - (content?.width ?? 0)) / 2)).toBeLessThan(8)
 	}
 	await page.setViewportSize({ width: 1440, height: 1000 })
-	await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-	await page.getByRole('menuitemradio', { name: 'Follow device' }).click()
+	await selectAppearance(page, 'Follow device')
 	await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', 'horizon-light')
 	await page.emulateMedia({ colorScheme: 'dark' })
 	await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', 'horizon-dark')
@@ -68,19 +67,14 @@ for (const mode of ['light', 'dark'] as const) {
 		await expect(page.getByRole('button', { name: 'Jim Halpert', exact: true })).toBeVisible()
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', `horizon-${mode}`)
 		const other = mode === 'light' ? 'dark' : 'light'
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page
-			.getByRole('menuitemradio', {
-				name: `Horizon ${other === 'light' ? 'Light' : 'Dark'}`,
-			})
-			.click()
+		await selectAppearance(page, `Horizon ${other === 'light' ? 'Light' : 'Dark'}`)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', `horizon-${other}`)
 		await page.reload()
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', `horizon-${other}`)
 		await profile(page, 'Jim Halpert')
 		await expect(page.getByText('jim.halpert@dundermifflin.example', { exact: true })).toBeVisible()
 		await expect(page.getByRole('combobox', { name: 'Workspace theme' })).toHaveCount(0)
-		const menu = page.getByRole('dialog', { name: 'Your workspace' })
+		const menu = page.getByRole('dialog', { name: /User menu for/ })
 		const avatar = await page
 			.getByRole('button', { name: 'Jim Halpert', exact: true })
 			.boundingBox()
@@ -98,7 +92,7 @@ for (const mode of ['light', 'dark'] as const) {
 /** Open the current native profile menu using the real session identity. */
 async function profile(page: Page, name: string): Promise<void> {
 	await page.getByRole('button', { name, exact: true }).click()
-	await expect(page.getByRole('dialog', { name: 'Your workspace' })).toBeVisible()
+	await expect(page.getByRole('dialog', { name: /User menu for/ })).toBeVisible()
 }
 
 /** Select a native tab through its maintained overflow menu when the label cannot fit. */
@@ -124,9 +118,10 @@ test('boots a real local tenant and inspects every catalogue placement', /** Ver
 	await expect(page.locator('ui5-tab[data-space]')).toHaveCount(1)
 	await profile(page, 'Jim Halpert')
 	await expect(page.getByText('jim.halpert@dundermifflin.example', { exact: true })).toBeVisible()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('checkbox', { name: 'Inspect all applications' }).click()
 	await expect(page.getByRole('checkbox', { name: 'Inspect all applications' })).toBeChecked()
-	await page.getByRole('button', { name: 'Done', exact: true }).click()
+	await page.getByRole('button', { name: 'Close', exact: true }).click()
 	await expect(page.locator('ui5-tab[data-space]')).toHaveCount(5)
 	const visited = new Set<string>()
 	let pageCount = 0
@@ -158,10 +153,10 @@ test('boots a real local tenant and inspects every catalogue placement', /** Ver
 			)
 			.sort(),
 	)
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('ACCESS_ASSIGNMENTS')
 	await expect(
-		page.getByRole('button', { name: 'Access Assignments — Planned', exact: true }),
+		page.getByRole('button', { name: 'Access Assignments — Available', exact: true }),
 	).toBeVisible()
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('MY_PROFILE')
 	await expect(page.locator('fd-tile')).toHaveCount(1)
@@ -175,9 +170,10 @@ test('boots a real local tenant and inspects every catalogue placement', /** Ver
 	await page.getByRole('button', { name: 'Close', exact: true }).click()
 	await expect(page).toHaveURL(/\/$/)
 	await profile(page, 'Jim Halpert')
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('checkbox', { name: 'Inspect all applications' }).click()
 	await expect(page.getByRole('checkbox', { name: 'Inspect all applications' })).not.toBeChecked()
-	await page.getByRole('button', { name: 'Done', exact: true }).click()
+	await page.getByRole('button', { name: 'Close', exact: true }).click()
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('ACCESS_ASSIGNMENTS')
 	await expect(page.getByRole('status')).toHaveText('No applications match your search.')
 })
@@ -194,6 +190,7 @@ test('switches server personas and preserves responsive native navigation', /** 
 		{ name: 'Jim Halpert', space: 'employee' },
 	]) {
 		await profile(page, current)
+		await page.getByRole('menuitem', { name: /^Settings/ }).click()
 		await page.getByRole('combobox', { name: 'Development persona' }).click()
 		await page.getByRole('option', { name: persona.name, exact: false }).click()
 		await expect(page.getByRole('button', { name: persona.name, exact: true })).toBeVisible()

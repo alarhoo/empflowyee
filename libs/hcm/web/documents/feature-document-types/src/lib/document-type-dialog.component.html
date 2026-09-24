@@ -22,7 +22,7 @@
 					[disabled]="saving()"></ui5-input>
 			</ui5-form-item>
 		} @else {
-			<p>Immutable code: {{ item()?.code }}</p>
+			<ui5-text>Immutable code: {{ item()?.code }}</ui5-text>
 		}
 		<ui5-form-item>
 			<ui5-label
@@ -70,10 +70,10 @@
 			</ui5-form-item>
 		}
 	</ui5-form>
-	<p>
+	<ui5-text>
 		Disabling a type prevents new documents, templates and requests. Existing access and
 		open-request fulfillment remain available.
-	</p>
+	</ui5-text>
 	@if (error()) {
 		<ui5-message-strip
 			design="Negative"
@@ -102,7 +102,7 @@
 	headerText="Discard changes?"
 	accessibleName="Discard changes?"
 	(ui5Close)="decide(false)">
-	<p>Your unsaved classification change will be discarded.</p>
+	<ui5-text>Your unsaved classification change will be discarded.</ui5-text>
 	<ui5-bar slot="footer">
 		<ui5-button
 			slot="endContent"

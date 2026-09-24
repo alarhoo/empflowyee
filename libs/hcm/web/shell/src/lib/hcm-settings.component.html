@@ -1,0 +1,174 @@
+<ui5-user-settings-dialog
+	headerText="Settings"
+	[open]="open()"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="closed.emit()">
+	<ui5-user-settings-item
+		text="User Information"
+		headerText="User Information"
+		icon="employee"
+		[selected]="true">
+		<ui5-user-settings-account-view>
+			<ui5-user-menu-account
+				slot="account"
+				[titleText]="runtime.context()?.user.displayName"
+				[subtitleText]="runtime.context()?.user.email"
+				[description]="runtime.tenant()?.displayName"
+				[avatarSrc]="runtime.context()?.user.avatarUrl"
+				[avatarInitials]="initials()"></ui5-user-menu-account>
+			<ui5-form
+				accessibleName="User information"
+				layout="S1 M1 L1 XL1"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Full name</ui5-label>
+					<ui5-text>{{ runtime.context()?.user.displayName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Email</ui5-label>
+					<ui5-text>{{ runtime.context()?.user.email ?? 'Not provided' }}</ui5-text>
+				</ui5-form-item>
+				@if (runtime.context()?.development; as development) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Development persona</ui5-label>
+						<ui5-select
+							accessibleName="Development persona"
+							[value]="development.personaId"
+							(ui5Change)="selectPersona($event.detail.selectedOption.value ?? '')">
+							@for (persona of development.personas; track persona.id) {
+								<ui5-option
+									[value]="persona.id"
+									[additionalText]="persona.roleLabel">
+									{{ persona.displayName }}
+								</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+					@if (development.catalogueInspection) {
+						<ui5-form-item>
+							<ui5-checkbox
+								#inspection="ui5CheckBox"
+								text="Inspect all applications"
+								[checked]="applications.inspecting()"
+								(ui5Change)="
+									applications.inspectAll.set(inspection.element.checked)
+								"></ui5-checkbox>
+						</ui5-form-item>
+					}
+				}
+			</ui5-form>
+		</ui5-user-settings-account-view>
+	</ui5-user-settings-item>
+	<ui5-user-settings-item
+		text="Appearance"
+		headerText="Appearance"
+		icon="palette">
+		<ui5-user-settings-view>
+			<ui5-form
+				accessibleName="Appearance"
+				layout="S1 M1 L1 XL1"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Theme</ui5-label>
+					<ui5-select
+						accessibleName="Theme"
+						[disabled]="!runtime.tenant()?.allowUserTheme"
+						[value]="appearance.preference() ?? 'system'"
+						(ui5Change)="appearance.select($event.detail.selectedOption.value ?? 'system')">
+						<ui5-option value="system">Follow device</ui5-option>
+						@for (theme of themes; track theme.id) {
+							<ui5-option [value]="theme.id">{{ theme.label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
+				Appearance is saved in this browser. Your organisation may lock the theme.
+			</ui5-text>
+		</ui5-user-settings-view>
+	</ui5-user-settings-item>
+	<ui5-user-settings-item
+		text="Language &amp; Region"
+		headerText="Language &amp; Region"
+		icon="globe">
+		<ui5-user-settings-view>
+			<ui5-form
+				accessibleName="Language and region preferences"
+				layout="S1 M1 L1 XL1"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Language</ui5-label>
+					<ui5-select
+						accessibleName="Language"
+						[value]="runtime.preferences().language"
+						(ui5Change)="
+							runtime.setPresentationPreference(
+								'language',
+								$event.detail.selectedOption.value ?? ''
+							)
+						">
+						<ui5-option value="en">English</ui5-option>
+						<ui5-option value="de">Deutsch</ui5-option>
+						<ui5-option value="fr">Français</ui5-option>
+						<ui5-option value="es">Español</ui5-option>
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Date format</ui5-label>
+					<ui5-select
+						accessibleName="Date format"
+						[value]="runtime.preferences().dateFormat"
+						(ui5Change)="
+							runtime.setPresentationPreference(
+								'dateFormat',
+								$event.detail.selectedOption.value ?? ''
+							)
+						">
+						<ui5-option value="short">Short</ui5-option>
+						<ui5-option value="medium">Medium</ui5-option>
+						<ui5-option value="long">Long</ui5-option>
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Time format</ui5-label>
+					<ui5-select
+						accessibleName="Time format"
+						[value]="runtime.preferences().timeFormat"
+						(ui5Change)="
+							runtime.setPresentationPreference(
+								'timeFormat',
+								$event.detail.selectedOption.value ?? ''
+							)
+						">
+						<ui5-option value="12h">12-hour</ui5-option>
+						<ui5-option value="24h">24-hour</ui5-option>
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Preview</ui5-label>
+					<ui5-text>{{ runtime.formatTimestamp(previewDate) }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Time zone</ui5-label>
+					<ui5-text>{{ runtime.preferences().timezone }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
+				Presentation preferences are saved for this account in this browser. Business content
+				remains in its authored language.
+			</ui5-text>
+		</ui5-user-settings-view>
+	</ui5-user-settings-item>
+	<ui5-user-settings-item
+		text="Notifications"
+		headerText="Notifications"
+		icon="bell">
+		<ui5-user-settings-view>
+			@if (canReadNotifications()) {
+				<ef-hcm-notification-preferences [embedded]="true"></ef-hcm-notification-preferences>
+			} @else {
+				<ui5-text>Notification preferences are not available for this account.</ui5-text>
+			}
+		</ui5-user-settings-view>
+	</ui5-user-settings-item>
+</ui5-user-settings-dialog>

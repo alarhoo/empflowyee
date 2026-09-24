@@ -17,7 +17,8 @@
 			hcmHeader
 			accessibleName="Review filters"
 			accessibleMode="Edit"
-			layout="S1 M2 L4 XL4">
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
 			<ui5-form-item>
 				<ui5-label
 					slot="labelContent"
@@ -59,6 +60,7 @@
 				</ui5-select>
 			</ui5-form-item>
 			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
 					[disabled]="busy()"
 					(click)="load()">
@@ -74,6 +76,8 @@
 			</ui5-message-strip>
 		}
 		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
 			accessibleName="Access reviews"
 			[loading]="busy()"
 			overflowMode="Popin"
@@ -96,24 +100,19 @@
 					popinText="Snapshot time">
 					Snapshot time
 				</ui5-table-header-cell>
-				<ui5-table-header-cell
-					[importance]="100"
-					minWidth="6rem">
-					Action
-				</ui5-table-header-cell>
 			</ui5-table-header-row>
 			@for (item of rows(); track item.id) {
-				<ui5-table-row>
+				<ui5-table-row
+					[rowKey]="item.id"
+					[interactive]="true">
 					<ui5-table-cell>{{ item.label }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.status }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.createdAt }}</ui5-table-cell>
-					<ui5-table-cell>
-						<ui5-button
-							[accessibleName]="'View ' + item.label"
-							(click)="select(item.id)">
-							View
-						</ui5-button>
-					</ui5-table-cell>
+
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="select(item.id)"></ui5-table-row-action-navigation>
 				</ui5-table-row>
 			}
 

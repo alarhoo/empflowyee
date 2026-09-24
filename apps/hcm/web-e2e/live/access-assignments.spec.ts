@@ -1,3 +1,4 @@
+import { selectAppearance, openApplicationSearch } from './shell-controls'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFileSync } from 'node:fs'
@@ -25,10 +26,11 @@ async function openAssignments(page: Page): Promise<void> {
 	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
-	await page.getByRole('button', { name: 'Search', exact: true }).click()
+	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('ACCESS_ASSIGNMENTS')
 	await page.getByRole('button', { name: 'Access Assignments — Available', exact: true }).click()
 	await expect(page.getByRole('grid', { name: 'Tenant accounts' })).toBeVisible()
@@ -60,7 +62,7 @@ test('TEST-ACCESS-ASSIGNMENTS-005 grants and revokes persisted roles through foc
 	expect(created.status()).toBe(201)
 	const role = (await created.json()) as RoleDetail
 	try {
-		await page.getByRole('button', { name: 'View Jim Halpert', exact: true }).click()
+		await page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first().click()
 		const detail = page.locator('ef-hcm-assignment-detail')
 		await expect(detail.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
 		await detail.getByRole('button', { name: 'Grant role', exact: true }).click()
@@ -153,11 +155,10 @@ test('keeps native list/detail accessible across all themes and responsive width
 		['her-light', 'HER Light'],
 		['her-dark', 'HER Dark'],
 	]) {
-		await page.getByRole('button', { name: 'Appearance', exact: true }).click()
-		await page.getByRole('menuitemradio', { name: label }).click()
+		await selectAppearance(page, label)
 		await expect(page.locator('html')).toHaveAttribute('data-hcm-theme-variant', variant)
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
-		await page.getByRole('button', { name: 'View Jim Halpert', exact: true }).click()
+		await page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first().click()
 		const detail = page.locator('ef-hcm-assignment-detail')
 		await expect(detail.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
 		for (const width of [390, 768, 1440, 2560]) {
@@ -179,15 +180,15 @@ test('keeps native list/detail accessible across all themes and responsive width
 			(await new AxeBuilder({ page }).include('ef-hcm-access-assignments').analyze()).violations,
 		).toEqual([])
 		await page.screenshot({ path: `.tmp/hcm-access-assignments/${variant}.png`, fullPage: true })
-		await detail.getByRole('button', { name: 'Back to accounts', exact: true }).click()
-		await expect(page.getByRole('button', { name: 'View Jim Halpert', exact: true })).toBeFocused()
+		await detail.getByRole('button', { name: 'Close detail', exact: true }).click()
+		await expect(page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first()).toBeFocused()
 	}
 })
 test('protects the last administrator and denies employee direct navigation', /** Surface the actual server invariant and keep failed drafts until explicit discard. */ async ({
 	page,
 }) => {
 	await openAssignments(page)
-	await page.getByRole('button', { name: 'View David Wallace', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'David Wallace' }).first().click()
 	const detail = page.locator('ef-hcm-assignment-detail')
 	await detail.getByRole('tab', { name: 'Roles', exact: true }).click()
 	await detail.getByRole('button', { name: 'Revoke Tenant Administrator', exact: true }).click()
@@ -206,6 +207,7 @@ test('protects the last administrator and denies employee direct navigation', /*
 		.getByRole('banner', { name: 'Shell Bar' })
 		.getByRole('button', { name: 'David Wallace', exact: true })
 		.click()
+	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
 	await page.getByRole('option', { name: 'Jim Halpert', exact: false }).click()
 	await expect(page.getByRole('button', { name: 'Jim Halpert', exact: true })).toBeVisible()
@@ -272,7 +274,7 @@ test('guards a dirty assignment against browser history navigation', /** Query-o
 	page,
 }) => {
 	await openAssignments(page)
-	await page.getByRole('button', { name: 'View Jim Halpert', exact: true }).click()
+	await page.getByRole('row').filter({ hasText: 'Jim Halpert' }).first().click()
 	await page
 		.locator('ef-hcm-assignment-detail')
 		.getByRole('button', { name: 'Grant role', exact: true })

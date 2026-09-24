@@ -1,3 +1,5 @@
+import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
+import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import getActiveElement from '@ui5/webcomponents-base/dist/util/getActiveElement.js'
 import { ActivatedRoute, Router } from '@angular/router'
 import { toSignal } from '@angular/core/rxjs-interop'
@@ -44,6 +46,8 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-my-documents',
 	imports: [
+		TableRowActionNavigation,
+		Text,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
 		HcmObjectPage,
@@ -309,5 +313,14 @@ export class MyDocumentsComponent {
 					this.downloading.set(null)
 				},
 			})
+	}
+
+	/** Open the same object from native pointer or keyboard row activation. */
+	openRow(key: string | undefined): void {
+		const item = this.rows().find(
+			/** Match the native row identity to the current server projection. */ (item) =>
+				item.id === key,
+		)
+		if (item) void this.select(item.id)
 	}
 }

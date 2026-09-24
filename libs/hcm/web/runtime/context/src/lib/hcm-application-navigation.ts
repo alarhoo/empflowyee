@@ -8,6 +8,8 @@ import { HcmRuntimeStore } from './hcm-runtime.store'
 export class HcmApplicationNavigation {
 	private readonly runtime = inject(HcmRuntimeStore)
 	private readonly router = inject(Router)
+	readonly selectedSpaceId = signal('employee')
+	readonly selectedPageId = signal('employee-overview')
 	readonly query = signal('')
 	readonly inspectAll = signal(false)
 	readonly unavailable = signal<HcmFeatureDefinition | null>(null)
@@ -15,6 +17,19 @@ export class HcmApplicationNavigation {
 		/** Honour only inspection capabilities advertised by the server session. */ () =>
 			this.inspectAll() && this.runtime.context()?.development?.catalogueInspection === true,
 	)
+	/** Return to the retained launchpad placement while respecting a dirty feature's leave guard. */
+	async back(): Promise<void> {
+		if (await this.router.navigateByUrl('/')) this.query.set('')
+	}
+	/** End only the local development workspace after the active feature permits leaving. */
+	async signOut(): Promise<void> {
+		if (!this.runtime.context()?.development) return
+		if (this.router.url !== '/' && !(await this.router.navigateByUrl('/'))) return
+		this.query.set('')
+		this.unavailable.set(null)
+		this.inspectAll.set(false)
+		this.runtime.signOutDevelopment()
+	}
 	/** Route global search to its catalogue-owned result screen. */
 	async search(value: string): Promise<void> {
 		this.query.set(value)
