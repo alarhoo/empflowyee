@@ -130,6 +130,9 @@
 			],
 			"@empflowyee/hcm-web-access-control-feature-app-catalogue-configuration": [
 				"./libs/hcm/web/access-control/feature-app-catalogue-configuration/src/index.ts"
+			],
+			"@empflowyee/hcm-web-identity-access-feature-domain-configuration": [
+				"./libs/hcm/web/identity-access/feature-domain-configuration/src/index.ts"
 			]
 		}
 	},

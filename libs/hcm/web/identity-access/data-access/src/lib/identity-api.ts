@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { timeout } from 'rxjs'
 import type {
 	AccountSummary,
+	DomainProjection,
 	IdentityPage,
 	PersonOption,
 	CreateAccount,
@@ -12,6 +13,10 @@ import type {
 export class IdentityApi {
 	private readonly http = inject(HttpClient)
 	private readonly base = '/api/v1/identity-access'
+	/** Read the current tenant hostname projection without accepting a tenant override. */
+	domains() {
+		return this.http.get<DomainProjection>(`${this.base}/domains`).pipe(timeout(15000))
+	}
 	/** Fetch only server-filtered persisted accounts in the verified runtime context. */
 	list(query: { q: string; enabled: string; sort: string; cursor?: string }) {
 		let params = new HttpParams().set('q', query.q).set('sort', query.sort)

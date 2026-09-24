@@ -621,7 +621,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['tenant-administration'],
 			route: '/identity-access/domain-configuration',
 			floorplan: 'UX-FP-STANDARD-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

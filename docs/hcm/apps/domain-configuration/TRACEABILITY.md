@@ -1,10 +1,10 @@
 # Domain Configuration — requirement traceability
 
-Status: design coverage complete; all test entries below are **planned, not executed**.
+Status: implemented and verified; see [validation evidence](../../testing/HCM-1-DOMAIN-CONFIGURATION-VALIDATION.md).
 
 ## MATRIX
 
-| Requirement                                                         | Design                      | Planned test                  |
+| Requirement                                                         | Design                      | Executed test                 |
 | ------------------------------------------------------------------- | --------------------------- | ----------------------------- |
 | [REQ-DOMAIN-CONFIGURATION-001](FDD.md#req-domain-configuration-001) | [TDD#READ](TDD.md#read)     | TEST-DOMAIN-CONFIGURATION-001 |
 | [REQ-DOMAIN-CONFIGURATION-002](FDD.md#req-domain-configuration-002) | [TDD#ACTION](TDD.md#action) | TEST-DOMAIN-CONFIGURATION-002 |
@@ -23,7 +23,7 @@ Exercise: Data matches the existing persisted tenant directory, not fabricated d
 
 Assert: Show the exact hostnames/tenant state known to runtime with a source label.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/domain-projection.database.spec.ts` and `apps/hcm/web-e2e/live/domain-configuration.spec.ts`; the validation record reports executed API, isolation, failure and browser checks.
 
 ## TEST-DOMAIN-CONFIGURATION-002
 
@@ -35,7 +35,7 @@ Exercise: Mutation requests have no handler; foreign tenant selector is rejected
 
 Assert: No register/verify/remove DNS or tenant lifecycle controls.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/domain-projection.database.spec.ts` and `apps/hcm/web-e2e/live/domain-configuration.spec.ts`; the validation record reports executed API, isolation, failure and browser checks.
 
 ## TEST-DOMAIN-CONFIGURATION-003
 
@@ -47,7 +47,7 @@ Exercise: Simulate missing projection and DB failure independently; 503 is not c
 
 Assert: Missing hostname projection displays an unavailable/empty explanation and retry, not a fake configured state.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/domain-projection.database.spec.ts` and `apps/hcm/web-e2e/live/domain-configuration.spec.ts`; the validation record reports executed API, isolation, failure and browser checks.
 
 ## TEST-DOMAIN-CONFIGURATION-004
 
@@ -59,7 +59,7 @@ Exercise: Test direct requests with missing grant/entitlement, disabled actor, f
 
 Assert: Every API enforces verified tenant, enabled actor, listed business permission, entitlement hcm.identity-access and subject scope. Browser visibility never authorizes an action.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/domain-projection.database.spec.ts` and `apps/hcm/web-e2e/live/domain-configuration.spec.ts`; the validation record reports executed API, isolation, failure and browser checks.
 
 ## TEST-DOMAIN-CONFIGURATION-005
 
@@ -71,7 +71,7 @@ Exercise: Exercise keyboard, responsive widths, all four themes, tenant-overlay 
 
 Assert: Use real API data with loading, empty, error/retry, unavailable/denied and read-only states. Preserve failed drafts and focus; no silent fallback to fixtures.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/domain-projection.database.spec.ts` and `apps/hcm/web-e2e/live/domain-configuration.spec.ts`; the validation record reports executed API, isolation, failure and browser checks.
 
 ## TEST-DOMAIN-CONFIGURATION-006
 
@@ -83,4 +83,4 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 
 Assert: Read models preserve source ownership and never write configuration or invent historical rows. Downloads, where offered, create actual sensitive-read evidence.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/domain-projection.database.spec.ts` and `apps/hcm/web-e2e/live/domain-configuration.spec.ts`; the validation record reports executed API, isolation, failure and browser checks.

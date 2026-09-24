@@ -1,0 +1,56 @@
+<ui5-page>
+	<ui5-bar
+		slot="header"
+		accessibleRole="None">
+		<ui5-title level="H1">Domain Configuration</ui5-title>
+		<ui5-button
+			slot="endContent"
+			[disabled]="busy()"
+			(click)="load()">
+			Refresh
+		</ui5-button>
+	</ui5-bar>
+	@if (busy()) {
+		<p role="status">Loading domain information…</p>
+	} @else if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+		<ui5-button (click)="load()">Retry</ui5-button>
+	} @else if (data(); as projection) {
+		<ui5-message-strip
+			design="Information"
+			[hideCloseButton]="true">
+			Read-only Account projection. Domain registration, verification and removal are not available
+			here.
+		</ui5-message-strip>
+		<dl>
+			<dt>Tenant</dt>
+			<dd>
+				<ui5-text>{{ projection.tenantSlug }}</ui5-text>
+			</dd>
+			<dt>Tenant state</dt>
+			<dd>{{ projection.tenantStatus }}</dd>
+			<dt>Source</dt>
+			<dd>Account projection</dd>
+		</dl>
+		<ui5-title level="H2">Current hostnames</ui5-title>
+		@if (projection.hostnames.length) {
+			<ul aria-label="Current hostnames">
+				@for (entry of projection.hostnames; track entry.hostname) {
+					<li>
+						<ui5-text>{{ entry.hostname }}</ui5-text>
+					</li>
+				}
+			</ul>
+		} @else {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				No hostname projection is available. Refresh to check again.
+			</ui5-message-strip>
+		}
+	}
+</ui5-page>

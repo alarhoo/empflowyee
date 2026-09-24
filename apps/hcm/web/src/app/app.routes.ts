@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'identity-access/domain-configuration',
+		data: { catalogId: 'DOMAIN_CONFIGURATION' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load only the approved read-only domain screen. */ () =>
+			import('@empflowyee/hcm-web-identity-access-feature-domain-configuration').then(
+				/** Resolve the domain-owned native Page. */ (m) => m.DomainConfigurationComponent,
+			),
+	},
+	{
 		path: 'access-control/app-catalogue-configuration',
 		data: { catalogId: 'APP_CATALOGUE_CONFIGURATION' },
 		canMatch: [hcmRouteAccess],
