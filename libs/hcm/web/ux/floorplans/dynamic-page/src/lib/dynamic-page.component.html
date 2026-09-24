@@ -2,7 +2,9 @@
 	[showFooter]="showFooter() && state() === 'content'"
 	[accessibilityAttributes]="{
 		root: { role: 'region', name: title() },
+		header: { role: 'region', name: title() + ' header' },
 		content: { role: 'region', name: title() + ' content' },
+		footer: { role: 'region', name: title() + ' footer' },
 	}">
 	<ui5-dynamic-page-title slot="titleArea">
 		<h1 slot="heading">{{ title() }}</h1>
