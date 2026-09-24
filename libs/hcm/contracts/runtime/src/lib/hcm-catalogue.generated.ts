@@ -588,10 +588,10 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			appCode: 'DOCUMENT_TEMPLATES',
 			title: 'Document Templates',
 			domain: 'documents',
-			catalogueIds: ['tenant-administration'],
+			catalogueIds: ['tenant-administration', 'hr-specialist-operations'],
 			route: '/documents/document-templates',
 			floorplan: 'UX-FP-FCL',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
@@ -2971,6 +2971,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 						'COMPLIANCE_TRACKING',
 						'WORKFLOW_OPERATIONS',
 						'DOCUMENT_TYPES',
+						'DOCUMENT_TEMPLATES',
 					],
 				},
 				{

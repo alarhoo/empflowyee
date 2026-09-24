@@ -1,0 +1,229 @@
+<ui5-flexible-column-layout
+	[layout]="selectedId() ? 'TwoColumnsMidExpanded' : 'OneColumn'"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Document template list' },
+		midColumn: { role: 'region', name: 'Selected document template' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Document Templates"
+		summary="HR-only reference files"
+		[state]="state()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		[errorMessage]="message()"
+		(action)="edit()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Reference template filters"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-search">
+					Search
+				</ui5-label>
+				<ui5-input
+					id="template-search"
+					accessibleName="Search template labels"
+					[formField]="fields.q"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-type-filter">
+					Document type ID
+				</ui5-label>
+				<ui5-input
+					id="template-type-filter"
+					accessibleName="Filter document type ID"
+					[formField]="fields.typeId"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-sort">
+					Sort
+				</ui5-label>
+				<ui5-select
+					id="template-sort"
+					accessibleName="Template sort"
+					[formField]="fields.sort">
+					<ui5-option value="label:asc">Label ascending</ui5-option>
+					<ui5-option value="label:desc">Label descending</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="load()">
+					Apply filters
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			accessibleName="Document templates"
+			overflowMode="Popin"
+			noDataText="No reference templates match the filters">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="10rem">
+					Label
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="12rem"
+					popinText="Type ID">
+					Type ID
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="20"
+					minWidth="5rem"
+					popinText="Revision">
+					Revision
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="7rem">
+					Actions
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of rows(); track item.id) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ item.label }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.typeId }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.revision }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'View ' + item.label"
+							(click)="select(item.id)">
+							View template
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+		@if (cursor()) {
+			<ui5-button
+				[disabled]="busy()"
+				(click)="more()">
+				Load more templates
+			</ui5-button>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selectedId()) {
+		<ef-hcm-object-page
+			slot="midColumn"
+			[title]="selected()?.label ?? 'Document template'"
+			summary="Immutable reference versions"
+			[state]="detailState()"
+			[readOnly]="!canManage()"
+			[actions]="detailActions()"
+			[errorMessage]="detailMessage()"
+			(action)="detailAction($event)"
+			(retry)="loadDetail()">
+			<ng-template
+				efHcmObjectSection="overview"
+				label="Overview">
+				@if (selected(); as item) {
+					<dl>
+						<dt>Label</dt>
+						<dd>{{ item.label }}</dd>
+						<dt>Document type ID</dt>
+						<dd>{{ item.typeId }}</dd>
+						<dt>Revision</dt>
+						<dd>{{ item.revision }}</dd>
+					</dl>
+					<p>
+						Reference versions are HR-only. Uploading a new version preserves earlier files and does
+						not share them with employees.
+					</p>
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="versions"
+				label="Versions">
+				@if (versionMessage()) {
+					<ui5-message-strip
+						design="Negative"
+						[hideCloseButton]="true">
+						{{ versionMessage() }}
+					</ui5-message-strip>
+				}
+				<ui5-button
+					[disabled]="versionBusy()"
+					(click)="loadVersions()">
+					{{ versionBusy() ? 'Loading versions…' : 'Reload versions' }}
+				</ui5-button>
+				<ui5-table
+					accessibleName="Reference versions"
+					overflowMode="Popin"
+					noDataText="No committed versions are available">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="4rem">
+							Version
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="80"
+							minWidth="10rem"
+							popinText="File">
+							File
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="30"
+							minWidth="7rem"
+							popinText="Bytes">
+							Bytes
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="20"
+							minWidth="10rem"
+							popinText="Created">
+							Created
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="7rem">
+							Actions
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (version of versions(); track version.id) {
+						<ui5-table-row>
+							<ui5-table-cell>{{ version.versionNumber }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.filename }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.byteLength }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.createdAt }}</ui5-table-cell>
+							<ui5-table-cell>
+								@if (canDownload()) {
+									<ui5-button
+										[disabled]="!!downloading()"
+										[accessibleName]="'Download version ' + version.versionNumber"
+										(click)="download(version)">
+										{{ downloading() === version.id ? 'Downloading…' : 'Download' }}
+									</ui5-button>
+								}
+							</ui5-table-cell>
+						</ui5-table-row>
+					}
+				</ui5-table>
+				@if (versionCursor()) {
+					<ui5-button
+						[disabled]="versionBusy()"
+						(click)="loadVersions(true)">
+						Load more versions
+					</ui5-button>
+				}
+			</ng-template>
+		</ef-hcm-object-page>
+	}
+</ui5-flexible-column-layout>
+@if (editing()) {
+	<ef-hcm-template-upload-dialog
+		[item]="uploadTarget()"
+		(closed)="changed($event)"></ef-hcm-template-upload-dialog>
+}

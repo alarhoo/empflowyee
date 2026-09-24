@@ -42,10 +42,16 @@ export function documentErrorMessage(error: unknown): string {
 	const code = error instanceof HttpErrorResponse ? error.error?.code : undefined
 	const messages: Record<string, string> = {
 		'invalid-request': 'Check the fields and filters.',
-		'not-found': 'This document classification is no longer available.',
+		'not-found': 'This document record is no longer available.',
+		'storage-unavailable':
+			'Private file storage is unavailable. Retry with the same file and draft.',
+		'file-too-large': 'Choose a file no larger than 10 MiB.',
+		'unsupported-file': 'Choose a PDF, PNG or JPEG whose file type and contents agree.',
+		'upload-failed':
+			'This upload reservation failed. Close and start a new upload after reviewing current data.',
+		'type-disabled': 'This document type is disabled for new records.',
 		'duplicate-code': 'This code already exists. Choose another code.',
-		'revision-conflict':
-			'The classification changed. Your draft is preserved; reload before continuing.',
+		'revision-conflict': 'The record changed. Your draft is preserved; reload before continuing.',
 		'idempotency-conflict': 'This retry belongs to another change. Reload before continuing.',
 		forbidden: 'You no longer have permission for this operation.',
 		unauthenticated: 'Your session is no longer available.',

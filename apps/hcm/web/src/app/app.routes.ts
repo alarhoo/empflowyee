@@ -14,6 +14,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'documents/document-templates',
+		data: { catalogId: 'DOCUMENT_TEMPLATES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load HR classification maintenance lazily. */ () =>
+			import('@empflowyee/hcm-web-documents-feature-document-templates').then(
+				/** Keep focused-form dirty-leave guards. */ (m) => m.DOCUMENT_TEMPLATES_ROUTES,
+			),
+	},
+	{
 		path: 'notifications/notification-templates',
 		data: { catalogId: 'NOTIFICATION_TEMPLATES' },
 		canMatch: [hcmRouteAccess],

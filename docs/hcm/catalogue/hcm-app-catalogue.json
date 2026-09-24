@@ -1272,12 +1272,18 @@
 			"runtime": "web",
 			"domain": "documents",
 			"deliveryWave": "HCM-1",
-			"catalogueIds": ["tenant-administration"],
+			"catalogueIds": ["tenant-administration", "hr-specialist-operations"],
 			"placements": [
 				{
 					"spaceId": "tenant-administration",
 					"pageId": "admin-reference-data",
 					"sectionId": "admin-people-documents",
+					"display": "tiles"
+				},
+				{
+					"spaceId": "hr-operations",
+					"pageId": "hr-governance-assets-engagement",
+					"sectionId": "hr-documents-governance",
 					"display": "tiles"
 				}
 			],
@@ -1287,7 +1293,7 @@
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
-			"implementationStatus": "planned",
+			"implementationStatus": "complete",
 			"dataPolicy": "real-api-only",
 			"themeContract": "theme-agnostic",
 			"customCssPolicy": "forbidden-by-default",

@@ -204,6 +204,9 @@
 			],
 			"@empflowyee/hcm-web-documents-feature-document-types": [
 				"./libs/hcm/web/documents/feature-document-types/src/index.ts"
+			],
+			"@empflowyee/hcm-web-documents-feature-document-templates": [
+				"./libs/hcm/web/documents/feature-document-templates/src/index.ts"
 			]
 		}
 	},

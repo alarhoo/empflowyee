@@ -13,6 +13,7 @@ Use Node 24.21.0 and pnpm 12.5.1, pinned in `package.json`. From the repository 
 pnpm install --frozen-lockfile
 pnpm exec node --version
 pnpm hcm:db:up
+pnpm hcm:documents:prepare
 pnpm dev:hcm --host=127.0.0.1
 ```
 
@@ -90,8 +91,10 @@ and pass their design admission gates. The first implementation slice adds
 transactional business authorization, protected-role metadata, 39 persisted business
 permissions and append-only audit storage. See the
 [slice validation and delivery status](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md).
-Available HCM-1 business apps are [Role Management](docs/hcm/testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md), [Access Assignments](docs/hcm/testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md) [Identity Administration](docs/hcm/testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md), [App Catalogue Configuration](docs/hcm/testing/HCM-1-CATALOGUE-CONFIGURATION-VALIDATION.md) [Domain Configuration](docs/hcm/testing/HCM-1-DOMAIN-CONFIGURATION-VALIDATION.md) [My Security](docs/hcm/testing/HCM-1-MY-SECURITY-VALIDATION.md) [Audit Log](docs/hcm/testing/HCM-1-AUDIT-LOG-VALIDATION.md) [My Activity](docs/hcm/testing/HCM-1-MY-ACTIVITY-VALIDATION.md) [Data Export Log](docs/hcm/testing/HCM-1-DATA-EXPORT-LOG-VALIDATION.md) [Sensitive Access Log](docs/hcm/testing/HCM-1-SENSITIVE-ACCESS-LOG-VALIDATION.md) [Tenant Access Reviews](docs/hcm/testing/HCM-1-TENANT-ACCESS-REVIEWS-VALIDATION.md) [notification self-service](docs/hcm/testing/HCM-1-NOTIFICATION-SELF-SERVICE-VALIDATION.md) [notification administration](docs/hcm/testing/HCM-1-NOTIFICATION-ADMINISTRATION-VALIDATION.md) and [Document Types](docs/hcm/testing/HCM-1-DOCUMENT-TYPES-VALIDATION.md), with real APIs and approved native floorplans. Role creation/editing uses dedicated routes; focused assignment actions use native dialogs.
-The remaining 4 local apps stay Planned; Document Templates is next.
+Available HCM-1 business apps are [Role Management](docs/hcm/testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md), [Access Assignments](docs/hcm/testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md) [Identity Administration](docs/hcm/testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md), [App Catalogue Configuration](docs/hcm/testing/HCM-1-CATALOGUE-CONFIGURATION-VALIDATION.md) [Domain Configuration](docs/hcm/testing/HCM-1-DOMAIN-CONFIGURATION-VALIDATION.md) [My Security](docs/hcm/testing/HCM-1-MY-SECURITY-VALIDATION.md) [Audit Log](docs/hcm/testing/HCM-1-AUDIT-LOG-VALIDATION.md) [My Activity](docs/hcm/testing/HCM-1-MY-ACTIVITY-VALIDATION.md) [Data Export Log](docs/hcm/testing/HCM-1-DATA-EXPORT-LOG-VALIDATION.md) [Sensitive Access Log](docs/hcm/testing/HCM-1-SENSITIVE-ACCESS-LOG-VALIDATION.md) [Tenant Access Reviews](docs/hcm/testing/HCM-1-TENANT-ACCESS-REVIEWS-VALIDATION.md) [notification self-service](docs/hcm/testing/HCM-1-NOTIFICATION-SELF-SERVICE-VALIDATION.md) [notification administration](docs/hcm/testing/HCM-1-NOTIFICATION-ADMINISTRATION-VALIDATION.md) [Document Types](docs/hcm/testing/HCM-1-DOCUMENT-TYPES-VALIDATION.md) and [Document Templates](docs/hcm/testing/HCM-1-DOCUMENT-TEMPLATES-VALIDATION.md), with real APIs and approved native floorplans. Role creation/editing uses dedicated routes; focused assignment actions use native dialogs.
+The remaining 3 local apps stay Planned: Employee Documents, My Documents and Document Requests.
+Private reference files use [local document storage](docs/hcm/engineering/DOCUMENT-STORAGE.md);
+back up PostgreSQL and the private file root together.
 
 ```sh
 pnpm hcm:catalogue:validate

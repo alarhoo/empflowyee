@@ -1,0 +1,144 @@
+<ui5-dialog
+	[open]="open()"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finish($event)">
+	<ui5-form
+		accessibleName="Reference file upload"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (!item()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-type-search">
+					Find document type
+				</ui5-label>
+				<ui5-input
+					id="template-type-search"
+					accessibleName="Find document type"
+					[formField]="searchFields.q"
+					[disabled]="saving()"></ui5-input>
+				<ui5-button
+					[disabled]="saving() || loadingTypes()"
+					(click)="loadTypes()">
+					Find types
+				</ui5-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-type">
+					Document type
+				</ui5-label>
+				<ui5-select
+					id="template-type"
+					accessibleName="Document type"
+					[formField]="fields.typeId"
+					[disabled]="saving() || loadingTypes()">
+					<ui5-option value="">Choose a type</ui5-option>
+					@for (option of options(); track option.id) {
+						<ui5-option [value]="option.id">{{ option.label }} ({{ option.code }})</ui5-option>
+					}
+				</ui5-select>
+				@if (nextTypes()) {
+					<ui5-button
+						[disabled]="loadingTypes()"
+						(click)="loadTypes(true)">
+						More types
+					</ui5-button>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-label">
+					Label
+				</ui5-label>
+				<ui5-input
+					id="template-label"
+					accessibleName="Label"
+					[formField]="fields.label"
+					[disabled]="saving()"></ui5-input>
+			</ui5-form-item>
+		} @else {
+			<p>{{ item()?.label }} · Revision {{ item()?.revision }}. Type and label remain unchanged.</p>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="template-file">
+				Reference file
+			</ui5-label>
+			<ui5-file-uploader
+				id="template-file"
+				accessibleName="Reference file"
+				accept=".pdf,.png,.jpg,.jpeg"
+				[maxFileSize]="10"
+				[multiple]="false"
+				[required]="true"
+				[disabled]="saving()"
+				(ui5Change)="chooseFile($event)"
+				(ui5FileSizeExceed)="rejectFile()"></ui5-file-uploader>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="template-reason">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="template-reason"
+				accessibleName="Reason"
+				[formField]="fields.reason"
+				[disabled]="saving()"></ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<p>
+		PDF, PNG or JPEG up to 10 MiB. Reference files are HR-only. Do not enter sensitive details in
+		the reason.
+	</p>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="saving()"
+			(click)="save()">
+			{{ saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved file upload will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
