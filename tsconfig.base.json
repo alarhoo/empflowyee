@@ -136,6 +136,13 @@
 			],
 			"@empflowyee/hcm-web-identity-access-feature-my-security": [
 				"./libs/hcm/web/identity-access/feature-my-security/src/index.ts"
+			],
+			"@empflowyee/hcm-audit-contract": ["./libs/hcm/contracts/audit/src/index.ts"],
+			"@empflowyee/hcm-api-audit-transport": ["./libs/hcm/api/audit/transport/src/index.ts"],
+			"@empflowyee/hcm-api-audit-module": ["./libs/hcm/api/audit/module/src/index.ts"],
+			"@empflowyee/hcm-web-audit-data-access": ["./libs/hcm/web/audit/data-access/src/index.ts"],
+			"@empflowyee/hcm-web-audit-feature-audit-log": [
+				"./libs/hcm/web/audit/feature-audit-log/src/index.ts"
 			]
 		}
 	},

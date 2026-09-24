@@ -83,7 +83,7 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; the native table exposes the full safe row projection, including summary, through responsive pop-ins. There is no separate object-detail action or dialog.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
 are part of this selection. No Object Page, generated List Report or custom floorplan.
@@ -92,7 +92,7 @@ Content columns/fields: Actor ID; action; target type/ID; outcome; timestamp; re
 
 Table declaration: mode **server**. Server from/to/action/outcome filters; sort occurredAt desc (default) or asc then id. No free-text q for logs; reject unsupported q instead of searching arbitrary JSON.
 Cursor pages default 25/max 100; native growing button loads the next cursor; sort and filter run on the server.
-Single row/detail action selection only; no bulk actions, column personalization,
+Read-only rows; no object selection, bulk actions, column personalization,
 virtualization or export. Native Popin retains secondary data with meaningful
 labels on narrow screens. Summary-only content does not invent a table.
 
@@ -127,6 +127,17 @@ Angular feature -> own data-access/contracts + existing UX floorplan; no imports
 from another feature or server implementation. Existing database/runtime/audit
 dependencies retain their own project ownership and public contracts. Thin app
 roots add only module composition and lazy-route registration.
+
+### Composition for existing audit persistence
+
+The module composes the existing access-control authorization executor with the
+audit-owned Kysely reader through an infrastructure callback port. The audit reader
+does not import access-control infrastructure: that infrastructure already consumes
+the transactional audit writer. This prevents a dependency cycle and preserves
+one common authorization boundary. No new schema or seeded history is needed.
+Only implemented action schemas are registered; future producers extend the
+allowlist when their approved slice is delivered. Summaries use explicit safe
+field projection and never serialize arbitrary JSON keys.
 
 ## DEPENDENCIES
 

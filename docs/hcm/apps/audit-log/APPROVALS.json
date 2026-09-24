@@ -20,19 +20,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "3553ae0e7c961dcd79e35957eeabf053f650d4894f49304304246230c09d28a4",
+			"sha256": "a483697b9242f3e085cee766d7e755a3952410a5d5589b12ec2947a5ce2948e8",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit UX correction instruction reconciles native responsive table with no separate detail workflow; domain composition follows approved boundaries, business scope unchanged"
 		},
 		{
 			"document": "TRACE",
-			"sha256": "99f84056717189978556b6ca32d517ee03491ef143f318d26d302dd03a973df7",
+			"sha256": "03422b688f58bf664e04a7de456aff04243babe3283c7571d41c90abbc0dc3de",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; approved requirements unchanged; execution evidence added in docs/hcm/testing/HCM-1-AUDIT-LOG-VALIDATION.md"
 		},
 		{
 			"document": "DECISIONS",

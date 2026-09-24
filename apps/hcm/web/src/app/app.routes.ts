@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'audit/audit-log',
+		data: { catalogId: 'AUDIT_LOG' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the authorized audit query screen lazily. */ () =>
+			import('@empflowyee/hcm-web-audit-feature-audit-log').then(
+				/** Keep audit screen composition in its owning domain. */ (m) => m.AuditLogComponent,
+			),
+	},
+	{
 		path: 'identity-access/my-security',
 		data: { catalogId: 'MY_SECURITY' },
 		canMatch: [hcmRouteAccess],

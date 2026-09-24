@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-audit-module",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/audit/module/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:audit", "type:module"],
+	"// targets": "to see all targets run: nx show project hcm-api-audit-module --web",
+	"targets": {}
+}
