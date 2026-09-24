@@ -1,0 +1,172 @@
+<ef-hcm-dynamic-page
+	title="My Notifications"
+	summary="Your in-app messages"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[errorMessage]="error()"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		accessibleName="Notification filters"
+		accessibleMode="Edit"
+		layout="S1 M2 L4 XL4">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="inbox-query">
+				Search
+			</ui5-label>
+			<ui5-input
+				id="inbox-query"
+				accessibleName="Search notification title or body"
+				[formField]="filterForm.q"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="inbox-unread">
+				Read state
+			</ui5-label>
+			<ui5-select
+				id="inbox-unread"
+				accessibleName="Notification read state"
+				[formField]="filterForm.unread">
+				<ui5-option value="">All messages</ui5-option>
+				<ui5-option value="true">Unread</ui5-option>
+				<ui5-option value="false">Read</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="inbox-event">
+				Event
+			</ui5-label>
+			<ui5-select
+				id="inbox-event"
+				accessibleName="Notification event"
+				[formField]="filterForm.eventType">
+				<ui5-option value="">All events</ui5-option>
+				@for (event of events; track event) {
+					<ui5-option [value]="event">{{ eventLabel(event) }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="inbox-sort">
+				Sort
+			</ui5-label>
+			<ui5-select
+				id="inbox-sort"
+				accessibleName="Notification sort order"
+				[formField]="filterForm.sort">
+				<ui5-option value="createdAt:desc">Newest first</ui5-option>
+				<ui5-option value="createdAt:asc">Oldest first</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-button
+				[disabled]="pending() || !!reading()"
+				(click)="load()">
+				Apply filters
+			</ui5-button>
+		</ui5-form-item>
+	</ui5-form>
+	@if (notice()) {
+		<ui5-message-strip
+			design="Positive"
+			[hideCloseButton]="true">
+			{{ notice() }}
+		</ui5-message-strip>
+	}
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load()">
+			Retry inbox
+		</ui5-button>
+	}
+	<ui5-table
+		accessibleName="Your notifications"
+		overflowMode="Popin"
+		[loading]="pending()"
+		noDataText="No notifications match the filters">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem">
+				Message
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="12rem"
+				popinText="Event">
+				Event
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="14rem"
+				popinText="Created">
+				Created
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="50"
+				minWidth="8rem"
+				popinText="Read state">
+				Read state
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="9rem">
+				Actions
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (item of rows(); track item.id) {
+			<ui5-table-row>
+				<ui5-table-cell>
+					<strong>{{ item.title }}</strong>
+					<ui5-expandable-text
+						[text]="item.body"
+						[maxCharacters]="160"
+						overflowMode="InPlace"></ui5-expandable-text>
+				</ui5-table-cell>
+				<ui5-table-cell>{{ eventLabel(item.eventType) }}</ui5-table-cell>
+				<ui5-table-cell>{{ item.createdAt }}</ui5-table-cell>
+				<ui5-table-cell>{{ item.readAt ? 'Read' : 'Unread' }}</ui5-table-cell>
+				<ui5-table-cell>
+					@if (!item.readAt && canManage()) {
+						<ui5-button
+							[accessibleName]="'Mark read ' + item.title"
+							[disabled]="!!reading()"
+							(click)="markRead(item)">
+							Mark read
+						</ui5-button>
+					}
+					@if (requestFeature()) {
+						<ui5-button
+							[accessibleName]="'View request for ' + item.title"
+							(click)="openRequest(item)">
+							View request
+						</ui5-button>
+					} @else {
+						<span>Related request unavailable</span>
+					}
+				</ui5-table-cell>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	@if (cursor()) {
+		<ui5-button
+			[disabled]="pending() || !!reading()"
+			(click)="load(true)">
+			Load more notifications
+		</ui5-button>
+	}
+</ef-hcm-dynamic-page>

@@ -171,6 +171,15 @@
 			],
 			"@empflowyee/hcm-api-notifications-module": [
 				"./libs/hcm/api/notifications/module/src/index.ts"
+			],
+			"@empflowyee/hcm-web-notifications-data-access": [
+				"./libs/hcm/web/notifications/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-notifications-feature-my-notifications": [
+				"./libs/hcm/web/notifications/feature-my-notifications/src/index.ts"
+			],
+			"@empflowyee/hcm-web-notifications-feature-my-notification-preferences": [
+				"./libs/hcm/web/notifications/feature-my-notification-preferences/src/index.ts"
 			]
 		}
 	},

@@ -5,6 +5,24 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'notifications/my-notifications',
+		data: { catalogId: 'MY_NOTIFICATIONS' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the own-account message list lazily. */ () =>
+			import('@empflowyee/hcm-web-notifications-feature-my-notifications').then(
+				/** Select the owning notification feature. */ (m) => m.MyNotificationsComponent,
+			),
+	},
+	{
+		path: 'notifications/my-notification-preferences',
+		data: { catalogId: 'MY_NOTIFICATION_PREFERENCES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load guarded native preference settings lazily. */ () =>
+			import('@empflowyee/hcm-web-notifications-feature-my-notification-preferences').then(
+				/** Preserve dirty-draft route guards. */ (m) => m.NOTIFICATION_PREFERENCES_ROUTES,
+			),
+	},
+	{
 		path: 'access-control/tenant-access-reviews',
 		data: { catalogId: 'TENANT_ACCESS_REVIEWS' },
 		canMatch: [hcmRouteAccess],

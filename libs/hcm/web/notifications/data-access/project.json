@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-notifications-data-access",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/notifications/data-access/src",
+	"prefix": "ef",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:notifications", "type:data-access"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

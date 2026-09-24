@@ -1,0 +1,101 @@
+<ui5-page>
+	<ui5-bar
+		slot="header"
+		accessibleRole="None">
+		<ui5-title level="H1">My Notification Preferences</ui5-title>
+		<ui5-button
+			slot="endContent"
+			[disabled]="pending() || !!saving()"
+			(click)="reload()">
+			Reload preferences
+		</ui5-button>
+	</ui5-bar>
+	@if (pending()) {
+		<p role="status">Loading notification preferences…</p>
+	}
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+		@if (state() !== 'content') {
+			<ui5-button (click)="reload()">Retry preferences</ui5-button>
+		}
+	}
+	@if (state() === 'content') {
+		@if (!canManage()) {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				Read-only preferences. Changes are not available.
+			</ui5-message-strip>
+		}
+
+		<p>
+			Your choices apply to future in-app messages. Existing messages remain in your inbox. A
+			category disabled by your organisation stays disabled.
+		</p>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				[hideCloseButton]="true">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="In-app notification categories"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1">
+			@for (item of preferences(); track item.eventType) {
+				<ui5-form-item>
+					<ui5-checkbox
+						[text]="eventLabel(item.eventType)"
+						[accessibleName]="eventLabel(item.eventType)"
+						[formField]="fields[item.eventType]"
+						[disabled]="!canManage() || !!saving()"></ui5-checkbox>
+					@if (changed(item) && canManage()) {
+						<ui5-button
+							design="Emphasized"
+							[accessibleName]="'Save ' + eventLabel(item.eventType)"
+							[disabled]="!!saving()"
+							(click)="save(item)">
+							{{ saving() === item.eventType ? 'Saving…' : 'Save' }}
+						</ui5-button>
+						<ui5-button
+							[accessibleName]="'Cancel ' + eventLabel(item.eventType)"
+							[disabled]="!!saving()"
+							(click)="cancel(item)">
+							Cancel
+						</ui5-button>
+					}
+				</ui5-form-item>
+			}
+		</ui5-form>
+		@if (!pending() && !preferences().length) {
+			<p>No supported notification categories are available.</p>
+		}
+	}
+</ui5-page>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	initialFocus="keep-preference-draft"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved notification preferences will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			id="keep-preference-draft"
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
