@@ -1,0 +1,63 @@
+<ui5-dialog
+	[open]="open()"
+	headerText="Change version sharing"
+	accessibleName="Change version sharing"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finish($event)">
+	<p>
+		Version {{ version().versionNumber }} · {{ version().filename }}. Other versions keep their
+		existing sharing settings.
+	</p>
+	<ui5-checkbox
+		text="Share this version with employee"
+		[formField]="fields.employeeVisible"
+		[disabled]="saving()"></ui5-checkbox>
+	<ui5-label for="sharing-reason">Reason</ui5-label>
+	<ui5-textarea
+		id="sharing-reason"
+		accessibleName="Reason"
+		[formField]="fields.reason"
+		[disabled]="saving()"></ui5-textarea>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="saving()"
+			(click)="save()">
+			Save sharing
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved sharing change will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

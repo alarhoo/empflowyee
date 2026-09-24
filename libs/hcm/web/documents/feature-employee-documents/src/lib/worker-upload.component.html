@@ -1,0 +1,212 @@
+@if (item()) {
+	<ui5-dialog
+		[open]="open()"
+		[headerText]="title()"
+		[accessibleName]="title()"
+		(ui5BeforeClose)="beforeClose($event)"
+		(ui5Close)="finish($event)">
+		<ng-container [ngTemplateOutlet]="uploadFields"></ng-container>
+		<ui5-bar slot="footer">
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				[disabled]="saving()"
+				(click)="save()">
+				{{ saving() ? 'Saving…' : 'Save' }}
+			</ui5-button>
+			<ui5-button
+				slot="endContent"
+				[disabled]="saving()"
+				(click)="cancel()">
+				Cancel
+			</ui5-button>
+		</ui5-bar>
+	</ui5-dialog>
+} @else {
+	<ef-hcm-dynamic-page
+		title="Upload employee document"
+		summary="Choose the worker and classification, then upload and review sharing"
+		[state]="canManage() ? 'content' : 'denied'"
+		[actions]="pageActions()"
+		(action)="action($event)">
+		<ng-container [ngTemplateOutlet]="uploadFields"></ng-container>
+	</ef-hcm-dynamic-page>
+}
+<ng-template #uploadFields>
+	<ui5-form
+		accessibleName="Employee document upload"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (!item()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="worker-search">
+					Find worker
+				</ui5-label>
+				<ui5-input
+					id="worker-search"
+					accessibleName="Find worker"
+					[formField]="workerSearchFields.q"
+					[disabled]="saving()"></ui5-input>
+				<ui5-button
+					[disabled]="saving() || loadingWorkers()"
+					(click)="loadWorkers()">
+					Find workers
+				</ui5-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="worker-choice">
+					Worker
+				</ui5-label>
+				<ui5-select
+					id="worker-choice"
+					accessibleName="Worker"
+					[formField]="fields.workerId"
+					[disabled]="saving() || loadingWorkers()">
+					<ui5-option value="">Choose a worker</ui5-option>
+					@for (worker of workers(); track worker.id) {
+						<ui5-option [value]="worker.id">
+							{{ worker.displayName }} ({{ worker.workerCode }})
+						</ui5-option>
+					}
+				</ui5-select>
+				@if (nextWorkers()) {
+					<ui5-button
+						[disabled]="loadingWorkers()"
+						(click)="loadWorkers(true)">
+						More workers
+					</ui5-button>
+				}
+			</ui5-form-item>
+
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="worker-document-type-search">
+					Find document type
+				</ui5-label>
+				<ui5-input
+					id="worker-document-type-search"
+					accessibleName="Find document type"
+					[formField]="searchFields.q"
+					[disabled]="saving()"></ui5-input>
+				<ui5-button
+					[disabled]="saving() || loadingTypes()"
+					(click)="loadTypes()">
+					Find types
+				</ui5-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="worker-document-type">
+					Document type
+				</ui5-label>
+				<ui5-select
+					id="worker-document-type"
+					accessibleName="Document type"
+					[formField]="fields.typeId"
+					[disabled]="saving() || loadingTypes()">
+					<ui5-option value="">Choose a type</ui5-option>
+					@for (option of options(); track option.id) {
+						<ui5-option [value]="option.id">{{ option.label }} ({{ option.code }})</ui5-option>
+					}
+				</ui5-select>
+				@if (nextTypes()) {
+					<ui5-button
+						[disabled]="loadingTypes()"
+						(click)="loadTypes(true)">
+						More types
+					</ui5-button>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="worker-document-label">
+					Label
+				</ui5-label>
+				<ui5-input
+					id="worker-document-label"
+					accessibleName="Label"
+					[formField]="fields.label"
+					[disabled]="saving()"></ui5-input>
+			</ui5-form-item>
+		} @else {
+			<p>
+				{{ item()?.label }} · Revision {{ item()?.revision }}. Worker, type and label remain
+				unchanged.
+			</p>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="worker-document-file">
+				Document file
+			</ui5-label>
+			<ui5-file-uploader
+				id="worker-document-file"
+				accessibleName="Document file"
+				accept=".pdf,.png,.jpg,.jpeg"
+				[maxFileSize]="10"
+				[multiple]="false"
+				[required]="true"
+				[disabled]="saving()"
+				(ui5Change)="chooseFile($event)"
+				(ui5FileSizeExceed)="rejectFile()"></ui5-file-uploader>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="worker-document-reason">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="worker-document-reason"
+				accessibleName="Reason"
+				[formField]="fields.reason"
+				[disabled]="saving()"></ui5-textarea>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-checkbox
+				text="Share this version with employee"
+				[formField]="fields.employeeVisible"
+				[disabled]="saving()"></ui5-checkbox>
+		</ui5-form-item>
+	</ui5-form>
+	<p>
+		PDF, PNG or JPEG up to 10 MiB. Document files are HR-only. Do not enter sensitive details in the
+		reason.
+	</p>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+</ng-template>
+
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved file upload will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

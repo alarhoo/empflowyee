@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'documents/employee-documents',
+		data: { catalogId: 'EMPLOYEE_DOCUMENTS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Lazy-load the documents-owned worker workspace and routed create. */ () =>
+			import('@empflowyee/hcm-web-documents-feature-employee-documents').then(
+				/** Preserve all draft guards. */ (m) => m.EMPLOYEE_DOCUMENTS_ROUTES,
+			),
+	},
+
+	{
 		path: 'documents/document-types',
 		data: { catalogId: 'DOCUMENT_TYPES' },
 		canMatch: [hcmRouteAccess],

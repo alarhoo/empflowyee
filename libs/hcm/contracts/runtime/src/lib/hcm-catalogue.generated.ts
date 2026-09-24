@@ -665,8 +665,8 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'documents',
 			catalogueIds: ['hr-specialist-operations'],
 			route: '/documents/employee-documents',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			floorplan: 'UX-FP-FCL',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
