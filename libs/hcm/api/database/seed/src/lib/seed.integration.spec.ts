@@ -131,14 +131,14 @@ it('supports an empty test manifest and applies the canonical dataset through th
 		windowsHide: true,
 	})
 	expect(result.status).toBe(0)
-	expect(result.stdout).toContain('8 module versions changed')
+	expect(result.stdout).toContain('9 module versions changed')
 	const reset = spawnSync(
 		process.execPath,
 		['tools/hcm-database/seed.mts', '--reset', '--confirm=local-dunder-mifflin'],
 		{ env: { ...process.env, ...env }, encoding: 'utf8', windowsHide: true },
 	)
 	expect(reset.status).toBe(0)
-	expect(reset.stdout).toContain('seed reset complete: 8')
+	expect(reset.stdout).toContain('seed reset complete: 9')
 	const rejected = spawnSync(process.execPath, ['tools/hcm-database/seed.mts', '--reset'], {
 		env: { ...process.env, ...env },
 		encoding: 'utf8',

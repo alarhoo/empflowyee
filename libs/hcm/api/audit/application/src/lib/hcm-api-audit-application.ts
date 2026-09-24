@@ -49,16 +49,29 @@ export interface TemplateVersionAuditEvent {
 	requestId: string
 	summary: { reason: string; changedFields: ('version' | 'employeeVisible')[] }
 }
+export interface DocumentRequestAuditEvent {
+	action:
+		| 'document.request-created'
+		| 'document.request-submitted'
+		| 'document.request-accepted'
+		| 'document.request-replacement'
+		| 'document.request-cancelled'
+	targetId: string
+	requestId: string
+	summary: { reason: string | null; fromState: string | null; toState: string }
+}
 export interface DocumentDownloadAuditEvent {
 	action:
 		'document.download-authorized' | 'document.download-completed' | 'document.download-failed'
 	targetId: string
-	targetType: 'document-template-version' | 'employee-document-version'
+	targetType:
+		'document-template-version' | 'employee-document-version' | 'document-request-submission'
 	requestId: string
 	relatedEventId: string | null
 	summary: Record<string, never>
 }
 export type AccessAuditEvent =
+	| DocumentRequestAuditEvent
 	| TemplateVersionAuditEvent
 	| DocumentDownloadAuditEvent
 	| RoleAuditEvent
@@ -74,6 +87,16 @@ export interface AppendAudit {
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (
+		event.action === 'document.request-created' ||
+		event.action === 'document.request-submitted' ||
+		event.action === 'document.request-accepted' ||
+		event.action === 'document.request-replacement' ||
+		event.action === 'document.request-cancelled'
+	) {
+		validateDocumentRequestAudit(event)
+		return
+	}
 	if ('relatedEventId' in event) {
 		validateDocumentDownloadAudit(event)
 		return
@@ -319,7 +342,11 @@ export function validateDocumentDownloadAudit(event: DocumentDownloadAuditEvent)
 			'document.download-completed',
 			'document.download-failed',
 		].includes(event.action) ||
-		!['document-template-version', 'employee-document-version'].includes(event.targetType) ||
+		![
+			'document-template-version',
+			'employee-document-version',
+			'document-request-submission',
+		].includes(event.targetType) ||
 		typeof event.targetId !== 'string' ||
 		!event.targetId ||
 		event.targetId.length > 200 ||
@@ -331,4 +358,31 @@ export function validateDocumentDownloadAudit(event: DocumentDownloadAuditEvent)
 			: typeof event.relatedEventId !== 'string' || !/^[0-9a-f-]{36}$/.test(event.relatedEventId))
 	)
 		throw new Error('Invalid document download envelope')
+}
+
+/** Bound request evidence to state/reason metadata, excluding instructions and file contents. */
+export function validateDocumentRequestAudit(event: DocumentRequestAuditEvent): void {
+	const transitions: Record<DocumentRequestAuditEvent['action'], readonly string[]> = {
+		'document.request-created': ['null>Open'],
+		'document.request-submitted': ['Open>Submitted'],
+		'document.request-accepted': ['Submitted>Completed'],
+		'document.request-replacement': ['Submitted>Open'],
+		'document.request-cancelled': ['Open>Cancelled', 'Submitted>Cancelled'],
+	}
+	if (
+		Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+		!event.targetId ||
+		event.targetId.length > 200 ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		Object.keys(event.summary).sort().join(',') !== 'fromState,reason,toState' ||
+		!transitions[event.action]?.includes(
+			String(event.summary.fromState) + '>' + event.summary.toState,
+		) ||
+		(event.action === 'document.request-submitted'
+			? event.summary.reason !== null
+			: typeof event.summary.reason !== 'string' ||
+				!event.summary.reason.trim() ||
+				event.summary.reason.length > 500)
+	)
+		throw new Error('Invalid document request audit envelope')
 }

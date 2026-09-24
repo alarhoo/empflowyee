@@ -39,6 +39,7 @@ export class TransactionalAudit implements AppendAudit {
 		const id = randomUUID()
 		const download = 'relatedEventId' in event ? event : null
 		let targetType = download?.targetType ?? 'access-role'
+		if (event.action.startsWith('document.request-')) targetType = 'document-request'
 		if (event.action === 'document.worker-version-added') targetType = 'employee-document'
 		if (event.action === 'document.visibility-changed') targetType = 'employee-document-version'
 		if (event.action === 'document.template-version-added') targetType = 'document-template'

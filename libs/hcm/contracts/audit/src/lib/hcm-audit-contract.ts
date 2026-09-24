@@ -1,4 +1,9 @@
 export const AUDIT_ACTIONS = [
+	'document.request-created',
+	'document.request-submitted',
+	'document.request-accepted',
+	'document.request-replacement',
+	'document.request-cancelled',
 	'document.template-version-added',
 	'document.worker-version-added',
 	'document.visibility-changed',

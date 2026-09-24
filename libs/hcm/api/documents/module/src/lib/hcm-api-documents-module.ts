@@ -1,3 +1,6 @@
+import { DocumentRequests, DocumentRequestUnit } from '@empflowyee/hcm-api-documents-application'
+import { KyselyDocumentRequestUnit } from '@empflowyee/hcm-api-documents-infrastructure'
+import { DocumentRequestController } from '@empflowyee/hcm-api-documents-transport'
 import { DocumentError } from '@empflowyee/hcm-documents-contract'
 import { assertLocalRuntime } from '@empflowyee/hcm-api-runtime-infrastructure'
 import { Module } from '@nestjs/common'
@@ -46,12 +49,29 @@ class UnconfiguredFiles extends DocumentFiles {
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
 	controllers: [
+		DocumentRequestController,
 		DocumentTypesController,
 		TemplateController,
 		WorkerDocumentController,
 		SelfDocumentController,
 	],
 	providers: [
+		{
+			provide: DocumentRequestUnit,
+			inject: [HcmAccessDatabase, TemplateFileUnitOfWork],
+			useFactory: /** Bind requests to current authority and existing file reservations. */ (
+				database: HcmAccessDatabase | null,
+				reservations: TemplateFileUnitOfWork,
+			) => new KyselyDocumentRequestUnit(database, reservations),
+		},
+		{
+			provide: DocumentRequests,
+			inject: [DocumentRequestUnit, DocumentFiles],
+			useFactory: /** Compose request use cases over the private durable file store. */ (
+				unit: DocumentRequestUnit,
+				files: DocumentFiles,
+			) => new DocumentRequests(unit, files),
+		},
 		{
 			provide: SelfDocumentUnit,
 			inject: [HcmAccessDatabase],

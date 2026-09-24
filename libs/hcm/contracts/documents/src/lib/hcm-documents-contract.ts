@@ -41,6 +41,7 @@ export type DocumentErrorCode =
 	| 'file-too-large'
 	| 'unsupported-file'
 	| 'upload-failed'
+	| 'invalid-state'
 export class DocumentError extends Error {
 	/** Preserve safe classification without leaking a persistence diagnostic. */
 	constructor(readonly code: DocumentErrorCode) {

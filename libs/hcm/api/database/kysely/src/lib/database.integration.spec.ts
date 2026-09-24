@@ -139,6 +139,8 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'development_seed_history',
 			'document_blob',
 			'document_command_receipt',
+			'document_request',
+			'document_request_submission',
 			'document_template',
 			'document_template_version',
 			'document_type',

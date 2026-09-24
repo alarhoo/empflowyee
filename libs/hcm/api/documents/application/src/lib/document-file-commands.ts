@@ -7,7 +7,7 @@ import { DocumentFiles, type DocumentFile } from './document-files'
 export interface FileIntent {
 	kind: string
 	targetId: string
-	value: { reason: string; expectedRevision?: number }
+	value: { reason: string } | { expectedRevision: number }
 }
 export interface FileReservation<R> {
 	id: string
@@ -134,7 +134,7 @@ export class DocumentFileCommands<I extends FileIntent, R, P extends FileReposit
 			if (
 				error instanceof HcmAccessError ||
 				(error instanceof DocumentError &&
-					['revision-conflict', 'type-disabled', 'not-found'].includes(error.code))
+					['revision-conflict', 'type-disabled', 'not-found', 'invalid-state'].includes(error.code))
 			)
 				await this.unit.fail(context, reservation.id)
 			throw error

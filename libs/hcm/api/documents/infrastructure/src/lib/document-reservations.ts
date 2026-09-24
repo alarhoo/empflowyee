@@ -37,7 +37,7 @@ export class DocumentReservations<I extends FileIntent, R> {
 		await sql`INSERT INTO hcm.document_blob(tenant_id,id,storage_key,sha256,byte_length,media_type,safe_filename,state,created_by_account_id) VALUES(${tenant},${blobId}::uuid,${file.key}::uuid,${file.sha256},${file.byteLength},${file.mediaType},${file.filename},'Staged',${actor})`.execute(
 			this.scope.transaction,
 		)
-		await sql`INSERT INTO hcm.document_upload_attempt(tenant_id,id,actor_account_id,operation,idempotency_key,payload_hash,blob_id,aggregate_id,expected_revision,safe_intent,state) VALUES(${tenant},${id}::uuid,${actor},${intent.kind},${key}::uuid,${hash},${blobId}::uuid,${intent.targetId},${intent.value.expectedRevision ?? null},${JSON.stringify(intent)}::jsonb,'Staged')`.execute(
+		await sql`INSERT INTO hcm.document_upload_attempt(tenant_id,id,actor_account_id,operation,idempotency_key,payload_hash,blob_id,aggregate_id,expected_revision,safe_intent,state) VALUES(${tenant},${id}::uuid,${actor},${intent.kind},${key}::uuid,${hash},${blobId}::uuid,${intent.targetId},${'expectedRevision' in intent.value ? intent.value.expectedRevision : null},${JSON.stringify(intent)}::jsonb,'Staged')`.execute(
 			this.scope.transaction,
 		)
 		return {

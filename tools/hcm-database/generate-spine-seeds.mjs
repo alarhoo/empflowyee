@@ -254,8 +254,9 @@ for (const person of people) {
 	for (const app of apps)
 		if (
 			!(
-				person.role === 'hr-specialist' &&
-				['DOCUMENT_TYPES', 'DOCUMENT_TEMPLATES'].includes(app.appCode)
+				(person.role === 'hr-specialist' &&
+					['DOCUMENT_TYPES', 'DOCUMENT_TEMPLATES'].includes(app.appCode)) ||
+				(app.appCode === 'DOCUMENT_REQUESTS' && person.role !== 'hr-specialist')
 			) &&
 			app.catalogueIds.some(
 				/** Persist discovery grants only for canonical catalogue memberships. */ (catalogue) =>

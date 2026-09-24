@@ -116,6 +116,7 @@ beforeAll(
 			'000013_document_types.sql',
 			'000014_document_template_files.sql',
 			'000015_employee_documents.sql',
+			'000016_document_requests.sql',
 		])
 		await runDevelopmentSeeds({
 			env: { ...env, HCM_SEED_TARGET: tenant, HCM_SEED_DATABASE_URL: connection('MIGRATOR') },
@@ -164,7 +165,7 @@ afterAll(
 it('preserves HCM-0 identities and discovery grants while applying the exact local business register', /** Verify data continuity, persisted system flags and independently count the new permission kind. */ async () => {
 	const current = await snapshot()
 	expect(current).toEqual(expect.arrayContaining(original))
-	expect(current).toHaveLength(original.length + 2)
+	expect(current).toHaveLength(original.length + 5)
 	expect(current).toContainEqual({
 		kind: 'grant',
 		key: 'hr-specialist:hcm.catalogue.DOCUMENT_TYPES.discover',
@@ -173,6 +174,11 @@ it('preserves HCM-0 identities and discovery grants while applying the exact loc
 		kind: 'grant',
 		key: 'hr-specialist:hcm.catalogue.DOCUMENT_TEMPLATES.discover',
 	})
+	for (const role of ['employee', 'manager', 'tenant-administrator'])
+		expect(current).toContainEqual({
+			kind: 'grant',
+			key: role + ':hcm.catalogue.DOCUMENT_REQUESTS.discover',
+		})
 	expect(
 		(
 			await admin.query(
