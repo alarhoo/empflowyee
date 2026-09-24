@@ -103,3 +103,24 @@ export function parseAuditQuery(params: URLSearchParams): AuditQuery {
 		cursor,
 	}
 }
+
+/** Self-service evidence deliberately excludes actor, diagnostics and operator-entered reasons. */
+export interface MyActivityItem {
+	id: string
+	occurredAt: string
+	action: AuditAction
+	targetType: string
+	targetId: string
+	outcome: 'Succeeded'
+	summary: { changedFields?: string[]; fromState?: string; toState?: string }
+}
+export type MyActivityQuery = Omit<AuditQuery, 'actorAccountId'>
+export interface MyActivityPage {
+	items: MyActivityItem[]
+	nextCursor: string | null
+}
+/** Reject any actor selector before applying the common bounded business-event controls. */
+export function parseMyActivityQuery(params: URLSearchParams): MyActivityQuery {
+	if (params.has('actorAccountId')) throw new AuditQueryError()
+	return parseAuditQuery(params)
+}

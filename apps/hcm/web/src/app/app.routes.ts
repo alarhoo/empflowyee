@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'audit/my-activity',
+		data: { catalogId: 'MY_ACTIVITY' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the self-service audit screen only when requested. */ () =>
+			import('@empflowyee/hcm-web-audit-feature-my-activity').then(
+				/** Select the owning feature entry point. */ (m) => m.MyActivityComponent,
+			),
+	},
+	{
 		path: 'audit/audit-log',
 		data: { catalogId: 'AUDIT_LOG' },
 		canMatch: [hcmRouteAccess],

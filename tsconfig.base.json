@@ -143,6 +143,9 @@
 			"@empflowyee/hcm-web-audit-data-access": ["./libs/hcm/web/audit/data-access/src/index.ts"],
 			"@empflowyee/hcm-web-audit-feature-audit-log": [
 				"./libs/hcm/web/audit/feature-audit-log/src/index.ts"
+			],
+			"@empflowyee/hcm-web-audit-feature-my-activity": [
+				"./libs/hcm/web/audit/feature-my-activity/src/index.ts"
 			]
 		}
 	},

@@ -19,6 +19,19 @@ function auditReader(database: HcmAccessDatabase | null): AuditReader {
 					work(scope.transaction as unknown as Kysely<AuditTables>, scope.actor.tenantId),
 			)
 		},
+		/** Authorize self-service independently from tenant audit administration. */ async (
+			context,
+			work,
+		) => {
+			if (!database) throw new Error('Business runtime unavailable')
+			return database.execute(
+				context,
+				{ permission: 'hcm.audit.activity.self.read', entitlement: 'hcm.audit' },
+				false,
+				/** Supply the same verified tenant transaction to the self projection. */ (scope) =>
+					work(scope.transaction as unknown as Kysely<AuditTables>, scope.actor.tenantId),
+			)
+		},
 	)
 }
 @Module({

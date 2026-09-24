@@ -20,19 +20,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "ba87e339c0ef44d98fa6609a1cf16075e6de532dbc60c05f9b375bdfc531ad92",
+			"sha256": "a219747e9f4072a0b201ba5328e3c5f92fecdb7898397ac70a8ccba1f46eb790",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit UX correction reconciles native responsive rows without object-selection workflow; self projection follows approved scope"
 		},
 		{
 			"document": "TRACE",
-			"sha256": "864554bb8f9682c6e0a675f77871e8b9b5e77eb59bdaa62c432a859c1bed7836",
+			"sha256": "53888b943625fe8655dde11cb1a2f4cad1aadd1be3ef8f864a5dc6272b8a9466",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; approved requirements unchanged; execution evidence added in docs/hcm/testing/HCM-1-MY-ACTIVITY-VALIDATION.md"
 		},
 		{
 			"document": "DECISIONS",

@@ -1161,7 +1161,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['employee-self-service'],
 			route: '/audit/my-activity',
 			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

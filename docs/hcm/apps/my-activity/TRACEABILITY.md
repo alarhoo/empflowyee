@@ -1,10 +1,10 @@
 # My Activity — requirement traceability
 
-Status: design coverage complete; all test entries below are **planned, not executed**.
+Status: implemented and verified; see [validation evidence](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).
 
 ## MATRIX
 
-| Requirement                                       | Design                      | Planned test         |
+| Requirement                                       | Design                      | Executed test        |
 | ------------------------------------------------- | --------------------------- | -------------------- |
 | [REQ-MY-ACTIVITY-001](FDD.md#req-my-activity-001) | [TDD#READ](TDD.md#read)     | TEST-MY-ACTIVITY-001 |
 | [REQ-MY-ACTIVITY-002](FDD.md#req-my-activity-002) | [TDD#ACTION](TDD.md#action) | TEST-MY-ACTIVITY-002 |
@@ -23,7 +23,7 @@ Exercise: Verify tenant scope and own-actor restriction.
 
 Assert: Read only the current account's activity. Rows come from the append-only store with safe DTO projection.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [executed API and browser verification](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).
 
 ## TEST-MY-ACTIVITY-002
 
@@ -35,7 +35,7 @@ Exercise: Test date boundaries, equal timestamps, malformed cursors and forbidde
 
 Assert: Filter and paginate using stable event ordering; no raw payload, document body or credential fields.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [executed API and browser verification](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).
 
 ## TEST-MY-ACTIVITY-003
 
@@ -47,7 +47,7 @@ Exercise: No seeded fictional history appears as actual activity; no edit/delete
 
 Assert: No recorded actions shows an honest empty state; a DB failure shows an error.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [executed API and browser verification](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).
 
 ## TEST-MY-ACTIVITY-004
 
@@ -59,7 +59,7 @@ Exercise: Test direct requests with missing grant/entitlement, disabled actor, f
 
 Assert: Every API enforces verified tenant, enabled actor, listed business permission, entitlement hcm.audit and subject scope. Browser visibility never authorizes an action.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [executed API and browser verification](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).
 
 ## TEST-MY-ACTIVITY-005
 
@@ -71,7 +71,7 @@ Exercise: Exercise keyboard, responsive widths, all four themes, tenant-overlay 
 
 Assert: Use real API data with loading, empty, error/retry, unavailable/denied and read-only states. Preserve failed drafts and focus; no silent fallback to fixtures.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [executed API and browser verification](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).
 
 ## TEST-MY-ACTIVITY-006
 
@@ -83,4 +83,4 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 
 Assert: Read models preserve source ownership and never write configuration or invent historical rows. Downloads, where offered, create actual sensitive-read evidence.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [executed API and browser verification](../../testing/HCM-1-MY-ACTIVITY-VALIDATION.md).

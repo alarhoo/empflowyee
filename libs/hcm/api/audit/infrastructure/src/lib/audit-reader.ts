@@ -12,21 +12,27 @@ import {
 	type AuditItem,
 	type AuditPage,
 	type AuditQuery,
+	type MyActivityQuery,
+	type MyActivityPage,
 } from '@empflowyee/hcm-audit-contract'
-import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
+import {
+	requireAuthenticatedAccount,
+	type AuthenticatedHcmContext,
+} from '@empflowyee/hcm-api-runtime-application'
 import type { AuditTables } from './hcm-api-audit-infrastructure'
 
 /** The composition root supplies the existing authorized executor without reversing audit dependencies. */
-export type AuditReadExecutor = (
+export type AuditReadExecutor<Result = AuditPage> = (
 	context: AuthenticatedHcmContext,
-	work: (database: Kysely<AuditTables>, tenantId: string) => Promise<AuditPage>,
-) => Promise<AuditPage>
+	work: (database: Kysely<AuditTables>, tenantId: string) => Promise<Result>,
+) => Promise<Result>
 
 /** Bind a continuation to every control and tenant without treating it as an authorization token. */
-function binding(query: AuditQuery, tenantId: string): string {
+function binding(query: AuditQuery, tenantId: string, projection = 'tenant'): string {
 	return createHash('sha256')
 		.update(
 			JSON.stringify([
+				projection,
 				tenantId,
 				query.from ?? null,
 				query.to ?? null,
@@ -40,7 +46,11 @@ function binding(query: AuditQuery, tenantId: string): string {
 		.digest('hex')
 }
 /** Retain PostgreSQL microsecond precision and reject malformed or cross-query continuations. */
-function position(query: AuditQuery, tenantId: string): { time: string; id: string } | undefined {
+function position(
+	query: AuditQuery,
+	tenantId: string,
+	projection = 'tenant',
+): { time: string; id: string } | undefined {
 	if (!query.cursor) return undefined
 	try {
 		if (!/^[A-Za-z0-9_-]+$/.test(query.cursor)) throw new AuditQueryError()
@@ -48,7 +58,7 @@ function position(query: AuditQuery, tenantId: string): { time: string; id: stri
 		if (
 			Object.keys(value).sort().join(',') !== 'binding,id,time,version' ||
 			value.version !== 1 ||
-			value.binding !== binding(query, tenantId) ||
+			value.binding !== binding(query, tenantId, projection) ||
 			typeof value.time !== 'string' ||
 			!isAuditInstant(value.time) ||
 			typeof value.id !== 'string' ||
@@ -79,7 +89,10 @@ function safeSummary(row: AuditItem): AuditItem {
 }
 export class KyselyAuditReader extends AuditReader {
 	/** Accept the existing authorized transaction callback, never a raw unscoped connection. */
-	constructor(private readonly execute: AuditReadExecutor) {
+	constructor(
+		private readonly execute: AuditReadExecutor,
+		private readonly executeSelf: AuditReadExecutor<MyActivityPage>,
+	) {
 		super()
 	}
 	/** Select actual allowlisted business events with stable tenant-scoped keyset pagination. */
@@ -90,33 +103,78 @@ export class KyselyAuditReader extends AuditReader {
 				database,
 				tenantId,
 			) => {
-				const after = position(query, tenantId),
-					asc = query.sort === 'occurredAt:asc',
-					order = asc ? sql`ASC` : sql`DESC`,
-					compare = asc ? sql`>` : sql`<`
-				const rows = (
-					await sql<AuditItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",safe_summary AS summary FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='business' AND outcome='Succeeded' AND action IN (${sql.join([...AUDIT_ACTIONS])})
+				return businessPage(database, tenantId, query)
+			},
+		)
+	}
+
+	/** Resolve self inside verified context and project only approved self-safe summary fields. */
+	activity(context: AuthenticatedHcmContext, query: MyActivityQuery): Promise<MyActivityPage> {
+		return this.executeSelf(
+			context,
+			/** Force actor scope independently of transport and UI visibility. */ async (
+				database,
+				tenantId,
+			) => {
+				const page = await businessPage(
+					database,
+					tenantId,
+					{ ...query, actorAccountId: requireAuthenticatedAccount(context) },
+					'self',
+				)
+				return {
+					nextCursor: page.nextCursor,
+					items: page.items.map(
+						/** Explicitly omit diagnostics and operator text from the public self contract. */ (
+							item,
+						) => ({
+							id: item.id,
+							occurredAt: item.occurredAt,
+							action: item.action,
+							targetType: item.targetType,
+							targetId: item.targetId,
+							outcome: item.outcome,
+							summary: item.summary.changedFields
+								? { changedFields: item.summary.changedFields }
+								: {},
+						}),
+					),
+				}
+			},
+		)
+	}
+}
+/** Share stable business-event paging while binding cursors to their exact projection and actor scope. */
+async function businessPage(
+	database: Kysely<AuditTables>,
+	tenantId: string,
+	query: AuditQuery,
+	projection = 'tenant',
+): Promise<AuditPage> {
+	const after = position(query, tenantId, projection),
+		asc = query.sort === 'occurredAt:asc',
+		order = asc ? sql`ASC` : sql`DESC`,
+		compare = asc ? sql`>` : sql`<`
+	const rows = (
+		await sql<AuditItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",safe_summary AS summary FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='business' AND outcome='Succeeded' AND action IN (${sql.join([...AUDIT_ACTIONS])})
  ${query.from ? sql`AND occurred_at>=${query.from}::timestamptz` : sql``}
  ${query.to ? sql`AND occurred_at<=${query.to}::timestamptz` : sql``}
  ${query.action ? sql`AND action=${query.action}` : sql``}
  ${query.actorAccountId ? sql`AND actor_account_id=${query.actorAccountId}` : sql``}
  ${after ? sql`AND (occurred_at,id) ${compare} (${after.time}::timestamptz,${after.id})` : sql``}
  ORDER BY occurred_at ${order},id ${order} LIMIT ${query.limit + 1}`.execute(database)
-				).rows
-				const items = rows.slice(0, query.limit).map(safeSummary),
-					last = items.at(-1)
-				let nextCursor: string | null = null
-				if (rows.length > query.limit && last) {
-					const position = {
-						version: 1,
-						binding: binding(query, tenantId),
-						time: last.occurredAt,
-						id: last.id,
-					}
-					nextCursor = Buffer.from(JSON.stringify(position)).toString('base64url')
-				}
-				return { items, nextCursor }
-			},
-		)
+	).rows
+	const items = rows.slice(0, query.limit).map(safeSummary),
+		last = items.at(-1)
+	let nextCursor: string | null = null
+	if (rows.length > query.limit && last) {
+		const position = {
+			version: 1,
+			binding: binding(query, tenantId, projection),
+			time: last.occurredAt,
+			id: last.id,
+		}
+		nextCursor = Buffer.from(JSON.stringify(position)).toString('base64url')
 	}
+	return { items, nextCursor }
 }

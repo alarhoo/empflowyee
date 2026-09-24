@@ -2503,7 +2503,7 @@
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
-			"implementationStatus": "planned",
+			"implementationStatus": "complete",
 			"dataPolicy": "real-api-only",
 			"themeContract": "theme-agnostic",
 			"customCssPolicy": "forbidden-by-default",

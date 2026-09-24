@@ -1,0 +1,180 @@
+<ef-hcm-dynamic-page
+	title="My Activity"
+	summary="Your recorded business actions"
+	[state]="state()"
+	[readOnly]="true">
+	<ui5-form
+		hcmHeader
+		accessibleName="Activity filters"
+		accessibleMode="Edit"
+		layout="S1 M2 L3 XL3">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="activity-from">
+				From (ISO date-time with timezone)
+			</ui5-label>
+			<ui5-input
+				id="activity-from"
+				accessibleName="Activity from"
+				[formField]="filterForm.from"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="activity-to">
+				To (ISO date-time with timezone)
+			</ui5-label>
+			<ui5-input
+				id="activity-to"
+				accessibleName="Activity to"
+				[formField]="filterForm.to"></ui5-input>
+		</ui5-form-item>
+
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="activity-action">
+				Action
+			</ui5-label>
+			<ui5-select
+				id="activity-action"
+				accessibleName="Activity action"
+				[formField]="filterForm.action">
+				<ui5-option value="">All implemented actions</ui5-option>
+				@for (action of actions; track action) {
+					<ui5-option [value]="action">{{ action }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="activity-outcome">
+				Outcome
+			</ui5-label>
+			<ui5-select
+				id="activity-outcome"
+				accessibleName="Activity outcome"
+				[formField]="filterForm.outcome">
+				<ui5-option value="">All recorded outcomes</ui5-option>
+				<ui5-option value="Succeeded">Succeeded</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="activity-sort">
+				Sort
+			</ui5-label>
+			<ui5-select
+				id="activity-sort"
+				accessibleName="Activity sort"
+				[formField]="filterForm.sort">
+				<ui5-option value="occurredAt:desc">Newest first</ui5-option>
+				<ui5-option value="occurredAt:asc">Oldest first</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load()">
+			Apply filters
+		</ui5-button>
+	</ui5-form>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load()">
+			Retry activity
+		</ui5-button>
+	}
+	@if (pending()) {
+		<p role="status">Loading your activity…</p>
+	}
+	<ui5-table
+		accessibleName="Activity events"
+		overflowMode="Popin"
+		noDataText="No recorded actions match the filters">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="10rem"
+				popinText="Action">
+				Action
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="90"
+				minWidth="15rem"
+				popinText="Time (UTC)">
+				Time (UTC)
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="60"
+				minWidth="10rem"
+				popinText="Target type">
+				Target type
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="50"
+				minWidth="12rem"
+				popinText="Target ID">
+				Target ID
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="7rem"
+				popinText="Outcome">
+				Outcome
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="10"
+				minWidth="12rem"
+				popinText="Event ID">
+				Event ID
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="0"
+				minWidth="15rem"
+				popinText="Change summary">
+				Change summary
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (item of rows(); track item.id) {
+			<ui5-table-row>
+				<ui5-table-cell>
+					<ui5-text>{{ item.action }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.occurredAt }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.targetType }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.targetId }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.outcome }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ item.id }}</ui5-text>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-text>{{ summary(item) }}</ui5-text>
+				</ui5-table-cell>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	@if (cursor()) {
+		<ui5-button
+			[disabled]="pending()"
+			(click)="load(true)">
+			Load more events
+		</ui5-button>
+	}
+</ef-hcm-dynamic-page>

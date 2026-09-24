@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-audit-feature-my-activity",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/audit/feature-my-activity/src",
+	"prefix": "lib",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:audit", "type:feature"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}
