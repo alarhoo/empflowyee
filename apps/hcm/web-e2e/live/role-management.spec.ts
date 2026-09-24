@@ -5,8 +5,48 @@ import { Client } from 'pg'
 
 test.use({ actionTimeout: 20000 })
 
+test('retains begin-column filters and guards routed draft navigation', /** Browser history changes selection without destroying filters; leaving a complex form requires explicit discard. */ async ({
+	page,
+}) => {
+	await openRoles(page)
+	await page.getByRole('searchbox', { name: 'Search role names' }).fill('Tenant')
+	await page.getByRole('button', { name: 'Apply filters', exact: true }).click()
+	await page.getByRole('button', { name: 'View Tenant Administrator', exact: true }).click()
+	await expect(
+		page.locator('ef-hcm-role-detail').getByRole('tab', { name: 'Overview', exact: true }),
+	).toBeVisible()
+	await page.goBack()
+	await expect(page.locator('ef-hcm-role-detail')).toHaveCount(0)
+	await expect(page.getByRole('searchbox', { name: 'Search role names' })).toHaveValue('Tenant')
+	await expect(page.getByRole('button', { name: 'View Employee', exact: true })).toHaveCount(0)
+	await page.getByRole('button', { name: 'Create role', exact: true }).click()
+	await page.getByRole('textbox', { name: 'Role name', exact: true }).fill('Unsaved routed draft')
+	await page.getByRole('button', { name: 'empFLOWyee home', exact: true }).click()
+	await expect(page.getByRole('dialog', { name: 'Discard changes?', exact: true })).toBeVisible()
+	await page.getByRole('button', { name: 'Keep editing', exact: true }).click()
+	await expect(page).toHaveURL(/role-management\/new$/)
+	await expect(page.getByRole('textbox', { name: 'Role name', exact: true })).toHaveValue(
+		'Unsaved routed draft',
+	)
+	await page.getByRole('button', { name: 'empFLOWyee home', exact: true }).click()
+	await page.getByRole('button', { name: 'Discard changes', exact: true }).click()
+	await expect(page).toHaveURL(/:\d+\/$/)
+})
+
 /** Use the real persisted persona selector and catalogue navigation to open the admitted app. */
 async function openRoles(page: Page): Promise<void> {
+	page.on(
+		'pageerror',
+		/** Report unexpected runtime errors during browser acceptance. */ (error) =>
+			console.log('BROWSER ERROR', error.message),
+	)
+	page.on(
+		'response',
+		/** Report failed real API calls during browser acceptance. */ (response) => {
+			if (response.status() >= 400 && response.url().includes('/api/'))
+				console.log('API FAILURE', response.status(), response.url())
+		},
+	)
 	await page.goto('/')
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
@@ -25,7 +65,7 @@ test('TEST-ROLE-MANAGEMENT-005 manages real roles and preserves dirty drafts', /
 	await openRoles(page)
 	const label = `Browser verification ${Date.now()}`
 	await page.getByRole('button', { name: 'Create role', exact: true }).click()
-	const dialog = page.locator('ef-hcm-role-editor > ui5-dialog').first()
+	const dialog = page.locator('ef-hcm-role-edit-page ef-hcm-role-editor')
 	await expect(dialog).toBeVisible()
 	await dialog.getByRole('button', { name: 'Save role', exact: true }).click()
 	await expect(dialog.getByRole('textbox', { name: 'Role name', exact: true })).toBeFocused()
@@ -49,7 +89,7 @@ test('TEST-ROLE-MANAGEMENT-005 manages real roles and preserves dirty drafts', /
 	expect((await created).status()).toBe(201)
 	await expect(dialog).toBeHidden()
 	await page.getByRole('button', { name: `Edit ${label}`, exact: true }).click()
-	const edit = page.locator('ef-hcm-role-editor > ui5-dialog').first()
+	const edit = page.locator('ef-hcm-role-edit-page ef-hcm-role-editor')
 	await edit.getByRole('textbox', { name: 'Role name', exact: true }).fill(`${label} updated`)
 	await edit
 		.getByRole('textbox', { name: 'Reason for change', exact: true })
@@ -67,12 +107,17 @@ test('TEST-ROLE-MANAGEMENT-005 manages real roles and preserves dirty drafts', /
 		page.getByRole('button', { name: `View ${label} updated`, exact: true }),
 	).toHaveCount(0)
 	await page.getByRole('button', { name: 'View Tenant Administrator', exact: true }).click()
-	const view = page.locator('ef-hcm-role-editor > ui5-dialog').first()
+	const view = page.locator('ef-hcm-role-detail')
 	await expect(
 		view.getByText('System role. Its label and permissions are read-only.'),
 	).toBeVisible()
 	await expect(view.getByRole('button', { name: 'Save role', exact: true })).toHaveCount(0)
-	await page.keyboard.press('Escape')
+	await expect(page).toHaveURL(/role=tenant-administrator/)
+	await view.getByRole('tab', { name: 'Assignees', exact: true }).click()
+	await expect(view.getByText('David Wallace', { exact: true })).toBeVisible()
+	await view.getByRole('tab', { name: 'History / Audit', exact: true }).click()
+	await expect(view.getByRole('grid', { name: 'Role audit history' })).toBeVisible()
+	await view.getByRole('button', { name: 'Back to roles', exact: true }).click()
 	await expect(view).toBeHidden()
 })
 
@@ -104,15 +149,38 @@ test('uses all four native themes, responsive popins and accessible controls', /
 			expect(result.violations).toEqual([])
 		}
 		await page.setViewportSize({ width: 1440, height: 1000 })
+		await page.getByRole('button', { name: 'View Tenant Administrator', exact: true }).click()
+		const detail = page.locator('ef-hcm-role-detail')
+		await expect(detail.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
+		for (const width of [390, 768, 1440, 2560]) {
+			await page.setViewportSize({ width, height: 1000 })
+			await expect(
+				detail.getByRole('heading', { name: 'Tenant Administrator', exact: true }).first(),
+			).toBeVisible()
+			expect(
+				(await new AxeBuilder({ page }).include('ef-hcm-role-management').analyze()).violations,
+			).toEqual([])
+		}
+		await page.setViewportSize({ width: 1440, height: 1000 })
+		for (const section of ['Permissions', 'Assignees', 'History / Audit']) {
+			await detail.getByRole('tab', { name: section, exact: true }).click()
+			expect(
+				(await new AxeBuilder({ page }).include('ef-hcm-role-management').analyze()).violations,
+			).toEqual([])
+		}
+		await detail.getByRole('tab', { name: 'Overview', exact: true }).click()
 		await page.screenshot({ path: `.tmp/hcm-role-management/${variant}.png`, fullPage: true })
+		await detail.getByRole('button', { name: 'Back to roles', exact: true }).click()
+		await expect(
+			page.getByRole('button', { name: 'View Tenant Administrator', exact: true }),
+		).toBeFocused()
 	}
 	await page.getByRole('button', { name: 'Create role', exact: true }).click()
-	await expect(page.locator('ef-hcm-role-editor > ui5-dialog').first()).toBeVisible()
-	const result = await new AxeBuilder({ page }).include('ui5-dialog[open]').analyze()
+	await expect(page).toHaveURL(/role-management\/new$/)
+	const result = await new AxeBuilder({ page }).include('ef-hcm-role-edit-page').analyze()
 	expect(result.violations).toEqual([])
-	await page.keyboard.press('Escape')
-	await expect(page.locator('ef-hcm-role-editor > ui5-dialog').first()).toBeHidden()
-	await expect(page.getByRole('button', { name: 'Create role', exact: true })).toBeFocused()
+	await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+	await expect(page.getByRole('grid', { name: 'Tenant roles' })).toBeVisible()
 })
 
 test('preserves failed commands and supports real query recovery', /** Disconnect transport without substituting fake business responses, then retry the same draft. */ async ({
@@ -137,7 +205,7 @@ test('preserves failed commands and supports real query recovery', /** Disconnec
 		page.getByRole('button', { name: 'View Tenant Administrator', exact: true }),
 	).toBeVisible()
 	await page.getByRole('button', { name: 'Create role', exact: true }).click()
-	const editor = page.locator('ef-hcm-role-editor > ui5-dialog').first()
+	const editor = page.locator('ef-hcm-role-edit-page ef-hcm-role-editor')
 	// Duplicate-label rejection proves the request reached the real server after transport recovery.
 	await editor.getByRole('textbox', { name: 'Role name', exact: true }).fill('Employee')
 	await editor
@@ -154,7 +222,7 @@ test('preserves failed commands and supports real query recovery', /** Disconnec
 	await context.setOffline(false)
 	await editor.getByRole('button', { name: 'Save role', exact: true }).click()
 	await expect(editor.getByText('A role with this name already exists.')).toBeVisible()
-	await page.keyboard.press('Escape')
+	await editor.getByRole('button', { name: 'Cancel', exact: true }).click()
 	await page.getByRole('button', { name: 'Discard changes', exact: true }).click()
 	await expect(editor).toBeHidden()
 	await page.getByRole('button', { name: 'David Wallace', exact: true }).click()

@@ -91,7 +91,7 @@
 	],
 	"route": "/access-control/role-management",
 	"floorplan": {
-		"id": "UX-FP-DYNAMIC-PAGE",
+		"id": "UX-FP-FCL",
 		"mode": "NATIVE",
 		"ref": "TDD#UX"
 	},
@@ -99,7 +99,7 @@
 		{
 			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
 			"version": "0.64.3",
-			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader", "FlexibleColumnLayout"],
 			"ref": "TDD#UX"
 		},
 		{
@@ -124,7 +124,9 @@
 				"Select",
 				"Option",
 				"CheckBox",
-				"TextArea"
+				"TextArea",
+				"TabContainer",
+				"Tab"
 			],
 			"ref": "TDD#UX"
 		}
@@ -339,7 +341,7 @@
 		}
 	],
 	"delivery": {
-		"branch": "codex/hcm-1-role-management",
+		"branch": "codex/hcm-1-role-object-page",
 		"commits": [
 			"feat(hcm-access-control): add role-management contracts and persistence",
 			"feat(hcm-access-control): expose authorized role-management API",

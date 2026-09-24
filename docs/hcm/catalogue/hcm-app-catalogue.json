@@ -4431,7 +4431,7 @@
 			],
 			"featurePath": "libs/hcm/web/access-control/feature-role-management",
 			"route": "/access-control/role-management",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",

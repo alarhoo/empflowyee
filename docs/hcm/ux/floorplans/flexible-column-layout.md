@@ -3,7 +3,7 @@
 **Floorplan ID:** `UX-FP-FCL`  
 **HCM implementation:** **NATIVE**
 
-Use for list-detail-detail navigation where context should remain visible across up to three columns. Route state must be deep-linkable; the layout itself does not own data.
+Use for list-detail-detail navigation where context should remain visible across up to three columns. Route state must be deep-linkable; the layout itself does not own data. Meaningful list/detail screens require this layout: a page-backed filter/list in the begin column and Object Page/detail page in the mid column. Use the maintained Angular `FlexibleColumnLayout` wrapper directly. Role Management verifies this composition; see [acceptance evidence](../../testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md).
 
 ## Required Storybook states
 

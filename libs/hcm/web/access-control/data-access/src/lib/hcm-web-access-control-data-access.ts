@@ -3,6 +3,8 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { timeout } from 'rxjs'
 import type {
 	RoleSummary,
+	RoleAssignee,
+	RoleHistoryItem,
 	RoleDetail,
 	Page,
 	PermissionOption,
@@ -33,6 +35,22 @@ export class RoleApi {
 	permissions() {
 		return this.http
 			.get<{ items: PermissionOption[] }>(`${this.base}/permissions`)
+			.pipe(timeout(15000))
+	}
+	/** Read an assignment-owned contextual projection; no browser grant logic is duplicated. */
+	assignees(id: string, cursor?: string) {
+		return this.http
+			.get<Page<RoleAssignee>>(`${this.base}/roles/${encodeURIComponent(id)}/assignees`, {
+				params: cursor ? { cursor } : {},
+			})
+			.pipe(timeout(15000))
+	}
+	/** Request safe role history behind independent audit authorization. */
+	history(id: string, cursor?: string) {
+		return this.http
+			.get<Page<RoleHistoryItem>>(`${this.base}/roles/${encodeURIComponent(id)}/history`, {
+				params: cursor ? { cursor } : {},
+			})
 			.pipe(timeout(15000))
 	}
 	/** Persist a reviewed command with a caller-retained retry key; persona headers belong to runtime infrastructure. */

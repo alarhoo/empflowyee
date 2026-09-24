@@ -11,6 +11,8 @@ import {
 	output,
 	signal,
 } from '@angular/core'
+import { NgTemplateOutlet } from '@angular/common'
+import { HcmDynamicPage } from '@empflowyee/hcm-web-ux-floorplan-dynamic-page'
 import { form, FormField, required, maxLength, pattern } from '@angular/forms/signals'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { Dialog } from '@fundamental-ngx/ui5-webcomponents/dialog'
@@ -40,6 +42,8 @@ export interface RoleEdit {
 	selector: 'ef-hcm-role-editor',
 	imports: [
 		Dialog,
+		NgTemplateOutlet,
+		HcmDynamicPage,
 		Form,
 		FormItem,
 		Label,
@@ -133,6 +137,10 @@ export class RoleEditorComponent implements OnInit, OnDestroy {
 		if (await this.canLeave()) {
 			this.allowClose = true
 			this.open.set(false)
+			if (this.edit().mode !== 'delete') {
+				this.baseline = JSON.stringify(this.draft())
+				this.closed.emit()
+			}
 		}
 	}
 	/** Preserve dirty drafts when native Escape requests dismissal. */
@@ -187,6 +195,11 @@ export class RoleEditorComponent implements OnInit, OnDestroy {
 					this.allowClose = true
 					this.committed = true
 					this.open.set(false)
+					if (this.edit().mode !== 'delete') {
+						this.saving.set(false)
+						this.saved.emit()
+						this.closed.emit()
+					}
 				},
 				error: /** Preserve both draft and retry key after conflicts or availability failures. */ (
 					error,

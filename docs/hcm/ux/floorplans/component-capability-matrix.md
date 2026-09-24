@@ -46,3 +46,5 @@ ToolPageLayout uses `@fundamental-ngx/ui5-webcomponents-fiori/navigation-layout`
 Dynamic Page and Object Page are the only implementations in the current correction. See [validation](validation.md) for acceptance evidence. Other catalog entries are deferred, including the earlier List Report, Worklist, Overview and Analytical List approximations. Supporting form/table libraries remain candidates pending review.
 
 Custom composition is justified only by a documented unmet responsibility. Thin empFLOWyee naming wrappers are permitted when they preserve native behavior. Do not build a separate Storybook implementation or style Shadow DOM internals.
+
+The accepted Object Page example uses semantic static definition lists and native Edit Form with direct FormItem children. Installed Display Form has cross-shadow definition-list findings, and FormGroup does not propagate Edit mode to nested items. These limitations are avoided through supported composition, not private patches. Role Management verifies the native FlexibleColumnLayout with a page-backed begin and Object Page mid column; see [current validation](validation.md#current-tabbed-object-page-revision).

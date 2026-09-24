@@ -4,43 +4,43 @@
 	"approvals": [
 		{
 			"document": "BLUEPRINT",
-			"sha256": "02bc80af09bb6456ab1d72e022913dcb5192f86a3991d64de85d4a66c9476d6e",
+			"sha256": "af1ad7b0f12485bd40e92d720ede0915e21b27f369e35a099568a7b4e607e9fb",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "FDD",
-			"sha256": "d47ec5497609548580edff814e28f9aacf910924524b6b8e7e768fb6eda56e01",
+			"sha256": "1820fe2467339749f770ad3c02f5f984309861e6dffef6528c555c71fca92c6f",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "TDD",
-			"sha256": "8fa9dde2b62fcbe93c9af0630292921b31af435563b9887d5147ce151091cc7f",
+			"sha256": "c5ba7d3796fc1d4ba17e3716e11271c9ba056a886879bc4cd3c90ff90f6807a4",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "TRACE",
-			"sha256": "b3980a8ce5d396ff42b49e05ae46373fabe1445b3bc0a08ce0fd84f2e09998a8",
+			"sha256": "5788b6892fe4064995c8a3881a653946c630c7a1618932787aef7cbe9635b84a",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "689e717a936e491f0e82b4535c7f1b4a63969a0a9ffbc1dfd69bad709d42bf8e",
+			"sha256": "f445310924fcdb4d5063178443eca7370e45cfb138e9ca97f449787349175450",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "DOMAIN",
@@ -60,11 +60,11 @@
 		},
 		{
 			"document": "UX",
-			"sha256": "b9c8b7722233db5b4af94f4128f93a8614c6c6cfc44ba65f15d08938bd6f3ad7",
+			"sha256": "1a6c0066a8ca207a02c14e042356f9f4ef56762008025d83b2c0937010d23dd9",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "FOUNDATION01",

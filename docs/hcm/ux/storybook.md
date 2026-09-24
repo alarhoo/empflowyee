@@ -41,7 +41,7 @@ Floorplans own domain-neutral regions and presentation contracts. Examples own f
 
 This is a target taxonomy, not a requirement to populate empty sections. Raw controls belong in upstream documentation unless HCM adds meaningful behavior.
 
-The ordinary catalog includes **Floorplans / Native / Dynamic Page**, **Floorplans / Native / ToolPageLayout** and **Floorplans / Composed / Object Page**. The current pilots carry review notices; historical Core/Platform accessibility evidence does not approve the new UI5 composition. Story fixtures supply data and projected content to production components, never a separate layout implementation.
+The ordinary catalog includes **Floorplans / Native / Dynamic Page**, **Floorplans / Native / ToolPageLayout** and **Floorplans / Composed / Object Page**. ToolPageLayout retains its pilot review notice. The tabbed Object Page has current acceptance evidence; historical Core/Platform results are kept separately. Story fixtures supply data and projected content to production components, never a separate layout implementation.
 
 ## Presentation controls
 
@@ -78,7 +78,7 @@ Both floorplans and all 15 stories are included by default. For the full accepta
 node tools/ux/verify-workshop.mjs
 ```
 
-`HCM_STORYBOOK_URL` may override the default `http://localhost:6006`. No review flag or second Storybook server is required. The full checker still reports the documented Object Page accessibility findings; use focused native-theme checks when changing only palette mappings.
+`HCM_STORYBOOK_URL` may override the default `http://localhost:6006`. No review flag or second Storybook server is required. The full checker verifies the accepted tabbed Object Page composition, including edit-mode accessibility, with no rule exclusions. Display Form and grouped Edit Form limitations remain documented.
 
 The browser check validates native interactions, theme transitions and responsive behavior, and stores local evidence under `.tmp/hcm-workshop/`. PR CI builds affected Storybooks; it does not deploy them. Browser verification remains a local acceptance procedure unless explicitly added to CI.
 

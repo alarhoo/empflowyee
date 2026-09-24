@@ -8,14 +8,10 @@ export const appRoutes: Routes = [
 		path: 'access-control/role-management',
 		data: { catalogId: 'ROLE_MANAGEMENT' },
 		canMatch: [hcmRouteAccess],
-		canDeactivate: [
-			/** Preserve dirty role drafts before navigation or persona replacement. */ (component: {
-				canLeave: () => Promise<boolean>
-			}) => component.canLeave(),
-		],
-		loadComponent: /** Lazy-load the domain-owned screen. */ () =>
+		loadChildren: /** Load the domain-owned role routes and draft guards. */ () =>
 			import('@empflowyee/hcm-web-access-control-feature-role-management').then(
-				/** Select only the admitted role feature. */ (module) => module.RoleManagementComponent,
+				/** Keep role detail and complex edit routing inside the feature. */ (module) =>
+					module.ROLE_MANAGEMENT_ROUTES,
 			),
 	},
 	{

@@ -60,11 +60,11 @@
 		},
 		{
 			"document": "UX",
-			"sha256": "b9c8b7722233db5b4af94f4128f93a8614c6c6cfc44ba65f15d08938bd6f3ad7",
+			"sha256": "1a6c0066a8ca207a02c14e042356f9f4ef56762008025d83b2c0937010d23dd9",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX correction instruction, business scope unchanged; implementation evidence is separate"
 		},
 		{
 			"document": "FOUNDATION01",

@@ -2,7 +2,7 @@
 
 Use the [capability matrix](component-capability-matrix.md) and [selection standard](../../../platform/ux/floorplans/selection-standard.md) before implementing a feature. A platform catalog ID describes intent; only a reviewed HCM implementation may be selected in a feature TDD.
 
-The current Theme Lab pilot focuses on Object Page and ToolPageLayout. The earlier Dynamic Page proof remains available. Other generated libraries are deferred and are not canonical production recommendations.
+Dynamic Page and the tabbed Object Page are accepted compositions. ToolPageLayout remains a Theme Lab pilot. Other generated libraries are deferred and are not canonical production recommendations.
 
 ## Dynamic Page
 
@@ -16,13 +16,13 @@ The HCM responsibility is the action/state contract, not an API alias. Action de
 
 ## Object Page
 
-**Review required:** native tab/form accessibility findings prevent feature adoption. See the [acceptance gate](validation.md#object-page-accessibility-gate).
+The tabbed UI5 composition passes the current [acceptance checks](validation.md#current-tabbed-object-page-revision). Use semantic static content and direct native Edit FormItems; the documented Display Form/FormGroup limitations remain.
 
 Import `HcmObjectPage` and `HcmObjectSection` from `@empflowyee/hcm-web-ux-floorplan-object-page`.
 
 The implementation composes the installed UI5 DynamicPage, DynamicPageTitle, DynamicPageHeader, Toolbar and TabContainer Angular wrappers. Native components own header snapping/pinning, action overflow and keyboard tab navigation. This replaces the earlier Core/Platform stacked section experiment; it does not claim that the Angular ecosystem lacks composition capabilities.
 
-Use it for one object with grouped information and object-level actions. Do not use it for a collection, wizard or list-detail navigation.
+Use it for one object with grouped information and object-level actions. Use it as the detail page inside native FlexibleColumnLayout for list/detail navigation. The collection belongs in the begin column; wizards require a dedicated route.
 
 Inputs: required `title`, `summary`, `state`, `readOnly`, `actions`, `errorMessage`, `showFooter`. Outputs: `action`, `retry`, `sectionChange`. Regions: `[hcmImage]`, `[hcmKeyInfo]`, `[hcmHeader]`, optional `[hcmFooter]` and labeled templates. Native footer display requires `showFooter` and the content state; features own its actions. All consumers follow the shared [page and width standard](../page-layout.md):
 

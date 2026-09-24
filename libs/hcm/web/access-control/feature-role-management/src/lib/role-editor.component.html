@@ -1,11 +1,24 @@
-<ui5-dialog
-	[open]="open()"
-	[headerText]="title()"
-	[accessibleName]="title()"
-	[stretch]="true"
-	initialFocus="role-label"
-	(ui5BeforeClose)="beforeClose($event)"
-	(ui5Close)="finishClose($event)">
+@if (edit().mode === 'delete') {
+	<ui5-dialog
+		[open]="open()"
+		[headerText]="title()"
+		[accessibleName]="title()"
+		initialFocus="role-reason"
+		(ui5BeforeClose)="beforeClose($event)"
+		(ui5Close)="finishClose($event)">
+		<ng-container [ngTemplateOutlet]="fieldsContent"></ng-container>
+		<div slot="footer"><ng-container [ngTemplateOutlet]="actionsContent"></ng-container></div>
+	</ui5-dialog>
+} @else {
+	<ef-hcm-dynamic-page
+		[title]="title()"
+		summary="Role identity, registered permissions and change reason"
+		[showFooter]="true">
+		<ng-container [ngTemplateOutlet]="fieldsContent"></ng-container>
+		<div hcmFooter><ng-container [ngTemplateOutlet]="actionsContent"></ng-container></div>
+	</ef-hcm-dynamic-page>
+}
+<ng-template #fieldsContent>
 	@if (error()) {
 		<ui5-message-strip
 			design="Negative"
@@ -74,7 +87,9 @@
 			[readOnly]="edit().mode === 'view' || saving()"
 			(selectedChange)="selectPermissions($event)"></ef-hcm-role-permissions>
 	}
-	<ui5-bar slot="footer">
+</ng-template>
+<ng-template #actionsContent>
+	<ui5-bar>
 		@if (edit().mode !== 'view') {
 			<ui5-button
 				slot="endContent"
@@ -91,7 +106,7 @@
 			{{ edit().mode === 'view' ? 'Close' : 'Cancel' }}
 		</ui5-button>
 	</ui5-bar>
-</ui5-dialog>
+</ng-template>
 <ui5-dialog
 	[open]="confirmOpen()"
 	headerText="Discard changes?"

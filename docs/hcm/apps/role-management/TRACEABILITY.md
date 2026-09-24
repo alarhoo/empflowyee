@@ -84,3 +84,7 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 Assert: Commands persist their documented state, revision, audit and receipt under the shared transaction/storage contract; no success before commit.
 
 Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+
+## UX revision coverage
+
+The product-owner list-detail directive is verified by the real Role Management browser suite: begin-column filters survive selection/back navigation; the mid-column Object Page exposes Overview, Permissions, Assignees and History / Audit; routed create/edit preserve drafts and guard shell navigation. Contextual assignment and audit permission separation, genuine events and versioned pagination are verified by the PostgreSQL/Nest suite. See [execution evidence](../../testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md). Assignment mutation ownership stays with ACCESS_ASSIGNMENTS.

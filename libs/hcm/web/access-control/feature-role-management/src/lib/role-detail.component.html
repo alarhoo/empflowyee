@@ -1,0 +1,174 @@
+<ef-hcm-object-page
+	[title]="role()?.label || 'Role details'"
+	summary="Tenant role"
+	[state]="state()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	<ng-template
+		efHcmObjectSection="overview"
+		label="Overview">
+		@if (role(); as item) {
+			@if (item.systemRole) {
+				<ui5-message-strip [hideCloseButton]="true">
+					System role. Its label and permissions are read-only.
+				</ui5-message-strip>
+			}
+			<dl>
+				<dt>Role name</dt>
+				<dd>{{ item.label }}</dd>
+				<dt>Type</dt>
+				<dd>
+					{{
+						item.protectedAdmin
+							? 'Protected administrator'
+							: item.systemRole
+								? 'System role'
+								: 'Custom role'
+					}}
+				</dd>
+				<dt>Revision</dt>
+				<dd>{{ item.revision }}</dd>
+				<dt>Permissions</dt>
+				<dd>{{ item.permissionCount }}</dd>
+				<dt>Assignees</dt>
+				<dd>{{ item.assigneeCount }}</dd>
+			</dl>
+		}
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="permissions"
+		label="Permissions">
+		<ef-hcm-role-permissions
+			[options]="permissions()"
+			[selected]="role()?.permissionCodes || []"
+			[readOnly]="true"></ef-hcm-role-permissions>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="assignees"
+		label="Assignees">
+		<p>
+			Assignments are managed by Access Assignments. This section shows current role membership.
+		</p>
+		@switch (assigneeState()) {
+			@case ('loading') {
+				<p role="status">Loading assignees…</p>
+			}
+			@case ('denied') {
+				<ui5-message-strip [hideCloseButton]="true">
+					Permission to read access assignments is required.
+				</ui5-message-strip>
+			}
+			@case ('error') {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					Assignees could not be loaded.
+				</ui5-message-strip>
+				<ui5-button (click)="loadAssignees()">Retry assignees</ui5-button>
+			}
+			@case ('content') {
+				<ui5-table
+					accessibleName="Role assignees"
+					overflowMode="Popin"
+					noDataText="No accounts are assigned to this role">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="10rem">
+							Name
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="50"
+							minWidth="14rem"
+							popinText="Email">
+							Email
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="20"
+							minWidth="6rem"
+							popinText="Status">
+							Status
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (item of assignees(); track item.grantId) {
+						<ui5-table-row>
+							<ui5-table-cell>{{ item.displayName }}</ui5-table-cell>
+							<ui5-table-cell>{{ item.email }}</ui5-table-cell>
+							<ui5-table-cell>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-table-cell>
+						</ui5-table-row>
+					}
+				</ui5-table>
+				@if (assigneeCursor()) {
+					<ui5-button (click)="loadAssignees(true)">Load more assignees</ui5-button>
+				}
+			}
+		}
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="history"
+		label="History / Audit">
+		@switch (historyState()) {
+			@case ('loading') {
+				<p role="status">Loading history…</p>
+			}
+			@case ('denied') {
+				<ui5-message-strip [hideCloseButton]="true">
+					Permission to read audit events is required.
+				</ui5-message-strip>
+			}
+			@case ('error') {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					History could not be loaded.
+				</ui5-message-strip>
+				<ui5-button (click)="loadHistory()">Retry history</ui5-button>
+			}
+			@case ('content') {
+				<ui5-table
+					accessibleName="Role audit history"
+					overflowMode="Popin"
+					noDataText="No role changes have been recorded">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="10rem">
+							Action
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="50"
+							minWidth="12rem"
+							popinText="Time">
+							Time
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="30"
+							minWidth="12rem"
+							popinText="Actor">
+							Actor
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="10"
+							minWidth="16rem"
+							popinText="Reason">
+							Reason
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (item of history(); track item.id) {
+						<ui5-table-row>
+							<ui5-table-cell>{{ item.action }}</ui5-table-cell>
+							<ui5-table-cell>{{ item.occurredAt }}</ui5-table-cell>
+							<ui5-table-cell>{{ item.actorAccountId }}</ui5-table-cell>
+							<ui5-table-cell>{{ item.summary.reason }}</ui5-table-cell>
+						</ui5-table-row>
+					}
+				</ui5-table>
+				@if (historyCursor()) {
+					<ui5-button (click)="loadHistory(true)">Load more history</ui5-button>
+				}
+			}
+		}
+	</ng-template>
+</ef-hcm-object-page>

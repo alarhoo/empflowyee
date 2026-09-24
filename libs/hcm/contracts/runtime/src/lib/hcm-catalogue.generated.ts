@@ -2060,7 +2060,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'access-control',
 			catalogueIds: ['tenant-administration'],
 			route: '/access-control/role-management',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
+			floorplan: 'UX-FP-FCL',
 			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',

@@ -1,13 +1,10 @@
 # Role Management — technical design
 
-Status: complete for review; no implementation/admission or revision approval claimed.
+Status: admitted local-stage implementation; the product-owner UX revision is recorded in DECISIONS.md.
 
 ## ROUTE
 
-Selected route `/access-control/role-management`; lazy feature `libs/hcm/web/access-control/feature-role-management`. Selection is recorded
-in this blueprint for review; canonical route/floorplan remain null until the TDD
-revision is approved. Keep implementationStatus Planned. Existing catalogue
-placements remain UX metadata and never determine code ownership.
+Route `/access-control/role-management`; lazy domain feature `libs/hcm/web/access-control/feature-role-management`. The feature owns its `new` and `:id/edit` routes, selection query state and dirty-leave guards. Canonical metadata selects FCL; source ownership remains access-control.
 
 ## READ
 
@@ -43,7 +40,7 @@ state transitions and unsupported methods cannot bypass the domain policy.
 
 Create/edit a non-system role with a trimmed unique label and registered permission codes; saving with a reason returns the new revision.
 
-Forms use the shared Signal Forms protocol, Label and permission multiselection; permission options grouped by kind, exact code/description visible; required reason. Create/Edit open a native Dialog, Cancel discards draft. No system-role mutation controls.
+Forms use the shared Signal Forms protocol, Label and permission multiselection; permission options grouped by kind, exact code/description visible; required reason. Create/Edit use dedicated routed Dynamic Pages (`new` and `:id/edit`) for the substantial permission editor. Dirty Cancel/leave confirms before discarding. No system-role mutation controls.
 
 Create, reload and edit a custom role; reject duplicate label, unknown permission and stale revision.
 
@@ -89,14 +86,19 @@ Use [domain physical design](../../domain/HCM-1-ACCESS-CONTROL.md#data) and
 tables per app. Forward migrations shared by sibling apps are delivered once by
 their owning domain. Read-only apps add no mutation grants just to populate a UI.
 Successful writes use the [shared unit of work](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#tx).
-SQL and versioned seeds are designed here but not created/run in this delivery.
+This slice reuses the explicitly applied access/audit foundation migration and seeds; contextual reads require no new migration.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
-The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
-and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+Floorplan `UX-FP-FCL`, mode **NATIVE**, using installed `FlexibleColumnLayout` from `@fundamental-ngx/ui5-webcomponents-fiori/flexible-column-layout` (0.64.3 / UI5 2.26.0). The begin (`startColumn`) is HcmDynamicPage with filters and the server-owned role table. Selection is the `role` query parameter and opens `HcmObjectPage` (`UX-FP-OBJECT-PAGE`, COMPOSED) in `midColumn` with Overview, Permissions, Assignees, History / Audit. Native FCL owns responsive columns; Back to roles restores the begin column on phones. Both columns are page-backed. No feature CSS.
+
+The [product-owner revision](DECISIONS.md#ux-revision) supersedes the earlier dialog-only choice and the common TDD's exclusion of Object Page for this screen. Shared Object Page acceptance must pass before completing adoption. Native TabContainer replaces the historical Platform tabs; semantic definition lists present static values without cross-shadow UI5 Display Form semantics. Interactive forms retain native Form in Edit mode and Signal Forms.
+
+Create/edit use dedicated feature routes. Only delete/reason and dirty-discard confirmations use dialogs. Existing role HTTP commands remain unchanged.
+
+Contextual reads add `GET roles/{id}/assignees` and `GET roles/{id}/history`, with only `limit` (25 default, 100 maximum) and `cursor`. Both require roles.read plus respectively assignments.read/access-control entitlement or audit.events.read/audit entitlement. Their cursors are role-bound. Missing role is 404 after authorization. History returns `Page<{id,occurredAt,actorAccountId,action,outcome,summary:{reason,changedFields}}>` of actual role mutation events only; assignees return `Page<{accountId,displayName,email,enabled,grantId}>`. No synthetic seed history.
+
+Role Management owns no assignment command logic. Assignees use the shared assignment-owned query service; history uses the audit-owned projection adapter. Assignment actions reuse ACCESS_ASSIGNMENTS contracts/services or navigate to that app. Independent section loading/empty/denied/error states preserve a valid role overview.
 
 Content columns/fields: Role label; system/protected status; permission count; assignee count; revision.
 
@@ -106,7 +108,7 @@ Single row/detail action selection only; no bulk actions, column personalization
 virtualization or export. Native Popin retains secondary data with meaningful
 labels on narrow screens. Summary-only content does not invent a table.
 
-Forms use the shared Signal Forms protocol, Label and permission multiselection; permission options grouped by kind, exact code/description visible; required reason. Create/Edit open a native Dialog, Cancel discards draft. No system-role mutation controls.
+Forms use the shared Signal Forms protocol, Label and permission multiselection; permission options grouped by kind, exact code/description visible; required reason. Create/Edit use dedicated routed Dynamic Pages (`new` and `:id/edit`) for the substantial permission editor. Dirty Cancel/leave confirms before discarding. No system-role mutation controls.
 
 Field rules come from the domain/API contract. Save validates synchronously then
 submits once; server conflicts keep the draft, 503 offers a safe same-key retry.
@@ -117,7 +119,7 @@ Focus returns to the triggering action after dialogs. No feature CSS or theme im
 
 ## PROJECTS
 
-Planned project declarations; do not generate until the stage is admitted. Sibling
+Admitted project declarations. Sibling
 apps reuse domain contract/data-access/API projects. Four tags are authoritative.
 
 | Project                                          | Root                                                  | Tags                                                                         |
@@ -164,7 +166,4 @@ Use [shared execution criteria](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#test).
 
 ## DELIVERY
 
-Branch `codex/hcm-1-role-management` after all 20 local designs have reviewed evidence.
-Commit contracts/design reconciliation, then domain SQL/API, then native UI, then
-acceptance evidence as coherent slices. No application code is authorized by this
-design-only request. Keep six deferred apps and full-wave completion blocked.
+Branch `codex/hcm-1-role-object-page` carries the product-owner UX correction. Keep contracts/context projections, shared floorplan corrections and routed native UI in coherent commits. Run API/RLS, unit, browser, Storybook, architecture and readiness gates. Access Assignments follows on its own branch; six deferred apps remain Planned.

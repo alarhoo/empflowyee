@@ -12,6 +12,10 @@ import {
 	untracked,
 	viewChild,
 } from '@angular/core'
+import { ActivatedRoute, Router } from '@angular/router'
+import { toSignal } from '@angular/core/rxjs-interop'
+import { FlexibleColumnLayout } from '@fundamental-ngx/ui5-webcomponents-fiori/flexible-column-layout'
+import { RoleDetailComponent } from './role-detail.component'
 import { HttpErrorResponse } from '@angular/common/http'
 import getActiveElement from '@ui5/webcomponents-base/dist/util/getActiveElement.js'
 import { form, FormField } from '@angular/forms/signals'
@@ -41,6 +45,8 @@ import { RoleEditorComponent, type RoleEdit } from './role-editor.component'
 	selector: 'ef-hcm-role-management',
 	imports: [
 		HcmDynamicPage,
+		FlexibleColumnLayout,
+		RoleDetailComponent,
 		Form,
 		FormItem,
 		Label,
@@ -62,6 +68,15 @@ import { RoleEditorComponent, type RoleEdit } from './role-editor.component'
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RoleManagementComponent {
+	private readonly router = inject(Router)
+	private readonly route = inject(ActivatedRoute)
+	readonly query = toSignal(this.route.queryParamMap, {
+		initialValue: this.route.snapshot.queryParamMap,
+	})
+	readonly selectedId = computed(
+		/** Keep role selection deep-linkable and browser history owned. */ () =>
+			this.query().get('role'),
+	)
 	private readonly api = inject(RoleApi)
 	private readonly runtime = inject(HcmRuntimeStore)
 	private readonly destroy = inject(DestroyRef)
@@ -164,9 +179,20 @@ export class RoleManagementComponent {
 				},
 			})
 	}
-	/** Load current detail and registered choices before opening the explicit native dialog. */
+	/** Route meaningful detail and complex forms; load a fresh revision for the focused delete dialog. */
 	open(mode: RoleEdit['mode'], role?: RoleSummary): void {
 		if (this.busy() || (mode !== 'view' && !this.canManage())) return
+		if (mode === 'view' && role) {
+			this.focusOrigin = getActiveElement() as HTMLElement | null
+			void this.router.navigate([], { relativeTo: this.route, queryParams: { role: role.id } })
+			return
+		}
+		if (mode === 'create' || mode === 'update') {
+			void this.router.navigate(mode === 'create' ? ['new'] : [role?.id, 'edit'], {
+				relativeTo: this.route,
+			})
+			return
+		}
 		// Native read-loading disables the trigger before Dialog can capture it itself.
 		this.focusOrigin = getActiveElement() as HTMLElement | null
 		this.busy.set(true)
@@ -187,6 +213,12 @@ export class RoleManagementComponent {
 				error: /** Preserve the list while explaining why details could not be loaded. */ (error) =>
 					this.message.set(roleErrorMessage(error)),
 			})
+	}
+	/** Close the routed detail and retain the begin-column query/results. */
+	async closeDetail(): Promise<void> {
+		await this.router.navigate([], { relativeTo: this.route, queryParams: {} })
+		this.focusPending = true
+		this.restoreEditorFocus()
 	}
 	/** Refresh after the confirmed API commit without fabricating an optimistic row. */
 	saved(): void {

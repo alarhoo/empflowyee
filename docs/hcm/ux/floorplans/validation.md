@@ -1,13 +1,38 @@
 # HCM floorplan acceptance record
 
-## Current pilot revision
+## Current tabbed Object Page revision
 
-The current Object Page implementation uses native UI5 DynamicPage + TabContainer, replacing the Core/Platform stacked composition evaluated below. ToolPageLayout is a new native NavigationLayout integration consumed by Theme Lab. Historical Core/Platform accessibility and scrolling results below do not validate this replacement. Feature-adoption acceptance remains pending visual and accessibility review; no earlier test result is transferred to the new layout.
+The 2026-09-24 revision uses maintained UI5 DynamicPage + TabContainer. Static
+object data uses semantic definition lists; editable fields use native Form in
+Edit mode with direct FormItem children. This is a supported composition, without
+private DOM patches, feature CSS or disabled axe rules. It supersedes the earlier
+Core/Platform experiment and its adoption restriction described historically below.
 
-The lab uses the shared pilots, compact density by default and theme selection from the avatar menu. Current focused checks are recorded in the [Foundation Lab acceptance criteria](../theme-lab/ACCEPTANCE-CRITERIA.md).
+The product owner's [UX direction](../../roadmap/HCM-1-UX-REVISION.md) requires this
+object page inside native FlexibleColumnLayout for meaningful list/detail screens.
+Each column has its own named native page/header regions. The shared application
+boundary supplies column height; features own routes, queries and authorization.
+
+Acceptance passed: 16 Storybook tests; 24 four-theme/viewport cases with zero axe
+findings; native collapse/pin, tab keyboard navigation, edit/save, phone overflow,
+density changes and in-place theme/tenant-overlay removal. The checker includes
+post-edit accessibility and excludes no axe rules. Screenshots were inspected for
+phone/desktop readability. See [Role Management validation](../../testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md)
+for the live FCL consumer, five browser tests and database/API evidence.
+Older results below do not count as verification of this implementation.
+
+### Supported composition limits
+
+The installed UI5 Display Form still separates definition-list semantics across
+shadow roots. FormGroup does not propagate Form's Edit accessibility mode to its
+nested FormItems in this version. Neither upstream issue is claimed fixed. Use
+semantic static content and direct native Edit FormItems as demonstrated by the
+shared production example. Exploratory Theme Lab compositions using the affected
+patterns are not canonical acceptance evidence. Tabbed sections do not implement
+stacked anchor scrolling. Assistive-technology/product-design review remains
+additional to automated axe, keyboard, responsive and visual checks.
 
 ## Previous implementation evidence (historical)
-
 
 This record covers the production UX correction on **2026-09-22**. It supersedes the earlier 114-story / 66-case materialization record. Those checks proved that examples rendered; they did not establish native floorplan fidelity or accessibility acceptance. No cloud deployment is part of this correction.
 
@@ -19,11 +44,11 @@ Focused verification passed: 10 theme unit tests, the two Chromium theme/tenant-
 
 ## Admission status
 
-| Implementation           | Status                                                 | Evidence and remaining gate                                                                                                                                                                                                                             |
-| ------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dynamic Page             | Canonical implementation                               | Maintained UI5 DynamicPage; shared production example; native interaction and theme/viewport checks pass; no axe violations in the 12 content cases.                                                                                                    |
+| Implementation           | Status                                                 | Evidence and remaining gate                                                                                                                                                                                                                  |
+| ------------------------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dynamic Page             | Canonical implementation                               | Maintained UI5 DynamicPage; shared production example; native interaction and theme/viewport checks pass; no axe violations in the 12 content cases.                                                                                         |
 | Object Page              | **Review required; not approved for feature adoption** | Maintained Core DynamicPage + Platform IconTabBar composition works, but native tab/form markup has unresolved accessibility findings. Default Storybook discovery includes it under Floorplans / Composed with a visible acceptance notice. |
-| Other generated patterns | Deferred                                               | Excluded from discovery. Directory existence does not approve List Report, Worklist, Overview, Analytical List, forms or table adapters.                                                                                                                |
+| Other generated patterns | Deferred                                               | Excluded from discovery. Directory existence does not approve List Report, Worklist, Overview, Analytical List, forms or table adapters.                                                                                                     |
 
 Do not expand the catalog or select Object Page in a feature TDD until its gate is resolved. The application and Storybook render the same library exports and shared example hosts. Review status does not authorize a separate implementation.
 

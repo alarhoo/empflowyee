@@ -1,5 +1,7 @@
 # HCM-1 Role Management acceptance
 
+The current UI revision is recorded in [Role Object Page validation](HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md). The dialog-based UI evidence below describes the earlier implementation; its API regression evidence remains relevant.
+
 Branch: `codex/hcm-1-role-management`. Depends on the committed
 [access/audit foundation](HCM-1-ACCESS-AUDIT-VALIDATION.md) and the
 [approved local-stage designs](../roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md).

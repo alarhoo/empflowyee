@@ -1,6 +1,6 @@
 # Role Management — functional design
 
-Status: complete for review; approved local business scope, document revision not yet approved.
+Status: admitted local-stage implementation; the product-owner UX revision is recorded in DECISIONS.md.
 
 App `ROLE_MANAGEMENT`; owner `access-control`; HCM-1 local stage.
 
@@ -69,11 +69,13 @@ Acceptance: Verify PostgreSQL/RLS constraints, failure recovery, real local API 
 
 ## BUSINESS-DATA
 
+Use native FCL with a begin-column list and mid-column role Object Page. Sections are Overview, Permissions, Assignees and History / Audit. Assignment membership belongs to ACCESS_ASSIGNMENTS; audit history requires separate audit authority.
+
 Display: Role label; system/protected status; permission count; assignee count; revision.
 
 Query behavior: q matches label; filter systemRole; sort label asc (default) or desc, then id.
 
-Label and permission multiselection; permission options grouped by kind, exact code/description visible; required reason. Create/Edit open a native Dialog, Cancel discards draft. No system-role mutation controls.
+Label and permission multiselection; permission options grouped by kind, exact code/description visible; required reason. Create/Edit use dedicated routed Dynamic Pages (`new` and `:id/edit`) for the substantial permission editor. Dirty Cancel/leave confirms before discarding. No system-role mutation controls.
 
 ## EXCLUSIONS
 
