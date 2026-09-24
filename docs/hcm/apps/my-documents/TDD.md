@@ -28,6 +28,7 @@ No body/query contains tenantId or a self-service actor override.
 | Operation                                                               | Permission                    | Request               | Response                |
 | ----------------------------------------------------------------------- | ----------------------------- | --------------------- | ----------------------- |
 | `GET /api/v1/documents/me/documents`                                    | `hcm.documents.self.read`     | `List query: typeId?` | `Page<SelfDocumentDto>` |
+| `GET /api/v1/documents/me/documents/{id}`                               | `hcm.documents.self.read`     | `None`                | `SelfDocumentDto`       |
 | `GET /api/v1/documents/me/documents/{id}/versions`                      | `hcm.documents.self.read`     | `List query`          | `Page<VersionDto>`      |
 | `GET /api/v1/documents/me/documents/{id}/versions/{versionId}/download` | `hcm.documents.self.download` | `None`                | `Attachment bytes`      |
 
@@ -91,10 +92,10 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. The begin-column HcmDynamicPage keeps server filters/list; the mid-column approved Object Page shows Overview and visible Versions. Selection is a routed document query parameter. No create/edit dialogs or worker selectors.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection, reconciled under the authorized [UX matrix](../../roadmap/HCM-1-UX-REVISION.md). No custom floorplan or feature CSS.
 
 Content columns/fields: Document label/type; visible version; filename; file size; created date.
 

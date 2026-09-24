@@ -2703,7 +2703,7 @@
 			],
 			"featurePath": "libs/hcm/web/documents/feature-my-documents",
 			"route": "/documents/my-documents",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
