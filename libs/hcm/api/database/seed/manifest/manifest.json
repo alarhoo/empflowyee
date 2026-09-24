@@ -55,6 +55,15 @@
 			"requiresMigrations": ["000011_notification_configuration.sql"],
 			"apply": "notifications.configuration.1.apply.sql",
 			"reset": "notifications.configuration.1.reset.sql"
+		},
+		{
+			"id": "access.documents",
+			"domain": "access-control",
+			"version": 1,
+			"dependsOn": ["access.business@1"],
+			"requiresMigrations": ["000013_document_types.sql"],
+			"apply": "access.documents.1.apply.sql",
+			"reset": "access.documents.1.reset.sql"
 		}
 	]
 }

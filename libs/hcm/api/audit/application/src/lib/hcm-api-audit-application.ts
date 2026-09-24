@@ -34,6 +34,12 @@ export interface NotificationConfigurationAuditEvent {
 	requestId: string
 	summary: { reason: string; changedFields: ('title' | 'body' | 'enabled')[] }
 }
+export interface DocumentTypeAuditEvent {
+	action: 'document.type-created' | 'document.type-updated'
+	targetId: string
+	requestId: string
+	summary: { reason: string; changedFields: ('code' | 'label' | 'description' | 'enabled')[] }
+}
 export type AccessAuditEvent =
 	| RoleAuditEvent
 	| AssignmentAuditEvent
@@ -41,12 +47,17 @@ export type AccessAuditEvent =
 	| ReviewAuditEvent
 	| NotificationAuditEvent
 	| NotificationConfigurationAuditEvent
+	| DocumentTypeAuditEvent
 export interface AppendAudit {
 	/** Append safe evidence in the existing business transaction, deriving actor from its verified scope. */
 	append(event: AccessAuditEvent): Promise<string>
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (event?.action === 'document.type-created' || event?.action === 'document.type-updated') {
+		validateDocumentTypeAudit(event)
+		return
+	}
 	if (
 		event?.action === 'notification.template-changed' ||
 		event?.action === 'notification.rule-changed'
@@ -221,4 +232,31 @@ export function validateNotificationConfigurationAudit(
 		)
 	)
 		throw new Error('Invalid notification configuration audit envelope')
+}
+
+/** Keep classification audit bounded to changed field names and a required reason. */
+export function validateDocumentTypeAudit(event: DocumentTypeAuditEvent): void {
+	const allowed =
+		event.action === 'document.type-created'
+			? ['code', 'label', 'description', 'enabled']
+			: ['label', 'description', 'enabled']
+	if (
+		Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+		typeof event.targetId !== 'string' ||
+		!event.targetId ||
+		event.targetId.length > 200 ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!event.summary ||
+		Object.keys(event.summary).sort().join(',') !== 'changedFields,reason' ||
+		typeof event.summary.reason !== 'string' ||
+		!event.summary.reason.trim() ||
+		event.summary.reason.length > 500 ||
+		!Array.isArray(event.summary.changedFields) ||
+		new Set(event.summary.changedFields).size !== event.summary.changedFields.length ||
+		event.summary.changedFields.some(
+			/** Reject raw labels, descriptions and unregistered fields. */ (field) =>
+				!allowed.includes(field),
+		)
+	)
+		throw new Error('Invalid document type audit envelope')
 }

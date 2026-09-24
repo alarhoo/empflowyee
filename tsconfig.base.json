@@ -186,7 +186,19 @@
 			],
 			"@empflowyee/hcm-web-notifications-feature-notification-rules": [
 				"./libs/hcm/web/notifications/feature-notification-rules/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-documents-contract": ["./libs/hcm/contracts/documents/src/index.ts"],
+			"@empflowyee/hcm-api-documents-domain": ["./libs/hcm/api/documents/domain/src/index.ts"],
+			"@empflowyee/hcm-api-documents-application": [
+				"./libs/hcm/api/documents/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-documents-infrastructure": [
+				"./libs/hcm/api/documents/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-documents-transport": [
+				"./libs/hcm/api/documents/transport/src/index.ts"
+			],
+			"@empflowyee/hcm-api-documents-module": ["./libs/hcm/api/documents/module/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

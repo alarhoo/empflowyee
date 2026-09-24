@@ -137,6 +137,8 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'audit_event',
 			'development_persona',
 			'development_seed_history',
+			'document_command_receipt',
+			'document_type',
 			'employment',
 			'entitlement_definition',
 			'identity_command_receipt',

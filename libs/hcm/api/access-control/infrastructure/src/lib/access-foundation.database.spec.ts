@@ -87,7 +87,7 @@ beforeAll(
 		const manifest = JSON.parse(await readFile(join(source, 'manifest.json'), 'utf8'))
 		manifest.modules = manifest.modules.filter(
 			/** Reconstruct the immutable pre-business seed inventory. */ (entry: { id: string }) =>
-				!['access.business', 'notifications.configuration'].includes(entry.id),
+				!['access.business', 'notifications.configuration', 'access.documents'].includes(entry.id),
 		)
 		const seedDirectory = await mkdtemp(join(tmpdir(), 'hcm-access-seed-'))
 		try {
@@ -113,6 +113,7 @@ beforeAll(
 			'000010_notification_self_service.sql',
 			'000011_notification_configuration.sql',
 			'000012_notification_rendered_text.sql',
+			'000013_document_types.sql',
 		])
 		await runDevelopmentSeeds({
 			env: { ...env, HCM_SEED_TARGET: tenant, HCM_SEED_DATABASE_URL: connection('MIGRATOR') },
@@ -159,7 +160,13 @@ afterAll(
 )
 
 it('preserves HCM-0 identities and discovery grants while applying the exact local business register', /** Verify data continuity, persisted system flags and independently count the new permission kind. */ async () => {
-	expect(await snapshot()).toEqual(original)
+	const current = await snapshot()
+	expect(current).toEqual(expect.arrayContaining(original))
+	expect(current).toHaveLength(original.length + 1)
+	expect(current).toContainEqual({
+		kind: 'grant',
+		key: 'hr-specialist:hcm.catalogue.DOCUMENT_TYPES.discover',
+	})
 	expect(
 		(
 			await admin.query(
