@@ -1,12 +1,10 @@
 # Identity Administration — technical design
 
-Status: complete for review; no implementation/admission or revision approval claimed.
+Status: approved local implementation scope, reconciled with the mandatory UX matrix under the explicit implementation instruction.
 
 ## ROUTE
 
-Selected route `/identity-access/identity-administration`; lazy feature `libs/hcm/web/identity-access/feature-identity-administration`. Selection is recorded
-in this blueprint for review; canonical route/floorplan remain null until the TDD
-revision is approved. Keep implementationStatus Planned. Existing catalogue
+Selected route `/identity-access/identity-administration`; lazy feature `libs/hcm/web/identity-access/feature-identity-administration`. The blueprint selects the implementation route and floorplan; keep implementationStatus Planned until acceptance passes. Existing catalogue
 placements remain UX metadata and never determine code ownership.
 
 ## READ
@@ -86,14 +84,14 @@ Use [domain physical design](../../domain/HCM-1-IDENTITY-ACCESS.md#data) and
 tables per app. Forward migrations shared by sibling apps are delivered once by
 their owning domain. Read-only apps add no mutation grants just to populate a UI.
 Successful writes use the [shared unit of work](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#tx).
-SQL and versioned seeds are designed here but not created/run in this delivery.
+Apply additive SQL migration 000008 through the explicit database tool; existing versioned Dunder Mifflin people/accounts provide real data. Do not invent accounts or audit history in seed fixtures.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep account filters/table in a begin-column HcmDynamicPage; selected account opens a mid-column HcmObjectPage with Overview and contextual Roles sections. Selection uses an encoded account query parameter and native query-change leave guards. Three-field creation and reasoned enable/disable are focused native dialogs.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection. No custom layout or business CSS. Contextual Roles consumes the existing Access Assignments read API only when its distinct permission/entitlement is present, with a link to that owning app for grant/revoke. Identity does not duplicate assignment logic.
 
 Content columns/fields: Display name; email; enabled state; person linkage; revision.
 
@@ -163,5 +161,4 @@ Use [shared execution criteria](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#test).
 
 Branch `codex/hcm-1-identity-administration` after all 20 local designs have reviewed evidence.
 Commit contracts/design reconciliation, then domain SQL/API, then native UI, then
-acceptance evidence as coherent slices. No application code is authorized by this
-design-only request. Keep six deferred apps and full-wave completion blocked.
+acceptance evidence as coherent slices. Application code is authorized by the subsequent local-stage implementation instruction; this reconciliation introduces no new business behavior. Keep six deferred apps and full-wave completion blocked.

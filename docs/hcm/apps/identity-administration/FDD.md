@@ -1,6 +1,6 @@
 # Identity Administration — functional design
 
-Status: complete for review; approved local business scope, document revision not yet approved.
+Status: approved local implementation scope under the explicit 20-app implementation instruction.
 
 App `IDENTITY_ADMINISTRATION`; owner `identity-access`; HCM-1 local stage.
 
