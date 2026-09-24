@@ -1,6 +1,6 @@
 import { queryKey, after, page } from './document-pages'
 import { DocumentReservations } from './document-reservations'
-import type { DocumentDownloadAuditEvent } from '@empflowyee/hcm-api-audit-application'
+import { appendDocumentDownloadAudit } from './document-download-audit'
 import { randomUUID } from 'node:crypto'
 import { sql } from 'kysely'
 import {
@@ -206,17 +206,14 @@ class TemplateRepository implements TemplateFileRepository {
 		phase: 'Authorized' | 'Completed' | 'Failed',
 		relatedId?: string,
 	): Promise<string> {
-		let action: DocumentDownloadAuditEvent['action'] = 'document.download-authorized'
-		if (phase === 'Completed') action = 'document.download-completed'
-		if (phase === 'Failed') action = 'document.download-failed'
-		return this.scope.audit.append({
-			action,
-			targetId: id,
-			targetType: 'document-template-version',
+		return appendDocumentDownloadAudit(
+			this.scope,
+			'document-template-version',
+			id,
 			requestId,
-			relatedEventId: relatedId ?? null,
-			summary: {},
-		})
+			phase,
+			relatedId,
+		)
 	}
 }
 export class KyselyTemplateFileUnit extends TemplateFileUnitOfWork {

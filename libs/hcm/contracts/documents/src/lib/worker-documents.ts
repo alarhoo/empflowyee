@@ -90,3 +90,9 @@ export function parseWorkerDocumentAppend(body: unknown): WorkerDocumentAppend {
 		reason: documentText(v['reason'], 500),
 	}
 }
+
+export interface SelfDocument {
+	id: string
+	typeId: string
+	label: string
+}

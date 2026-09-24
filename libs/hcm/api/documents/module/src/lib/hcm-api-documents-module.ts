@@ -5,6 +5,8 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	SelfDocuments,
+	SelfDocumentUnit,
 	WorkerFiles,
 	WorkerFileUnitOfWork,
 	DocumentFiles,
@@ -14,12 +16,14 @@ import {
 	DocumentUnitOfWork,
 } from '@empflowyee/hcm-api-documents-application'
 import {
+	KyselySelfDocumentUnit,
 	KyselyWorkerFileUnit,
 	LocalDocumentFiles,
 	KyselyTemplateFileUnit,
 	KyselyDocumentUnitOfWork,
 } from '@empflowyee/hcm-api-documents-infrastructure'
 import {
+	SelfDocumentController,
 	WorkerDocumentController,
 	TemplateController,
 	DocumentTypesController,
@@ -41,8 +45,28 @@ class UnconfiguredFiles extends DocumentFiles {
 
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [DocumentTypesController, TemplateController, WorkerDocumentController],
+	controllers: [
+		DocumentTypesController,
+		TemplateController,
+		WorkerDocumentController,
+		SelfDocumentController,
+	],
 	providers: [
+		{
+			provide: SelfDocumentUnit,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Bind self-owned document projections. */ (db: HcmAccessDatabase | null) =>
+				new KyselySelfDocumentUnit(db),
+		},
+		{
+			provide: SelfDocuments,
+			inject: [SelfDocumentUnit, DocumentFiles],
+			useFactory: /** Compose read-only attachment access. */ (
+				unit: SelfDocumentUnit,
+				files: DocumentFiles,
+			) => new SelfDocuments(unit, files),
+		},
+
 		{
 			provide: WorkerFileUnitOfWork,
 			inject: [HcmAccessDatabase, TemplateFileUnitOfWork],

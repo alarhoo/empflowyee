@@ -1,8 +1,9 @@
+import { authorizedDocumentDownload, type TemplateDownload } from './document-download'
 import { HcmAccessError } from '@empflowyee/hcm-api-access-control-application'
 import { createHash, randomUUID } from 'node:crypto'
-import { DocumentError, documentId } from '@empflowyee/hcm-documents-contract'
+import { DocumentError } from '@empflowyee/hcm-documents-contract'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
-import { DocumentFiles, type DocumentFile, type OpenDocumentFile } from './document-files'
+import { DocumentFiles, type DocumentFile } from './document-files'
 export interface FileIntent {
 	kind: string
 	targetId: string
@@ -57,12 +58,6 @@ export interface FileUnit<I extends FileIntent, R, P extends FileRepository<I, R
 	/** Terminate only an already reserved actor-owned upload. */ fail(
 		context: AuthenticatedHcmContext,
 		reservationId: string,
-	): Promise<void>
-}
-export interface TemplateDownload extends OpenDocumentFile {
-	file: DocumentFile
-	/** Record the observable outcome separately from initial authorization. */ complete(
-		ok: boolean,
 	): Promise<void>
 }
 export class DocumentFileCommands<I extends FileIntent, R, P extends FileRepository<I, R>> {
@@ -145,50 +140,21 @@ export class DocumentFileCommands<I extends FileIntent, R, P extends FileReposit
 			throw error
 		}
 	}
-	/** Authorize and open before append, then expose bytes only after the audit transaction commits. */
-	async download(
+	/** Share authorized attachment streaming without exposing any write port to self service. */
+	download(
 		context: AuthenticatedHcmContext,
 		id: string,
 		versionId: string,
 		requestId: string,
 	): Promise<TemplateDownload> {
-		documentId(id)
-		documentId(versionId)
-		let opened: OpenDocumentFile | undefined
-		try {
-			const authorized = await this.unit.execute(
-				context,
-				this.downloadPermission,
-				true,
-				/** Open verified bytes and append evidence within the authorized scope. */ async (
-					repo,
-				) => {
-					const file = await repo.download(id, versionId)
-					opened = await this.files.open(file)
-					const auditId = await repo.auditDownload(versionId, requestId, 'Authorized')
-					return { file, auditId }
-				},
-			)
-			if (!opened) throw new DocumentError('storage-unavailable')
-			/** Record an observed stream result with a fresh authority check. */
-			const complete = async (ok: boolean): Promise<void> => {
-				await this.unit.execute(
-					context,
-					this.downloadPermission,
-					true,
-					/** Append one bounded completion event. */ (repo) =>
-						repo.auditDownload(
-							versionId,
-							requestId,
-							ok ? 'Completed' : 'Failed',
-							authorized.auditId,
-						),
-				)
-			}
-			return { ...opened, file: authorized.file, complete }
-		} catch (error) {
-			await opened?.close()
-			throw error
-		}
+		return authorizedDocumentDownload(
+			this.unit,
+			this.files,
+			this.downloadPermission,
+			context,
+			id,
+			versionId,
+			requestId,
+		)
 	}
 }
