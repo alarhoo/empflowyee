@@ -124,3 +124,25 @@ export function parseMyActivityQuery(params: URLSearchParams): MyActivityQuery {
 	if (params.has('actorAccountId')) throw new AuditQueryError()
 	return parseAuditQuery(params)
 }
+
+/** Export producers are deferred; adding an action requires its separately reviewed event schema. */
+export const EXPORT_ACTIONS: readonly string[] = []
+export type ExportQuery = Omit<AuditQuery, 'action' | 'outcome'>
+export interface ExportItem {
+	id: string
+	occurredAt: string
+	actorAccountId: string
+	action: string
+	targetType: string
+	targetId: string
+	outcome: string
+}
+export interface ExportPage {
+	items: ExportItem[]
+	nextCursor: string | null
+}
+/** No export action or outcome is registered yet; reject invented selector values. */
+export function parseExportQuery(params: URLSearchParams): ExportQuery {
+	if (params.has('action') || params.has('outcome')) throw new AuditQueryError()
+	return parseAuditQuery(params)
+}

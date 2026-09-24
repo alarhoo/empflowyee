@@ -4,6 +4,7 @@ import {
 	AuditQueryError,
 	parseAuditQuery,
 	parseMyActivityQuery,
+	parseExportQuery,
 } from '@empflowyee/hcm-audit-contract'
 import { HcmRequestTenantContext } from '@empflowyee/hcm-api-runtime-transport'
 import {
@@ -19,6 +20,31 @@ export class AuditLogController {
 		@Inject(HcmRequestTenantContext) private readonly context: HcmRequestTenantContext,
 		@Inject(AuditReader) private readonly reader: AuditReader,
 	) {}
+	/** Read real export metadata without offering an export generator or download URL. */
+	@Get('exports')
+	exports(@Req() request: RoleRequest, @Res({ passthrough: true }) response: RoleResponse) {
+		return runAccessRequest(
+			this.context,
+			this.logger,
+			response,
+			/** Validate only approved query controls. */ async (context) => {
+				try {
+					return await this.reader.exports(
+						context,
+						parseExportQuery(new URL(request.originalUrl, 'http://local.invalid').searchParams),
+					)
+				} catch (error) {
+					if (error instanceof AuditQueryError)
+						throw new HttpException(
+							{ code: 'invalid-request', requestId: this.context.requestId },
+							400,
+						)
+					throw error
+				}
+			},
+		)
+	}
+
 	/** Read only this verified account's evidence, including when it also has tenant-wide grants. */
 	@Get('me/activity')
 	activity(@Req() request: RoleRequest, @Res({ passthrough: true }) response: RoleResponse) {

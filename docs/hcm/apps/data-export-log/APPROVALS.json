@@ -20,19 +20,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "2f787adfebff6e2310582cc3b0fc0d211ad74bc91aaa14dbe4e9dfaba33bf7ca",
+			"sha256": "0d8e47edf084b76e709d15698d7a87b97d799f49f2c96a882f5bfd572fabb3bc",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; native read-only table follows explicit UX instruction; closed export registry implements approved deferral without inventing producers"
 		},
 		{
 			"document": "TRACE",
-			"sha256": "91bfdc15cd78e96eeb4eca7de366f4fb50e8897c3a58371f4f7f2f73fafe01ac",
+			"sha256": "6ca756d46de192b90f3ba79a38909af2dd2cbe41aa30979a1ef02dd04762e7b3",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; approved scope unchanged; execution evidence and deferred producer limits in docs/hcm/testing/HCM-1-DATA-EXPORT-LOG-VALIDATION.md"
 		},
 		{
 			"document": "DECISIONS",

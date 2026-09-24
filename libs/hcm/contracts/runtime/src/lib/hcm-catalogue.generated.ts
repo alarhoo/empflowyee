@@ -546,7 +546,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['tenant-administration'],
 			route: '/audit/data-export-log',
 			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

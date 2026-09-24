@@ -1,5 +1,7 @@
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import type {
+	ExportPage,
+	ExportQuery,
 	AuditPage,
 	AuditQuery,
 	MyActivityQuery,
@@ -7,6 +9,7 @@ import type {
 } from '@empflowyee/hcm-audit-contract'
 /** Read port for tenant-authorized operational evidence; never an audit mutation API. */
 export abstract class AuditReader {
+	abstract exports(context: AuthenticatedHcmContext, query: ExportQuery): Promise<ExportPage>
 	abstract activity(
 		context: AuthenticatedHcmContext,
 		query: MyActivityQuery,

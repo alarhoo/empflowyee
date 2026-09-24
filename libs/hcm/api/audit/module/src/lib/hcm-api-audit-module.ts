@@ -32,6 +32,19 @@ function auditReader(database: HcmAccessDatabase | null): AuditReader {
 					work(scope.transaction as unknown as Kysely<AuditTables>, scope.actor.tenantId),
 			)
 		},
+		/** Require the explicit export-log read authority rather than broad discovery access. */ async (
+			context,
+			work,
+		) => {
+			if (!database) throw new Error('Business runtime unavailable')
+			return database.execute(
+				context,
+				{ permission: 'hcm.audit.exports.read', entitlement: 'hcm.audit' },
+				false,
+				/** Supply only this authorized tenant transaction. */ (scope) =>
+					work(scope.transaction as unknown as Kysely<AuditTables>, scope.actor.tenantId),
+			)
+		},
 	)
 }
 @Module({

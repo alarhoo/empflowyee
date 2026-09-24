@@ -7,6 +7,10 @@ import {
 } from '@empflowyee/hcm-api-audit-application'
 import {
 	AUDIT_ACTIONS,
+	EXPORT_ACTIONS,
+	type ExportQuery,
+	type ExportItem,
+	type ExportPage,
 	AuditQueryError,
 	isAuditInstant,
 	type AuditItem,
@@ -92,6 +96,7 @@ export class KyselyAuditReader extends AuditReader {
 	constructor(
 		private readonly execute: AuditReadExecutor,
 		private readonly executeSelf: AuditReadExecutor<MyActivityPage>,
+		private readonly executeExports: AuditReadExecutor<ExportPage>,
 	) {
 		super()
 	}
@@ -104,6 +109,43 @@ export class KyselyAuditReader extends AuditReader {
 				tenantId,
 			) => {
 				return businessPage(database, tenantId, query)
+			},
+		)
+	}
+
+	/** Query persisted export evidence only from separately approved producers, never synthesize history. */
+	exports(context: AuthenticatedHcmContext, query: ExportQuery): Promise<ExportPage> {
+		return this.executeExports(
+			context,
+			/** Apply tenant ownership and the closed producer registry in SQL. */ async (
+				database,
+				tenantId,
+			) => {
+				const after = position(query, tenantId, 'export'),
+					asc = query.sort === 'occurredAt:asc',
+					order = asc ? sql`ASC` : sql`DESC`,
+					compare = asc ? sql`>` : sql`<`
+				const rows = (
+					await sql<ExportItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='export' AND action=ANY(${[...EXPORT_ACTIONS]}::text[])
+   ${query.from ? sql`AND occurred_at>=${query.from}::timestamptz` : sql``}
+   ${query.to ? sql`AND occurred_at<=${query.to}::timestamptz` : sql``}
+   ${query.actorAccountId ? sql`AND actor_account_id=${query.actorAccountId}` : sql``}
+   ${after ? sql`AND (occurred_at,id) ${compare} (${after.time}::timestamptz,${after.id})` : sql``}
+   ORDER BY occurred_at ${order},id ${order} LIMIT ${query.limit + 1}`.execute(database)
+				).rows
+				const items = rows.slice(0, query.limit),
+					last = items.at(-1)
+				let nextCursor: string | null = null
+				if (rows.length > query.limit && last)
+					nextCursor = Buffer.from(
+						JSON.stringify({
+							version: 1,
+							binding: binding(query, tenantId, 'export'),
+							time: last.occurredAt,
+							id: last.id,
+						}),
+					).toString('base64url')
+				return { items, nextCursor }
 			},
 		)
 	}

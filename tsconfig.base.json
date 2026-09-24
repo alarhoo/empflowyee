@@ -146,6 +146,9 @@
 			],
 			"@empflowyee/hcm-web-audit-feature-my-activity": [
 				"./libs/hcm/web/audit/feature-my-activity/src/index.ts"
+			],
+			"@empflowyee/hcm-web-audit-feature-data-export-log": [
+				"./libs/hcm/web/audit/feature-data-export-log/src/index.ts"
 			]
 		}
 	},
