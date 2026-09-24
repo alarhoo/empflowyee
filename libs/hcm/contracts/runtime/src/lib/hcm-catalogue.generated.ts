@@ -8,8 +8,8 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'access-control',
 			catalogueIds: ['tenant-administration'],
 			route: '/access-control/access-assignments',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			floorplan: 'UX-FP-FCL',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

@@ -1,0 +1,140 @@
+<ui5-dialog
+	[open]="open()"
+	[headerText]="action().role ? 'Revoke role' : 'Grant role'"
+	[accessibleName]="action().role ? 'Revoke role' : 'Grant role'"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finish($event)">
+	<p>{{ action().account.displayName }} — {{ action().account.email }}</p>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	@if (!action().role) {
+		<ui5-form
+			accessibleName="Find a role"
+			accessibleMode="Edit">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="assignment-role-search">
+					Find role
+				</ui5-label>
+				<ui5-input
+					id="assignment-role-search"
+					accessibleName="Find role"
+					[formField]="searchForm.q"
+					[disabled]="saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-button
+					[disabled]="loading() || saving()"
+					(click)="loadOptions()">
+					Search roles
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (loading()) {
+			<p role="status">Loading role choices…</p>
+		}
+		@if (choiceError()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ choiceError() }}
+			</ui5-message-strip>
+			<ui5-button (click)="loadOptions()">Retry role choices</ui5-button>
+		}
+	}
+	<ui5-form
+		accessibleName="Assignment change"
+		accessibleMode="Edit">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assignment-role">
+				Role
+			</ui5-label>
+			@if (action().role; as role) {
+				<p>{{ role.label }}</p>
+			} @else {
+				<ui5-select
+					id="assignment-role"
+					accessibleName="Role to grant"
+					[formField]="fields.roleId"
+					[disabled]="loading() || saving()">
+					<ui5-option value="">Choose a role</ui5-option>
+					@for (role of options(); track role.id) {
+						<ui5-option [value]="role.id">{{ role.label }}</ui5-option>
+					}
+				</ui5-select>
+				@if (!loading() && !choiceError() && options().length === 0) {
+					<p>No roles match the search.</p>
+				}
+				@if (cursor()) {
+					<ui5-button
+						[disabled]="loading() || saving()"
+						(click)="loadOptions(true)">
+						Load more role choices
+					</ui5-button>
+				}
+			}
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assignment-reason">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="assignment-reason"
+				accessibleName="Reason for assignment change"
+				[formField]="fields.reason"
+				[rows]="3"
+				[disabled]="saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<span slot="valueStateMessage">Enter a reason of 1–500 characters.</span>
+			</ui5-textarea>
+			<p>Required for audit. Do not include sensitive personal information.</p>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			[design]="action().role ? 'Negative' : 'Emphasized'"
+			[disabled]="saving()"
+			(click)="save()">
+			{{ saving() ? 'Saving…' : action().role ? 'Revoke role' : 'Grant role' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	initialFocus="keep-assignment-draft"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved assignment changes will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			id="keep-assignment-draft"
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>

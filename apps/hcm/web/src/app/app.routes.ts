@@ -5,6 +5,17 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'access-control/access-assignments',
+		data: { catalogId: 'ACCESS_ASSIGNMENTS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Lazy-load the assignment-owned list/detail and action guards. */ () =>
+			import('@empflowyee/hcm-web-access-control-feature-access-assignments').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (module) =>
+					module.ACCESS_ASSIGNMENTS_ROUTES,
+			),
+	},
+
+	{
 		path: 'access-control/role-management',
 		data: { catalogId: 'ROLE_MANAGEMENT' },
 		canMatch: [hcmRouteAccess],

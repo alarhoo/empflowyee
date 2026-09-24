@@ -100,6 +100,9 @@
 			],
 			"@empflowyee/hcm-web-access-control-feature-role-management": [
 				"./libs/hcm/web/access-control/feature-role-management/src/index.ts"
+			],
+			"@empflowyee/hcm-web-access-control-feature-access-assignments": [
+				"./libs/hcm/web/access-control/feature-access-assignments/src/index.ts"
 			]
 		}
 	},

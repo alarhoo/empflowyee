@@ -1,12 +1,10 @@
 # Access Assignments — technical design
 
-Status: complete for review; no implementation/admission or revision approval claimed.
+Status: admitted local-stage implementation; UX reconciled with the explicit 2026-09-24 owner instruction.
 
 ## ROUTE
 
-Selected route `/access-control/access-assignments`; lazy feature `libs/hcm/web/access-control/feature-access-assignments`. Selection is recorded
-in this blueprint for review; canonical route/floorplan remain null until the TDD
-revision is approved. Keep implementationStatus Planned. Existing catalogue
+Selected route `/access-control/access-assignments`; lazy feature `libs/hcm/web/access-control/feature-access-assignments`. The blueprint selects the implementation. Canonical status remains Planned until runtime acceptance passes. Existing catalogue
 placements remain UX metadata and never determine code ownership.
 
 ## READ
@@ -28,6 +26,7 @@ No body/query contains tenantId or a self-service actor override.
 | Operation                                                    | Permission                              | Request                                    | Response                      |
 | ------------------------------------------------------------ | --------------------------------------- | ------------------------------------------ | ----------------------------- |
 | `GET /api/v1/access-control/assignments`                     | `hcm.access-control.assignments.read`   | `List query`                               | `Page<AssignmentSummary>`     |
+| `GET /api/v1/access-control/assignments/{accountId}`         | `hcm.access-control.assignments.read`   | none                                       | `AssignmentSummary`           |
 | `GET /api/v1/access-control/assignments/{accountId}/roles`   | `hcm.access-control.assignments.read`   | `List query`                               | `Page<{id,label,grantId}>`    |
 | `GET /api/v1/access-control/assignment-role-options`         | `hcm.access-control.assignments.manage` | `List query: q label`                      | `Page<{id,label,systemRole}>` |
 | `POST /api/v1/access-control/assignments/{accountId}/grant`  | `hcm.access-control.assignments.manage` | `{roleId,expectedRevision,reason}`         | `AssignmentSummary`           |
@@ -87,14 +86,14 @@ Use [domain physical design](../../domain/HCM-1-ACCESS-CONTROL.md#data) and
 tables per app. Forward migrations shared by sibling apps are delivered once by
 their owning domain. Read-only apps add no mutation grants just to populate a UI.
 Successful writes use the [shared unit of work](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#tx).
-SQL and versioned seeds are designed here but not created/run in this delivery.
+Forward migration 000007 grants runtime UPDATE on user_account.revision only. Identity-access retains account ownership; a consumer-owned account projection/revision port binds to the same tenant transaction. Existing seeded accounts/grants suffice; no fabricated seed history is added.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep the account filter/list in the begin column, with a mid-column shared Object Page (COMPOSED) containing Overview and Roles. Account selection is a query parameter and survives reload. Grant/revoke are focused native dialogs with an explicit account, server-paginated role picker and reason.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection, subject to the mandatory [UX matrix](../../roadmap/HCM-1-UX-REVISION.md). No feature CSS or custom floorplan.
 
 Content columns/fields: Account display name; email; enabled state; role labels; revision.
 
@@ -164,5 +163,16 @@ Use [shared execution criteria](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#test).
 
 Branch `codex/hcm-1-access-assignments` after all 20 local designs have reviewed evidence.
 Commit contracts/design reconciliation, then domain SQL/API, then native UI, then
-acceptance evidence as coherent slices. No application code is authorized by this
-design-only request. Keep six deferred apps and full-wave completion blocked.
+acceptance evidence as coherent slices. Implementation is authorized by the product owner’s local-stage and UX instructions. Keep six deferred apps and full-wave completion blocked.
+
+## Implementation reconciliation
+
+The additive single-account GET provides a bounded deep-link projection; it has
+the same read permission and tenant scope as the account list. Account IDs are
+opaque strings up to 200 characters and must be URL encoded (seed IDs contain
+slashes). No identity editing is exposed. Account-role pages sort by role ID;
+role choices sort by label then ID. Versioned cursors bind their complete filter,
+sort, selected account and page size. Successful command receipts bind the target
+account and normalized body in their hash; operation names remain bounded.
+Audit actions role.granted/role.revoked target user-account and carry only reason,
+roleId and grantId, never account names/emails or permission payloads.

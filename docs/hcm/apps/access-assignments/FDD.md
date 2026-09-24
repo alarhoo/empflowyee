@@ -1,6 +1,6 @@
 # Access Assignments — functional design
 
-Status: complete for review; approved local business scope, document revision not yet approved.
+Status: approved local-stage scope; implementation authorized by the local-stage instruction and subsequent UX correction.
 
 App `ACCESS_ASSIGNMENTS`; owner `access-control`; HCM-1 local stage.
 

@@ -10,5 +10,10 @@ function canLeave(component: { canLeave(): Promise<boolean> }): Promise<boolean>
 export const ROLE_MANAGEMENT_ROUTES: Routes = [
 	{ path: 'new', component: RoleEditPageComponent, canDeactivate: [canLeave] },
 	{ path: ':id/edit', component: RoleEditPageComponent, canDeactivate: [canLeave] },
-	{ path: '', component: RoleManagementComponent, canDeactivate: [canLeave] },
+	{
+		path: '',
+		component: RoleManagementComponent,
+		runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+		canDeactivate: [canLeave],
+	},
 ]

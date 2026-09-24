@@ -3,7 +3,7 @@ import {
 	provideBrowserGlobalErrorListeners,
 	provideZoneChangeDetection,
 } from '@angular/core'
-import { provideRouter, withInMemoryScrolling } from '@angular/router'
+import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router'
 import { appRoutes } from './app.routes'
 import { provideHcmUx } from '@empflowyee/hcm-web-ux-theme'
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http'
@@ -20,6 +20,11 @@ export const appConfig: ApplicationConfig = {
 		...provideHcmUx(),
 		provideBrowserGlobalErrorListeners(),
 		provideZoneChangeDetection({ eventCoalescing: true }),
-		provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled' })),
+		provideRouter(
+			appRoutes,
+			withInMemoryScrolling({ anchorScrolling: 'enabled' }),
+			// A rejected dirty-leave guard restores the browser history index as well as the URL.
+			withRouterConfig({ canceledNavigationResolution: 'computed' }),
+		),
 	],
 }

@@ -216,7 +216,7 @@ export class RoleManagementComponent {
 	}
 	/** Close the routed detail and retain the begin-column query/results. */
 	async closeDetail(): Promise<void> {
-		await this.router.navigate([], { relativeTo: this.route, queryParams: {} })
+		if (!(await this.router.navigate([], { relativeTo: this.route, queryParams: {} }))) return
 		this.focusPending = true
 		this.restoreEditorFocus()
 	}

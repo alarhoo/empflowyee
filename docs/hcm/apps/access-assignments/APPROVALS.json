@@ -4,43 +4,43 @@
 	"approvals": [
 		{
 			"document": "BLUEPRINT",
-			"sha256": "63ccd823133b4a1d02ad7656a5de3b66528f0ed204967b0770d9622df87f6be0",
+			"sha256": "8d53de85c63e89245d1ab40a6f509f2f1477a7c9ac9b7304169418fad9de37b5",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit implementation/UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit instruction to implement this approved local slice with the mandatory UX matrix; no new business behavior"
 		},
 		{
 			"document": "FDD",
-			"sha256": "85956c0583be3d9d8e4a874a2ed2d6d1017812d543400d59b678416054bfaedd",
+			"sha256": "2bd3f0ed010b6267b027fc948174f263ccacffc215702a32decf667e4d0334d2",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit implementation/UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit instruction to implement this approved local slice with the mandatory UX matrix; no new business behavior"
 		},
 		{
 			"document": "TDD",
-			"sha256": "49a8da8bde96b9eddfe77f21cb134a92cc0aedcfecf040079fb5d6f5ae6ed5b5",
+			"sha256": "92dccf52312d816fc3b0d07b7c62fa44da84f7bb732c08a90d08a45dd9b8774f",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit implementation/UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit instruction to implement this approved local slice with the mandatory UX matrix; no new business behavior"
 		},
 		{
 			"document": "TRACE",
-			"sha256": "7a6f34ff76b04d4c0f053b8bc3c16a0c93525c067921754fed5438a4ccf78410",
+			"sha256": "a47136cf029a60be9b764f0f0e93e59a233ad5228eaf15c94f32cbf839d73e4e",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit implementation/UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit instruction to implement this approved local slice with the mandatory UX matrix; no new business behavior"
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "52eb53ef57c720e3008f4c0f5c9c35466a715b3e713dd905ca0d956de52298a4",
+			"sha256": "cc23a32214944a8a3b951588e0f7c73f978cb6df84d4482a5e394bdd92df1b92",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit implementation/UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit instruction to implement this approved local slice with the mandatory UX matrix; no new business behavior"
 		},
 		{
 			"document": "DOMAIN",

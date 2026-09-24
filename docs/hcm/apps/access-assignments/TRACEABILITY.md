@@ -84,3 +84,11 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 Assert: Commands persist their documented state, revision, audit and receipt under the shared transaction/storage contract; no success before commit.
 
 Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+
+## Implementation evidence
+
+The [slice validation](../../testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md) maps
+001/002/003/004/006 to the real Nest/PostgreSQL assignment integration suite and
+005 to the persistent-runtime Playwright suite. The latest UX directive selects
+native FCL with account details in the shared Object Page; focused command dialogs
+reuse the sole assignment-owned application service.
