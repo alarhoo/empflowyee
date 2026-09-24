@@ -1,6 +1,6 @@
 # Identity Administration — requirement traceability
 
-Status: design coverage complete; all test entries below are **planned, not executed**.
+Status: approved requirements implemented; execution evidence is recorded in the linked validation report.
 
 ## MATRIX
 
@@ -23,7 +23,7 @@ Exercise: A person can exist without an account; no automatic account is synthes
 
 Assert: List real person-linked accounts without changing workforce information.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [Identity Administration validation](../../testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md). Real database API tests live in `libs/hcm/api/identity-access/module/src/lib/identity-administration.database.spec.ts`; real native browser cases live in `apps/hcm/web-e2e/live/identity-administration.spec.ts`.
 
 ## TEST-IDENTITY-ADMINISTRATION-002
 
@@ -35,7 +35,7 @@ Exercise: Foreign/missing person and case-insensitive duplicate email fail; relo
 
 Assert: Select an existing tenant person and unique email; create enabled account with no roles, invitation or persona.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [Identity Administration validation](../../testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md). Real database API tests live in `libs/hcm/api/identity-access/module/src/lib/identity-administration.database.spec.ts`; real native browser cases live in `apps/hcm/web-e2e/live/identity-administration.spec.ts`.
 
 ## TEST-IDENTITY-ADMINISTRATION-003
 
@@ -47,7 +47,7 @@ Exercise: Disabled persona fails the next request; enabling never silently grant
 
 Assert: Change enabled with a reason and revision while retaining roles/history; last administrator is protected.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [Identity Administration validation](../../testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md). Real database API tests live in `libs/hcm/api/identity-access/module/src/lib/identity-administration.database.spec.ts`; real native browser cases live in `apps/hcm/web-e2e/live/identity-administration.spec.ts`.
 
 ## TEST-IDENTITY-ADMINISTRATION-004
 
@@ -59,7 +59,7 @@ Exercise: Test direct requests with missing grant/entitlement, disabled actor, f
 
 Assert: Every API enforces verified tenant, enabled actor, listed business permission, entitlement hcm.identity-access and subject scope. Browser visibility never authorizes an action.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [Identity Administration validation](../../testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md). Real database API tests live in `libs/hcm/api/identity-access/module/src/lib/identity-administration.database.spec.ts`; real native browser cases live in `apps/hcm/web-e2e/live/identity-administration.spec.ts`.
 
 ## TEST-IDENTITY-ADMINISTRATION-005
 
@@ -71,7 +71,7 @@ Exercise: Exercise keyboard, responsive widths, all four themes, tenant-overlay 
 
 Assert: Use real API data with loading, empty, error/retry, unavailable/denied and read-only states. Preserve failed drafts and focus; no silent fallback to fixtures.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [Identity Administration validation](../../testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md). Real database API tests live in `libs/hcm/api/identity-access/module/src/lib/identity-administration.database.spec.ts`; real native browser cases live in `apps/hcm/web-e2e/live/identity-administration.spec.ts`.
 
 ## TEST-IDENTITY-ADMINISTRATION-006
 
@@ -83,4 +83,4 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 
 Assert: Commands persist their documented state, revision, audit and receipt under the shared transaction/storage contract; no success before commit.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: [Identity Administration validation](../../testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md). Real database API tests live in `libs/hcm/api/identity-access/module/src/lib/identity-administration.database.spec.ts`; real native browser cases live in `apps/hcm/web-e2e/live/identity-administration.spec.ts`.

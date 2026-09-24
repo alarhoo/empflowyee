@@ -28,11 +28,11 @@
 		},
 		{
 			"document": "TRACE",
-			"sha256": "b3aff68baf5194e6e7406bbe646bfeaf6500e279c8bc493feb4c9161f40fa795",
+			"sha256": "d3cfa7a9bb87394dc964b45d16c35f2718e6bbe019725acc794f99df7e3a0c0f",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit implementation/UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit instruction to implement the approved local slice and record real acceptance evidence"
 		},
 		{
 			"document": "DECISIONS",

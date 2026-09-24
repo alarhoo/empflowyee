@@ -121,6 +121,12 @@
 			],
 			"@empflowyee/hcm-api-identity-access-module": [
 				"./libs/hcm/api/identity-access/module/src/index.ts"
+			],
+			"@empflowyee/hcm-web-identity-access-data-access": [
+				"./libs/hcm/web/identity-access/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-identity-access-feature-identity-administration": [
+				"./libs/hcm/web/identity-access/feature-identity-administration/src/index.ts"
 			]
 		}
 	},

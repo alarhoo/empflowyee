@@ -1,0 +1,145 @@
+<ui5-flexible-column-layout
+	[layout]="selectedId() ? 'TwoColumnsMidExpanded' : 'OneColumn'"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Account list' },
+		midColumn: { role: 'region', name: 'Selected account' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Identity Administration"
+		summary="Manage local account records"
+		[state]="state()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="open()"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Account filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="accounts-query">
+					Name or email
+				</ui5-label>
+				<ui5-input
+					id="accounts-query"
+					accessibleName="Search account name or email"
+					[formField]="filterForm.q"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="accounts-enabled">
+					Status
+				</ui5-label>
+				<ui5-select
+					id="accounts-enabled"
+					accessibleName="Account status"
+					[formField]="filterForm.enabled">
+					<ui5-option value="">All accounts</ui5-option>
+					<ui5-option value="true">Enabled</ui5-option>
+					<ui5-option value="false">Disabled</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="accounts-sort">
+					Sort
+				</ui5-label>
+				<ui5-select
+					id="accounts-sort"
+					accessibleName="Account sort order"
+					[formField]="filterForm.sort">
+					<ui5-option value="displayName:asc">Name ascending</ui5-option>
+					<ui5-option value="displayName:desc">Name descending</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="load()">
+					Apply filters
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (message()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ message() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			accessibleName="Tenant accounts"
+			[loading]="busy()"
+			overflowMode="Popin"
+			noDataText="No accounts match the filters">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="10rem">
+					Account
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="14rem"
+					popinText="Email">
+					Email
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="6rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="6rem">
+					Action
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of rows(); track item.id) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ item.displayName }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.email }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-table-cell>
+
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'View ' + item.displayName"
+							(click)="select(item.id)">
+							View
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					(ui5LoadMore)="more()"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selectedId(); as id) {
+		@for (key of [id]; track key) {
+			<ef-hcm-account-detail
+				slot="midColumn"
+				[accountId]="key"
+				(closed)="closeDetail()"
+				(manage)="open($event)"></ef-hcm-account-detail>
+		}
+	}
+</ui5-flexible-column-layout>
+
+@if (edit(); as action) {
+	<ef-hcm-account-dialog
+		[account]="action.account ?? null"
+		(closed)="closeDialog($event)"></ef-hcm-account-dialog>
+}

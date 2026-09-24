@@ -90,8 +90,8 @@ and pass their design admission gates. The first implementation slice adds
 transactional business authorization, protected-role metadata, 39 persisted business
 permissions and append-only audit storage. See the
 [slice validation and delivery status](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md).
-Available HCM-1 business apps are [Role Management](docs/hcm/testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md) and [Access Assignments](docs/hcm/testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md), with real APIs, native list/detail columns and Object Pages. Role creation/editing uses dedicated routes; focused assignment actions use native dialogs.
-The remaining 18 local apps stay Planned; Identity Administration is next.
+Available HCM-1 business apps are [Role Management](docs/hcm/testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md), [Access Assignments](docs/hcm/testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md) and [Identity Administration](docs/hcm/testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md), with real APIs, native list/detail columns and Object Pages. Role creation/editing uses dedicated routes; focused assignment actions use native dialogs.
+The remaining 17 local apps stay Planned; App Catalogue Configuration is next.
 
 ```sh
 pnpm hcm:catalogue:validate

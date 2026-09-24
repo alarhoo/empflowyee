@@ -1,0 +1,76 @@
+<ef-hcm-object-page
+	[title]="account()?.displayName || 'Account details'"
+	summary="Identity Administration"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	<ng-template
+		efHcmObjectSection="overview"
+		label="Overview">
+		@if (account(); as item) {
+			<dl>
+				<dt>Name</dt>
+				<dd>{{ item.displayName }}</dd>
+				<dt>Email</dt>
+				<dd>{{ item.email }}</dd>
+				<dt>Status</dt>
+				<dd>{{ item.enabled ? 'Enabled' : 'Disabled' }}</dd>
+				<dt>Person</dt>
+				<dd>{{ item.personId }}</dd>
+				<dt>Revision</dt>
+				<dd>{{ item.revision }}</dd>
+				<dt>Created</dt>
+				<dd>{{ item.createdAt }}</dd>
+			</dl>
+			<p>
+				Names come from the workforce person record. Account creation does not create credentials,
+				invitations, development personas or role grants.
+			</p>
+		}
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="roles"
+		label="Roles">
+		@if (!canReadRoles()) {
+			<p>You do not have permission to inspect account role assignments.</p>
+		} @else {
+			@if (roleError()) {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					{{ roleError() }}
+				</ui5-message-strip>
+				<ui5-button (click)="loadRoles()">Retry role assignments</ui5-button>
+			}
+			<ui5-table
+				accessibleName="Account roles"
+				overflowMode="Popin"
+				[loading]="roleBusy()"
+				noDataText="No roles assigned">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell [importance]="100">Role</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (role of roles(); track role.grantId) {
+					<ui5-table-row>
+						<ui5-table-cell>{{ role.label }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			@if (cursor()) {
+				<ui5-button
+					[disabled]="roleBusy()"
+					(click)="loadRoles(true)">
+					Load more roles
+				</ui5-button>
+			}
+			<ui5-link
+				routerLink="/access-control/access-assignments"
+				[queryParams]="{ account: accountId() }">
+				Open Access Assignments
+			</ui5-link>
+		}
+	</ng-template>
+</ef-hcm-object-page>

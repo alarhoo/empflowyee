@@ -431,3 +431,47 @@ it('TEST-IDENTITY-ADMINISTRATION-006 rolls back account creation when audit pers
 		"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) SELECT tenant_id,id,'hcm.identity-access.accounts.manage' FROM hcm.access_role WHERE protected_admin",
 	)
 })
+
+it('keeps command receipts under forced RLS and account columns narrowly granted', /** Prove the new table and account privileges with the actual non-owner runtime login. */ async () => {
+	const runtime = new Client({ connectionString: process.env['HCM_TEST_RUNTIME'] })
+	await runtime.connect()
+	try {
+		await admin.query("SELECT set_config('hcm.tenant_id','foreign-identity',false)")
+		await admin.query(
+			"INSERT INTO hcm.identity_command_receipt(tenant_id,actor_account_id,operation,idempotency_key,request_hash,response) VALUES ('foreign-identity','foreign-account','accounts.create',$1,$2,'{}')",
+			[randomUUID(), 'a'.repeat(64)],
+		)
+		await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
+		expect((await runtime.query('SELECT * FROM hcm.identity_command_receipt')).rows).toEqual([])
+		await runtime.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
+		expect(
+			(
+				await runtime.query(
+					"SELECT * FROM hcm.identity_command_receipt WHERE tenant_id='foreign-identity'",
+				)
+			).rows,
+		).toEqual([])
+		await expect(
+			runtime.query(
+				"INSERT INTO hcm.identity_command_receipt(tenant_id,actor_account_id,operation,idempotency_key,request_hash,response) VALUES ('foreign-identity','foreign-account','accounts.create',$1,$2,'{}')",
+				[randomUUID(), 'a'.repeat(64)],
+			),
+		).rejects.toMatchObject({ code: '42501' })
+		const grants = (
+			await runtime.query(
+				"SELECT has_column_privilege(current_user,'hcm.user_account','enabled','UPDATE') AS enabled,has_column_privilege(current_user,'hcm.user_account','email','UPDATE') AS email,has_column_privilege(current_user,'hcm.user_account','person_id','UPDATE') AS person,has_table_privilege(current_user,'hcm.user_account','DELETE') AS remove",
+			)
+		).rows[0]
+		expect(grants).toEqual({ enabled: true, email: false, person: false, remove: false })
+		expect(
+			(
+				await runtime.query(
+					"SELECT relrowsecurity,relforcerowsecurity FROM pg_class WHERE oid='hcm.identity_command_receipt'::regclass",
+				)
+			).rows[0],
+		).toEqual({ relrowsecurity: true, relforcerowsecurity: true })
+	} finally {
+		await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
+		await runtime.end()
+	}
+})

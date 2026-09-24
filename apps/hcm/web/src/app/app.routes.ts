@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'identity-access/identity-administration',
+		data: { catalogId: 'IDENTITY_ADMINISTRATION' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Lazy-load the identity-owned account UI and draft guards. */ () =>
+			import('@empflowyee/hcm-web-identity-access-feature-identity-administration').then(
+				/** Keep app composition free of business components. */ (module) =>
+					module.IDENTITY_ADMINISTRATION_ROUTES,
+			),
+	},
+	{
 		path: 'access-control/access-assignments',
 		data: { catalogId: 'ACCESS_ASSIGNMENTS' },
 		canMatch: [hcmRouteAccess],
