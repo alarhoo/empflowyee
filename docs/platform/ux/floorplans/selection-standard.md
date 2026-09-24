@@ -16,6 +16,12 @@ The TDD also names an approved production implementation, its maintained imports
 - **Overview Page** — role-based summary of several independent topics/cards.
 - **Analytical List Page** — users need both analytical signals and the underlying detailed result set.
 
+## Mandatory HCM decisions
+
+For HCM, list-detail tasks with meaningful object information require native FlexibleColumnLayout: the filter/list remains in the begin column and selection opens an Object Page or approved detail page in the mid column. Selection must be deep-linkable. Every occupied column has a native/approved page and header.
+
+Native dialogs are restricted to small focused create/edit/action flows. Complex creates or edits with many fields or sections require a dedicated routed page with dirty-leave protection. Ordered wizard processes use an approved wizard on a dedicated route. Business features consume approved native/composed floorplans and must not invent custom CSS; genuine capability gaps are resolved in shared UX with documented evidence and acceptance checks.
+
 ## TDD declaration
 
 ```yaml

@@ -3,6 +3,7 @@
 Use when changing a reusable HCM floorplan.
 
 1. Read the platform catalog, product TDD, installed capability matrix and current validation record.
+   Enforce the [mandatory UX decision matrix](../hcm-ui5-feature/SKILL.md#mandatory-ux-decision-matrix). Business features must use approved native/composed implementations without custom CSS. FCL is a native layout container, not a substitute for page-backed columns; dialogs cannot substitute for meaningful object details or complex routed forms.
 2. Identify the approved production implementation; a catalog ID alone is not approval.
 3. Inspect installed UI5 wrappers, Fundamental Platform and Core declarations. Absence of a component name is not a demonstrated gap.
 4. Select native, maintained Angular integration, supported composition, then custom only for a documented unmet capability. Thin empFLOWyee naming wrappers are allowed when native behavior, slots and accessibility remain intact. For the current pilots, reuse Object Page and ToolPageLayout under `libs/hcm/web/ux/floorplans`; Theme Lab supplies feature fixtures, not another floorplan implementation.
