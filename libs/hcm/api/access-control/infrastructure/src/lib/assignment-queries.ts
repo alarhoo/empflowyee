@@ -1,6 +1,6 @@
+import { contextCursor, readContextCursor } from './context-cursor'
 import { sql } from 'kysely'
 import {
-	RoleError,
 	type ContextQuery,
 	type Page,
 	type RoleAssignee,
@@ -13,22 +13,8 @@ export class KyselyAssignmentQueries {
 	constructor(private readonly scope: AuthorizedAccessWork) {}
 	/** Read one stable page of current grants, without copying grant mutation policy into Role Management. */
 	async assignees(roleId: string, query: ContextQuery): Promise<Page<RoleAssignee>> {
-		let after = ''
-		if (query.cursor) {
-			try {
-				const cursor = JSON.parse(Buffer.from(query.cursor, 'base64url').toString('utf8'))
-				if (
-					cursor.roleId !== roleId ||
-					cursor.limit !== query.limit ||
-					typeof cursor.accountId !== 'string' ||
-					cursor.accountId.length > 200
-				)
-					throw new Error('cursor')
-				after = cursor.accountId
-			} catch {
-				throw new RoleError('invalid-request')
-			}
-		}
+		const after =
+			readContextCursor(query.cursor, 'accountId:asc', roleId, query.limit, 1)?.[0] ?? ''
 		const rows = (
 			await sql<RoleAssignee>`SELECT a.id AS "accountId",p.display_name AS "displayName",a.email,a.enabled,g.grant_id AS "grantId"
 		 FROM hcm.account_role g JOIN hcm.user_account a ON a.tenant_id=g.tenant_id AND a.id=g.account_id
@@ -40,9 +26,7 @@ export class KyselyAssignmentQueries {
 			last = items.at(-1)
 		let nextCursor: string | null = null
 		if (rows.length > query.limit && last)
-			nextCursor = Buffer.from(
-				JSON.stringify({ roleId, limit: query.limit, accountId: last.accountId }),
-			).toString('base64url')
+			nextCursor = contextCursor('accountId:asc', roleId, query.limit, [last.accountId])
 		return { items, nextCursor }
 	}
 }

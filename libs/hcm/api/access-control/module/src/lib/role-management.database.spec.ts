@@ -216,6 +216,24 @@ it('TEST-ROLE-MANAGEMENT-002 creates, replays, revises and deletes custom roles 
 			.sort(),
 	).toEqual([200, 409])
 	expect((await send<RoleDetail>('GET', `roles/${id}`)).body.revision).toBe(2)
+	const firstHistory = await send<Page<RoleHistoryItem>>('GET', `roles/${id}/history?limit=1`)
+	expect(firstHistory.body.items[0].action).toBe('role.updated')
+	expect(firstHistory.body.items[0].occurredAt).toMatch(/^\d{4}-\d{2}-\d{2}T.*Z$/)
+	expect(firstHistory.body.nextCursor).toBeTruthy()
+	const nextHistory = await send<Page<RoleHistoryItem>>(
+		'GET',
+		`roles/${id}/history?limit=1&cursor=${firstHistory.body.nextCursor}`,
+	)
+	expect(nextHistory.body.items[0].action).toBe('role.created')
+	expect(nextHistory.body.nextCursor).toBeNull()
+	expect(
+		(await send('GET', `roles/employee/history?limit=1&cursor=${firstHistory.body.nextCursor}`))
+			.status,
+	).toBe(400)
+	expect(
+		(await send('GET', `roles/${id}/history?limit=2&cursor=${firstHistory.body.nextCursor}`))
+			.status,
+	).toBe(400)
 	expect(
 		(
 			await admin.query('SELECT count(*)::int AS count FROM hcm.audit_event WHERE target_id=$1', [

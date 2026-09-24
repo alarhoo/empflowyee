@@ -1,3 +1,4 @@
+import { contextCursor, readContextCursor } from './context-cursor'
 import type { Kysely } from 'kysely'
 import { RoleError, type ContextQuery } from '@empflowyee/hcm-access-control-contract'
 import { RoleContext } from '@empflowyee/hcm-api-access-control-application'
@@ -47,24 +48,14 @@ export class KyselyRoleContext extends RoleContext {
 					entitlement: 'hcm.access-control',
 				})
 				await new KyselyRoleRepository(scope).get(roleId)
-				let after: { time: string; id: string } | undefined
-				if (query.cursor) {
-					try {
-						const cursor = JSON.parse(Buffer.from(query.cursor, 'base64url').toString('utf8'))
-						if (
-							cursor.roleId !== roleId ||
-							cursor.limit !== query.limit ||
-							typeof cursor.time !== 'string' ||
-							!Number.isFinite(Date.parse(cursor.time)) ||
-							typeof cursor.id !== 'string' ||
-							cursor.id.length > 200
-						)
-							throw new Error('cursor')
-						after = cursor
-					} catch {
-						throw new RoleError('invalid-request')
-					}
-				}
+				const position = readContextCursor(query.cursor, 'occurredAt:desc', roleId, query.limit, 2)
+				if (
+					position &&
+					(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(position[0]) ||
+						!Number.isFinite(Date.parse(position[0])))
+				)
+					throw new RoleError('invalid-request')
+				const after = position ? { time: position[0], id: position[1] } : undefined
 				const rows = await readRoleHistory(
 					scope.transaction as unknown as Kysely<AuditTables>,
 					scope.actor.tenantId,
@@ -76,9 +67,10 @@ export class KyselyRoleContext extends RoleContext {
 					last = items.at(-1)
 				let nextCursor: string | null = null
 				if (rows.length > query.limit && last)
-					nextCursor = Buffer.from(
-						JSON.stringify({ roleId, limit: query.limit, time: last.occurredAt, id: last.id }),
-					).toString('base64url')
+					nextCursor = contextCursor('occurredAt:desc', roleId, query.limit, [
+						last.occurredAt,
+						last.id,
+					])
 				return { items, nextCursor }
 			},
 		)
