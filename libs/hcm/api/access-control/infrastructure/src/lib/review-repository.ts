@@ -55,6 +55,7 @@ export class KyselyReviews implements ReviewRepository {
 		if (
 			after &&
 			(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(after[0]) ||
+				after[0].startsWith('0000-') ||
 				!Number.isFinite(Date.parse(after[0])) ||
 				new Date(after[0]).toISOString().slice(0, 10) !== after[0].slice(0, 10))
 		)

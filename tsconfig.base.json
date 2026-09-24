@@ -152,6 +152,9 @@
 			],
 			"@empflowyee/hcm-web-audit-feature-sensitive-access-log": [
 				"./libs/hcm/web/audit/feature-sensitive-access-log/src/index.ts"
+			],
+			"@empflowyee/hcm-web-access-control-feature-tenant-access-reviews": [
+				"./libs/hcm/web/access-control/feature-tenant-access-reviews/src/index.ts"
 			]
 		}
 	},

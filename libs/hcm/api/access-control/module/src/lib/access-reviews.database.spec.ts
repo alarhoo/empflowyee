@@ -235,6 +235,15 @@ it('snapshots persisted occurrences and binds stable filtered cursors', /** Prov
 	).toBe(400)
 	expect((await send<Page<ReviewSummary>>('GET', 'reviews?q=%25')).body.items).toHaveLength(1)
 	const page = await send<Page<ReviewSummary>>('GET', 'reviews?limit=1&sort=createdAt:asc')
+	const invalidTime = JSON.parse(
+		Buffer.from(page.body.nextCursor ?? '', 'base64url').toString('utf8'),
+	)
+	invalidTime.position[0] = '0000-01-01T00:00:00.000000Z'
+	const invalidCursor = Buffer.from(JSON.stringify(invalidTime)).toString('base64url')
+	expect(
+		(await send('GET', `reviews?limit=1&sort=createdAt:asc&cursor=${invalidCursor}`)).status,
+	).toBe(400)
+
 	expect(
 		(await send('GET', `reviews?limit=1&sort=createdAt:desc&cursor=${page.body.nextCursor}`))
 			.status,
@@ -294,7 +303,8 @@ it('detects replacement occurrences and revokes through the shared assignment co
 	const review = await start('Occurrence review')
 	const item = (await items(review.id)).find(
 		/** Find the temporary grant. */ (row) => row.accountId === jim && row.roleId === 'manager',
-	)!
+	)
+	if (!item) throw new Error('Expected snapshot assignment')
 	await assignment('revoke', grantId)
 	const replacement = await assignment('grant')
 	expect(replacement).not.toBe(grantId)
@@ -330,7 +340,8 @@ it('protects the final administrator and rolls back review side effects', /** A 
 	const review = await start('Protected review')
 	const item = (await items(review.id)).find(
 		/** Locate the protected administrator. */ (row) => row.roleId === 'tenant-administrator',
-	)!
+	)
+	if (!item) throw new Error('Expected protected snapshot assignment')
 	const before = await send('GET', `reviews/${review.id}`)
 	expect((await decide(review.id, item, 'Revoke')).status).toBe(409)
 	expect(
@@ -347,7 +358,8 @@ it('explicitly marks removed occurrences and preserves historical labels', /** A
 	const row = (await items(review.id)).find(
 		/** Select the temporary occurrence. */ (item) =>
 			item.accountId === jim && item.roleId === 'manager',
-	)!
+	)
+	if (!row) throw new Error('Expected removable snapshot assignment')
 	await assignment('revoke', grantId)
 	const removed = await refresh(review.id, row)
 	expect(removed.status).toBe(200)

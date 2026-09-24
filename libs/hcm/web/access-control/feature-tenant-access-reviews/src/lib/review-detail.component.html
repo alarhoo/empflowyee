@@ -1,0 +1,171 @@
+<ef-hcm-object-page
+	[title]="review()?.label || 'Access review'"
+	summary="Tenant access review"
+	[state]="state()"
+	[readOnly]="!canManage() || review()?.status === 'Closed'"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	<ng-template
+		efHcmObjectSection="overview"
+		label="Overview">
+		@if (review(); as item) {
+			<dl>
+				<dt>Status</dt>
+				<dd>{{ item.status }}</dd>
+				<dt>Snapshot time</dt>
+				<dd>{{ item.createdAt }}</dd>
+				<dt>Revision</dt>
+				<dd>{{ item.revision }}</dd>
+				@if (item.closedAt) {
+					<dt>Closed at</dt>
+					<dd>{{ item.closedAt }}</dd>
+				}
+			</dl>
+		}
+		<ui5-message-strip
+			design="Information"
+			[hideCloseButton]="true">
+			This is a manual point-in-time review. Assignments added after the snapshot are outside its
+			scope; closure does not certify future access.
+		</ui5-message-strip>
+		@if (review()?.status === 'Closed') {
+			<p>This review is closed and read-only.</p>
+		}
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="snapshot"
+		label="Assignment snapshot">
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				[hideCloseButton]="true">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		@if (message()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ message() }}
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Snapshot filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="review-decision">
+					Decision
+				</ui5-label>
+				<ui5-select
+					id="review-decision"
+					accessibleName="Snapshot decision"
+					[formField]="filterForm.decision">
+					<ui5-option value="">All decisions</ui5-option>
+					<ui5-option value="Pending">Pending</ui5-option>
+					<ui5-option value="Retain">Retain</ui5-option>
+					<ui5-option value="Revoke">Revoke</ui5-option>
+					<ui5-option value="Removed">Removed</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="load()">
+					Apply snapshot filter
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			accessibleName="Review assignment snapshot"
+			overflowMode="Popin"
+			noDataText="No snapshot items match this decision filter"
+			[loading]="busy()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="10rem">
+					Account and role
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="7rem"
+					popinText="Decision">
+					Decision
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="8rem"
+					popinText="Evidence">
+					Evidence
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="20"
+					minWidth="12rem"
+					popinText="Reason">
+					Reason
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="10rem">
+					Actions
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of rows(); track item.id) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ item.accountLabel }} — {{ item.roleLabel }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.decision }}</ui5-table-cell>
+					<ui5-table-cell>
+						{{ evidence(item) }}
+					</ui5-table-cell>
+					<ui5-table-cell>{{ item.reason || 'No decision yet' }}</ui5-table-cell>
+					<ui5-table-cell>
+						@if (canManage() && review()?.status === 'Open') {
+							@if (item.stale) {
+								<ui5-button
+									[accessibleName]="'Refresh ' + item.accountLabel + ' ' + item.roleLabel"
+									[disabled]="busy()"
+									(click)="openAction('refresh', item)">
+									Refresh
+								</ui5-button>
+							} @else if (item.decision === 'Pending') {
+								<ui5-button
+									[accessibleName]="'Retain ' + item.accountLabel + ' ' + item.roleLabel"
+									[disabled]="busy()"
+									(click)="openAction('decide', item, 'Retain')">
+									Retain
+								</ui5-button>
+								<ui5-button
+									[accessibleName]="'Revoke ' + item.accountLabel + ' ' + item.roleLabel"
+									[disabled]="busy()"
+									(click)="openAction('decide', item, 'Revoke')">
+									Revoke
+								</ui5-button>
+							} @else {
+								Decided
+							}
+						} @else {
+							Read-only
+						}
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+		@if (cursor()) {
+			<ui5-button
+				[disabled]="busy()"
+				(click)="more()">
+				Load more snapshot items
+			</ui5-button>
+		}
+	</ng-template>
+</ef-hcm-object-page>
+@if (edit(); as action) {
+	<ef-hcm-review-dialog
+		[action]="action"
+		(closed)="closeDialog($event)"></ef-hcm-review-dialog>
+}

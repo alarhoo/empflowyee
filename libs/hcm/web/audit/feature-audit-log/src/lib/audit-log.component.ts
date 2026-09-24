@@ -151,6 +151,8 @@ export class AuditLogComponent {
 		if (value.grantId) parts.push('Grant: ' + value.grantId)
 		if (value.enabled !== undefined) parts.push('Enabled: ' + String(value.enabled))
 		if (value.reason) parts.push('Reason: ' + value.reason)
+		if (value.fromState) parts.push('From: ' + value.fromState)
+		if (value.toState) parts.push('To: ' + value.toState)
 		return parts.join(' · ')
 	}
 }

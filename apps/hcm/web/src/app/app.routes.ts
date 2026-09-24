@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'access-control/tenant-access-reviews',
+		data: { catalogId: 'TENANT_ACCESS_REVIEWS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load native review list-detail lazily. */ () =>
+			import('@empflowyee/hcm-web-access-control-feature-tenant-access-reviews').then(
+				/** Select the owning access-control route. */ (m) => m.TENANT_ACCESS_REVIEWS_ROUTES,
+			),
+	},
+	{
 		path: 'audit/sensitive-access-log',
 		data: { catalogId: 'SENSITIVE_ACCESS_LOG' },
 		canMatch: [hcmRouteAccess],
