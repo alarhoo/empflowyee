@@ -1,6 +1,6 @@
 # Document Templates — technical design
 
-Status: complete for review; no implementation/admission or revision approval claimed.
+Status: business design admitted; UX reconciled with the authorized HCM-1 decision matrix.
 
 ## ROUTE
 
@@ -95,10 +95,10 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep the server-filtered template list in a begin-column HcmDynamicPage. Selected template opens a mid-column approved Object Page with Overview and Versions sections. Selection is deep-linkable by template ID; each column has its native page header. The Object Page retains native anchor navigation and version download actions. Small create/version forms use maintained dialogs, never the template detail workspace.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection. Consume the approved shared Object Page composition inside native FlexibleColumnLayout; no custom floorplan or feature CSS.
 
 Content columns/fields: Template label/type; revision; version number; filename; size; created date.
 
@@ -182,3 +182,7 @@ in hcm-launchpad.json. Preserve the Administration placement and one feature.
 Seed HR discovery separately from template read/manage/download permissions;
 David's existing discovery grant does not authorize reference-file content.
 Entry checks templates.read before requesting protected data.
+
+## UX REVISION
+
+The [authorized matrix](../../roadmap/HCM-1-UX-REVISION.md) supersedes the earlier Dynamic-Page-only selection. Meaningful version details require FCL/Object Page. A create dialog has only type, label, file and reason; appending one version has file and reason with a read-only target/revision. These are focused actions, not complex multi-section creates. A paginated server type picker stays bounded and uses maintained controls. Native list/detail selection, close/back, focus restoration, four themes and narrow-screen navigation require browser acceptance. Business contracts and storage recovery remain unchanged.

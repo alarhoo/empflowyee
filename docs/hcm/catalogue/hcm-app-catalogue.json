@@ -1283,7 +1283,7 @@
 			],
 			"featurePath": "libs/hcm/web/documents/feature-document-templates",
 			"route": "/documents/document-templates",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",

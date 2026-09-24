@@ -4,11 +4,11 @@
 	"approvals": [
 		{
 			"document": "BLUEPRINT",
-			"sha256": "daccefdeae25c0f703977abef93811ba62d0fbd45cf7773a0d5800541603ee22",
+			"sha256": "ffc5e4413e094ea1bc9e9b3099deb1fc814fc92f05db556ec09cb11923cd319f",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX matrix reconciliation; approved business contracts unchanged"
 		},
 		{
 			"document": "FDD",
@@ -20,11 +20,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "0e39cd395b372a6af5a1a1bdf975508fc0d642a0a18b80be4ea6595a3f41ff14",
+			"sha256": "da88f16451932459c886208f4c4008268f568af3e51b9d2cf6e43200c3ce76c6",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX matrix reconciliation; approved business contracts unchanged"
 		},
 		{
 			"document": "TRACE",
@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "e913d4a0f2fb75ff3b76c8ae57eef2ca0389c9f589a7cb001c506234bd091a4f",
+			"sha256": "20807f39da35d643f388d905886117ac37f5a10a985c1b2d3602aa0e03ba4835",
 			"decision": "approved",
-			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewer": "Product owner (explicit UX direction in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit product-owner UX matrix reconciliation; approved business contracts unchanged"
 		},
 		{
 			"document": "DOMAIN",

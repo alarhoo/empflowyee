@@ -590,7 +590,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'documents',
 			catalogueIds: ['tenant-administration'],
 			route: '/documents/document-templates',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
+			floorplan: 'UX-FP-FCL',
 			implementationStatus: 'planned',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
