@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core'
 import { HttpClient, HttpParams } from '@angular/common/http'
-import { timeout } from 'rxjs'
+import { timeout, catchError } from 'rxjs'
+import { rethrowDocumentDownloadError } from './document-download-error'
 import type {
 	WorkerDocument,
 	WorkerChoice,
@@ -84,7 +85,7 @@ export class EmployeeDocumentsApi {
 					'/download',
 				{ responseType: 'blob' },
 			)
-			.pipe(timeout(60000))
+			.pipe(timeout(60000), catchError(rethrowDocumentDownloadError))
 	} /** Search real worker identities, including workers without login accounts. */
 	workers(q: string, cursor?: string) {
 		let params = new HttpParams().set('q', q).set('limit', 25)

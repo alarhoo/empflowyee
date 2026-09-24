@@ -1250,8 +1250,8 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'documents',
 			catalogueIds: ['employee-self-service'],
 			route: '/documents/my-documents',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			floorplan: 'UX-FP-FCL',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

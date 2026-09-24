@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'documents/my-documents',
+		data: { catalogId: 'MY_DOCUMENTS' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load only the self-scoped documents workspace. */ () =>
+			import('@empflowyee/hcm-web-documents-feature-my-documents').then(
+				/** Select the domain-owned read-only feature. */ (m) => m.MyDocumentsComponent,
+			),
+	},
+
+	{
 		path: 'documents/employee-documents',
 		data: { catalogId: 'EMPLOYEE_DOCUMENTS' },
 		canMatch: [hcmRouteAccess],

@@ -1,0 +1,213 @@
+<ui5-flexible-column-layout
+	[layout]="selectedId() ? 'TwoColumnsMidExpanded' : 'OneColumn'"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'My document list' },
+		midColumn: { role: 'region', name: 'Selected my document' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="My Documents"
+		summary="Files explicitly shared with you"
+		[state]="state()"
+		[readOnly]="true"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="My document filters"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="self-document-search">
+					Search
+				</ui5-label>
+				<ui5-input
+					id="self-document-search"
+					accessibleName="Search document labels"
+					[formField]="fields.q"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="self-document-type-filter">
+					Document type ID
+				</ui5-label>
+				<ui5-input
+					id="self-document-type-filter"
+					accessibleName="Filter document type ID"
+					[formField]="fields.typeId"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="self-document-sort">
+					Sort
+				</ui5-label>
+				<ui5-select
+					id="self-document-sort"
+					accessibleName="Document sort"
+					[formField]="fields.sort">
+					<ui5-option value="label:asc">Label ascending</ui5-option>
+					<ui5-option value="label:desc">Label descending</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="load()">
+					Apply filters
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			accessibleName="My documents"
+			overflowMode="Popin"
+			noDataText="No shared documents match the filters">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="10rem">
+					Label
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="12rem"
+					popinText="Type ID">
+					Type ID
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="7rem">
+					Actions
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of rows(); track item.id) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ item.label }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.typeId }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'View ' + item.label"
+							(click)="select(item.id)">
+							View document
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+		@if (cursor()) {
+			<ui5-button
+				[disabled]="busy()"
+				(click)="more()">
+				Load more documents
+			</ui5-button>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selectedId()) {
+		<ef-hcm-object-page
+			slot="midColumn"
+			[title]="selected()?.label ?? 'My document'"
+			summary="Versions shared with you"
+			[state]="detailState()"
+			[readOnly]="true"
+			[actions]="detailActions"
+			[errorMessage]="detailMessage()"
+			(action)="detailAction()"
+			(retry)="loadDetail()">
+			<ng-template
+				efHcmObjectSection="overview"
+				label="Overview">
+				@if (selected(); as item) {
+					<dl>
+						<dt>Label</dt>
+						<dd>{{ item.label }}</dd>
+						<dt>Document type ID</dt>
+						<dd>{{ item.typeId }}</dd>
+					</dl>
+					<p>
+						Only versions currently shared with you are listed. Access is checked again when you
+						download.
+					</p>
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="versions"
+				label="Versions">
+				@if (versionMessage()) {
+					<ui5-message-strip
+						design="Negative"
+						[hideCloseButton]="true">
+						{{ versionMessage() }}
+					</ui5-message-strip>
+				}
+				<ui5-button
+					[disabled]="versionBusy()"
+					(click)="loadVersions()">
+					{{ versionBusy() ? 'Loading versions…' : 'Reload versions' }}
+				</ui5-button>
+				<ui5-table
+					accessibleName="Shared versions"
+					overflowMode="Popin"
+					noDataText="No committed versions are available">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="4rem">
+							Version
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="80"
+							minWidth="10rem"
+							popinText="File">
+							File
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="30"
+							minWidth="7rem"
+							popinText="Bytes">
+							Bytes
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="20"
+							minWidth="10rem"
+							popinText="Created">
+							Created
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="7rem">
+							Actions
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (version of versions(); track version.id) {
+						<ui5-table-row>
+							<ui5-table-cell>{{ version.versionNumber }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.filename }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.byteLength }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.createdAt }}</ui5-table-cell>
+							<ui5-table-cell>
+								@if (canDownload()) {
+									<ui5-button
+										[disabled]="!!downloading()"
+										[accessibleName]="'Download version ' + version.versionNumber"
+										(click)="download(version)">
+										{{ downloading() === version.id ? 'Downloading…' : 'Download' }}
+									</ui5-button>
+								}
+							</ui5-table-cell>
+						</ui5-table-row>
+					}
+				</ui5-table>
+				@if (versionCursor()) {
+					<ui5-button
+						[disabled]="versionBusy()"
+						(click)="loadVersions(true)">
+						Load more versions
+					</ui5-button>
+				}
+			</ng-template>
+		</ef-hcm-object-page>
+	}
+</ui5-flexible-column-layout>

@@ -210,6 +210,9 @@
 			],
 			"@empflowyee/hcm-web-documents-feature-employee-documents": [
 				"./libs/hcm/web/documents/feature-employee-documents/src/index.ts"
+			],
+			"@empflowyee/hcm-web-documents-feature-my-documents": [
+				"./libs/hcm/web/documents/feature-my-documents/src/index.ts"
 			]
 		}
 	},
