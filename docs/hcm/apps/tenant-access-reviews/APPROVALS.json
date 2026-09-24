@@ -4,11 +4,11 @@
 	"approvals": [
 		{
 			"document": "BLUEPRINT",
-			"sha256": "ef81b90dcab3c6b36b0b386311fd5fc4bd67e20a2d65c2d874f2e00caa2c5f86",
+			"sha256": "3366edf0937169bd8026b7c4f14d5318f0265e222ad860f26476d6a1e13c0ef6",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit mandatory FCL/Object Page instruction and implementation authorization; approved business rules unchanged"
 		},
 		{
 			"document": "FDD",
@@ -20,11 +20,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "634855e2c3727dcd5555f94c5ccebd9be419d2dd725fc878bac0c897a83c88c3",
+			"sha256": "2f812cd35c2fee85b1cf136b8c16325549967b30fec0bd2f60f135ebd4b18348",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit mandatory FCL/Object Page instruction and implementation authorization; approved business rules unchanged"
 		},
 		{
 			"document": "TRACE",
@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "23df24eb51ca27e3a49360f5539146b8cdf7bb50402bc3bf95d82d323b4c347f",
+			"sha256": "8d3a11f53f24f7789f51f7b671676640edcceee82b9da8ca555afea9626e7ed9",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-UX-REVISION.md; explicit mandatory FCL/Object Page instruction and implementation authorization; approved business rules unchanged"
 		},
 		{
 			"document": "DOMAIN",

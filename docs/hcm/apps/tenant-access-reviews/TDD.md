@@ -28,6 +28,7 @@ No body/query contains tenantId or a self-service actor override.
 | Operation                                                         | Permission                          | Request                                              | Response              |
 | ----------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------- | --------------------- |
 | `GET /api/v1/access-control/reviews`                              | `hcm.access-control.reviews.read`   | `List query`                                         | `Page<ReviewSummary>` |
+| `GET /api/v1/access-control/reviews/{id}`                         | `hcm.access-control.reviews.read`   | `None`                                               | `ReviewSummary`       |
 | `GET /api/v1/access-control/reviews/{id}/items`                   | `hcm.access-control.reviews.read`   | `List query: decision?`                              | `Page<ReviewItem>`    |
 | `POST /api/v1/access-control/reviews`                             | `hcm.access-control.reviews.manage` | `{label,reason}`                                     | `ReviewSummary`       |
 | `POST /api/v1/access-control/reviews/{id}/items/{itemId}/decide`  | `hcm.access-control.reviews.manage` | `{decision:Retain / Revoke,expectedRevision,reason}` | `ReviewItem`          |
@@ -92,10 +93,17 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep the server-filtered review list in the
+begin (`startColumn`) native Dynamic Page; the selected review opens in a mid-column
+`HcmObjectPage` (`UX-FP-OBJECT-PAGE`, COMPOSED), with Overview and Assignment snapshot
+sections. The `review` query parameter supports deep links. Native FCL provides
+responsive navigation, and both columns are page-backed. Back returns to the list.
+Create has only label/reason and uses a focused native dialog; decide/refresh/close
+are similarly focused reason/confirmation actions with dirty-leave protection.
+No feature CSS or custom floorplan is introduced.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection. The explicit [UX revision](../../roadmap/HCM-1-UX-REVISION.md) supersedes the earlier exclusion of Object Page for meaningful list-detail workflows.
 
 Content columns/fields: Review label/status/created date; detail account/role labels, decision, stale flag, reason.
 
@@ -136,6 +144,15 @@ Angular feature -> own data-access/contracts + existing UX floorplan; no imports
 from another feature or server implementation. Existing database/runtime/audit
 dependencies retain their own project ownership and public contracts. Thin app
 roots add only module composition and lazy-route registration.
+
+The additive single-review GET supports deep-link loading without scanning list
+pages. Review commands and the existing assignment command share the extracted
+assignment-owned transaction operation; no second grant writer or protected-admin
+policy is implemented. Review manage authorizes the review operation, while the
+same occurrence/revision checks, audit append and post-command protected-admin
+invariant apply within the one tenant administration transaction. Parent revisions
+advance on item decisions/refresh and close; item commands compare the item revision.
+Successful receipts bind actor, operation, review/item target and normalized payload.
 
 ## DEPENDENCIES
 

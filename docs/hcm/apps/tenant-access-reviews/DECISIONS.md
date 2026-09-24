@@ -7,14 +7,23 @@ bounded document/notification behavior. [Stage decision evidence](../../roadmap/
 records those approvals. These resolve business choices, not hashes of the new
 app designs. No current business question blocks this bounded app.
 
-| ID                            | Classification          | Decision                                                                                                                                                     |
-| ----------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| DEC-TENANT-ACCESS-REVIEWS-001 | RESOLVED                | Apply the approved local actor, subject and action scope in this FDD; no production authentication or external integration.                                  |
-| DEC-TENANT-ACCESS-REVIEWS-002 | RESOLVED                | Select UX-FP-DYNAMIC-PAGE NATIVE, domain-owned projects and real API persistence as detailed in TDD. Technical selection is complete for revision review.    |
-| DEC-TENANT-ACCESS-REVIEWS-003 | BLOCKS_LATER_CAPABILITY | Production authentication, external delivery, legal retention and unlisted business workflows remain outside this app; they require separate future designs. |
+| ID                            | Classification          | Decision                                                                                                                                                                            |
+| ----------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DEC-TENANT-ACCESS-REVIEWS-001 | RESOLVED                | Apply the approved local actor, subject and action scope in this FDD; no production authentication or external integration.                                                         |
+| DEC-TENANT-ACCESS-REVIEWS-002 | RESOLVED                | Select UX-FP-FCL NATIVE with a composed Object Page detail, domain-owned projects and real API persistence as detailed in TDD. Technical selection is complete for revision review. |
+| DEC-TENANT-ACCESS-REVIEWS-003 | BLOCKS_LATER_CAPABILITY | Production authentication, external delivery, legal retention and unlisted business workflows remain outside this app; they require separate future designs.                        |
 
 ## REVIEW
 
 FDD/TDD/traceability/blueprint revisions and referenced domain/contract evidence
 still require actual review under the factory approval process. Empty APPROVALS.json
 is intentional; never fill it with invented reviewers, dates or consent to unseen content.
+
+## UX revision
+
+The explicit [product-owner UX correction](../../roadmap/HCM-1-UX-REVISION.md)
+requires FCL and a page-backed object detail for meaningful list-detail workflows.
+Tenant Access Reviews adopts that composition. Focused label/reason and single-item
+actions remain native dialogs; the business snapshot and authority rules are unchanged.
+The additive single-review read route makes selection deep-linkable and does not
+change any existing public response or authentication boundary.

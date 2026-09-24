@@ -5135,7 +5135,7 @@
 			],
 			"featurePath": "libs/hcm/web/access-control/feature-tenant-access-reviews",
 			"route": "/access-control/tenant-access-reviews",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
