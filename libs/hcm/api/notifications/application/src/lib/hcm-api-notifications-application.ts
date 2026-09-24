@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto'
 import {
 	NotificationError,
+	parseTemplateSave,
+	parseRuleSave,
+	type NotificationTemplate,
+	type NotificationRule,
 	notificationEvent,
 	notificationId,
 	parseNotificationRead,
@@ -16,6 +20,15 @@ import { requireNotificationRevision } from '@empflowyee/hcm-api-notifications-d
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 export interface NotificationRepository {
+	/** Read the actual bounded tenant template configuration. */
+	templates(): Promise<{ items: NotificationTemplate[] }>
+	/** Read actual tenant event switches. */
+	rules(): Promise<{ items: NotificationRule[] }>
+	/** Update one configured template at its exact revision. */
+	saveTemplate(event: NotificationEvent, value: NotificationTemplate): Promise<NotificationTemplate>
+	/** Update one configured rule at its exact revision. */
+	saveRule(event: NotificationEvent, value: NotificationRule): Promise<NotificationRule>
+
 	/** Query only the verified account's bounded inbox. */
 	inbox(query: InboxQuery): Promise<NotificationPage>
 	/** Load one own notification, concealing other recipients and tenants. */
@@ -29,7 +42,8 @@ export interface NotificationRepository {
 	/** Persist one explicit revisioned own-category choice. */
 	savePreference(value: NotificationPreference): Promise<NotificationPreference>
 }
-export type NotificationResponse = NotificationItem | NotificationPreference
+export type NotificationResponse =
+	NotificationItem | NotificationPreference | NotificationTemplate | NotificationRule
 export interface NotificationReceipt {
 	requestHash: string
 	response: NotificationResponse
@@ -146,6 +160,106 @@ export class Notifications {
 			},
 		) as Promise<NotificationPreference>
 	}
+	/** Read only configured registered templates with tenant-wide administration permission. */
+	templates(context: AuthenticatedHcmContext): Promise<{ items: NotificationTemplate[] }> {
+		return this.unit.execute(
+			context,
+			'templates.read',
+			false,
+			/** Project bounded safe configuration. */ (scope) => scope.repository.templates(),
+		)
+	}
+	/** Read the fixed supported event switches. */
+	rules(context: AuthenticatedHcmContext): Promise<{ items: NotificationRule[] }> {
+		return this.unit.execute(
+			context,
+			'rules.read',
+			false,
+			/** Keep configuration reads side-effect free. */ (scope) => scope.repository.rules(),
+		)
+	}
+	/** Save plain-text configuration without rewriting previous inbox evidence. */
+	saveTemplate(
+		context: AuthenticatedHcmContext,
+		eventValue: string,
+		body: unknown,
+		receiptKey: string,
+		requestId: string,
+	): Promise<NotificationTemplate> {
+		const event = notificationEvent(eventValue),
+			payload = parseTemplateSave(body)
+		return this.command(
+			context,
+			'templates.manage',
+			'notification.template',
+			event,
+			payload,
+			receiptKey,
+			/** Commit changed fields, safe audit and receipt together. */ async (scope) => {
+				const current = (await scope.repository.templates()).items.find(
+					/** Select the one registered event. */ (item) => item.eventType === event,
+				)
+				if (!current) throw new NotificationError('not-found')
+				requireNotificationRevision(current.revision, payload.expectedRevision)
+				const result = await scope.repository.saveTemplate(event, {
+					...current,
+					title: payload.title,
+					body: payload.body,
+				})
+				const changedFields: ('title' | 'body')[] = []
+				if (current.title !== payload.title) changedFields.push('title')
+				if (current.body !== payload.body) changedFields.push('body')
+				await scope.audit.append({
+					action: 'notification.template-changed',
+					targetId: event,
+					requestId,
+					summary: { reason: payload.reason, changedFields },
+				})
+				return result
+			},
+		) as Promise<NotificationTemplate>
+	}
+	/** Toggle a registered event; recipients and event expressions are immutable policy. */
+	saveRule(
+		context: AuthenticatedHcmContext,
+		eventValue: string,
+		body: unknown,
+		receiptKey: string,
+		requestId: string,
+	): Promise<NotificationRule> {
+		const event = notificationEvent(eventValue),
+			payload = parseRuleSave(body)
+		return this.command(
+			context,
+			'rules.manage',
+			'notification.rule',
+			event,
+			payload,
+			receiptKey,
+			/** Persist only the switch and safe evidence. */ async (scope) => {
+				const current = (await scope.repository.rules()).items.find(
+					/** Select one configured event. */ (item) => item.eventType === event,
+				)
+				if (!current) throw new NotificationError('not-found')
+				requireNotificationRevision(current.revision, payload.expectedRevision)
+				const result = await scope.repository.saveRule(event, {
+					...current,
+					enabled: payload.enabled,
+				})
+				await scope.audit.append({
+					action: 'notification.rule-changed',
+					targetId: event,
+					requestId,
+					summary: {
+						reason: payload.reason,
+						changedFields: current.enabled === payload.enabled ? [] : ['enabled'],
+					},
+				})
+				return result
+			},
+		) as Promise<NotificationRule>
+	}
+
 	/** Serialize successful receipts with their business write and reauthorize before replay. */
 	private command(
 		context: AuthenticatedHcmContext,

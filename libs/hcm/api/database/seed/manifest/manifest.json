@@ -46,6 +46,15 @@
 			"requiresMigrations": ["000006_access_audit_foundation.sql"],
 			"apply": "access.business.1.apply.sql",
 			"reset": "access.business.1.reset.sql"
+		},
+		{
+			"id": "notifications.configuration",
+			"domain": "notifications",
+			"version": 1,
+			"dependsOn": ["access.business@1"],
+			"requiresMigrations": ["000011_notification_configuration.sql"],
+			"apply": "notifications.configuration.1.apply.sql",
+			"reset": "notifications.configuration.1.reset.sql"
 		}
 	]
 }

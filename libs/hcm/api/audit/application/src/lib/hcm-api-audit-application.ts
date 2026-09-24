@@ -28,18 +28,32 @@ export interface NotificationAuditEvent {
 	requestId: string
 	summary: { changedFields: ('enabled' | 'readAt')[] }
 }
+export interface NotificationConfigurationAuditEvent {
+	action: 'notification.template-changed' | 'notification.rule-changed'
+	targetId: string
+	requestId: string
+	summary: { reason: string; changedFields: ('title' | 'body' | 'enabled')[] }
+}
 export type AccessAuditEvent =
 	| RoleAuditEvent
 	| AssignmentAuditEvent
 	| AccountAuditEvent
 	| ReviewAuditEvent
 	| NotificationAuditEvent
+	| NotificationConfigurationAuditEvent
 export interface AppendAudit {
 	/** Append safe evidence in the existing business transaction, deriving actor from its verified scope. */
 	append(event: AccessAuditEvent): Promise<string>
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (
+		event?.action === 'notification.template-changed' ||
+		event?.action === 'notification.rule-changed'
+	) {
+		validateNotificationConfigurationAudit(event)
+		return
+	}
 	if (event?.action?.startsWith('notification.')) {
 		validateNotificationAudit(event as NotificationAuditEvent)
 		return
@@ -182,4 +196,29 @@ export function validateNotificationAudit(event: NotificationAuditEvent): void {
 		event.summary.changedFields[0] !== field
 	)
 		throw new Error('Invalid notification audit envelope')
+}
+
+/** Validate bounded administration audit without storing template content or recipient data. */
+export function validateNotificationConfigurationAudit(
+	event: NotificationConfigurationAuditEvent,
+): void {
+	const allowed = event.action === 'notification.template-changed' ? ['title', 'body'] : ['enabled']
+	if (
+		Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+		!['document.requested', 'document.submitted', 'document.replacement-requested'].includes(
+			event.targetId,
+		) ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!event.summary ||
+		Object.keys(event.summary).sort().join(',') !== 'changedFields,reason' ||
+		typeof event.summary.reason !== 'string' ||
+		!event.summary.reason.trim() ||
+		event.summary.reason.length > 500 ||
+		!Array.isArray(event.summary.changedFields) ||
+		new Set(event.summary.changedFields).size !== event.summary.changedFields.length ||
+		event.summary.changedFields.some(
+			/** Reject bodies and unsupported summary fields. */ (field) => !allowed.includes(field),
+		)
+	)
+		throw new Error('Invalid notification configuration audit envelope')
 }

@@ -38,6 +38,8 @@ export class TransactionalAudit implements AppendAudit {
 		validateAccessAudit(event)
 		const id = randomUUID()
 		let targetType = 'access-role'
+		if (event.action === 'notification.template-changed') targetType = 'notification-template'
+		if (event.action === 'notification.rule-changed') targetType = 'notification-rule'
 		if (event.action === 'notification.read') targetType = 'notification'
 		if (event.action === 'notification.preference-changed') targetType = 'notification-preference'
 		if (

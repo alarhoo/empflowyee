@@ -145,6 +145,8 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'notification_command_receipt',
 			'notification_intent',
 			'notification_preference',
+			'notification_rule',
+			'notification_template',
 			'organisation',
 			'person',
 			'role_permission',

@@ -87,7 +87,7 @@ beforeAll(
 		const manifest = JSON.parse(await readFile(join(source, 'manifest.json'), 'utf8'))
 		manifest.modules = manifest.modules.filter(
 			/** Reconstruct the immutable pre-business seed inventory. */ (entry: { id: string }) =>
-				entry.id !== 'access.business',
+				!['access.business', 'notifications.configuration'].includes(entry.id),
 		)
 		const seedDirectory = await mkdtemp(join(tmpdir(), 'hcm-access-seed-'))
 		try {
@@ -111,6 +111,8 @@ beforeAll(
 			'000008_identity_administration.sql',
 			'000009_access_reviews.sql',
 			'000010_notification_self_service.sql',
+			'000011_notification_configuration.sql',
+			'000012_notification_rendered_text.sql',
 		])
 		await runDevelopmentSeeds({
 			env: { ...env, HCM_SEED_TARGET: tenant, HCM_SEED_DATABASE_URL: connection('MIGRATOR') },

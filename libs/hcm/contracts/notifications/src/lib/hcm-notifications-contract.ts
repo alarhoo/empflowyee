@@ -130,3 +130,93 @@ export function notificationEventLabel(event: NotificationEvent): string {
 	}
 	return labels[event]
 }
+
+export interface NotificationTemplate {
+	eventType: NotificationEvent
+	title: string
+	body: string
+	revision: number
+}
+export interface NotificationRule {
+	eventType: NotificationEvent
+	enabled: boolean
+	revision: number
+}
+export interface TemplateSave {
+	title: string
+	body: string
+	expectedRevision: number
+	reason: string
+}
+export interface RuleSave {
+	enabled: boolean
+	expectedRevision: number
+	reason: string
+}
+/** Reject unsupported template syntax before rendering any preview or delivery. */
+export function notificationText(value: unknown, maximum: number): string {
+	if (
+		typeof value !== 'string' ||
+		!value.trim() ||
+		value.length > maximum ||
+		/[<>\p{Cc}]/u.test(value) ||
+		/(?:[a-z][a-z0-9+.-]*:\/\/|www\.|mailto:|https?:|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,63}\b)/iu.test(
+			value,
+		)
+	)
+		throw new NotificationError('invalid-request')
+	const remaining = value.replace(/\{(?:requestId|dueDate)\}/gu, '')
+	if (/[{}]/u.test(remaining)) throw new NotificationError('invalid-request')
+	return value.trim()
+}
+/** Validate administrator reason and optimistic revision without accepting hidden fields. */
+function configurationCommand(body: unknown, expected: string[]): Record<string, unknown> {
+	if (!body || typeof body !== 'object' || Array.isArray(body))
+		throw new NotificationError('invalid-request')
+	const value = body as Record<string, unknown>
+	if (
+		Object.keys(value).sort().join(',') !== expected.sort().join(',') ||
+		!Number.isSafeInteger(value['expectedRevision']) ||
+		Number(value['expectedRevision']) < 1 ||
+		typeof value['reason'] !== 'string' ||
+		!value['reason'].trim() ||
+		value['reason'].length > 500 ||
+		/\p{Cc}/u.test(value['reason'])
+	)
+		throw new NotificationError('invalid-request')
+	return value
+}
+/** Parse one exact bounded template edit shared by browser and API. */
+export function parseTemplateSave(body: unknown): TemplateSave {
+	const value = configurationCommand(body, ['title', 'body', 'expectedRevision', 'reason'])
+	return {
+		title: notificationText(value['title'], 120),
+		body: notificationText(value['body'], 1000),
+		expectedRevision: Number(value['expectedRevision']),
+		reason: (value['reason'] as string).trim(),
+	}
+}
+/** Parse one supported rule toggle without destinations or expressions. */
+export function parseRuleSave(body: unknown): RuleSave {
+	const value = configurationCommand(body, ['enabled', 'expectedRevision', 'reason'])
+	if (typeof value['enabled'] !== 'boolean') throw new NotificationError('invalid-request')
+	return {
+		enabled: value['enabled'],
+		expectedRevision: Number(value['expectedRevision']),
+		reason: (value['reason'] as string).trim(),
+	}
+}
+/** Substitute only literal approved values; returned text is never HTML or executable syntax. */
+export function renderNotificationText(
+	text: string,
+	requestId: string,
+	dueDate: string | null,
+): string {
+	return text.replace(
+		/\{(requestId|dueDate)\}/gu,
+		/** Replace fixed placeholders without interpreting replacement strings. */ (
+			_match,
+			name: string,
+		) => (name === 'requestId' ? requestId : (dueDate ?? '')),
+	)
+}

@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto'
 import { sql } from 'kysely'
 import {
 	NotificationError,
+	type NotificationTemplate,
+	type NotificationRule,
 	NOTIFICATION_EVENTS,
 	type InboxQuery,
 	type NotificationItem,
@@ -161,6 +163,44 @@ export class KyselyNotifications implements NotificationRepository {
 		}
 		return this.preference(value.eventType)
 	}
+	/** Read explicit seed-provisioned configuration; no runtime creation fallback. */
+	async templates(): Promise<{ items: NotificationTemplate[] }> {
+		const result =
+			await sql<NotificationTemplate>`SELECT event_type AS "eventType",title,body,revision FROM hcm.notification_template WHERE tenant_id=${this.scope.actor.tenantId} ORDER BY event_type`.execute(
+				this.scope.transaction,
+			)
+		return { items: result.rows }
+	}
+	/** Read only the fixed event switch projection. */
+	async rules(): Promise<{ items: NotificationRule[] }> {
+		const result =
+			await sql<NotificationRule>`SELECT event_type AS "eventType",enabled,revision FROM hcm.notification_rule WHERE tenant_id=${this.scope.actor.tenantId} ORDER BY event_type`.execute(
+				this.scope.transaction,
+			)
+		return { items: result.rows }
+	}
+	/** Update approved text columns only, deriving tenant and updater from verified context. */
+	async saveTemplate(
+		event: NotificationEvent,
+		value: NotificationTemplate,
+	): Promise<NotificationTemplate> {
+		const result =
+			await sql<NotificationTemplate>`UPDATE hcm.notification_template SET title=${value.title},body=${value.body},revision=revision+1,updated_by=${this.scope.actor.accountId},updated_at=now() WHERE tenant_id=${this.scope.actor.tenantId} AND event_type=${event} AND revision=${value.revision} RETURNING event_type AS "eventType",title,body,revision`.execute(
+				this.scope.transaction,
+			)
+		if (!result.rows[0]) throw new NotificationError('revision-conflict')
+		return result.rows[0]
+	}
+	/** Change only a supported tenant rule switch under optimistic concurrency. */
+	async saveRule(event: NotificationEvent, value: NotificationRule): Promise<NotificationRule> {
+		const result =
+			await sql<NotificationRule>`UPDATE hcm.notification_rule SET enabled=${value.enabled},revision=revision+1,updated_by=${this.scope.actor.accountId},updated_at=now() WHERE tenant_id=${this.scope.actor.tenantId} AND event_type=${event} AND revision=${value.revision} RETURNING event_type AS "eventType",enabled,revision`.execute(
+				this.scope.transaction,
+			)
+		if (!result.rows[0]) throw new NotificationError('revision-conflict')
+		return result.rows[0]
+	}
+
 	/** Read exact actor/operation receipt evidence only after current authorization. */
 	async receipt(operation: string, key: string): Promise<NotificationReceipt | null> {
 		return (

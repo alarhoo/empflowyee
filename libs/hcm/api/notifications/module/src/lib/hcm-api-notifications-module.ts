@@ -7,10 +7,13 @@ import {
 	NotificationUnitOfWork,
 } from '@empflowyee/hcm-api-notifications-application'
 import { KyselyNotificationUnitOfWork } from '@empflowyee/hcm-api-notifications-infrastructure'
-import { NotificationSelfController } from '@empflowyee/hcm-api-notifications-transport'
+import {
+	NotificationSelfController,
+	NotificationConfigurationController,
+} from '@empflowyee/hcm-api-notifications-transport'
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [NotificationSelfController],
+	controllers: [NotificationSelfController, NotificationConfigurationController],
 	providers: [
 		{
 			provide: NotificationUnitOfWork,
