@@ -29,6 +29,7 @@ No body/query contains tenantId or a self-service actor override.
 | ----------------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `GET /api/v1/documents/workers`                                               | `hcm.documents.worker.read`     | `List query: q displayName/workerCode`                                                  | `Page<{id,displayName,workerCode}>`               |
 | `GET /api/v1/documents/worker-documents`                                      | `hcm.documents.worker.read`     | `List query: workerId?,typeId?`                                                         | `Page<WorkerDocumentDto>`                         |
+| `GET /api/v1/documents/worker-documents/{id}`                                 | `hcm.documents.worker.read`     | `None`                                                                                  | `WorkerDocumentDto`                               |
 | `GET /api/v1/documents/worker-documents/{id}/versions`                        | `hcm.documents.worker.read`     | `List query`                                                                            | `Page<VersionDto>`                                |
 | `GET /api/v1/documents/worker-document-type-options`                          | `hcm.documents.worker.manage`   | `List query: enabled=true`                                                              | `Page<{id,code,label}>`                           |
 | `POST /api/v1/documents/worker-documents`                                     | `hcm.documents.worker.manage`   | `multipart: metadata {workerId,typeId,label,employeeVisible:false / true,reason}, file` | `{document:WorkerDocumentDto,version:VersionDto}` |
@@ -98,10 +99,10 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep the server filter/list in a begin-column HcmDynamicPage and selected document in a mid-column approved Object Page with Overview and Versions. Selection uses a routed document query parameter. A dedicated `/documents/employee-documents/create` Dynamic Page owns the complex worker/type/file/sharing/reason creation form and dirty-leave protection. Version append and per-version sharing use small focused native dialogs.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection, reconciled under the authorized [UX matrix](../../roadmap/HCM-1-UX-REVISION.md). No feature CSS or custom floorplan.
 
 Content columns/fields: Worker label; document label/type; version; employee-visible flag; file size/date.
 
