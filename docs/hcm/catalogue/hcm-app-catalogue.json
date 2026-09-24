@@ -387,7 +387,7 @@
 			],
 			"featurePath": "libs/hcm/web/access-control/feature-app-catalogue-configuration",
 			"route": "/access-control/app-catalogue-configuration",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",

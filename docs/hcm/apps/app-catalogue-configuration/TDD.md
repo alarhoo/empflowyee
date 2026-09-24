@@ -1,12 +1,10 @@
 # App Catalogue Configuration — technical design
 
-Status: complete for review; no implementation/admission or revision approval claimed.
+Status: approved local implementation scope, reconciled with the mandatory UX matrix under the explicit implementation instruction.
 
 ## ROUTE
 
-Selected route `/access-control/app-catalogue-configuration`; lazy feature `libs/hcm/web/access-control/feature-app-catalogue-configuration`. Selection is recorded
-in this blueprint for review; canonical route/floorplan remain null until the TDD
-revision is approved. Keep implementationStatus Planned. Existing catalogue
+Selected route `/access-control/app-catalogue-configuration`; lazy feature `libs/hcm/web/access-control/feature-app-catalogue-configuration`. Keep implementationStatus Planned until API and browser acceptance pass. Existing catalogue
 placements remain UX metadata and never determine code ownership.
 
 ## READ
@@ -85,14 +83,14 @@ Use [domain physical design](../../domain/HCM-1-ACCESS-CONTROL.md#data) and
 tables per app. Forward migrations shared by sibling apps are delivered once by
 their owning domain. Read-only apps add no mutation grants just to populate a UI.
 Successful writes use the [shared unit of work](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#tx).
-SQL and versioned seeds are designed here but not created/run in this delivery.
+This read-only slice adds no migration, write grants or seed data. Existing canonical metadata and PostgreSQL entitlement/account/grant projections supply all data.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. A begin-column HcmDynamicPage holds the bounded client catalogue table and filters. Selected app metadata opens a mid-column HcmObjectPage with Overview, Placements and Discovery sections. Selection is deep-linkable; no dialog or mutation form is needed.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection. Use the approved Object Page composition and native controls; no custom floorplan or business CSS.
 
 Content columns/fields: App code/title; domain; implementation status; entitlement/enabled projection; placements; optional discoverability reason.
 
@@ -162,5 +160,13 @@ Use [shared execution criteria](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#test).
 
 Branch `codex/hcm-1-app-catalogue-configuration` after all 20 local designs have reviewed evidence.
 Commit contracts/design reconciliation, then domain SQL/API, then native UI, then
-acceptance evidence as coherent slices. No application code is authorized by this
-design-only request. Keep six deferred apps and full-wave completion blocked.
+acceptance evidence as coherent slices. Application code is authorized by the subsequent explicit local-stage implementation instruction. Keep six deferred apps and full-wave completion blocked.
+
+## DISCOVERY IMPLEMENTATION
+
+Universal pure helpers express capability and Space-placement predicates shared
+by the existing launchpad and server explanation. The account is a query subject,
+never the actor. The owning API reloads its enabled state, roles, permissions and
+tenant entitlements under the verified caller. Account choices use the existing
+bounded account projection with fixed displayName ascending order, q, limit and
+cursor only. No underlying workforce or commercial object is edited.

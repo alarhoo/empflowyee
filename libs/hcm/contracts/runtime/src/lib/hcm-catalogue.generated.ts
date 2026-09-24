@@ -173,7 +173,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'access-control',
 			catalogueIds: ['tenant-administration'],
 			route: '/access-control/app-catalogue-configuration',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
+			floorplan: 'UX-FP-FCL',
 			implementationStatus: 'planned',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
