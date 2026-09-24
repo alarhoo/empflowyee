@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-identity-access-feature-my-security",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/identity-access/feature-my-security/src",
+	"prefix": "ef-hcm",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:identity-access", "type:feature"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

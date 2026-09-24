@@ -133,6 +133,9 @@
 			],
 			"@empflowyee/hcm-web-identity-access-feature-domain-configuration": [
 				"./libs/hcm/web/identity-access/feature-domain-configuration/src/index.ts"
+			],
+			"@empflowyee/hcm-web-identity-access-feature-my-security": [
+				"./libs/hcm/web/identity-access/feature-my-security/src/index.ts"
 			]
 		}
 	},

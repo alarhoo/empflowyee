@@ -1,10 +1,10 @@
 # My Security — requirement traceability
 
-Status: design coverage complete; all test entries below are **planned, not executed**.
+Status: implemented and verified; see [validation evidence](../../testing/HCM-1-MY-SECURITY-VALIDATION.md).
 
 ## MATRIX
 
-| Requirement                                       | Design                      | Planned test         |
+| Requirement                                       | Design                      | Executed test        |
 | ------------------------------------------------- | --------------------------- | -------------------- |
 | [REQ-MY-SECURITY-001](FDD.md#req-my-security-001) | [TDD#READ](TDD.md#read)     | TEST-MY-SECURITY-001 |
 | [REQ-MY-SECURITY-002](FDD.md#req-my-security-002) | [TDD#ACTION](TDD.md#action) | TEST-MY-SECURITY-002 |
@@ -23,7 +23,7 @@ Exercise: Supplying another accountId is rejected; a disabled account cannot obt
 
 Assert: Resolve identity exclusively from verified context and show persisted account fields.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/my-security.database.spec.ts` and `apps/hcm/web-e2e/live/my-security.spec.ts`; see the validation record for actual executed scope.
 
 ## TEST-MY-SECURITY-002
 
@@ -35,7 +35,7 @@ Exercise: Changing a role grant changes the next load; no browser fixture role l
 
 Assert: Display assigned role labels and explain that role visibility is not proof of permission to every app.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/my-security.database.spec.ts` and `apps/hcm/web-e2e/live/my-security.spec.ts`; see the validation record for actual executed scope.
 
 ## TEST-MY-SECURITY-003
 
@@ -47,7 +47,7 @@ Exercise: No production-session security claim and no fake Active Sessions link 
 
 Assert: Clearly label local development persona mode; do not show working password/MFA/revoke controls.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/my-security.database.spec.ts` and `apps/hcm/web-e2e/live/my-security.spec.ts`; see the validation record for actual executed scope.
 
 ## TEST-MY-SECURITY-004
 
@@ -59,7 +59,7 @@ Exercise: Test direct requests with missing grant/entitlement, disabled actor, f
 
 Assert: Every API enforces verified tenant, enabled actor, listed business permission, entitlement hcm.identity-access and subject scope. Browser visibility never authorizes an action.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/my-security.database.spec.ts` and `apps/hcm/web-e2e/live/my-security.spec.ts`; see the validation record for actual executed scope.
 
 ## TEST-MY-SECURITY-005
 
@@ -71,7 +71,7 @@ Exercise: Exercise keyboard, responsive widths, all four themes, tenant-overlay 
 
 Assert: Use real API data with loading, empty, error/retry, unavailable/denied and read-only states. Preserve failed drafts and focus; no silent fallback to fixtures.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/my-security.database.spec.ts` and `apps/hcm/web-e2e/live/my-security.spec.ts`; see the validation record for actual executed scope.
 
 ## TEST-MY-SECURITY-006
 
@@ -83,4 +83,4 @@ Exercise: Verify PostgreSQL/RLS constraints, failure recovery, real local API re
 
 Assert: Read models preserve source ownership and never write configuration or invent historical rows. Downloads, where offered, create actual sensitive-read evidence.
 
-Evidence: implementation test path/run, database/API result and browser evidence where applicable must be attached in the future validation record; no execution claim here.
+Evidence: `libs/hcm/api/identity-access/module/src/lib/my-security.database.spec.ts` and `apps/hcm/web-e2e/live/my-security.spec.ts`; see the validation record for actual executed scope.

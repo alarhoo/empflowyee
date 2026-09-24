@@ -3,6 +3,8 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { timeout } from 'rxjs'
 import type {
 	AccountSummary,
+	SecuritySummary,
+	SecurityRoles,
 	DomainProjection,
 	IdentityPage,
 	PersonOption,
@@ -13,6 +15,18 @@ import type {
 export class IdentityApi {
 	private readonly http = inject(HttpClient)
 	private readonly base = '/api/v1/identity-access'
+	/** Read verified own-account fields without accepting an account selector. */
+	security() {
+		return this.http.get<SecuritySummary>(`${this.base}/me/security`).pipe(timeout(15000))
+	}
+	/** Query own role labels using server-owned search and continuation. */
+	securityRoles(q: string, cursor?: string) {
+		return this.http
+			.get<SecurityRoles>(`${this.base}/me/security/roles`, {
+				params: { q, ...(cursor ? { cursor } : {}) },
+			})
+			.pipe(timeout(15000))
+	}
 	/** Read the current tenant hostname projection without accepting a tenant override. */
 	domains() {
 		return this.http.get<DomainProjection>(`${this.base}/domains`).pipe(timeout(15000))

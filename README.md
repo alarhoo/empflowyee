@@ -90,8 +90,8 @@ and pass their design admission gates. The first implementation slice adds
 transactional business authorization, protected-role metadata, 39 persisted business
 permissions and append-only audit storage. See the
 [slice validation and delivery status](docs/hcm/testing/HCM-1-ACCESS-AUDIT-VALIDATION.md).
-Available HCM-1 business apps are [Role Management](docs/hcm/testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md), [Access Assignments](docs/hcm/testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md) [Identity Administration](docs/hcm/testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md), [App Catalogue Configuration](docs/hcm/testing/HCM-1-CATALOGUE-CONFIGURATION-VALIDATION.md) and [Domain Configuration](docs/hcm/testing/HCM-1-DOMAIN-CONFIGURATION-VALIDATION.md), with real APIs and approved native floorplans. Role creation/editing uses dedicated routes; focused assignment actions use native dialogs.
-The remaining 15 local apps stay Planned; My Security is next.
+Available HCM-1 business apps are [Role Management](docs/hcm/testing/HCM-1-ROLE-OBJECT-PAGE-VALIDATION.md), [Access Assignments](docs/hcm/testing/HCM-1-ACCESS-ASSIGNMENTS-VALIDATION.md) [Identity Administration](docs/hcm/testing/HCM-1-IDENTITY-ADMINISTRATION-VALIDATION.md), [App Catalogue Configuration](docs/hcm/testing/HCM-1-CATALOGUE-CONFIGURATION-VALIDATION.md) [Domain Configuration](docs/hcm/testing/HCM-1-DOMAIN-CONFIGURATION-VALIDATION.md) and [My Security](docs/hcm/testing/HCM-1-MY-SECURITY-VALIDATION.md), with real APIs and approved native floorplans. Role creation/editing uses dedicated routes; focused assignment actions use native dialogs.
+The remaining 14 local apps stay Planned; Audit Log is next.
 
 ```sh
 pnpm hcm:catalogue:validate

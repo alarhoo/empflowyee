@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'identity-access/my-security',
+		data: { catalogId: 'MY_SECURITY' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the self-only security screen on demand. */ () =>
+			import('@empflowyee/hcm-web-identity-access-feature-my-security').then(
+				/** Resolve the native page from its identity-owned feature. */ (m) =>
+					m.MySecurityComponent,
+			),
+	},
+	{
 		path: 'identity-access/domain-configuration',
 		data: { catalogId: 'DOMAIN_CONFIGURATION' },
 		canMatch: [hcmRouteAccess],

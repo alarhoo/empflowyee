@@ -1476,7 +1476,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['employee-self-service'],
 			route: '/identity-access/my-security',
 			floorplan: 'UX-FP-STANDARD-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

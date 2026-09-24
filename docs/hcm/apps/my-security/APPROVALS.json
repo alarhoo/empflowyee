@@ -28,11 +28,11 @@
 		},
 		{
 			"document": "TRACE",
-			"sha256": "d8db9d56eab0ff63ecc18bf7542e594c68420b248ac7e627f97910ceb75d8af7",
+			"sha256": "9cfe9fc61cbccd49b60924d89a3598b85ae56a92b643267d45c208d7e208d989",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; explicit implementation instruction; executed acceptance added without changing approved business behavior"
 		},
 		{
 			"document": "DECISIONS",
