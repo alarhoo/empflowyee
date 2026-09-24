@@ -1,3 +1,4 @@
+import { runIdentityRequest } from './identity-request'
 import {
 	Body,
 	Controller,
@@ -8,18 +9,16 @@ import {
 	Res,
 	Inject,
 	HttpCode,
-	HttpException,
 	Logger,
 } from '@nestjs/common'
 import { HcmRequestTenantContext } from '@empflowyee/hcm-api-runtime-transport'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import { IdentityAdministration } from '@empflowyee/hcm-api-identity-access-application'
-import { IdentityError, parseIdentityQuery } from '@empflowyee/hcm-identity-access-contract'
+import { parseIdentityQuery } from '@empflowyee/hcm-identity-access-contract'
 import {
 	HCM_ROLE_WRITE_ORIGIN,
 	queryParameters,
 	accessWriteKey,
-	runAccessRequest,
 	type RoleRequest,
 	type RoleResponse,
 } from '@empflowyee/hcm-api-access-control-transport'
@@ -37,25 +36,7 @@ export class IdentityAdministrationController {
 		response: RoleResponse,
 		work: (context: AuthenticatedHcmContext) => Promise<T>,
 	): Promise<T> {
-		return runAccessRequest(
-			this.context,
-			this.logger,
-			response,
-			/** Translate bounded identity error codes without disclosing SQL. */ async (context) => {
-				try {
-					return await work(context)
-				} catch (error) {
-					if (error instanceof IdentityError)
-						throw new HttpException(
-							{ code: error.code, requestId: this.context.requestId },
-							({ 'invalid-request': 400, 'not-found': 404 } as Record<string, number>)[
-								error.code
-							] ?? 409,
-						)
-					throw error
-				}
-			},
-		)
+		return runIdentityRequest(this.context, this.logger, response, work)
 	}
 	/** Return a real bounded account page with strict supported controls. */
 	@Get('accounts')

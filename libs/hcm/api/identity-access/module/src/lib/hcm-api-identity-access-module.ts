@@ -4,21 +4,35 @@ import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-modul
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
 	IdentityAdministration,
+	SecuritySummaryReader,
 	DomainProjectionReader,
 	IdentityUnitOfWork,
 } from '@empflowyee/hcm-api-identity-access-application'
 import {
 	KyselyIdentityUnitOfWork,
+	KyselySecuritySummaryReader,
 	KyselyDomainProjectionReader,
 } from '@empflowyee/hcm-api-identity-access-infrastructure'
 import {
 	IdentityAdministrationController,
+	SecuritySummaryController,
 	DomainProjectionController,
 } from '@empflowyee/hcm-api-identity-access-transport'
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [IdentityAdministrationController, DomainProjectionController],
+	controllers: [
+		IdentityAdministrationController,
+		DomainProjectionController,
+		SecuritySummaryController,
+	],
 	providers: [
+		{
+			provide: SecuritySummaryReader,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Bind authorized own-account projections. */ (
+				database: HcmAccessDatabase | null,
+			) => new KyselySecuritySummaryReader(database),
+		},
 		{
 			provide: DomainProjectionReader,
 			inject: [HcmAccessDatabase],

@@ -27,7 +27,7 @@ function binding(query: IdentityQuery, kind: string): string {
 		.digest('hex')
 }
 /** Reject malformed or reused cursors before interpolating strictly parameterized selectors. */
-function position(query: IdentityQuery, kind: string): string[] | undefined {
+export function identityPosition(query: IdentityQuery, kind: string): string[] | undefined {
 	if (!query.cursor) return undefined
 	try {
 		if (!/^[A-Za-z0-9_-]+$/.test(query.cursor)) throw new Error('cursor')
@@ -50,7 +50,7 @@ function position(query: IdentityQuery, kind: string): string[] | undefined {
 	}
 }
 /** Return only the requested page, using the look-ahead row to expose continuation. */
-function page<T extends { id: string; displayName: string }>(
+export function identityPage<T extends { id: string; displayName: string }>(
 	rows: T[],
 	query: IdentityQuery,
 	kind: string,
@@ -69,7 +69,7 @@ function page<T extends { id: string; displayName: string }>(
 	return { items, nextCursor }
 }
 /** Treat percent and underscore as literal user search text. */
-function search(value: string): string {
+export function identitySearch(value: string): string {
 	return `%${value.replace(/[\\%_]/g, '\\$&')}%`
 }
 const fields = sql`a.id,a.person_id AS "personId",p.display_name AS "displayName",a.email,a.enabled,a.revision,to_char(a.created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt"`
@@ -88,19 +88,19 @@ export class KyselyIdentityAccounts implements IdentityRepository {
 	}
 	/** Apply stable name/ID ordering, enablement and literal search on the server. */
 	async list(query: IdentityQuery): Promise<IdentityPage<AccountSummary>> {
-		const cursor = position(query, 'accounts'),
+		const cursor = identityPosition(query, 'accounts'),
 			direction = query.sort === 'displayName:asc' ? sql`ASC` : sql`DESC`,
 			compare = query.sort === 'displayName:asc' ? sql`>` : sql`<`
 		const rows = (
 			await sql<AccountSummary>`SELECT ${fields} FROM hcm.user_account a JOIN hcm.person p ON p.tenant_id=a.tenant_id AND p.id=a.person_id WHERE a.tenant_id=${this.scope.actor.tenantId}
-   ${query.q ? sql`AND (p.display_name ILIKE ${search(query.q)} OR a.email ILIKE ${search(query.q)})` : sql``}
+   ${query.q ? sql`AND (p.display_name ILIKE ${identitySearch(query.q)} OR a.email ILIKE ${identitySearch(query.q)})` : sql``}
    ${query.enabled === undefined ? sql`` : sql`AND a.enabled=${query.enabled}`}
    ${cursor ? sql`AND (p.display_name,a.id) ${compare} (${cursor[0]},${cursor[1]})` : sql``}
    ORDER BY p.display_name ${direction},a.id ${direction} LIMIT ${query.limit + 1}`.execute(
 				this.scope.transaction,
 			)
 		).rows
-		return page(rows, query, 'accounts')
+		return identityPage(rows, query, 'accounts')
 	}
 	/** Preserve the database's case-insensitive unique email authority. */
 	async create(id: string, body: CreateAccount): Promise<void> {
@@ -158,14 +158,14 @@ export class KyselyIdentityPeople implements IdentityPeople {
 	}
 	/** Return only bounded opaque ID/display-name options. */
 	async listPeople(query: IdentityQuery): Promise<IdentityPage<PersonOption>> {
-		const cursor = position(query, 'people')
+		const cursor = identityPosition(query, 'people')
 		const rows = (
 			await sql<PersonOption>`SELECT id,display_name AS "displayName" FROM hcm.person WHERE tenant_id=${this.scope.actor.tenantId}
-   ${query.q ? sql`AND display_name ILIKE ${search(query.q)}` : sql``}
+   ${query.q ? sql`AND display_name ILIKE ${identitySearch(query.q)}` : sql``}
    ${cursor ? sql`AND (display_name,id)>(${cursor[0]},${cursor[1]})` : sql``}
    ORDER BY display_name,id LIMIT ${query.limit + 1}`.execute(this.scope.transaction)
 		).rows
-		return page(rows, query, 'people')
+		return identityPage(rows, query, 'people')
 	}
 }
 export class KyselyIdentityUnitOfWork extends IdentityUnitOfWork {
