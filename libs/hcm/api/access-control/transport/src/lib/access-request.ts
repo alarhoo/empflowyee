@@ -23,11 +23,12 @@ export function queryParameters(request: RoleRequest, allowed: string[]): URLSea
 			throw new RoleError('invalid-request')
 	return query
 }
-/** Reject cross-origin, missing-origin, non-JSON and duplicate/unknown mutation query input. */
+/** Reject cross-origin, missing-origin, unapproved media and duplicate/unknown mutation query input. */
 export function accessWriteKey(
 	request: RoleRequest,
 	origin: string | null,
 	requestId: string,
+	media: 'json' | 'multipart' = 'json',
 ): string {
 	queryParameters(request, [])
 	if (
@@ -39,7 +40,11 @@ export function accessWriteKey(
 		throw new HcmAccessError('forbidden')
 	if (
 		typeof request.headers['content-type'] !== 'string' ||
-		!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers['content-type'])
+		!(
+			media === 'json'
+				? /^application\/json(?:\s*;\s*charset=utf-8)?$/i
+				: /^multipart\/form-data\s*;\s*boundary=/i
+		).test(request.headers['content-type'])
 	)
 		throw new HttpException({ code: 'unsupported-media-type', requestId: requestId }, 415)
 	const key = request.headers['idempotency-key']

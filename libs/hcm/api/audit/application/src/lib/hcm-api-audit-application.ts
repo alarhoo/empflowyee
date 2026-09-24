@@ -40,7 +40,24 @@ export interface DocumentTypeAuditEvent {
 	requestId: string
 	summary: { reason: string; changedFields: ('code' | 'label' | 'description' | 'enabled')[] }
 }
+export interface TemplateVersionAuditEvent {
+	action: 'document.template-version-added'
+	targetId: string
+	requestId: string
+	summary: { reason: string; changedFields: 'version'[] }
+}
+export interface DocumentDownloadAuditEvent {
+	action:
+		'document.download-authorized' | 'document.download-completed' | 'document.download-failed'
+	targetId: string
+	targetType: 'document-template-version'
+	requestId: string
+	relatedEventId: string | null
+	summary: Record<string, never>
+}
 export type AccessAuditEvent =
+	| TemplateVersionAuditEvent
+	| DocumentDownloadAuditEvent
 	| RoleAuditEvent
 	| AssignmentAuditEvent
 	| AccountAuditEvent
@@ -54,6 +71,29 @@ export interface AppendAudit {
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if ('relatedEventId' in event) {
+		validateDocumentDownloadAudit(event)
+		return
+	}
+	if (event.action === 'document.template-version-added') {
+		if (
+			Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+			typeof event.targetId !== 'string' ||
+			!event.targetId ||
+			event.targetId.length > 200 ||
+			!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+			!event.summary ||
+			Object.keys(event.summary).sort().join(',') !== 'changedFields,reason' ||
+			typeof event.summary.reason !== 'string' ||
+			!event.summary.reason.trim() ||
+			event.summary.reason.length > 500 ||
+			!Array.isArray(event.summary.changedFields) ||
+			event.summary.changedFields.length !== 1 ||
+			event.summary.changedFields[0] !== 'version'
+		)
+			throw new Error('Invalid template audit envelope')
+		return
+	}
 	if (event?.action === 'document.type-created' || event?.action === 'document.type-updated') {
 		validateDocumentTypeAudit(event)
 		return
@@ -259,4 +299,28 @@ export function validateDocumentTypeAudit(event: DocumentTypeAuditEvent): void {
 		)
 	)
 		throw new Error('Invalid document type audit envelope')
+}
+
+/** Permit only bounded attachment evidence and exact authorization/completion linkage. */
+export function validateDocumentDownloadAudit(event: DocumentDownloadAuditEvent): void {
+	if (
+		Object.keys(event).sort().join(',') !==
+			'action,relatedEventId,requestId,summary,targetId,targetType' ||
+		![
+			'document.download-authorized',
+			'document.download-completed',
+			'document.download-failed',
+		].includes(event.action) ||
+		event.targetType !== 'document-template-version' ||
+		typeof event.targetId !== 'string' ||
+		!event.targetId ||
+		event.targetId.length > 200 ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!event.summary ||
+		Object.keys(event.summary).length ||
+		(event.action === 'document.download-authorized'
+			? event.relatedEventId !== null
+			: typeof event.relatedEventId !== 'string' || !/^[0-9a-f-]{36}$/.test(event.relatedEventId))
+	)
+		throw new Error('Invalid document download envelope')
 }

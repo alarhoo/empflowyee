@@ -41,6 +41,7 @@ const child = spawn(
 			APP_ENVIRONMENT: 'local',
 			NODE_ENV: 'development',
 			HCM_DATABASE_URL: databaseUrl,
+			HCM_DOCUMENT_ROOT: process.env.HCM_DOCUMENT_ROOT ?? path.join(root, '.local/hcm/documents'),
 			HCM_LOCAL_TENANTS: 'true',
 			HCM_LOCAL_WRITE_ORIGIN: process.env.HCM_LOCAL_WRITE_ORIGIN ?? 'http://acme.localhost:4302',
 			HCM_LOCAL_SESSION: process.env.HCM_LOCAL_SESSION ?? 'true',

@@ -21,8 +21,15 @@ export function runDocumentRequest<T>(
 				if (error instanceof DocumentError)
 					throw new HttpException(
 						{ code: error.code, requestId: requestContext.requestId },
-						({ 'invalid-request': 400, 'not-found': 404 } as Record<string, number>)[error.code] ??
-							409,
+						(
+							{
+								'invalid-request': 400,
+								'not-found': 404,
+								'storage-unavailable': 503,
+								'file-too-large': 413,
+								'unsupported-file': 415,
+							} as Record<string, number>
+						)[error.code] ?? 409,
 					)
 				throw error
 			}

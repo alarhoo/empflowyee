@@ -1,4 +1,5 @@
 export const AUDIT_ACTIONS = [
+	'document.template-version-added',
 	'document.type-created',
 	'document.type-updated',
 	'notification.template-changed',

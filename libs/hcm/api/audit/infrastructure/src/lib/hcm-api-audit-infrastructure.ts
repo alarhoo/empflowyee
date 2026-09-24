@@ -37,7 +37,9 @@ export class TransactionalAudit implements AppendAudit {
 	async append(event: AccessAuditEvent): Promise<string> {
 		validateAccessAudit(event)
 		const id = randomUUID()
-		let targetType = 'access-role'
+		const download = 'relatedEventId' in event ? event : null
+		let targetType = download?.targetType ?? 'access-role'
+		if (event.action === 'document.template-version-added') targetType = 'document-template'
 		if (['document.type-created', 'document.type-updated'].includes(event.action))
 			targetType = 'document-type'
 		if (event.action === 'notification.template-changed') targetType = 'notification-template'
@@ -52,6 +54,12 @@ export class TransactionalAudit implements AppendAudit {
 		if (['review.started', 'review.closed'].includes(event.action)) targetType = 'access-review'
 		if (['review.decided', 'review.refreshed'].includes(event.action))
 			targetType = 'access-review-item'
+		let outcome = 'Succeeded'
+		if (download) {
+			outcome = 'Authorized'
+			if (download.action === 'document.download-completed') outcome = 'Completed'
+			if (download.action === 'document.download-failed') outcome = 'Failed'
+		}
 		await this.transaction
 			.insertInto('hcm.audit_event')
 			.values({
@@ -61,11 +69,11 @@ export class TransactionalAudit implements AppendAudit {
 				action: event.action,
 				target_type: targetType,
 				target_id: event.targetId,
-				outcome: 'Succeeded',
+				outcome,
 				request_id: event.requestId,
-				category: 'business',
+				category: download ? 'sensitive-access' : 'business',
 				safe_summary: event.summary,
-				related_event_id: null,
+				related_event_id: download?.relatedEventId ?? null,
 			})
 			.execute()
 		return id

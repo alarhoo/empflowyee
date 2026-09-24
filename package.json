@@ -50,7 +50,10 @@
 		"hcm:structure:materialize": "node tools/hcm-factory/materialize-hcm-structure.mjs",
 		"hcm:structure:dry-run": "node tools/hcm-factory/materialize-hcm-structure.mjs --dry-run",
 		"hcm:catalogue:generate": "node tools/hcm-factory/generate-runtime-catalogue.mjs",
-		"hcm:catalogue:check": "node tools/hcm-factory/generate-runtime-catalogue.mjs --check"
+		"hcm:catalogue:check": "node tools/hcm-factory/generate-runtime-catalogue.mjs --check",
+		"hcm:documents:prepare": "node tools/hcm-database/documents-local.mts prepare",
+		"hcm:documents:inspect": "node tools/hcm-database/documents-local.mts inspect",
+		"hcm:documents:cleanup": "node tools/hcm-database/documents-local.mts cleanup"
 	},
 	"devDependencies": {
 		"@analogjs/vite-plugin-angular": "~2.6.0",
@@ -93,6 +96,7 @@
 		"@swc/cli": "~0.8.1",
 		"@swc/core": "~1.15.5",
 		"@swc/helpers": "~0.5.18",
+		"@types/busboy": "1.5.4",
 		"@types/node": "^22.0.0",
 		"@types/pg": "8.23.1",
 		"@types/react": "^19.0.0",
@@ -149,6 +153,7 @@
 		"@ui5/webcomponents-fiori": "^2.26.0",
 		"@ui5/webcomponents-icons": "2.26.0",
 		"axios": "^1.6.0",
+		"busboy": "1.6.0",
 		"fundamental-styles": "^0.41.8",
 		"kysely": "0.29.6",
 		"next": "~16.1.6",

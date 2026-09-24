@@ -37,6 +37,10 @@ export type DocumentErrorCode =
 	| 'idempotency-conflict'
 	| 'duplicate-code'
 	| 'type-disabled'
+	| 'storage-unavailable'
+	| 'file-too-large'
+	| 'unsupported-file'
+	| 'upload-failed'
 export class DocumentError extends Error {
 	/** Preserve safe classification without leaking a persistence diagnostic. */
 	constructor(readonly code: DocumentErrorCode) {
@@ -61,7 +65,7 @@ export function documentText(value: unknown, max: number, required = true): stri
 	return value.trim()
 }
 /** Require an object with no hidden tenant, code-change or subject selectors. */
-function bodyFields(
+export function documentBodyFields(
 	body: unknown,
 	required: string[],
 	optional: string[] = [],
@@ -82,7 +86,7 @@ function bodyFields(
 }
 /** Parse a classification create with immutable code and no caller-defined state. */
 export function parseDocumentTypeCreate(body: unknown): DocumentTypeCreate {
-	const value = bodyFields(body, ['code', 'label', 'reason'], ['description'])
+	const value = documentBodyFields(body, ['code', 'label', 'reason'], ['description'])
 	if (typeof value['code'] !== 'string' || !/^[A-Z0-9_]{1,50}$/.test(value['code']))
 		throw new DocumentError('invalid-request')
 	return {
@@ -95,7 +99,13 @@ export function parseDocumentTypeCreate(body: unknown): DocumentTypeCreate {
 }
 /** Parse one revisioned classification edit; immutable codes cannot be changed. */
 export function parseDocumentTypeUpdate(body: unknown): DocumentTypeUpdate {
-	const value = bodyFields(body, ['label', 'description', 'enabled', 'expectedRevision', 'reason'])
+	const value = documentBodyFields(body, [
+		'label',
+		'description',
+		'enabled',
+		'expectedRevision',
+		'reason',
+	])
 	if (
 		typeof value['enabled'] !== 'boolean' ||
 		!Number.isSafeInteger(value['expectedRevision']) ||

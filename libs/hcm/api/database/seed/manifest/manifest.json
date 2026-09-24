@@ -64,6 +64,15 @@
 			"requiresMigrations": ["000013_document_types.sql"],
 			"apply": "access.documents.1.apply.sql",
 			"reset": "access.documents.1.reset.sql"
+		},
+		{
+			"id": "access.documents",
+			"domain": "access-control",
+			"version": 2,
+			"dependsOn": ["access.documents@1"],
+			"requiresMigrations": ["000014_document_template_files.sql"],
+			"apply": "access.documents.2.apply.sql",
+			"reset": "access.documents.2.reset.sql"
 		}
 	]
 }

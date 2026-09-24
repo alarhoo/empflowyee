@@ -253,7 +253,10 @@ for (const person of people) {
 	// Reviewed additions are delivered by immutable forward modules, never rewritten into foundation v1.
 	for (const app of apps)
 		if (
-			!(person.role === 'hr-specialist' && app.appCode === 'DOCUMENT_TYPES') &&
+			!(
+				person.role === 'hr-specialist' &&
+				['DOCUMENT_TYPES', 'DOCUMENT_TEMPLATES'].includes(app.appCode)
+			) &&
 			app.catalogueIds.some(
 				/** Persist discovery grants only for canonical catalogue memberships. */ (catalogue) =>
 					role.catalogueIds.includes(catalogue),

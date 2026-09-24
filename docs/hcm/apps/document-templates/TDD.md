@@ -27,6 +27,7 @@ No body/query contains tenantId or a self-service actor override.
 
 | Operation                                                            | Permission                         | Request                                               | Response                                    |
 | -------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| `GET /api/v1/documents/templates/{id}`                               | `hcm.documents.templates.read`     | `None`                                                | `TemplateDto`                               |
 | `GET /api/v1/documents/templates`                                    | `hcm.documents.templates.read`     | `List query: typeId?`                                 | `Page<TemplateDto>`                         |
 | `GET /api/v1/documents/templates/{id}/versions`                      | `hcm.documents.templates.read`     | `List query`                                          | `Page<VersionDto>`                          |
 | `GET /api/v1/documents/template-type-options`                        | `hcm.documents.templates.manage`   | `List query: enabled=true`                            | `Page<{id,code,label}>`                     |
@@ -186,3 +187,5 @@ Entry checks templates.read before requesting protected data.
 ## UX REVISION
 
 The [authorized matrix](../../roadmap/HCM-1-UX-REVISION.md) supersedes the earlier Dynamic-Page-only selection. Meaningful version details require FCL/Object Page. A create dialog has only type, label, file and reason; appending one version has file and reason with a read-only target/revision. These are focused actions, not complex multi-section creates. A paginated server type picker stays bounded and uses maintained controls. Native list/detail selection, close/back, focus restoration, four themes and narrow-screen navigation require browser acceptance. Business contracts and storage recovery remain unchanged.
+
+The exact-template GET uses the same read permission and DTO as the list. It supports a selected-object deep link without adding query capabilities or widening subject scope.
