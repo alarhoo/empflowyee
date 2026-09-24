@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { assertLocalRuntime } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
+	AccessReviews,
+	ReviewUnitOfWork,
 	CatalogueInspection,
 	CatalogueInspectionUnit,
 	AccessAssignments,
@@ -12,6 +14,7 @@ import {
 	RoleContext,
 } from '@empflowyee/hcm-api-access-control-application'
 import {
+	KyselyReviewUnitOfWork,
 	KyselyCatalogueInspectionUnit,
 	KyselyAssignmentUnitOfWork,
 	HcmAccessDatabase,
@@ -19,6 +22,7 @@ import {
 	KyselyRoleContext,
 } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	AccessReviewController,
 	CatalogueInspectionController,
 	AssignmentController,
 	RoleManagementController,
@@ -70,9 +74,28 @@ function writeOrigin(): string | null {
 }
 @Module({
 	imports: [HcmRuntimeModule],
-	controllers: [RoleManagementController, AssignmentController, CatalogueInspectionController],
+	controllers: [
+		RoleManagementController,
+		AssignmentController,
+		CatalogueInspectionController,
+		AccessReviewController,
+	],
 	exports: [HcmAccessDatabase, HCM_ROLE_WRITE_ORIGIN],
 	providers: [
+		{
+			provide: ReviewUnitOfWork,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Bind review snapshots to the existing authorized transaction executor. */ (
+				database: HcmAccessDatabase | null,
+			) => new KyselyReviewUnitOfWork(database),
+		},
+		{
+			provide: AccessReviews,
+			inject: [ReviewUnitOfWork],
+			useFactory: /** Compose the persistence-neutral review application service. */ (
+				unit: ReviewUnitOfWork,
+			) => new AccessReviews(unit),
+		},
 		{
 			provide: CatalogueInspectionUnit,
 			inject: [HcmAccessDatabase],

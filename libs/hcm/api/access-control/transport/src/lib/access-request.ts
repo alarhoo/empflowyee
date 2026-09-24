@@ -5,7 +5,7 @@ import {
 	type AuthenticatedHcmContext,
 } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessError } from '@empflowyee/hcm-api-access-control-application'
-import { AssignmentError, RoleError } from '@empflowyee/hcm-access-control-contract'
+import { AssignmentError, RoleError, ReviewError } from '@empflowyee/hcm-access-control-contract'
 export const HCM_ROLE_WRITE_ORIGIN = Symbol('HCM_ROLE_WRITE_ORIGIN')
 export interface RoleRequest {
 	originalUrl: string
@@ -60,6 +60,7 @@ export async function runAccessRequest<T>(
 	} catch (error) {
 		if (error instanceof HttpException) throw error
 		const code =
+			error instanceof ReviewError ||
 			error instanceof AssignmentError ||
 			error instanceof RoleError ||
 			error instanceof HcmAccessError ||

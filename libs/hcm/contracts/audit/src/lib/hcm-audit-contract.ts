@@ -7,6 +7,10 @@ export const AUDIT_ACTIONS = [
 	'account.created',
 	'account.enabled',
 	'account.disabled',
+	'review.started',
+	'review.decided',
+	'review.refreshed',
+	'review.closed',
 ] as const
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 export interface AuditQuery {
@@ -34,6 +38,8 @@ export interface AuditItem {
 		roleId?: string
 		grantId?: string
 		enabled?: boolean
+		fromState?: string | null
+		toState?: string
 	}
 }
 export interface AuditPage {

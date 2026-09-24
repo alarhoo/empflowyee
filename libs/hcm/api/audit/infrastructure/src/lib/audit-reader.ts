@@ -88,7 +88,9 @@ function position(
 function safeSummary(row: AuditItem): AuditItem {
 	const raw = row.summary
 	let summary: AuditItem['summary']
-	if (row.action.startsWith('account.')) summary = { reason: raw.reason, enabled: raw.enabled }
+	if (row.action.startsWith('review.'))
+		summary = { reason: raw.reason, fromState: raw.fromState, toState: raw.toState }
+	else if (row.action.startsWith('account.')) summary = { reason: raw.reason, enabled: raw.enabled }
 	else if (row.action === 'role.granted' || row.action === 'role.revoked')
 		summary = { reason: raw.reason, roleId: raw.roleId, grantId: raw.grantId }
 	else summary = { reason: raw.reason, changedFields: raw.changedFields }
@@ -247,9 +249,7 @@ export class KyselyAuditReader extends AuditReader {
 							targetType: item.targetType,
 							targetId: item.targetId,
 							outcome: item.outcome,
-							summary: item.summary.changedFields
-								? { changedFields: item.summary.changedFields }
-								: {},
+							summary: selfSummary(item),
 						}),
 					),
 				}
@@ -290,4 +290,13 @@ async function businessPage(
 		nextCursor = Buffer.from(JSON.stringify(position)).toString('base64url')
 	}
 	return { items, nextCursor }
+}
+
+/** Expose only registered self-safe field names and lifecycle states, never operator text. */
+function selfSummary(item: AuditItem): MyActivityPage['items'][number]['summary'] {
+	const summary: MyActivityPage['items'][number]['summary'] = {}
+	if (item.summary.changedFields) summary.changedFields = item.summary.changedFields
+	if (item.summary.fromState) summary.fromState = item.summary.fromState
+	if (item.summary.toState) summary.toState = item.summary.toState
+	return summary
 }

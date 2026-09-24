@@ -129,6 +129,8 @@ it('serializes concurrent runners, applies once and exposes only approved object
 		[
 			'access_command_receipt',
 			'access_permission',
+			'access_review',
+			'access_review_item',
 			'access_role',
 			'account_role',
 			'assignment',

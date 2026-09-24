@@ -4,3 +4,5 @@ export * from './lib/role-context'
 export * from './lib/access-assignments'
 
 export * from './lib/catalogue-inspection'
+
+export * from './lib/access-reviews'

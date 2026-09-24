@@ -37,6 +37,15 @@ export class TransactionalAudit implements AppendAudit {
 	async append(event: AccessAuditEvent): Promise<string> {
 		validateAccessAudit(event)
 		const id = randomUUID()
+		let targetType = 'access-role'
+		if (
+			event.action.startsWith('account.') ||
+			['role.granted', 'role.revoked'].includes(event.action)
+		)
+			targetType = 'user-account'
+		if (['review.started', 'review.closed'].includes(event.action)) targetType = 'access-review'
+		if (['review.decided', 'review.refreshed'].includes(event.action))
+			targetType = 'access-review-item'
 		await this.transaction
 			.insertInto('hcm.audit_event')
 			.values({
@@ -44,12 +53,7 @@ export class TransactionalAudit implements AppendAudit {
 				id,
 				actor_account_id: requireAuthenticatedAccount(this.context),
 				action: event.action,
-				target_type:
-					event.action === 'role.granted' ||
-					event.action === 'role.revoked' ||
-					event.action.startsWith('account.')
-						? 'user-account'
-						: 'access-role',
+				target_type: targetType,
 				target_id: event.targetId,
 				outcome: 'Succeeded',
 				request_id: event.requestId,

@@ -4,6 +4,7 @@ import {
 	assignmentAccountId,
 	parseAssignmentCommand,
 	type AssignmentAccount,
+	type AssignmentCommand,
 	type AssignmentSummary,
 	type AssignmentRole,
 	type AssignmentRoleOption,
@@ -65,7 +66,7 @@ export abstract class AssignmentUnitOfWork {
 }
 /** Build the approved bounded nested projection without exposing persistence rows. */
 async function summary(
-	scope: AssignmentWork,
+	scope: Pick<AssignmentWork, 'assignments'>,
 	account: AssignmentAccount,
 ): Promise<AssignmentSummary> {
 	return { ...account, roles: await scope.assignments.roles(account.accountId, { limit: 25 }) }
@@ -159,24 +160,35 @@ export class AccessAssignments {
 					if (receipt.requestHash !== requestHash) throw new AssignmentError('idempotency-conflict')
 					return receipt.response
 				}
-				const account = await scope.accounts.get(id, true)
-				await scope.assignments.requireRole(payload.roleId)
-				const current = await scope.assignments.occurrence(id, payload.roleId)
-				requireAssignmentChange(account.revision, current, payload, operation)
-				const grantId = operation === 'grant' ? randomUUID() : (payload.grantId ?? '')
-				if (operation === 'grant') await scope.assignments.grant(id, payload.roleId, grantId)
-				else await scope.assignments.revoke(id, payload.roleId, grantId)
-				await scope.accounts.advance(id, account.revision)
-				await scope.audit.append({
-					action: operation === 'grant' ? 'role.granted' : 'role.revoked',
-					targetId: id,
-					requestId,
-					summary: { reason: payload.reason, roleId: payload.roleId, grantId },
-				})
-				const response = await summary(scope, await scope.accounts.get(id))
+				const response = await applyAssignmentChange(scope, operation, id, payload, requestId)
 				await scope.receipts.save(command, key, { requestHash, response })
 				return response
 			},
 		)
 	}
+}
+
+/** Apply the sole assignment mutation inside an already authorized/locked unit of work, including reviews. */
+export async function applyAssignmentChange(
+	scope: Pick<AssignmentWork, 'accounts' | 'assignments' | 'audit'>,
+	operation: 'grant' | 'revoke',
+	id: string,
+	payload: AssignmentCommand,
+	requestId: string,
+): Promise<AssignmentSummary> {
+	const account = await scope.accounts.get(id, true)
+	await scope.assignments.requireRole(payload.roleId)
+	const current = await scope.assignments.occurrence(id, payload.roleId)
+	requireAssignmentChange(account.revision, current, payload, operation)
+	const grantId = operation === 'grant' ? randomUUID() : (payload.grantId ?? '')
+	if (operation === 'grant') await scope.assignments.grant(id, payload.roleId, grantId)
+	else await scope.assignments.revoke(id, payload.roleId, grantId)
+	await scope.accounts.advance(id, account.revision)
+	await scope.audit.append({
+		action: operation === 'grant' ? 'role.granted' : 'role.revoked',
+		targetId: id,
+		requestId,
+		summary: { reason: payload.reason, roleId: payload.roleId, grantId },
+	})
+	return summary(scope, await scope.accounts.get(id))
 }

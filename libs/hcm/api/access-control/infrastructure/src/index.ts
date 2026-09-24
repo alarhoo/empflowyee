@@ -5,3 +5,5 @@ export * from './lib/assignment-queries'
 export * from './lib/assignment-repository'
 
 export * from './lib/catalogue-inspection'
+
+export * from './lib/review-repository'

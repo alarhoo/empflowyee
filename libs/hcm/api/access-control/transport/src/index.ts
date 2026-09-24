@@ -11,3 +11,5 @@ export {
 } from './lib/access-request'
 
 export * from './lib/catalogue-controller'
+
+export * from './lib/review-controller'

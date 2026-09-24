@@ -16,13 +16,24 @@ export interface AccountAuditEvent {
 	requestId: string
 	summary: { reason: string; enabled: boolean }
 }
-export type AccessAuditEvent = RoleAuditEvent | AssignmentAuditEvent | AccountAuditEvent
+export interface ReviewAuditEvent {
+	action: 'review.started' | 'review.decided' | 'review.refreshed' | 'review.closed'
+	targetId: string
+	requestId: string
+	summary: { reason: string; fromState: string | null; toState: string }
+}
+export type AccessAuditEvent =
+	RoleAuditEvent | AssignmentAuditEvent | AccountAuditEvent | ReviewAuditEvent
 export interface AppendAudit {
 	/** Append safe evidence in the existing business transaction, deriving actor from its verified scope. */
 	append(event: AccessAuditEvent): Promise<string>
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (event?.action?.startsWith('review.')) {
+		validateReviewAudit(event as ReviewAuditEvent)
+		return
+	}
 	if (
 		event?.action === 'account.created' ||
 		event?.action === 'account.enabled' ||
@@ -102,4 +113,38 @@ export function validateAccountAudit(event: AccountAuditEvent): void {
 		event.summary.enabled !== (event.action !== 'account.disabled')
 	)
 		throw new Error('Invalid account audit envelope')
+}
+
+/** Bound review transition evidence without retaining labels, account identities or item payloads. */
+export function validateReviewAudit(event: ReviewAuditEvent): void {
+	const summary = event?.summary
+	const validTransition =
+		(event?.action === 'review.started' &&
+			summary?.fromState === null &&
+			summary?.toState === 'Open') ||
+		(event?.action === 'review.closed' &&
+			summary?.fromState === 'Open' &&
+			summary?.toState === 'Closed') ||
+		(event?.action === 'review.decided' &&
+			summary?.fromState === 'Pending' &&
+			['Retain', 'Revoke'].includes(summary?.toState)) ||
+		(event?.action === 'review.refreshed' &&
+			['Pending', 'Retain'].includes(summary?.fromState ?? '') &&
+			['Pending', 'Removed'].includes(summary?.toState))
+	if (
+		!event ||
+		Object.keys(event).sort().join(',') !== 'action,requestId,summary,targetId' ||
+		typeof event.targetId !== 'string' ||
+		!event.targetId ||
+		event.targetId.length > 200 ||
+		typeof event.requestId !== 'string' ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!summary ||
+		Object.keys(summary).sort().join(',') !== 'fromState,reason,toState' ||
+		typeof summary.reason !== 'string' ||
+		!summary.reason.trim() ||
+		summary.reason.length > 500 ||
+		!validTransition
+	)
+		throw new Error('Invalid review audit envelope')
 }
