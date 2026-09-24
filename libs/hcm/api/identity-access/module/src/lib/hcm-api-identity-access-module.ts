@@ -4,14 +4,28 @@ import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-modul
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
 	IdentityAdministration,
+	DomainProjectionReader,
 	IdentityUnitOfWork,
 } from '@empflowyee/hcm-api-identity-access-application'
-import { KyselyIdentityUnitOfWork } from '@empflowyee/hcm-api-identity-access-infrastructure'
-import { IdentityAdministrationController } from '@empflowyee/hcm-api-identity-access-transport'
+import {
+	KyselyIdentityUnitOfWork,
+	KyselyDomainProjectionReader,
+} from '@empflowyee/hcm-api-identity-access-infrastructure'
+import {
+	IdentityAdministrationController,
+	DomainProjectionController,
+} from '@empflowyee/hcm-api-identity-access-transport'
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [IdentityAdministrationController],
+	controllers: [IdentityAdministrationController, DomainProjectionController],
 	providers: [
+		{
+			provide: DomainProjectionReader,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Read the runtime-owned directory through an authorized adapter. */ (
+				database: HcmAccessDatabase | null,
+			) => new KyselyDomainProjectionReader(database),
+		},
 		{
 			provide: IdentityUnitOfWork,
 			inject: [HcmAccessDatabase],
