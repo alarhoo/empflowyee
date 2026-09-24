@@ -7,14 +7,14 @@ bounded document/notification behavior. [Stage decision evidence](../../roadmap/
 records those approvals. These resolve business choices, not hashes of the new
 app designs. No current business question blocks this bounded app.
 
-| ID                        | Classification          | Decision                                                                                                                                                     |
-| ------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| DEC-DOCUMENT-REQUESTS-001 | RESOLVED                | Apply the approved local actor, subject and action scope in this FDD; no production authentication or external integration.                                  |
-| DEC-DOCUMENT-REQUESTS-002 | RESOLVED                | Select UX-FP-DYNAMIC-PAGE NATIVE, domain-owned projects and real API persistence as detailed in TDD. Technical selection is complete for revision review.    |
-| DEC-DOCUMENT-REQUESTS-003 | BLOCKS_LATER_CAPABILITY | Production authentication, external delivery, legal retention and unlisted business workflows remain outside this app; they require separate future designs. |
+| ID                        | Classification          | Decision                                                                                                                                                                           |
+| ------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DEC-DOCUMENT-REQUESTS-001 | RESOLVED                | Apply the approved local actor, subject and action scope in this FDD; no production authentication or external integration.                                                        |
+| DEC-DOCUMENT-REQUESTS-002 | RESOLVED                | Select UX-FP-FCL NATIVE with begin scope/list and mid Object Page; route complex creation separately and use focused transition/submission dialogs under the authorized UX matrix. |
+| DEC-DOCUMENT-REQUESTS-003 | BLOCKS_LATER_CAPABILITY | Production authentication, external delivery, legal retention and unlisted business workflows remain outside this app; they require separate future designs.                       |
 
 ## REVIEW
 
-FDD/TDD/traceability/blueprint revisions and referenced domain/contract evidence
-still require actual review under the factory approval process. Empty APPROVALS.json
-is intentional; never fill it with invented reviewers, dates or consent to unseen content.
+The [implementation instruction](../../roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md)
+admits the business design. The [explicit UX correction](../../roadmap/HCM-1-UX-REVISION.md)
+authorizes this selection reconciliation. Executed validation remains separate evidence.

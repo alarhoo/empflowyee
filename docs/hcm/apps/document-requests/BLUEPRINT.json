@@ -91,7 +91,7 @@
 	],
 	"route": "/documents/document-requests",
 	"floorplan": {
-		"id": "UX-FP-DYNAMIC-PAGE",
+		"id": "UX-FP-FCL",
 		"mode": "NATIVE",
 		"ref": "TDD#UX"
 	},
@@ -99,7 +99,7 @@
 		{
 			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
 			"version": "0.64.3",
-			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader", "FlexibleColumnLayout"],
 			"ref": "TDD#UX"
 		},
 		{

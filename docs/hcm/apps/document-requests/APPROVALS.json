@@ -4,11 +4,11 @@
 	"approvals": [
 		{
 			"document": "BLUEPRINT",
-			"sha256": "492dd6133431f5881d970a19c41ca72df57bc8db0bab7c0d5ab6b144ef8f3423",
+			"sha256": "103ef44438941667800245f40c3b67a2a6aa4b751a2f002c1a98b0aefb7daf32",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; docs/hcm/roadmap/HCM-1-UX-REVISION.md; authorized floorplan reconciliation"
 		},
 		{
 			"document": "FDD",
@@ -20,11 +20,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "89b148ba0aeb6643f77418e54766767d92052b448e42ad157b120eb0aecac6a3",
+			"sha256": "3a32babb2924965b7ea573b62b616598329b42416c48785fad353b4f3e7252ba",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; docs/hcm/roadmap/HCM-1-UX-REVISION.md; authorized floorplan reconciliation"
 		},
 		{
 			"document": "TRACE",
@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "402a0b3c721d69f3e421aadaea9d0ad4471e6910b30a681d9fdf3e75981bfd4e",
+			"sha256": "cc6e11bd113d4a6005aa6de8780047a742e0ce3f29c71d0ed728c5876aae14e7",
 			"decision": "approved",
 			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
 			"reviewedAt": "2026-09-24",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; docs/hcm/roadmap/HCM-1-UX-REVISION.md; authorized floorplan reconciliation"
 		},
 		{
 			"document": "DOMAIN",

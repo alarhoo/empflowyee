@@ -52,7 +52,7 @@ state transitions and unsupported methods cannot bypass the domain policy.
 
 Addressed employee submits validated file only while Open; HR accepts Submitted or requests replacement with reason.
 
-Forms use the shared Signal Forms protocol, One domain feature with server-authorized Own requests and HR tenant scopes. Native controls show only permitted actions; create/transition dialogs and employee FileUploader. No generic workflow builder.
+Forms use the shared Signal Forms protocol, One domain feature with server-authorized Own requests and HR tenant scopes. Native controls show only permitted actions; a dedicated routed create form, focused transition dialogs and employee FileUploader. No generic workflow builder.
 
 Open->Submitted->Completed and Submitted->Open paths persist exactly one event/version per receipt; foreign submitter denied.
 
@@ -107,10 +107,10 @@ SQL and versioned seeds are designed here but not created/run in this delivery.
 
 ## UX
 
-Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Keep scope/filter/list in a begin-column HcmDynamicPage and selected request in the mid-column approved Object Page with Overview and Submissions. Route complex creation to `/documents/document-requests/create`; focused submit/accept/replacement/cancel actions use native dialogs. Selection and scope are deep-linkable.
 The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
 and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
-are part of this selection. No Object Page, generated List Report or custom floorplan.
+are part of this selection, reconciled under the authorized [UX matrix](../../roadmap/HCM-1-UX-REVISION.md). No custom floorplan or feature CSS.
 
 Content columns/fields: Request ID; worker (HR only); type; status; due date; latest submission; revision.
 
@@ -120,7 +120,7 @@ Single row/detail action selection only; no bulk actions, column personalization
 virtualization or export. Native Popin retains secondary data with meaningful
 labels on narrow screens. Summary-only content does not invent a table.
 
-Forms use the shared Signal Forms protocol, One domain feature with server-authorized Own requests and HR tenant scopes. Native controls show only permitted actions; create/transition dialogs and employee FileUploader. No generic workflow builder.
+Forms use the shared Signal Forms protocol, One domain feature with server-authorized Own requests and HR tenant scopes. Native controls show only permitted actions; a dedicated routed create form, focused transition dialogs and employee FileUploader. No generic workflow builder.
 
 Field rules come from the domain/API contract. Save validates synchronously then
 submits once; server conflicts keep the draft, 503 offers a safe same-key retry.
