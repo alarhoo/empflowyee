@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'documents/document-types',
+		data: { catalogId: 'DOCUMENT_TYPES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load HR classification maintenance lazily. */ () =>
+			import('@empflowyee/hcm-web-documents-feature-document-types').then(
+				/** Keep focused-form dirty-leave guards. */ (m) => m.DOCUMENT_TYPES_ROUTES,
+			),
+	},
+	{
 		path: 'notifications/notification-templates',
 		data: { catalogId: 'NOTIFICATION_TEMPLATES' },
 		canMatch: [hcmRouteAccess],

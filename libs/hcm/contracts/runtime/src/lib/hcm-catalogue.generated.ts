@@ -603,10 +603,10 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			appCode: 'DOCUMENT_TYPES',
 			title: 'Document Types',
 			domain: 'documents',
-			catalogueIds: ['tenant-administration'],
+			catalogueIds: ['tenant-administration', 'hr-specialist-operations'],
 			route: '/documents/document-types',
 			floorplan: 'UX-FP-DYNAMIC-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
@@ -2970,6 +2970,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 						'POLICY_MANAGEMENT',
 						'COMPLIANCE_TRACKING',
 						'WORKFLOW_OPERATIONS',
+						'DOCUMENT_TYPES',
 					],
 				},
 				{

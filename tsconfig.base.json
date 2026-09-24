@@ -198,7 +198,13 @@
 			"@empflowyee/hcm-api-documents-transport": [
 				"./libs/hcm/api/documents/transport/src/index.ts"
 			],
-			"@empflowyee/hcm-api-documents-module": ["./libs/hcm/api/documents/module/src/index.ts"]
+			"@empflowyee/hcm-api-documents-module": ["./libs/hcm/api/documents/module/src/index.ts"],
+			"@empflowyee/hcm-web-documents-data-access": [
+				"./libs/hcm/web/documents/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-documents-feature-document-types": [
+				"./libs/hcm/web/documents/feature-document-types/src/index.ts"
+			]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

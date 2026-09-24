@@ -148,7 +148,8 @@
         "ASSET_MAINTENANCE",
         "ENGAGEMENT_SURVEYS",
         "ANNOUNCEMENT_MANAGEMENT",
-        "RECOGNITION_PROGRAMS"
+        "RECOGNITION_PROGRAMS",
+        "DOCUMENT_TYPES"
       ]
     },
     {
@@ -774,7 +775,8 @@
             "DOCUMENT_REQUESTS",
             "POLICY_MANAGEMENT",
             "COMPLIANCE_TRACKING",
-            "WORKFLOW_OPERATIONS"
+            "WORKFLOW_OPERATIONS",
+            "DOCUMENT_TYPES"
           ]
         },
         {

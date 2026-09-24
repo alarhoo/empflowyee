@@ -1,0 +1,119 @@
+<ui5-dialog
+	[open]="open()"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finish($event)">
+	<ui5-form
+		accessibleName="Document classification"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (!item()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="type-code">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="type-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="saving()"></ui5-input>
+			</ui5-form-item>
+		} @else {
+			<p>Immutable code: {{ item()?.code }}</p>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="type-label">
+				Label
+			</ui5-label>
+			<ui5-input
+				id="type-label"
+				accessibleName="Label"
+				[formField]="fields.label"
+				[disabled]="saving()"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="type-description">
+				Description
+			</ui5-label>
+			<ui5-textarea
+				id="type-description"
+				accessibleName="Description"
+				[formField]="fields.description"
+				[disabled]="saving()"></ui5-textarea>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="type-reason">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="type-reason"
+				accessibleName="Reason"
+				[formField]="fields.reason"
+				[disabled]="saving()"></ui5-textarea>
+		</ui5-form-item>
+		@if (item()) {
+			<ui5-form-item>
+				<ui5-checkbox
+					text="Enabled for new documents"
+					accessibleName="Enabled for new documents"
+					[formField]="fields.enabled"
+					[disabled]="saving()"></ui5-checkbox>
+			</ui5-form-item>
+		}
+	</ui5-form>
+	<p>
+		Disabling a type prevents new documents, templates and requests. Existing access and
+		open-request fulfillment remain available.
+	</p>
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="saving()"
+			(click)="save()">
+			{{ saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved classification change will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
