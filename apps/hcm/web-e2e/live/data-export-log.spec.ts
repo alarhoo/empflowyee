@@ -78,6 +78,8 @@ test('keeps the native export-log filters and table accessible across themes and
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		for (const width of [390, 768, 1440, 2560]) {
 			await page.setViewportSize({ width, height: 1000 })
+			await expect(page.getByRole('combobox', { name: 'Export sort', exact: true })).toBeVisible()
+			await expect(page.getByRole('button', { name: 'Apply filters', exact: true })).toBeVisible()
 			expect(
 				(await new AxeBuilder({ page }).include('ef-hcm-data-export-log').analyze()).violations,
 			).toEqual([])
@@ -94,6 +96,8 @@ test('keeps the native export-log filters and table accessible across themes and
 			).toBeVisible()
 		}
 		await page.setViewportSize({ width: 1440, height: 1000 })
+		await expect(page.getByRole('combobox', { name: 'Export sort', exact: true })).toBeVisible()
+		await expect(page.getByRole('button', { name: 'Apply filters', exact: true })).toBeVisible()
 		await page.screenshot({ path: `.tmp/hcm-data-export-log/${variant}.png`, fullPage: true })
 	}
 })
