@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { assertLocalRuntime } from '@empflowyee/hcm-api-runtime-infrastructure'
-import { RoleManagement, RoleUnitOfWork } from '@empflowyee/hcm-api-access-control-application'
+import {
+	RoleManagement,
+	RoleUnitOfWork,
+	RoleContext,
+} from '@empflowyee/hcm-api-access-control-application'
 import {
 	HcmAccessDatabase,
 	KyselyRoleUnitOfWork,
+	KyselyRoleContext,
 } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
 	RoleManagementController,
@@ -58,6 +63,13 @@ function writeOrigin(): string | null {
 	imports: [HcmRuntimeModule],
 	controllers: [RoleManagementController],
 	providers: [
+		{
+			provide: RoleContext,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Bind separately authorized contextual read ports. */ (
+				database: HcmAccessDatabase | null,
+			) => new KyselyRoleContext(database),
+		},
 		{ provide: HcmAccessDatabase, useFactory: accessDatabase },
 		{
 			provide: RoleUnitOfWork,

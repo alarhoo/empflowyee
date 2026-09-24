@@ -17,7 +17,11 @@ import {
 	HcmRuntimeError,
 	type AuthenticatedHcmContext,
 } from '@empflowyee/hcm-api-runtime-application'
-import { RoleManagement, HcmAccessError } from '@empflowyee/hcm-api-access-control-application'
+import {
+	RoleManagement,
+	HcmAccessError,
+	RoleContext,
+} from '@empflowyee/hcm-api-access-control-application'
 import {
 	RoleError,
 	type RoleQuery,
@@ -52,6 +56,7 @@ export class RoleManagementController {
 	constructor(
 		@Inject(HcmRequestTenantContext) private readonly context: HcmRequestTenantContext,
 		@Inject(RoleManagement) private readonly roles: RoleManagement,
+		@Inject(RoleContext) private readonly roleContext: RoleContext,
 		@Inject(HCM_ROLE_WRITE_ORIGIN) private readonly origin: string | null,
 	) {}
 	/** Return a bounded server-filtered role page. */
@@ -112,6 +117,45 @@ export class RoleManagementController {
 				return this.roles.get(context, roleId(id))
 			},
 		)
+	}
+	/** Read one assignment-owned assignee page under separate role and assignment authority. */
+	@Get('roles/:id/assignees')
+	assignees(
+		@Param('id') id: string,
+		@Req() request: RoleRequest,
+		@Res({ passthrough: true }) response: RoleResponse,
+	) {
+		return this.run(
+			response,
+			/** Pass only validated context controls. */ (context) =>
+				this.roleContext.assignees(context, roleId(id), this.contextQuery(request)),
+		)
+	}
+	/** Read actual role events only when audit and role visibility are both authorized. */
+	@Get('roles/:id/history')
+	history(
+		@Param('id') id: string,
+		@Req() request: RoleRequest,
+		@Res({ passthrough: true }) response: RoleResponse,
+	) {
+		return this.run(
+			response,
+			/** Keep audit data behind its business permission. */ (context) =>
+				this.roleContext.history(context, roleId(id), this.contextQuery(request)),
+		)
+	}
+	/** Bound contextual pages and reject hidden filters and malformed cursor envelopes. */
+	private contextQuery(request: RoleRequest) {
+		const params = queryParameters(request, ['limit', 'cursor']),
+			size = params.get('limit') ?? '25',
+			cursor = params.get('cursor')
+		if (
+			!/^[1-9][0-9]{0,2}$/.test(size) ||
+			Number(size) > 100 ||
+			(cursor !== null && (!/^[A-Za-z0-9_-]+$/.test(cursor) || cursor.length > 2048))
+		)
+			throw new RoleError('invalid-request')
+		return { limit: Number(size), ...(cursor ? { cursor } : {}) }
 	}
 	/** Create a custom role through the same protected transaction and receipt boundary. */
 	@Post('roles')

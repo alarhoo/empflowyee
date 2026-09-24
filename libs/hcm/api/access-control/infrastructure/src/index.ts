@@ -1,2 +1,4 @@
 export * from './lib/hcm-api-access-control-infrastructure'
 export * from './lib/role-repository'
+export * from './lib/role-context'
+export * from './lib/assignment-queries'

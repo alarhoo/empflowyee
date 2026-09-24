@@ -21,6 +21,8 @@ import type {
 	RoleSummary,
 	Page,
 	PermissionOption,
+	RoleAssignee,
+	RoleHistoryItem,
 } from '@empflowyee/hcm-access-control-contract'
 import { HcmAccessControlModule } from './hcm-api-access-control-module'
 
@@ -190,6 +192,14 @@ it('TEST-ROLE-MANAGEMENT-002 creates, replays, revises and deletes custom roles 
 		(await send('POST', 'roles', create('Changed payload'), { 'idempotency-key': key })).status,
 	).toBe(409)
 	const id = first.body.id
+	const history = await send<Page<RoleHistoryItem>>('GET', `roles/${id}/history`)
+	expect(history.status).toBe(200)
+	expect(history.body.items).toHaveLength(1)
+	expect(history.body.items[0]).toMatchObject({
+		action: 'role.created',
+		summary: { reason: body.reason, changedFields: ['label', 'permissionCodes'] },
+	})
+	expect((await send<Page<RoleAssignee>>('GET', `roles/${id}/assignees`)).body.items).toEqual([])
 	const revisions = await Promise.all(
 		['A', 'B'].map(
 			/** Race commands against one observed revision. */ (suffix) =>
@@ -398,4 +408,47 @@ it('reauthorizes successful receipt replay against current grants and entitlemen
 			])
 		).rows[0].count,
 	).toBe(1)
+})
+
+it('separates role, assignment and audit authority for contextual sections', /** Use actual grants and tenant filters; a roles reader never automatically sees people or audit reasons. */ async () => {
+	const role = 'tenant-administrator'
+	const assignees = await send<Page<RoleAssignee>>('GET', `roles/${role}/assignees`)
+	expect(assignees.status).toBe(200)
+	expect(assignees.body.items).toHaveLength(1)
+	expect(assignees.body.items[0]).toMatchObject({
+		displayName: 'David Wallace',
+		email: 'david.wallace@dundermifflin.example',
+		enabled: true,
+	})
+	for (const section of ['assignees', 'history']) {
+		expect(
+			(
+				await send('GET', `roles/${role}/${section}`, undefined, {
+					'x-hcm-development-persona': 'jim',
+				})
+			).status,
+		).toBe(403)
+		expect((await send('GET', `roles/foreign-role/${section}`)).status).toBe(404)
+		expect((await send('GET', `roles/${role}/${section}?tenantId=foreign`)).status).toBe(400)
+		expect((await send('GET', `roles/${role}/${section}?limit=101`)).status).toBe(400)
+		expect((await send('GET', `roles/${role}/${section}?cursor=bad`)).status).toBe(400)
+	}
+	for (const [permission, section] of [
+		['hcm.access-control.assignments.read', 'assignees'],
+		['hcm.audit.events.read', 'history'],
+	]) {
+		await admin.query(
+			'DELETE FROM hcm.role_permission WHERE tenant_id=$1 AND role_id=$2 AND permission_code=$3',
+			[tenant, role, permission],
+		)
+		try {
+			expect((await send('GET', `roles/${role}`)).status).toBe(200)
+			expect((await send('GET', `roles/${role}/${section}`)).status).toBe(403)
+		} finally {
+			await admin.query(
+				'INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,$2,$3)',
+				[tenant, role, permission],
+			)
+		}
+	}
 })
