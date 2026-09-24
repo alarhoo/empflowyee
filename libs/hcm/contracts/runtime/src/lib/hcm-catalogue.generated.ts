@@ -950,7 +950,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			domain: 'identity-access',
 			catalogueIds: ['tenant-administration'],
 			route: '/identity-access/identity-administration',
-			floorplan: 'UX-FP-DYNAMIC-PAGE',
+			floorplan: 'UX-FP-FCL',
 			implementationStatus: 'planned',
 			fddStatus: 'approved',
 			tddStatus: 'approved',

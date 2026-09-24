@@ -2051,7 +2051,7 @@
 			],
 			"featurePath": "libs/hcm/web/identity-access/feature-identity-administration",
 			"route": "/identity-access/identity-administration",
-			"floorplan": "UX-FP-DYNAMIC-PAGE",
+			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
