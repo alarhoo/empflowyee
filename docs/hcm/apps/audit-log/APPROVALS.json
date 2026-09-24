@@ -1,5 +1,150 @@
 {
 	"formatVersion": 1,
 	"appCode": "AUDIT_LOG",
-	"approvals": []
+	"approvals": [
+		{
+			"document": "BLUEPRINT",
+			"sha256": "07213cba38e863f0c2395b2fb0d08447a58c872004c604b75bb8151789bc8744",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "FDD",
+			"sha256": "3d42ba44cc2f59e82c462e251608bd02c41aa4463c13fc39246b007d9d0d54bf",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "TDD",
+			"sha256": "3553ae0e7c961dcd79e35957eeabf053f650d4894f49304304246230c09d28a4",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "TRACE",
+			"sha256": "99f84056717189978556b6ca32d517ee03491ef143f318d26d302dd03a973df7",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "DECISIONS",
+			"sha256": "a695ba023ded9b4200f4bec79c331d71120d588e38a2026a3468c51c06c76a67",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "DOMAIN",
+			"sha256": "a8917cc63bd762d08e59a143659a0e5193f7473ec5542692f3f34fed7382c6f0",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "COMMON",
+			"sha256": "7496105fd98a7a651ab5bcd50847f8ec4fd9e62266f1a0497f8f2e7846124c45",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "UX",
+			"sha256": "b9c8b7722233db5b4af94f4128f93a8614c6c6cfc44ba65f15d08938bd6f3ad7",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "FOUNDATION01",
+			"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "FOUNDATION02",
+			"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "FOUNDATION03",
+			"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "FOUNDATION04",
+			"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "ACCESS_CONTROL",
+			"sha256": "ba186484e2ccadadb4c439cf47d526245e28056d859f3c198d6e9be17a345e1c",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "IDENTITY_ACCESS",
+			"sha256": "e055a99ccaf90254aa6290d47eded18c6f084053fbb8e06faec023be6fd57b8c",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "DOCUMENTS",
+			"sha256": "cf56b780688dd45c2c86b6c7f1555f1ba004f8abb1ded81ae04130e3a1feaa71",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "NOTIFICATIONS",
+			"sha256": "518c21b74ffec085d6005cbe69c23c3f131fdf4f713488bcbcc5b46a7326a5a7",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "SCOPE",
+			"sha256": "cbbcfdbf781de6f2ff9711d870c86ed4155e82a3d685d00f1a74421212bb9365",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		},
+		{
+			"document": "GRANTS",
+			"sha256": "2e792a5dd2eb6544ae51048856610881a8283ce818e29f3fa2265092c4a0a735",
+			"decision": "approved",
+			"reviewer": "Product owner (user in task 01a0cb54-f0fd-7ed3-95b8-743707a97381)",
+			"reviewedAt": "2026-09-24",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-1-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision 45e06ee"
+		}
+	]
 }
