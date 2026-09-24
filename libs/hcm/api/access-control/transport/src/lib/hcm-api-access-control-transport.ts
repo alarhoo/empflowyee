@@ -8,42 +8,26 @@ import {
 	Req,
 	Res,
 	Inject,
-	HttpException,
 	HttpCode,
 	Logger,
 } from '@nestjs/common'
 import { HcmRequestTenantContext } from '@empflowyee/hcm-api-runtime-transport'
-import {
-	HcmRuntimeError,
-	type AuthenticatedHcmContext,
-} from '@empflowyee/hcm-api-runtime-application'
-import {
-	RoleManagement,
-	HcmAccessError,
-	RoleContext,
-} from '@empflowyee/hcm-api-access-control-application'
+import { type AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
+import { RoleManagement, RoleContext } from '@empflowyee/hcm-api-access-control-application'
 import {
 	RoleError,
 	type RoleQuery,
 	type PermissionKind,
 } from '@empflowyee/hcm-access-control-contract'
-export const HCM_ROLE_WRITE_ORIGIN = Symbol('HCM_ROLE_WRITE_ORIGIN')
-interface RoleRequest {
-	originalUrl: string
-	headers: Record<string, string | string[] | undefined>
-}
-interface RoleResponse {
-	setHeader(name: string, value: string): void
-}
-
-/** Reject unknown and duplicate parameters before converting bounded list query values. */
-function queryParameters(request: RoleRequest, allowed: string[]): URLSearchParams {
-	const query = new URL(request.originalUrl, 'http://local.invalid').searchParams
-	for (const key of query.keys())
-		if (!allowed.includes(key) || query.getAll(key).length !== 1)
-			throw new RoleError('invalid-request')
-	return query
-}
+export { HCM_ROLE_WRITE_ORIGIN } from './access-request'
+import {
+	HCM_ROLE_WRITE_ORIGIN,
+	queryParameters,
+	accessWriteKey,
+	runAccessRequest,
+	type RoleRequest,
+	type RoleResponse,
+} from './access-request'
 /** Validate route identifiers without allowing arbitrary persistence selectors. */
 function roleId(id: string): string {
 	if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) throw new RoleError('invalid-request')
@@ -221,57 +205,15 @@ export class RoleManagementController {
 				),
 		)
 	}
-	/** Reject cross-origin, missing-origin, non-JSON and duplicate/unknown mutation query input. */
+	/** Reuse the domain transport's exact write-provenance and idempotency checks. */
 	private writeKey(request: RoleRequest): string {
-		queryParameters(request, [])
-		if (
-			!this.origin ||
-			request.headers['origin'] !== this.origin ||
-			(request.headers['sec-fetch-site'] !== undefined &&
-				request.headers['sec-fetch-site'] !== 'same-origin')
-		)
-			throw new HcmAccessError('forbidden')
-		if (
-			typeof request.headers['content-type'] !== 'string' ||
-			!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(request.headers['content-type'])
-		)
-			throw new HttpException(
-				{ code: 'unsupported-media-type', requestId: this.context.requestId },
-				415,
-			)
-		const key = request.headers['idempotency-key']
-		if (typeof key !== 'string') throw new RoleError('invalid-request')
-		return key
+		return accessWriteKey(request, this.origin, this.context.requestId)
 	}
-	/** Resolve server authority, prevent caching and sanitize failures without leaking SQL or payloads. */
-	private async run<T>(
+	/** Reuse common safe status mapping and freshly verified request authority. */
+	private run<T>(
 		response: RoleResponse,
 		work: (context: AuthenticatedHcmContext) => Promise<T>,
 	): Promise<T> {
-		response.setHeader('Cache-Control', 'no-store')
-		response.setHeader('X-Request-ID', this.context.requestId)
-		try {
-			return await work(await this.context.authenticated())
-		} catch (error) {
-			if (error instanceof HttpException) throw error
-			const code =
-				error instanceof RoleError ||
-				error instanceof HcmAccessError ||
-				error instanceof HcmRuntimeError
-					? error.code
-					: 'runtime-unavailable'
-			const statuses: Record<string, number> = {
-				'invalid-request': 400,
-				unauthenticated: 401,
-				forbidden: 403,
-				'not-found': 404,
-				'tenant-not-found': 404,
-				'tenant-suspended': 423,
-				'runtime-unavailable': 503,
-			}
-			const status = statuses[code] ?? 409
-			if (status === 503) this.logger.error({ code, requestId: this.context.requestId })
-			throw new HttpException({ code, requestId: this.context.requestId }, status)
-		}
+		return runAccessRequest(this.context, this.logger, response, work)
 	}
 }

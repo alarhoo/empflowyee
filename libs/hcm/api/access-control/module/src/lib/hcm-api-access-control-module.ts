@@ -2,16 +2,20 @@ import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { assertLocalRuntime } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
+	AccessAssignments,
+	AssignmentUnitOfWork,
 	RoleManagement,
 	RoleUnitOfWork,
 	RoleContext,
 } from '@empflowyee/hcm-api-access-control-application'
 import {
+	KyselyAssignmentUnitOfWork,
 	HcmAccessDatabase,
 	KyselyRoleUnitOfWork,
 	KyselyRoleContext,
 } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	AssignmentController,
 	RoleManagementController,
 	HCM_ROLE_WRITE_ORIGIN,
 } from '@empflowyee/hcm-api-access-control-transport'
@@ -61,8 +65,22 @@ function writeOrigin(): string | null {
 }
 @Module({
 	imports: [HcmRuntimeModule],
-	controllers: [RoleManagementController],
+	controllers: [RoleManagementController, AssignmentController],
 	providers: [
+		{
+			provide: AssignmentUnitOfWork,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Bind the assignment-owned transaction ports. */ (
+				database: HcmAccessDatabase | null,
+			) => new KyselyAssignmentUnitOfWork(database),
+		},
+		{
+			provide: AccessAssignments,
+			inject: [AssignmentUnitOfWork],
+			useFactory: /** Construct the sole grant/revoke application service. */ (
+				unit: AssignmentUnitOfWork,
+			) => new AccessAssignments(unit),
+		},
 		{
 			provide: RoleContext,
 			inject: [HcmAccessDatabase],

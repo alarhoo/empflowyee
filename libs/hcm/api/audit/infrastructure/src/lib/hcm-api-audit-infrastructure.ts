@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import type { Generated, Kysely } from 'kysely'
 import {
-	validateRoleAudit,
+	validateAccessAudit,
 	type AppendAudit,
-	type RoleAuditEvent,
+	type AccessAuditEvent,
 } from '@empflowyee/hcm-api-audit-application'
 import {
 	requireAuthenticatedTenant,
@@ -23,7 +23,7 @@ export interface AuditTables {
 		outcome: string
 		request_id: string
 		category: string
-		safe_summary: RoleAuditEvent['summary']
+		safe_summary: AccessAuditEvent['summary']
 		related_event_id: string | null
 	}
 }
@@ -34,8 +34,8 @@ export class TransactionalAudit implements AppendAudit {
 		private readonly context: AuthenticatedHcmContext,
 	) {}
 	/** Validate the action-specific safe schema and append exactly one authoritative actor event. */
-	async append(event: RoleAuditEvent): Promise<string> {
-		validateRoleAudit(event)
+	async append(event: AccessAuditEvent): Promise<string> {
+		validateAccessAudit(event)
 		const id = randomUUID()
 		await this.transaction
 			.insertInto('hcm.audit_event')
@@ -44,7 +44,10 @@ export class TransactionalAudit implements AppendAudit {
 				id,
 				actor_account_id: requireAuthenticatedAccount(this.context),
 				action: event.action,
-				target_type: 'access-role',
+				target_type:
+					event.action === 'role.granted' || event.action === 'role.revoked'
+						? 'user-account'
+						: 'access-role',
 				target_id: event.targetId,
 				outcome: 'Succeeded',
 				request_id: event.requestId,
