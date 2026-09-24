@@ -1,15 +1,14 @@
 # HCM-1 local platform delivery
 
-Status: **20-app local stage approved; business policies and app designs pending**.
+Status: **20-app local stage and business policies approved; app designs complete for review**.
 Catalogue inspected on 2026-09-24. HCM-1 contains 26 planned applications in five
 application-owning domains. None currently has an approved app blueprint.
 
 The confirmed scope excludes production authentication and external integrations.
-The approved local stage below makes that boundary concrete. Its business behavior
-still requires the pending decisions in
+The approved local stage below makes that boundary concrete. Its approved business behavior is recorded in
 [the review register](HCM-1-DECISIONS.md). The
-[local platform proposal](../domain/HCM-1-LOCAL-PLATFORM-PROPOSAL.md) defines the
-suggested data, permissions and interactions for review.
+[local platform proposal](../domain/HCM-1-LOCAL-PLATFORM-PROPOSAL.md) records the approved behavior; the [design index](HCM-1-DESIGN-REVIEW.md) links
+finalized technical selections and app packages.
 
 ## Existing foundation
 
@@ -34,8 +33,8 @@ requiring all its FDDs, TDDs, contracts and blockers to be resolved before its f
 implementation slice. Keep the six deferred apps in HCM-1 and Planned. Full HCM-1
 completion and the full-wave gate remain blocked until the deferred stage is
 designed and delivered. DEC-HCM1-001 records the explicit product-owner approval
-on 2026-09-24. This is scope approval, not approval of the remaining business rules
-or individual app designs.
+on 2026-09-24. Subsequent explicit approval resolved the access and
+document/notification policies; individual design revisions still need review.
 
 Workflow and governance appear in the roadmap's primary domains but own no apps in
 the HCM-1 catalogue. Treat them as prerequisite policy/contracts when needed. Do
@@ -45,8 +44,7 @@ into this stage.
 ## Proposed app coverage
 
 This table accounts for each canonical HCM-1 app exactly once. “Local” is approved
-stage membership, not Available status. The bounded behavior below remains subject
-to business and app-design review. All apps remain Planned until their actual acceptance
+stage membership, not Available status. The bounded business behavior below is approved; document-revision review remains. All apps remain Planned until their actual acceptance
 criteria pass. Read-only scope is explicit where a source of truth lives elsewhere.
 
 | App code                    | Owner           | Stage    | Proposed bounded outcome                                                                                                     |
@@ -126,7 +124,8 @@ Every implemented slice must demonstrate:
 
 ## Current preparation evidence
 
-The scope review found no approved HCM-1 FDD/TDD or blueprint. Existing foundation
+The original scope review found no HCM-1 FDD/TDD or blueprint. The subsequent
+20-app design package is complete for review, without fabricated approval ledgers. Existing foundation
 evidence is linked from [app readiness](../engineering/APP-READINESS.md).
 This document makes no app approval, migration, UI or completion claim.
 

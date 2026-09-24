@@ -1,0 +1,336 @@
+{
+	"formatVersion": 1,
+	"appCode": "APP_CATALOGUE_CONFIGURATION",
+	"domain": "access-control",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/app-catalogue-configuration/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/app-catalogue-configuration/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/app-catalogue-configuration/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/app-catalogue-configuration/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "IDENTITY_ACCESS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "NOTIFICATIONS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/access-control/app-catalogue-configuration",
+	"floorplan": {
+		"id": "UX-FP-DYNAMIC-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "APP_CATALOGUE_CONFIGURATION-HTTP",
+			"owner": "access-control",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "access-control-DTO",
+			"owner": "access-control",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "canonical-app-catalogue (global immutable projection)",
+			"owner": "navigation",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "tenant_entitlement",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "access_permission",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "account_role",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "role_permission",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.access-control.catalogue.read",
+			"owner": "access-control",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-access-control-feature-app-catalogue-configuration",
+			"root": "libs/hcm/web/access-control/feature-app-catalogue-configuration",
+			"tags": ["product:hcm", "runtime:web", "domain:access-control", "type:feature"]
+		},
+		{
+			"name": "hcm-web-access-control-data-access",
+			"root": "libs/hcm/web/access-control/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:access-control", "type:data-access"]
+		},
+		{
+			"name": "hcm-access-control-contract",
+			"root": "libs/hcm/contracts/access-control",
+			"tags": ["product:hcm", "runtime:universal", "domain:access-control", "type:contract"]
+		},
+		{
+			"name": "hcm-api-access-control-domain",
+			"root": "libs/hcm/api/access-control/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:domain"]
+		},
+		{
+			"name": "hcm-api-access-control-application",
+			"root": "libs/hcm/api/access-control/application",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:application"]
+		},
+		{
+			"name": "hcm-api-access-control-infrastructure",
+			"root": "libs/hcm/api/access-control/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-access-control-transport",
+			"root": "libs/hcm/api/access-control/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:transport"]
+		},
+		{
+			"name": "hcm-api-access-control-module",
+			"root": "libs/hcm/api/access-control/module",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-APP-CATALOGUE-CONFIGURATION-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-APP-CATALOGUE-CONFIGURATION-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-APP-CATALOGUE-CONFIGURATION-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-APP-CATALOGUE-CONFIGURATION-001",
+		"FDD#REQ-APP-CATALOGUE-CONFIGURATION-002",
+		"FDD#REQ-APP-CATALOGUE-CONFIGURATION-003",
+		"FDD#REQ-APP-CATALOGUE-CONFIGURATION-004",
+		"FDD#REQ-APP-CATALOGUE-CONFIGURATION-005",
+		"FDD#REQ-APP-CATALOGUE-CONFIGURATION-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-APP-CATALOGUE-CONFIGURATION-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-APP-CATALOGUE-CONFIGURATION-001"
+		},
+		{
+			"id": "TEST-APP-CATALOGUE-CONFIGURATION-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-APP-CATALOGUE-CONFIGURATION-002"
+		},
+		{
+			"id": "TEST-APP-CATALOGUE-CONFIGURATION-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-APP-CATALOGUE-CONFIGURATION-003"
+		},
+		{
+			"id": "TEST-APP-CATALOGUE-CONFIGURATION-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-APP-CATALOGUE-CONFIGURATION-004"
+		},
+		{
+			"id": "TEST-APP-CATALOGUE-CONFIGURATION-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-APP-CATALOGUE-CONFIGURATION-005"
+		},
+		{
+			"id": "TEST-APP-CATALOGUE-CONFIGURATION-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-APP-CATALOGUE-CONFIGURATION-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-APP-CATALOGUE-CONFIGURATION-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-APP-CATALOGUE-CONFIGURATION-001"]
+		},
+		{
+			"requirement": "FDD#REQ-APP-CATALOGUE-CONFIGURATION-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-APP-CATALOGUE-CONFIGURATION-002"]
+		},
+		{
+			"requirement": "FDD#REQ-APP-CATALOGUE-CONFIGURATION-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-APP-CATALOGUE-CONFIGURATION-003"]
+		},
+		{
+			"requirement": "FDD#REQ-APP-CATALOGUE-CONFIGURATION-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-APP-CATALOGUE-CONFIGURATION-004"]
+		},
+		{
+			"requirement": "FDD#REQ-APP-CATALOGUE-CONFIGURATION-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-APP-CATALOGUE-CONFIGURATION-005"]
+		},
+		{
+			"requirement": "FDD#REQ-APP-CATALOGUE-CONFIGURATION-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-APP-CATALOGUE-CONFIGURATION-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-app-catalogue-configuration",
+		"commits": [
+			"feat(hcm-access-control): add app-catalogue-configuration contracts and persistence",
+			"feat(hcm-access-control): expose authorized app-catalogue-configuration API",
+			"feat(hcm-access-control): add app-catalogue-configuration native UI",
+			"test(hcm-access-control): verify app-catalogue-configuration acceptance"
+		]
+	}
+}

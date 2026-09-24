@@ -1,0 +1,345 @@
+{
+	"formatVersion": 1,
+	"appCode": "TENANT_ACCESS_REVIEWS",
+	"domain": "access-control",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/tenant-access-reviews/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/tenant-access-reviews/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/tenant-access-reviews/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/tenant-access-reviews/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "IDENTITY_ACCESS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "NOTIFICATIONS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/access-control/tenant-access-reviews",
+	"floorplan": {
+		"id": "UX-FP-DYNAMIC-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"Label",
+				"Input",
+				"Select",
+				"Option",
+				"CheckBox",
+				"TextArea"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "TENANT_ACCESS_REVIEWS-HTTP",
+			"owner": "access-control",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "access-control-DTO",
+			"owner": "access-control",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "access_review",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "access_review_item",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "account_role",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "access_command_receipt",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.access-control.reviews.read",
+			"owner": "access-control",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.access-control.reviews.manage",
+			"owner": "access-control",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-access-control-feature-tenant-access-reviews",
+			"root": "libs/hcm/web/access-control/feature-tenant-access-reviews",
+			"tags": ["product:hcm", "runtime:web", "domain:access-control", "type:feature"]
+		},
+		{
+			"name": "hcm-web-access-control-data-access",
+			"root": "libs/hcm/web/access-control/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:access-control", "type:data-access"]
+		},
+		{
+			"name": "hcm-access-control-contract",
+			"root": "libs/hcm/contracts/access-control",
+			"tags": ["product:hcm", "runtime:universal", "domain:access-control", "type:contract"]
+		},
+		{
+			"name": "hcm-api-access-control-domain",
+			"root": "libs/hcm/api/access-control/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:domain"]
+		},
+		{
+			"name": "hcm-api-access-control-application",
+			"root": "libs/hcm/api/access-control/application",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:application"]
+		},
+		{
+			"name": "hcm-api-access-control-infrastructure",
+			"root": "libs/hcm/api/access-control/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-access-control-transport",
+			"root": "libs/hcm/api/access-control/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:transport"]
+		},
+		{
+			"name": "hcm-api-access-control-module",
+			"root": "libs/hcm/api/access-control/module",
+			"tags": ["product:hcm", "runtime:api", "domain:access-control", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-TENANT-ACCESS-REVIEWS-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-TENANT-ACCESS-REVIEWS-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-TENANT-ACCESS-REVIEWS-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-TENANT-ACCESS-REVIEWS-001",
+		"FDD#REQ-TENANT-ACCESS-REVIEWS-002",
+		"FDD#REQ-TENANT-ACCESS-REVIEWS-003",
+		"FDD#REQ-TENANT-ACCESS-REVIEWS-004",
+		"FDD#REQ-TENANT-ACCESS-REVIEWS-005",
+		"FDD#REQ-TENANT-ACCESS-REVIEWS-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-TENANT-ACCESS-REVIEWS-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-TENANT-ACCESS-REVIEWS-001"
+		},
+		{
+			"id": "TEST-TENANT-ACCESS-REVIEWS-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-TENANT-ACCESS-REVIEWS-002"
+		},
+		{
+			"id": "TEST-TENANT-ACCESS-REVIEWS-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-TENANT-ACCESS-REVIEWS-003"
+		},
+		{
+			"id": "TEST-TENANT-ACCESS-REVIEWS-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-TENANT-ACCESS-REVIEWS-004"
+		},
+		{
+			"id": "TEST-TENANT-ACCESS-REVIEWS-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-TENANT-ACCESS-REVIEWS-005"
+		},
+		{
+			"id": "TEST-TENANT-ACCESS-REVIEWS-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-TENANT-ACCESS-REVIEWS-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-TENANT-ACCESS-REVIEWS-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-TENANT-ACCESS-REVIEWS-001"]
+		},
+		{
+			"requirement": "FDD#REQ-TENANT-ACCESS-REVIEWS-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-TENANT-ACCESS-REVIEWS-002"]
+		},
+		{
+			"requirement": "FDD#REQ-TENANT-ACCESS-REVIEWS-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-TENANT-ACCESS-REVIEWS-003"]
+		},
+		{
+			"requirement": "FDD#REQ-TENANT-ACCESS-REVIEWS-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-TENANT-ACCESS-REVIEWS-004"]
+		},
+		{
+			"requirement": "FDD#REQ-TENANT-ACCESS-REVIEWS-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-TENANT-ACCESS-REVIEWS-005"]
+		},
+		{
+			"requirement": "FDD#REQ-TENANT-ACCESS-REVIEWS-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-TENANT-ACCESS-REVIEWS-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-tenant-access-reviews",
+		"commits": [
+			"feat(hcm-access-control): add tenant-access-reviews contracts and persistence",
+			"feat(hcm-access-control): expose authorized tenant-access-reviews API",
+			"feat(hcm-access-control): add tenant-access-reviews native UI",
+			"test(hcm-access-control): verify tenant-access-reviews acceptance"
+		]
+	}
+}

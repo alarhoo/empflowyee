@@ -1,0 +1,335 @@
+{
+	"formatVersion": 1,
+	"appCode": "NOTIFICATION_RULES",
+	"domain": "notifications",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/notification-rules/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/notification-rules/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/notification-rules/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/notification-rules/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "IDENTITY_ACCESS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/notifications/notification-rules",
+	"floorplan": {
+		"id": "UX-FP-DYNAMIC-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"Label",
+				"Input",
+				"Select",
+				"Option",
+				"CheckBox",
+				"TextArea"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "NOTIFICATION_RULES-HTTP",
+			"owner": "notifications",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "notifications-DTO",
+			"owner": "notifications",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "notification_rule",
+			"owner": "notifications",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "notification_command_receipt",
+			"owner": "notifications",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.notifications.rules.read",
+			"owner": "notifications",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.notifications.rules.manage",
+			"owner": "notifications",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-notifications-feature-notification-rules",
+			"root": "libs/hcm/web/notifications/feature-notification-rules",
+			"tags": ["product:hcm", "runtime:web", "domain:notifications", "type:feature"]
+		},
+		{
+			"name": "hcm-web-notifications-data-access",
+			"root": "libs/hcm/web/notifications/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:notifications", "type:data-access"]
+		},
+		{
+			"name": "hcm-notifications-contract",
+			"root": "libs/hcm/contracts/notifications",
+			"tags": ["product:hcm", "runtime:universal", "domain:notifications", "type:contract"]
+		},
+		{
+			"name": "hcm-api-notifications-domain",
+			"root": "libs/hcm/api/notifications/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:domain"]
+		},
+		{
+			"name": "hcm-api-notifications-application",
+			"root": "libs/hcm/api/notifications/application",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:application"]
+		},
+		{
+			"name": "hcm-api-notifications-infrastructure",
+			"root": "libs/hcm/api/notifications/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-notifications-transport",
+			"root": "libs/hcm/api/notifications/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:transport"]
+		},
+		{
+			"name": "hcm-api-notifications-module",
+			"root": "libs/hcm/api/notifications/module",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-NOTIFICATION-RULES-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-NOTIFICATION-RULES-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-NOTIFICATION-RULES-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-NOTIFICATION-RULES-001",
+		"FDD#REQ-NOTIFICATION-RULES-002",
+		"FDD#REQ-NOTIFICATION-RULES-003",
+		"FDD#REQ-NOTIFICATION-RULES-004",
+		"FDD#REQ-NOTIFICATION-RULES-005",
+		"FDD#REQ-NOTIFICATION-RULES-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-NOTIFICATION-RULES-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-NOTIFICATION-RULES-001"
+		},
+		{
+			"id": "TEST-NOTIFICATION-RULES-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-NOTIFICATION-RULES-002"
+		},
+		{
+			"id": "TEST-NOTIFICATION-RULES-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-NOTIFICATION-RULES-003"
+		},
+		{
+			"id": "TEST-NOTIFICATION-RULES-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-NOTIFICATION-RULES-004"
+		},
+		{
+			"id": "TEST-NOTIFICATION-RULES-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-NOTIFICATION-RULES-005"
+		},
+		{
+			"id": "TEST-NOTIFICATION-RULES-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-NOTIFICATION-RULES-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-NOTIFICATION-RULES-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-NOTIFICATION-RULES-001"]
+		},
+		{
+			"requirement": "FDD#REQ-NOTIFICATION-RULES-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-NOTIFICATION-RULES-002"]
+		},
+		{
+			"requirement": "FDD#REQ-NOTIFICATION-RULES-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-NOTIFICATION-RULES-003"]
+		},
+		{
+			"requirement": "FDD#REQ-NOTIFICATION-RULES-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-NOTIFICATION-RULES-004"]
+		},
+		{
+			"requirement": "FDD#REQ-NOTIFICATION-RULES-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-NOTIFICATION-RULES-005"]
+		},
+		{
+			"requirement": "FDD#REQ-NOTIFICATION-RULES-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-NOTIFICATION-RULES-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-notification-rules",
+		"commits": [
+			"feat(hcm-notifications): add notification-rules contracts and persistence",
+			"feat(hcm-notifications): expose authorized notification-rules API",
+			"feat(hcm-notifications): add notification-rules native UI",
+			"test(hcm-notifications): verify notification-rules acceptance"
+		]
+	}
+}

@@ -1,0 +1,335 @@
+{
+	"formatVersion": 1,
+	"appCode": "DOCUMENT_TYPES",
+	"domain": "documents",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/document-types/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/document-types/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/document-types/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/document-types/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "IDENTITY_ACCESS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "NOTIFICATIONS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/documents/document-types",
+	"floorplan": {
+		"id": "UX-FP-DYNAMIC-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"Label",
+				"Input",
+				"Select",
+				"Option",
+				"CheckBox",
+				"TextArea"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "DOCUMENT_TYPES-HTTP",
+			"owner": "documents",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "documents-DTO",
+			"owner": "documents",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "document_type",
+			"owner": "documents",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "document_command_receipt",
+			"owner": "documents",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.documents.types.read",
+			"owner": "documents",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.documents.types.manage",
+			"owner": "documents",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-documents-feature-document-types",
+			"root": "libs/hcm/web/documents/feature-document-types",
+			"tags": ["product:hcm", "runtime:web", "domain:documents", "type:feature"]
+		},
+		{
+			"name": "hcm-web-documents-data-access",
+			"root": "libs/hcm/web/documents/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:documents", "type:data-access"]
+		},
+		{
+			"name": "hcm-documents-contract",
+			"root": "libs/hcm/contracts/documents",
+			"tags": ["product:hcm", "runtime:universal", "domain:documents", "type:contract"]
+		},
+		{
+			"name": "hcm-api-documents-domain",
+			"root": "libs/hcm/api/documents/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:documents", "type:domain"]
+		},
+		{
+			"name": "hcm-api-documents-application",
+			"root": "libs/hcm/api/documents/application",
+			"tags": ["product:hcm", "runtime:api", "domain:documents", "type:application"]
+		},
+		{
+			"name": "hcm-api-documents-infrastructure",
+			"root": "libs/hcm/api/documents/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:documents", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-documents-transport",
+			"root": "libs/hcm/api/documents/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:documents", "type:transport"]
+		},
+		{
+			"name": "hcm-api-documents-module",
+			"root": "libs/hcm/api/documents/module",
+			"tags": ["product:hcm", "runtime:api", "domain:documents", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-DOCUMENT-TYPES-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-DOCUMENT-TYPES-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-DOCUMENT-TYPES-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-DOCUMENT-TYPES-001",
+		"FDD#REQ-DOCUMENT-TYPES-002",
+		"FDD#REQ-DOCUMENT-TYPES-003",
+		"FDD#REQ-DOCUMENT-TYPES-004",
+		"FDD#REQ-DOCUMENT-TYPES-005",
+		"FDD#REQ-DOCUMENT-TYPES-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-DOCUMENT-TYPES-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-DOCUMENT-TYPES-001"
+		},
+		{
+			"id": "TEST-DOCUMENT-TYPES-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-DOCUMENT-TYPES-002"
+		},
+		{
+			"id": "TEST-DOCUMENT-TYPES-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-DOCUMENT-TYPES-003"
+		},
+		{
+			"id": "TEST-DOCUMENT-TYPES-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-DOCUMENT-TYPES-004"
+		},
+		{
+			"id": "TEST-DOCUMENT-TYPES-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-DOCUMENT-TYPES-005"
+		},
+		{
+			"id": "TEST-DOCUMENT-TYPES-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-DOCUMENT-TYPES-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-DOCUMENT-TYPES-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-DOCUMENT-TYPES-001"]
+		},
+		{
+			"requirement": "FDD#REQ-DOCUMENT-TYPES-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-DOCUMENT-TYPES-002"]
+		},
+		{
+			"requirement": "FDD#REQ-DOCUMENT-TYPES-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-DOCUMENT-TYPES-003"]
+		},
+		{
+			"requirement": "FDD#REQ-DOCUMENT-TYPES-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-DOCUMENT-TYPES-004"]
+		},
+		{
+			"requirement": "FDD#REQ-DOCUMENT-TYPES-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-DOCUMENT-TYPES-005"]
+		},
+		{
+			"requirement": "FDD#REQ-DOCUMENT-TYPES-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-DOCUMENT-TYPES-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-document-types",
+		"commits": [
+			"feat(hcm-documents): add document-types contracts and persistence",
+			"feat(hcm-documents): expose authorized document-types API",
+			"feat(hcm-documents): add document-types native UI",
+			"test(hcm-documents): verify document-types acceptance"
+		]
+	}
+}

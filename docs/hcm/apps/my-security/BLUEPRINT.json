@@ -1,0 +1,333 @@
+{
+	"formatVersion": 1,
+	"appCode": "MY_SECURITY",
+	"domain": "identity-access",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/my-security/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/my-security/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/my-security/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/my-security/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "NOTIFICATIONS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/identity-access/my-security",
+	"floorplan": {
+		"id": "UX-FP-STANDARD-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["Page"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator",
+				"Bar",
+				"Title"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "MY_SECURITY-HTTP",
+			"owner": "identity-access",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "identity-access-DTO",
+			"owner": "identity-access",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "user_account",
+			"owner": "identity-access",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "account_role",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "access_role",
+			"owner": "access-control",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "verified runtime session",
+			"owner": "runtime",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.identity-access.security.self.read",
+			"owner": "identity-access",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-identity-access-feature-my-security",
+			"root": "libs/hcm/web/identity-access/feature-my-security",
+			"tags": ["product:hcm", "runtime:web", "domain:identity-access", "type:feature"]
+		},
+		{
+			"name": "hcm-web-identity-access-data-access",
+			"root": "libs/hcm/web/identity-access/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:identity-access", "type:data-access"]
+		},
+		{
+			"name": "hcm-identity-access-contract",
+			"root": "libs/hcm/contracts/identity-access",
+			"tags": ["product:hcm", "runtime:universal", "domain:identity-access", "type:contract"]
+		},
+		{
+			"name": "hcm-api-identity-access-domain",
+			"root": "libs/hcm/api/identity-access/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:identity-access", "type:domain"]
+		},
+		{
+			"name": "hcm-api-identity-access-application",
+			"root": "libs/hcm/api/identity-access/application",
+			"tags": ["product:hcm", "runtime:api", "domain:identity-access", "type:application"]
+		},
+		{
+			"name": "hcm-api-identity-access-infrastructure",
+			"root": "libs/hcm/api/identity-access/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:identity-access", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-identity-access-transport",
+			"root": "libs/hcm/api/identity-access/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:identity-access", "type:transport"]
+		},
+		{
+			"name": "hcm-api-identity-access-module",
+			"root": "libs/hcm/api/identity-access/module",
+			"tags": ["product:hcm", "runtime:api", "domain:identity-access", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-MY-SECURITY-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-MY-SECURITY-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-MY-SECURITY-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-MY-SECURITY-001",
+		"FDD#REQ-MY-SECURITY-002",
+		"FDD#REQ-MY-SECURITY-003",
+		"FDD#REQ-MY-SECURITY-004",
+		"FDD#REQ-MY-SECURITY-005",
+		"FDD#REQ-MY-SECURITY-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-MY-SECURITY-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-MY-SECURITY-001"
+		},
+		{
+			"id": "TEST-MY-SECURITY-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-MY-SECURITY-002"
+		},
+		{
+			"id": "TEST-MY-SECURITY-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-MY-SECURITY-003"
+		},
+		{
+			"id": "TEST-MY-SECURITY-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-MY-SECURITY-004"
+		},
+		{
+			"id": "TEST-MY-SECURITY-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-MY-SECURITY-005"
+		},
+		{
+			"id": "TEST-MY-SECURITY-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-MY-SECURITY-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-MY-SECURITY-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-MY-SECURITY-001"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-SECURITY-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-MY-SECURITY-002"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-SECURITY-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-MY-SECURITY-003"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-SECURITY-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-MY-SECURITY-004"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-SECURITY-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-MY-SECURITY-005"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-SECURITY-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-MY-SECURITY-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-my-security",
+		"commits": [
+			"feat(hcm-identity-access): add my-security contracts and persistence",
+			"feat(hcm-identity-access): expose authorized my-security API",
+			"feat(hcm-identity-access): add my-security native UI",
+			"test(hcm-identity-access): verify my-security acceptance"
+		]
+	}
+}

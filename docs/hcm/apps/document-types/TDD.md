@@ -1,0 +1,175 @@
+# Document Types — technical design
+
+Status: complete for review; no implementation/admission or revision approval claimed.
+
+## ROUTE
+
+Selected route `/documents/document-types`; lazy feature `libs/hcm/web/documents/feature-document-types`. Selection is recorded
+in this blueprint for review; canonical route/floorplan remain null until the TDD
+revision is approved. Keep implementationStatus Planned. Existing catalogue
+placements remain UX metadata and never determine code ownership.
+
+## READ
+
+Maintain document classifications without inventing retention or mandatory-document policy. Use the domain DTO projection, not SELECT * or entity serialization.
+q matches code/label; enabled filter; label asc/desc then id.
+
+List persisted tenant document types including disabled values for HR.
+
+## API
+
+All DTOs/validation belong to `hcm-documents-contract`. The app-specific endpoint
+table below and [domain DTOs](../../domain/HCM-1-DOCUMENTS.md#contract)
+are normative together with [transport semantics](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#api).
+Optional values use `?`; all other body fields are required. Multipart uploads use
+one JSON metadata part and one file. Query capabilities are only those listed.
+No body/query contains tenantId or a self-service actor override.
+
+| Operation                          | Permission                   | Request                                               | Response        |
+| ---------------------------------- | ---------------------------- | ----------------------------------------------------- | --------------- |
+| `GET /api/v1/documents/types`      | `hcm.documents.types.read`   | `List query: enabled?`                                | `Page<TypeDto>` |
+| `POST /api/v1/documents/types`     | `hcm.documents.types.manage` | `{code,label,description?,reason}`                    | `TypeDto`       |
+| `PUT /api/v1/documents/types/{id}` | `hcm.documents.types.manage` | `{label,description,enabled,expectedRevision,reason}` | `TypeDto`       |
+
+Creation is 201; commands/reads 200. Common 400/401/403/404/409/413/415/423/503
+classification applies where relevant. PUT is revisioned command semantics, not an
+unbounded persistence-row replacement. Mutations use an idempotency key; existing
+state transitions and unsupported methods cannot bypass the domain policy.
+
+## ACTION
+
+Create unique code and label; edit label/description/enabled only with revision and reason.
+
+Forms use the shared Signal Forms protocol, Native create/edit dialog: code on create only, label, description, enabled and reason; no retention or mandatory checkbox.
+
+Reject code edits, duplicate code, invalid characters and unauthorized writes.
+
+## RULES
+
+Disabled types prevent new documents/templates/requests while existing requests and downloads remain usable.
+
+Existing open request can still be fulfilled; no destructive delete endpoint or inferred retention rule.
+
+Authoritative detailed invariants are in [domain policy](../../domain/HCM-1-DOCUMENTS.md#policy).
+Actions not enumerated in the endpoint table are not implicitly permitted.
+
+## AUTH
+
+Entitlement: `hcm.documents`. Discovery remains
+`hcm.catalogue.DOCUMENT_TYPES.discover` and is not any permission below.
+Actors and subject scope: HR Operations; administrators only with explicitly delegated HR permission.
+
+| Business permission          | Authorized function             |
+| ---------------------------- | ------------------------------- |
+| `hcm.documents.types.read`   | Read document types             |
+| `hcm.documents.types.manage` | Create/edit/enable/disable type |
+
+Use [verified request authorization](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#auth).
+Resolve self from the account linkage. A caller with tenant-wide grants uses only
+explicit tenant endpoints; self endpoints never expand to all records. Check
+authorization again inside the transaction/download, even after UI capability checks.
+Cross-tenant or inaccessible self objects return 404 without revealing existence;
+missing operation permission returns 403 before querying object details.
+
+## DATA
+
+Data/read-model ownership:
+
+- `document_type` — owned by documents; this app uses the owning domain contract.
+- `document_command_receipt` — owned by documents; this app uses the owning domain contract.
+
+Use [domain physical design](../../domain/HCM-1-DOCUMENTS.md#data) and
+[SQL/RLS standards](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#sql). Do not create duplicate
+tables per app. Forward migrations shared by sibling apps are delivered once by
+their owning domain. Read-only apps add no mutation grants just to populate a UI.
+Successful writes use the [shared unit of work](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#tx).
+SQL and versioned seeds are designed here but not created/run in this delivery.
+
+## UX
+
+Floorplan `UX-FP-DYNAMIC-PAGE`, mode **NATIVE**. Use existing HcmDynamicPage with persistent title/actions and collapsible filter/scope context; native table and Dialog content remain feature-owned.
+The [installed capability evidence](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#native)
+and [interaction/state specification](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#ux)
+are part of this selection. No Object Page, generated List Report or custom floorplan.
+
+Content columns/fields: Immutable code; label; description; enabled state; revision.
+
+Table declaration: mode **server**. q matches code/label; enabled filter; label asc/desc then id.
+Cursor pages default 25/max 100; native growing button loads the next cursor; sort and filter run on the server.
+Single row/detail action selection only; no bulk actions, column personalization,
+virtualization or export. Native Popin retains secondary data with meaningful
+labels on narrow screens. Summary-only content does not invent a table.
+
+Forms use the shared Signal Forms protocol, Native create/edit dialog: code on create only, label, description, enabled and reason; no retention or mandatory checkbox.
+
+Field rules come from the domain/API contract. Save validates synchronously then
+submits once; server conflicts keep the draft, 503 offers a safe same-key retry.
+No autosave/persisted draft. Initial loading, no-results, error, denied/unavailable,
+read-only and pending-action states follow the shared contract. Dirty leave/context
+switch requires confirmation, then cancels requests and clears prior-context data.
+Focus returns to the triggering action after dialogs. No feature CSS or theme imports.
+
+## PROJECTS
+
+Planned project declarations; do not generate until the stage is admitted. Sibling
+apps reuse domain contract/data-access/API projects. Four tags are authoritative.
+
+| Project                                    | Root                                            | Tags                                                                    |
+| ------------------------------------------ | ----------------------------------------------- | ----------------------------------------------------------------------- |
+| `hcm-web-documents-feature-document-types` | `libs/hcm/web/documents/feature-document-types` | `product:hcm`, `runtime:web`, `domain:documents`, `type:feature`        |
+| `hcm-web-documents-data-access`            | `libs/hcm/web/documents/data-access`            | `product:hcm`, `runtime:web`, `domain:documents`, `type:data-access`    |
+| `hcm-documents-contract`                   | `libs/hcm/contracts/documents`                  | `product:hcm`, `runtime:universal`, `domain:documents`, `type:contract` |
+| `hcm-api-documents-domain`                 | `libs/hcm/api/documents/domain`                 | `product:hcm`, `runtime:api`, `domain:documents`, `type:domain`         |
+| `hcm-api-documents-application`            | `libs/hcm/api/documents/application`            | `product:hcm`, `runtime:api`, `domain:documents`, `type:application`    |
+| `hcm-api-documents-infrastructure`         | `libs/hcm/api/documents/infrastructure`         | `product:hcm`, `runtime:api`, `domain:documents`, `type:infrastructure` |
+| `hcm-api-documents-transport`              | `libs/hcm/api/documents/transport`              | `product:hcm`, `runtime:api`, `domain:documents`, `type:transport`      |
+| `hcm-api-documents-module`                 | `libs/hcm/api/documents/module`                 | `product:hcm`, `runtime:api`, `domain:documents`, `type:module`         |
+
+Application/domain ports contain no Kysely, HTTP or Nest types. Infrastructure owns
+SQL and DTO mapping; transport owns validation; module composes dependencies.
+Angular feature -> own data-access/contracts + existing UX floorplan; no imports
+from another feature or server implementation. Existing database/runtime/audit
+dependencies retain their own project ownership and public contracts. Thin app
+roots add only module composition and lazy-route registration.
+
+## DEPENDENCIES
+
+Document policy lookup is reused by templates/documents/request creation.
+
+Foundation contracts are existing HCM0-01 launchpad, HCM0-02 database, HCM0-03
+seed framework and HCM0-04 verified runtime context. The blueprint references their
+actual validation records. Domain contract definitions are complete for review;
+their implementation remains an ordered prerequisite, not a claim of existing code.
+
+## OPERATIONS
+
+[Observability](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#obs), migration/seed/rollback
+and storage recovery (where applicable) are mandatory. Dunder Mifflin data lives
+in versioned PostgreSQL seeds. Seed new grants as approved; do not seed fictitious
+success audit/export history or inject arrays into Angular. Keep production auth
+disabled and external integrations deferred.
+
+## TEST
+
+[Traceability](TRACEABILITY.md) maps every FDD requirement to the selection and
+a named planned test. Execute unit, API/RLS and real-browser cases during the
+implementation slice; no test in that document is claimed executed by design review.
+Use [shared execution criteria](../../tdd/TDD-HCM-1-LOCAL-COMMON.md#test).
+
+## DELIVERY
+
+Branch `codex/hcm-1-document-types` after all 20 local designs have reviewed evidence.
+Commit contracts/design reconciliation, then domain SQL/API, then native UI, then
+acceptance evidence as coherent slices. No application code is authorized by this
+design-only request. Keep six deferred apps and full-wave completion blocked.
+
+## DISCOVERY
+
+The canonical app currently belongs only to tenant-administration. To expose the
+approved HR actor in normal persona mode, add `hr-specialist-operations` membership
+and placement `{spaceId: hr-operations, pageId: hr-governance-assets-engagement,
+sectionId: hr-documents-governance, display: tiles}` at reviewed metadata publication.
+These existing IDs were inspected in hcm-launchpad.json. Preserve the current
+Administration placement and the single domain-owned feature. Add the discovery
+grant to the HR role through a new seed version; it is not a business-content grant
+for administrators. Entry checks types.read before requesting protected data.

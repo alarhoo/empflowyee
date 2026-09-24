@@ -83,9 +83,11 @@ passing catalogue validation alone is not approval.
 HCM-1 preparation now has an [approved local delivery stage](docs/hcm/roadmap/HCM-1-LOCAL-DELIVERY.md)
 covering 20 of the 26 wave apps, with six deferred apps remaining Planned.
 Production authentication and external integrations are excluded from this phase.
-The staged-readiness exception is approved; the remaining
-[business decisions](docs/hcm/roadmap/HCM-1-DECISIONS.md) and individual app designs
-remain under review. No HCM-1 business implementation is claimed.
+The staged-readiness exception and [business policies](docs/hcm/roadmap/HCM-1-DECISIONS.md)
+are approved. All [20 app design packages](docs/hcm/roadmap/HCM-1-DESIGN-REVIEW.md)
+are complete for document-revision review, with explicit API, SQL/RLS, UI and test
+selections. Implementation admission still requires actual reviewed hashes and
+catalogue publication. No HCM-1 application code is implemented by this design work.
 
 ```sh
 pnpm hcm:catalogue:validate

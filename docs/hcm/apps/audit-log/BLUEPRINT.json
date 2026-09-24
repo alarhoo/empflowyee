@@ -1,0 +1,316 @@
+{
+	"formatVersion": 1,
+	"appCode": "AUDIT_LOG",
+	"domain": "audit",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/audit-log/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/audit-log/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/audit-log/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/audit-log/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "IDENTITY_ACCESS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "NOTIFICATIONS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/audit/audit-log",
+	"floorplan": {
+		"id": "UX-FP-DYNAMIC-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "AUDIT_LOG-HTTP",
+			"owner": "audit",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "audit-DTO",
+			"owner": "audit",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "audit_event",
+			"owner": "audit",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.audit.events.read",
+			"owner": "audit",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-audit-feature-audit-log",
+			"root": "libs/hcm/web/audit/feature-audit-log",
+			"tags": ["product:hcm", "runtime:web", "domain:audit", "type:feature"]
+		},
+		{
+			"name": "hcm-web-audit-data-access",
+			"root": "libs/hcm/web/audit/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:audit", "type:data-access"]
+		},
+		{
+			"name": "hcm-audit-contract",
+			"root": "libs/hcm/contracts/audit",
+			"tags": ["product:hcm", "runtime:universal", "domain:audit", "type:contract"]
+		},
+		{
+			"name": "hcm-api-audit-domain",
+			"root": "libs/hcm/api/audit/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:audit", "type:domain"]
+		},
+		{
+			"name": "hcm-api-audit-application",
+			"root": "libs/hcm/api/audit/application",
+			"tags": ["product:hcm", "runtime:api", "domain:audit", "type:application"]
+		},
+		{
+			"name": "hcm-api-audit-infrastructure",
+			"root": "libs/hcm/api/audit/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:audit", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-audit-transport",
+			"root": "libs/hcm/api/audit/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:audit", "type:transport"]
+		},
+		{
+			"name": "hcm-api-audit-module",
+			"root": "libs/hcm/api/audit/module",
+			"tags": ["product:hcm", "runtime:api", "domain:audit", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-AUDIT-LOG-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-AUDIT-LOG-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-AUDIT-LOG-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-AUDIT-LOG-001",
+		"FDD#REQ-AUDIT-LOG-002",
+		"FDD#REQ-AUDIT-LOG-003",
+		"FDD#REQ-AUDIT-LOG-004",
+		"FDD#REQ-AUDIT-LOG-005",
+		"FDD#REQ-AUDIT-LOG-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-AUDIT-LOG-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-AUDIT-LOG-001"
+		},
+		{
+			"id": "TEST-AUDIT-LOG-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-AUDIT-LOG-002"
+		},
+		{
+			"id": "TEST-AUDIT-LOG-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-AUDIT-LOG-003"
+		},
+		{
+			"id": "TEST-AUDIT-LOG-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-AUDIT-LOG-004"
+		},
+		{
+			"id": "TEST-AUDIT-LOG-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-AUDIT-LOG-005"
+		},
+		{
+			"id": "TEST-AUDIT-LOG-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-AUDIT-LOG-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-AUDIT-LOG-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-AUDIT-LOG-001"]
+		},
+		{
+			"requirement": "FDD#REQ-AUDIT-LOG-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-AUDIT-LOG-002"]
+		},
+		{
+			"requirement": "FDD#REQ-AUDIT-LOG-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-AUDIT-LOG-003"]
+		},
+		{
+			"requirement": "FDD#REQ-AUDIT-LOG-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-AUDIT-LOG-004"]
+		},
+		{
+			"requirement": "FDD#REQ-AUDIT-LOG-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-AUDIT-LOG-005"]
+		},
+		{
+			"requirement": "FDD#REQ-AUDIT-LOG-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-AUDIT-LOG-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-audit-log",
+		"commits": [
+			"feat(hcm-audit): add audit-log contracts and persistence",
+			"feat(hcm-audit): expose authorized audit-log API",
+			"feat(hcm-audit): add audit-log native UI",
+			"test(hcm-audit): verify audit-log acceptance"
+		]
+	}
+}

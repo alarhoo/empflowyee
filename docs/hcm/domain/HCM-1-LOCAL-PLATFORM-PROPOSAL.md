@@ -1,7 +1,9 @@
 # HCM-1 local platform proposal
 
-Status: **draft for business review**. These are concrete recommended choices,
-not approved business rules or an implementation contract. See
+Status: **business scope approved** by the explicit HCM-1 design-finalization request.
+Detailed technical selections are finalized for review in the five domain designs
+and [shared TDD](../tdd/TDD-HCM-1-LOCAL-COMMON.md). This scope document is not
+application implementation or approval of newly authored design revisions. See
 [the decision register](../roadmap/HCM-1-DECISIONS.md) and
 [the app scope](../roadmap/HCM-1-LOCAL-DELIVERY.md).
 
@@ -17,9 +19,9 @@ context comes from the verified runtime request, never a client-supplied tenant 
 Production authentication remains fail-closed; development impersonation remains
 limited to the existing explicitly enabled local boundary.
 
-## Proposed authority matrix
+## Approved authority matrix
 
-These are development grants for review, not hardcoded name checks in features.
+These are approved development grants, not hardcoded name checks in features.
 Persist permission grants against roles; server-side policy applies equally to
 future verified production session contexts. An entitlement permits a capability
 to exist but does not authorize an account to operate it.
@@ -36,12 +38,12 @@ to exist but does not authorize an account to operate it.
 
 Managers gain no access to other workers merely through the manager persona: the
 foundation has no approved reporting-line scope. HR access to all tenant workers
-is an explicit proposal requiring approval. Administration does not automatically
+is explicitly approved for this bounded stage. Administration does not automatically
 grant HR document visibility. An administrator capable of granting roles can
 delegate HR privileges; that privileged action is audited. This is not a
 separation-of-duties or independent-approval control.
 
-## Proposed access behavior
+## Approved access behavior
 
 Use distinct business permissions, for example `hcm.access-control.roles.read`,
 `hcm.access-control.roles.manage`, `hcm.access-control.assignments.manage`,
@@ -49,7 +51,7 @@ Use distinct business permissions, for example `hcm.access-control.roles.read`,
 contracts enumerate exact permission identifiers, entitlements and subject rules.
 Do not interpret `hcm.catalogue.*.discover` as a business grant.
 
-Recommended local policy:
+Approved local policy:
 
 - Protect the seeded tenant-administrator role and its critical administration
   grants. Custom roles may select only registered permissions; they cannot define
@@ -70,7 +72,7 @@ Recommended local policy:
   changes require re-review of affected entries. No scheduled campaign or legal
   certification semantics are implied.
 
-## Proposed notifications
+## Approved notifications
 
 In-app only. Start with document requested, document submitted and document
 replacement requested events from implemented document actions. Before those
@@ -91,9 +93,9 @@ Persist domain event and recipient notification intent atomically with the actio
 Use a stable event/recipient key to prevent duplicate deliveries on retries.
 Audit and notification persistence are separate records and retention decisions.
 
-## Proposed documents and requests
+## Approved documents and requests
 
-Recommended initial local scope: PDF, PNG and JPEG, at most 10 MiB per file. Persist
+Approved initial local scope: PDF, PNG and JPEG, at most 10 MiB per file. Persist
 file bytes in a domain-owned local storage directory/volume behind a storage port;
 persist metadata, ownership and versions in PostgreSQL. This is a local adapter,
 not an approved production document-storage or malware-scanning deployment.
@@ -126,7 +128,7 @@ automatic due-date escalation, public sharing or bulk exports in this stage.
 No user-facing destructive deletion or automatic purge until retention is reviewed.
 Versioning/replacement does not mean indefinite production retention is approved.
 
-## Proposed audit and governance
+## Approved audit and governance
 
 Persist an append-only audit envelope containing tenant, event ID/time, actor
 account, action, target type/opaque ID, outcome, request correlation ID and an
@@ -148,9 +150,10 @@ procedure is invoked. This is a local operational limit only. Production retenti
 legal holds, deletion rights and external archive policy remain unresolved and
 must not be represented as finalized compliance behavior.
 
-## Proposed persistence ownership
+## Approved persistence ownership
 
-These are logical proposals, not executable migrations or finalized table names.
+These summarize logical ownership; finalized design records and table choices are
+in the five domain designs. No executable migration is supplied in this design-only task.
 All tenant-owned additions require direct tenant ownership, tenant-consistent
 foreign keys and ENABLE/FORCE RLS for non-owner runtime access.
 

@@ -1,0 +1,337 @@
+{
+	"formatVersion": 1,
+	"appCode": "MY_NOTIFICATION_PREFERENCES",
+	"domain": "notifications",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/my-notification-preferences/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/my-notification-preferences/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/my-notification-preferences/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/my-notification-preferences/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "IDENTITY_ACCESS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md"
+		}
+	],
+	"route": "/notifications/my-notification-preferences",
+	"floorplan": {
+		"id": "UX-FP-STANDARD-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["Page"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"Label",
+				"Input",
+				"Select",
+				"Option",
+				"CheckBox",
+				"TextArea",
+				"Bar",
+				"Title"
+			],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "MY_NOTIFICATION_PREFERENCES-HTTP",
+			"owner": "notifications",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "notifications-DTO",
+			"owner": "notifications",
+			"ref": "DOMAIN#CONTRACT"
+		}
+	],
+	"data": [
+		{
+			"id": "notification_preference",
+			"owner": "notifications",
+			"ref": "DOMAIN#DATA"
+		},
+		{
+			"id": "notification_command_receipt",
+			"owner": "notifications",
+			"ref": "DOMAIN#DATA"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.notifications.preferences.self.read",
+			"owner": "notifications",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.notifications.preferences.self.manage",
+			"owner": "notifications",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-notifications-feature-my-notification-preferences",
+			"root": "libs/hcm/web/notifications/feature-my-notification-preferences",
+			"tags": ["product:hcm", "runtime:web", "domain:notifications", "type:feature"]
+		},
+		{
+			"name": "hcm-web-notifications-data-access",
+			"root": "libs/hcm/web/notifications/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:notifications", "type:data-access"]
+		},
+		{
+			"name": "hcm-notifications-contract",
+			"root": "libs/hcm/contracts/notifications",
+			"tags": ["product:hcm", "runtime:universal", "domain:notifications", "type:contract"]
+		},
+		{
+			"name": "hcm-api-notifications-domain",
+			"root": "libs/hcm/api/notifications/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:domain"]
+		},
+		{
+			"name": "hcm-api-notifications-application",
+			"root": "libs/hcm/api/notifications/application",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:application"]
+		},
+		{
+			"name": "hcm-api-notifications-infrastructure",
+			"root": "libs/hcm/api/notifications/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-notifications-transport",
+			"root": "libs/hcm/api/notifications/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:transport"]
+		},
+		{
+			"name": "hcm-api-notifications-module",
+			"root": "libs/hcm/api/notifications/module",
+			"tags": ["product:hcm", "runtime:api", "domain:notifications", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "local-domain-contract",
+			"state": "resolved",
+			"ref": "DOMAIN#DEPENDENCIES"
+		},
+		{
+			"id": "local-http-contract",
+			"state": "resolved",
+			"ref": "COMMON#API"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-MY-NOTIFICATION-PREFERENCES-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-MY-NOTIFICATION-PREFERENCES-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-MY-NOTIFICATION-PREFERENCES-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-MY-NOTIFICATION-PREFERENCES-001",
+		"FDD#REQ-MY-NOTIFICATION-PREFERENCES-002",
+		"FDD#REQ-MY-NOTIFICATION-PREFERENCES-003",
+		"FDD#REQ-MY-NOTIFICATION-PREFERENCES-004",
+		"FDD#REQ-MY-NOTIFICATION-PREFERENCES-005",
+		"FDD#REQ-MY-NOTIFICATION-PREFERENCES-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-MY-NOTIFICATION-PREFERENCES-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-MY-NOTIFICATION-PREFERENCES-001"
+		},
+		{
+			"id": "TEST-MY-NOTIFICATION-PREFERENCES-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-MY-NOTIFICATION-PREFERENCES-002"
+		},
+		{
+			"id": "TEST-MY-NOTIFICATION-PREFERENCES-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-MY-NOTIFICATION-PREFERENCES-003"
+		},
+		{
+			"id": "TEST-MY-NOTIFICATION-PREFERENCES-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-MY-NOTIFICATION-PREFERENCES-004"
+		},
+		{
+			"id": "TEST-MY-NOTIFICATION-PREFERENCES-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-MY-NOTIFICATION-PREFERENCES-005"
+		},
+		{
+			"id": "TEST-MY-NOTIFICATION-PREFERENCES-006",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-MY-NOTIFICATION-PREFERENCES-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-MY-NOTIFICATION-PREFERENCES-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-MY-NOTIFICATION-PREFERENCES-001"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-NOTIFICATION-PREFERENCES-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-MY-NOTIFICATION-PREFERENCES-002"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-NOTIFICATION-PREFERENCES-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-MY-NOTIFICATION-PREFERENCES-003"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-NOTIFICATION-PREFERENCES-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-MY-NOTIFICATION-PREFERENCES-004"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-NOTIFICATION-PREFERENCES-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-MY-NOTIFICATION-PREFERENCES-005"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-NOTIFICATION-PREFERENCES-006",
+			"design": "TDD#DATA",
+			"tests": ["TEST-MY-NOTIFICATION-PREFERENCES-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-1-my-notification-preferences",
+		"commits": [
+			"feat(hcm-notifications): add my-notification-preferences contracts and persistence",
+			"feat(hcm-notifications): expose authorized my-notification-preferences API",
+			"feat(hcm-notifications): add my-notification-preferences native UI",
+			"test(hcm-notifications): verify my-notification-preferences acceptance"
+		]
+	}
+}

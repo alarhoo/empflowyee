@@ -1,0 +1,764 @@
+{
+	"formatVersion": 1,
+	"purpose": "Review inputs only; not approval evidence",
+	"preparedAt": "2026-09-24",
+	"stage": "HCM-1 local",
+	"checked": 20,
+	"ready": 0,
+	"appResults": [
+		{
+			"appCode": "ROLE_MANAGEMENT",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "ACCESS_ASSIGNMENTS",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "APP_CATALOGUE_CONFIGURATION",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "TENANT_ACCESS_REVIEWS",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "AUDIT_LOG",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "MY_ACTIVITY",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "DATA_EXPORT_LOG",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "SENSITIVE_ACCESS_LOG",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "IDENTITY_ADMINISTRATION",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "DOMAIN_CONFIGURATION",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "MY_SECURITY",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "MY_NOTIFICATIONS",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "MY_NOTIFICATION_PREFERENCES",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "NOTIFICATION_TEMPLATES",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "NOTIFICATION_RULES",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "DOCUMENT_TYPES",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "DOCUMENT_TEMPLATES",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "EMPLOYEE_DOCUMENTS",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "MY_DOCUMENTS",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		},
+		{
+			"appCode": "DOCUMENT_REQUESTS",
+			"ready": false,
+			"exitCode": 1,
+			"designDefects": [],
+			"admissionIssues": {
+				"CATALOGUE_NOT_APPROVED": 3,
+				"ROUTE_REQUIRED": 1,
+				"FLOORPLAN_REQUIRED": 1,
+				"MISSING_LIST": 1,
+				"APPROVAL_REQUIRED": 18,
+				"ROUTE_MISMATCH": 1,
+				"FLOORPLAN_MISMATCH": 1
+			}
+		}
+	],
+	"evidence": [
+		{
+			"path": "docs/hcm/apps/access-assignments/BLUEPRINT.json",
+			"sha256": "63ccd823133b4a1d02ad7656a5de3b66528f0ed204967b0770d9622df87f6be0"
+		},
+		{
+			"path": "docs/hcm/apps/access-assignments/DECISIONS.md",
+			"sha256": "52eb53ef57c720e3008f4c0f5c9c35466a715b3e713dd905ca0d956de52298a4"
+		},
+		{
+			"path": "docs/hcm/apps/access-assignments/FDD.md",
+			"sha256": "85956c0583be3d9d8e4a874a2ed2d6d1017812d543400d59b678416054bfaedd"
+		},
+		{
+			"path": "docs/hcm/apps/access-assignments/TDD.md",
+			"sha256": "49a8da8bde96b9eddfe77f21cb134a92cc0aedcfecf040079fb5d6f5ae6ed5b5"
+		},
+		{
+			"path": "docs/hcm/apps/access-assignments/TRACEABILITY.md",
+			"sha256": "7a6f34ff76b04d4c0f053b8bc3c16a0c93525c067921754fed5438a4ccf78410"
+		},
+		{
+			"path": "docs/hcm/apps/app-catalogue-configuration/BLUEPRINT.json",
+			"sha256": "e0e76d77ca1c94a822ec15fb24e0c0e0de7093524f85c30c123775f1649305df"
+		},
+		{
+			"path": "docs/hcm/apps/app-catalogue-configuration/DECISIONS.md",
+			"sha256": "77561ce655bd29791cabf895a866d1d22285049c0d5935aa9830c0053d45b08b"
+		},
+		{
+			"path": "docs/hcm/apps/app-catalogue-configuration/FDD.md",
+			"sha256": "6ed458dad43a793bd301b55a5ed8803069b90672ef339aad8f2478e90561ba9d"
+		},
+		{
+			"path": "docs/hcm/apps/app-catalogue-configuration/TDD.md",
+			"sha256": "f38961ac8d5d1723d9212a0efa750afee5ca53bac975752a73d9f4955aa20bb3"
+		},
+		{
+			"path": "docs/hcm/apps/app-catalogue-configuration/TRACEABILITY.md",
+			"sha256": "f9b8215e379bb5bd10fbc274480c31751f7bdcc7322a0cca0c4d8f1d1a0dfead"
+		},
+		{
+			"path": "docs/hcm/apps/audit-log/BLUEPRINT.json",
+			"sha256": "07213cba38e863f0c2395b2fb0d08447a58c872004c604b75bb8151789bc8744"
+		},
+		{
+			"path": "docs/hcm/apps/audit-log/DECISIONS.md",
+			"sha256": "a695ba023ded9b4200f4bec79c331d71120d588e38a2026a3468c51c06c76a67"
+		},
+		{
+			"path": "docs/hcm/apps/audit-log/FDD.md",
+			"sha256": "3d42ba44cc2f59e82c462e251608bd02c41aa4463c13fc39246b007d9d0d54bf"
+		},
+		{
+			"path": "docs/hcm/apps/audit-log/TDD.md",
+			"sha256": "3553ae0e7c961dcd79e35957eeabf053f650d4894f49304304246230c09d28a4"
+		},
+		{
+			"path": "docs/hcm/apps/audit-log/TRACEABILITY.md",
+			"sha256": "99f84056717189978556b6ca32d517ee03491ef143f318d26d302dd03a973df7"
+		},
+		{
+			"path": "docs/hcm/apps/data-export-log/BLUEPRINT.json",
+			"sha256": "73d8d106894a8eec57729051b503faacd539a336489303e58bf16425338b8830"
+		},
+		{
+			"path": "docs/hcm/apps/data-export-log/DECISIONS.md",
+			"sha256": "f75ad03123c7068a0b1dfd452d69e839777c5cedcdc4dd88c3553c5e8ac17a0d"
+		},
+		{
+			"path": "docs/hcm/apps/data-export-log/FDD.md",
+			"sha256": "8c139cca9da387b496822f106edb9883c83c91825aae5526747ffe8e93440576"
+		},
+		{
+			"path": "docs/hcm/apps/data-export-log/TDD.md",
+			"sha256": "2f787adfebff6e2310582cc3b0fc0d211ad74bc91aaa14dbe4e9dfaba33bf7ca"
+		},
+		{
+			"path": "docs/hcm/apps/data-export-log/TRACEABILITY.md",
+			"sha256": "91bfdc15cd78e96eeb4eca7de366f4fb50e8897c3a58371f4f7f2f73fafe01ac"
+		},
+		{
+			"path": "docs/hcm/apps/document-requests/BLUEPRINT.json",
+			"sha256": "492dd6133431f5881d970a19c41ca72df57bc8db0bab7c0d5ab6b144ef8f3423"
+		},
+		{
+			"path": "docs/hcm/apps/document-requests/DECISIONS.md",
+			"sha256": "402a0b3c721d69f3e421aadaea9d0ad4471e6910b30a681d9fdf3e75981bfd4e"
+		},
+		{
+			"path": "docs/hcm/apps/document-requests/FDD.md",
+			"sha256": "64dbb12dc9bc1fdb8cb504b96346ece50198c8abb6cfa3a900d540e6a639cdb4"
+		},
+		{
+			"path": "docs/hcm/apps/document-requests/TDD.md",
+			"sha256": "89b148ba0aeb6643f77418e54766767d92052b448e42ad157b120eb0aecac6a3"
+		},
+		{
+			"path": "docs/hcm/apps/document-requests/TRACEABILITY.md",
+			"sha256": "cb4ea4795b2cb597b4c51126f4dd1e1b623ae9222bbb19521ec23a38a9a5c360"
+		},
+		{
+			"path": "docs/hcm/apps/document-templates/BLUEPRINT.json",
+			"sha256": "daccefdeae25c0f703977abef93811ba62d0fbd45cf7773a0d5800541603ee22"
+		},
+		{
+			"path": "docs/hcm/apps/document-templates/DECISIONS.md",
+			"sha256": "e913d4a0f2fb75ff3b76c8ae57eef2ca0389c9f589a7cb001c506234bd091a4f"
+		},
+		{
+			"path": "docs/hcm/apps/document-templates/FDD.md",
+			"sha256": "22d6bb0937bf0e3c277c7282d0bccf34ae4a6b3416c23edd1e1cc533a728e2f6"
+		},
+		{
+			"path": "docs/hcm/apps/document-templates/TDD.md",
+			"sha256": "0e39cd395b372a6af5a1a1bdf975508fc0d642a0a18b80be4ea6595a3f41ff14"
+		},
+		{
+			"path": "docs/hcm/apps/document-templates/TRACEABILITY.md",
+			"sha256": "2ab9aac7f4fa7686ff6bc941e06e284399b4e4ba402b1d123af9d6732ac87fb5"
+		},
+		{
+			"path": "docs/hcm/apps/document-types/BLUEPRINT.json",
+			"sha256": "cb327848956951cfed4fc9c9fb8ee79841ff5e92c969c15841e2cbc1ed55bbea"
+		},
+		{
+			"path": "docs/hcm/apps/document-types/DECISIONS.md",
+			"sha256": "547b5f4720fbc1740e7c319ffa6119229638afa8430188ba8471f17c9b6f8906"
+		},
+		{
+			"path": "docs/hcm/apps/document-types/FDD.md",
+			"sha256": "ed1b5e0b45197f9e294349dc4e3fce0328dcdf4bfbaef34d027f9275a3ed83c5"
+		},
+		{
+			"path": "docs/hcm/apps/document-types/TDD.md",
+			"sha256": "e491703ffdc75de92e72d19ac022de183116fe5de03f703d2083aaf749e8891d"
+		},
+		{
+			"path": "docs/hcm/apps/document-types/TRACEABILITY.md",
+			"sha256": "3780e32f1aaf0d65927d37e165df89f9558f97b82d58c2b2ede2c6e38db33cdd"
+		},
+		{
+			"path": "docs/hcm/apps/domain-configuration/BLUEPRINT.json",
+			"sha256": "1c83c8b4ed9f685ab628d9571f316294fd4fca47e1e3d8127bec911c3e7e7572"
+		},
+		{
+			"path": "docs/hcm/apps/domain-configuration/DECISIONS.md",
+			"sha256": "093403492cb2f1692db7a302f31979221877d52575a04d4909ef54927f4ce7cf"
+		},
+		{
+			"path": "docs/hcm/apps/domain-configuration/FDD.md",
+			"sha256": "94854c6c9b5e6a5e967ff559952fe031a5e9bb99fa9a8b7c491c3eaaf9ab6669"
+		},
+		{
+			"path": "docs/hcm/apps/domain-configuration/TDD.md",
+			"sha256": "26408d6f16870cff6986c5a6a3bd6ee40f4c484d7d18f06f92b088758bae8ca3"
+		},
+		{
+			"path": "docs/hcm/apps/domain-configuration/TRACEABILITY.md",
+			"sha256": "eb5b8599f0634c616a8f777af633b4061bd7e3b7c7a5f788e144a3d4d1d708b7"
+		},
+		{
+			"path": "docs/hcm/apps/employee-documents/BLUEPRINT.json",
+			"sha256": "c1ceec450adf4a45b5ab1c6e9a7c60ed2f638c6509989dde4ef30322eea424e1"
+		},
+		{
+			"path": "docs/hcm/apps/employee-documents/DECISIONS.md",
+			"sha256": "2eb1c838bd1073e1439df028cf6814680857fed8f8fe9b50afee7c0a7d7c0f62"
+		},
+		{
+			"path": "docs/hcm/apps/employee-documents/FDD.md",
+			"sha256": "ec1a01a9d6713ab80ebce1f7af1c926eb44babd8c0989cca3273034e3756039b"
+		},
+		{
+			"path": "docs/hcm/apps/employee-documents/TDD.md",
+			"sha256": "e3aa914a027956b44ed4921382c1617ccf928b11aba9934a199e1080b600b6c9"
+		},
+		{
+			"path": "docs/hcm/apps/employee-documents/TRACEABILITY.md",
+			"sha256": "f13b9a983e2ccda48485c7902c7c31a52f6efa77ad27cd1df32542d68db17399"
+		},
+		{
+			"path": "docs/hcm/apps/identity-administration/BLUEPRINT.json",
+			"sha256": "ebe6b1f10c123149b1ef55a425d462e622df21098ef8383c266ad9834d7ad54e"
+		},
+		{
+			"path": "docs/hcm/apps/identity-administration/DECISIONS.md",
+			"sha256": "a9f0f344018712638da58b5b929023b565d8048e858ee7d417a2218bfc4472b1"
+		},
+		{
+			"path": "docs/hcm/apps/identity-administration/FDD.md",
+			"sha256": "5bc3f4e47b9c842814252e4782c26cd2daaae32561c0727f63d54246c51d1214"
+		},
+		{
+			"path": "docs/hcm/apps/identity-administration/TDD.md",
+			"sha256": "52c3b8149fe86956a53af1220f0dbd1b15048c4400f8fe330e44c1213cab5f25"
+		},
+		{
+			"path": "docs/hcm/apps/identity-administration/TRACEABILITY.md",
+			"sha256": "b3aff68baf5194e6e7406bbe646bfeaf6500e279c8bc493feb4c9161f40fa795"
+		},
+		{
+			"path": "docs/hcm/apps/my-activity/BLUEPRINT.json",
+			"sha256": "a72b8d1c5e6efadf7154e51a1bde0802abf4bf188ba38bf9acaf9cef7816cf46"
+		},
+		{
+			"path": "docs/hcm/apps/my-activity/DECISIONS.md",
+			"sha256": "969abfe126a24c8fe171a540ff1368e01ab8091417dfd1e29279da26ea78ec29"
+		},
+		{
+			"path": "docs/hcm/apps/my-activity/FDD.md",
+			"sha256": "70b355f02f17f0dd41a033821bc618ddccc8015114409383cbb4af1f6a2888fd"
+		},
+		{
+			"path": "docs/hcm/apps/my-activity/TDD.md",
+			"sha256": "ba87e339c0ef44d98fa6609a1cf16075e6de532dbc60c05f9b375bdfc531ad92"
+		},
+		{
+			"path": "docs/hcm/apps/my-activity/TRACEABILITY.md",
+			"sha256": "864554bb8f9682c6e0a675f77871e8b9b5e77eb59bdaa62c432a859c1bed7836"
+		},
+		{
+			"path": "docs/hcm/apps/my-documents/BLUEPRINT.json",
+			"sha256": "be5dea402aa51232d8cd034f30321adafa76453b93142003fdbb1afcb7418ac6"
+		},
+		{
+			"path": "docs/hcm/apps/my-documents/DECISIONS.md",
+			"sha256": "297442b05148f8ab14761d02e4cf6edbe712a1ffb489a49e3b4d1643fa45ee9c"
+		},
+		{
+			"path": "docs/hcm/apps/my-documents/FDD.md",
+			"sha256": "0a271f8b2670bf28aff4e1a497fbbc5e8b48deee1afb85f1f2a297fb2b921ad4"
+		},
+		{
+			"path": "docs/hcm/apps/my-documents/TDD.md",
+			"sha256": "1b6e8de947f7838c07c00ffd1bf6fc21229d4951e93a2c7f7e3b547bd25fef83"
+		},
+		{
+			"path": "docs/hcm/apps/my-documents/TRACEABILITY.md",
+			"sha256": "9bf5163944366b0b37a6b16b430c2a2a35242f03016f64b7f7e25e4361333408"
+		},
+		{
+			"path": "docs/hcm/apps/my-notification-preferences/BLUEPRINT.json",
+			"sha256": "9c918a3a7dedaf3bda53250b3a253f52e7005fe4cd89bdd733b9015ae3b12c48"
+		},
+		{
+			"path": "docs/hcm/apps/my-notification-preferences/DECISIONS.md",
+			"sha256": "0b63e007e50c83099e9774c9940488243805c40f074b172f37e940023eb92803"
+		},
+		{
+			"path": "docs/hcm/apps/my-notification-preferences/FDD.md",
+			"sha256": "1c136db158bca78023264c35e7bd3f1cfe0c72d3b8d5a3d2b0d35a87d965ef07"
+		},
+		{
+			"path": "docs/hcm/apps/my-notification-preferences/TDD.md",
+			"sha256": "6dcf6033325bb641ddb9ea84fbb8d0a4022aa67282672350fa1114681284edf1"
+		},
+		{
+			"path": "docs/hcm/apps/my-notification-preferences/TRACEABILITY.md",
+			"sha256": "f81b3485341ab1ea9d5c2276eca3f4b3553eb194f87438a1aca55fd1b6f2ba37"
+		},
+		{
+			"path": "docs/hcm/apps/my-notifications/BLUEPRINT.json",
+			"sha256": "c6ef0b1067565443624841cb209e9a9893bde5ea17a9ac0cbb7d9b8a2996fd8c"
+		},
+		{
+			"path": "docs/hcm/apps/my-notifications/DECISIONS.md",
+			"sha256": "e557991e83faca4d8bd2f986836b269921a11b91728ad14e417143ccde60ce30"
+		},
+		{
+			"path": "docs/hcm/apps/my-notifications/FDD.md",
+			"sha256": "1fe70154477cf4ce495eafdbca90ed842ea796b069119402c6e6fe2976a0c003"
+		},
+		{
+			"path": "docs/hcm/apps/my-notifications/TDD.md",
+			"sha256": "1bbaa2cf82e793531889ec99008b9553f3b2bf711583dc5c949cebb94ed4def3"
+		},
+		{
+			"path": "docs/hcm/apps/my-notifications/TRACEABILITY.md",
+			"sha256": "d159e346eeedf78260ffe3327395dd485a135287e1c969cd57dd1b7da1198e69"
+		},
+		{
+			"path": "docs/hcm/apps/my-security/BLUEPRINT.json",
+			"sha256": "82398bad3e6c68e0b02658ad471ccc816e9ca4187d0f34bb2947e62d66ef3793"
+		},
+		{
+			"path": "docs/hcm/apps/my-security/DECISIONS.md",
+			"sha256": "34aa2b95a18a4b490b4cd13efcef06a89624a7f87dd4141e82aa6792e5c9cf51"
+		},
+		{
+			"path": "docs/hcm/apps/my-security/FDD.md",
+			"sha256": "33d0709815cbb992f09df7761ae4ac484ba39a2de3846155cc1be6e8d387cca6"
+		},
+		{
+			"path": "docs/hcm/apps/my-security/TDD.md",
+			"sha256": "1c54f8d754de466d019542de962b7a201aeb372d40f80c380c2074567abe967f"
+		},
+		{
+			"path": "docs/hcm/apps/my-security/TRACEABILITY.md",
+			"sha256": "d8db9d56eab0ff63ecc18bf7542e594c68420b248ac7e627f97910ceb75d8af7"
+		},
+		{
+			"path": "docs/hcm/apps/notification-rules/BLUEPRINT.json",
+			"sha256": "3f12ef3c296e2f1709146ab2a3f68bdf440caecfdb04639641600a7a9c981b4a"
+		},
+		{
+			"path": "docs/hcm/apps/notification-rules/DECISIONS.md",
+			"sha256": "2992bb47531922a2b1df7e393a86d468ba017528dfb8bb90aac9bbbb597fb33d"
+		},
+		{
+			"path": "docs/hcm/apps/notification-rules/FDD.md",
+			"sha256": "71269d49f7cb821623a566d1a49e4652a56249c70e6ac8e253cfd0aaaa8b3cc9"
+		},
+		{
+			"path": "docs/hcm/apps/notification-rules/TDD.md",
+			"sha256": "5157a98b052b89b6d646cc19facffebc99d713017bf7900399257770b9c3370a"
+		},
+		{
+			"path": "docs/hcm/apps/notification-rules/TRACEABILITY.md",
+			"sha256": "37a79822eba749ca1945677d529b827b4b2350da8706e4b304127102595bd43e"
+		},
+		{
+			"path": "docs/hcm/apps/notification-templates/BLUEPRINT.json",
+			"sha256": "639282d5c7eae8ba5e4c9b5c1e2bf4f60fa39cd8b25e163481fcf9054aa84666"
+		},
+		{
+			"path": "docs/hcm/apps/notification-templates/DECISIONS.md",
+			"sha256": "769943f8bafea882697516e559172c0f9f6ad6b93cd6cf61ab1c6f6403bcbd7c"
+		},
+		{
+			"path": "docs/hcm/apps/notification-templates/FDD.md",
+			"sha256": "4e47539a1096ff028a8377e4dc1fc5389c0a34c6676f55e8affbca2bb07586db"
+		},
+		{
+			"path": "docs/hcm/apps/notification-templates/TDD.md",
+			"sha256": "e4b8979c90dc24d5ee29b625f32b33a8d339415c4f510ccf4402eb29ed81e6a7"
+		},
+		{
+			"path": "docs/hcm/apps/notification-templates/TRACEABILITY.md",
+			"sha256": "a4b05e7aa842e0ab5b9f5e54f21d34409392d339fb53b95ffea3cd3ca742c24d"
+		},
+		{
+			"path": "docs/hcm/apps/role-management/BLUEPRINT.json",
+			"sha256": "02bc80af09bb6456ab1d72e022913dcb5192f86a3991d64de85d4a66c9476d6e"
+		},
+		{
+			"path": "docs/hcm/apps/role-management/DECISIONS.md",
+			"sha256": "689e717a936e491f0e82b4535c7f1b4a63969a0a9ffbc1dfd69bad709d42bf8e"
+		},
+		{
+			"path": "docs/hcm/apps/role-management/FDD.md",
+			"sha256": "d47ec5497609548580edff814e28f9aacf910924524b6b8e7e768fb6eda56e01"
+		},
+		{
+			"path": "docs/hcm/apps/role-management/TDD.md",
+			"sha256": "8fa9dde2b62fcbe93c9af0630292921b31af435563b9887d5147ce151091cc7f"
+		},
+		{
+			"path": "docs/hcm/apps/role-management/TRACEABILITY.md",
+			"sha256": "b3980a8ce5d396ff42b49e05ae46373fabe1445b3bc0a08ce0fd84f2e09998a8"
+		},
+		{
+			"path": "docs/hcm/apps/sensitive-access-log/BLUEPRINT.json",
+			"sha256": "89412b18b65388340e2903aaa93e8b42062c4748f29cf54365ae6983048d3935"
+		},
+		{
+			"path": "docs/hcm/apps/sensitive-access-log/DECISIONS.md",
+			"sha256": "78fded828261b03b666abacc87c16ee07670f82d30a227e5f866ee2933aba4be"
+		},
+		{
+			"path": "docs/hcm/apps/sensitive-access-log/FDD.md",
+			"sha256": "52ed7d709303a7776987f570ff4a95ce9311d77b7a1cd86f330a40e6f0974e76"
+		},
+		{
+			"path": "docs/hcm/apps/sensitive-access-log/TDD.md",
+			"sha256": "8766bdc573ae2fb50a92e783e57d247efcf957a0f37cce8f98522d385fa3aa6e"
+		},
+		{
+			"path": "docs/hcm/apps/sensitive-access-log/TRACEABILITY.md",
+			"sha256": "ae63b791b72fb99edee74c21a70f8af7e38a844aaeeb6356a5fda667a882277a"
+		},
+		{
+			"path": "docs/hcm/apps/tenant-access-reviews/BLUEPRINT.json",
+			"sha256": "ef81b90dcab3c6b36b0b386311fd5fc4bd67e20a2d65c2d874f2e00caa2c5f86"
+		},
+		{
+			"path": "docs/hcm/apps/tenant-access-reviews/DECISIONS.md",
+			"sha256": "23df24eb51ca27e3a49360f5539146b8cdf7bb50402bc3bf95d82d323b4c347f"
+		},
+		{
+			"path": "docs/hcm/apps/tenant-access-reviews/FDD.md",
+			"sha256": "d3916a6855597a64d76f1d36b8f54dfb1731416b227c7d097c973a642062139a"
+		},
+		{
+			"path": "docs/hcm/apps/tenant-access-reviews/TDD.md",
+			"sha256": "634855e2c3727dcd5555f94c5ccebd9be419d2dd725fc878bac0c897a83c88c3"
+		},
+		{
+			"path": "docs/hcm/apps/tenant-access-reviews/TRACEABILITY.md",
+			"sha256": "ab740e3fc040637df6966909c596eb915fadd006a03b686b82fe6decf8025698"
+		},
+		{
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md",
+			"sha256": "ba186484e2ccadadb4c439cf47d526245e28056d859f3c198d6e9be17a345e1c"
+		},
+		{
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md",
+			"sha256": "a8917cc63bd762d08e59a143659a0e5193f7473ec5542692f3f34fed7382c6f0"
+		},
+		{
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md",
+			"sha256": "cf56b780688dd45c2c86b6c7f1555f1ba004f8abb1ded81ae04130e3a1feaa71"
+		},
+		{
+			"path": "docs/hcm/domain/HCM-1-IDENTITY-ACCESS.md",
+			"sha256": "e055a99ccaf90254aa6290d47eded18c6f084053fbb8e06faec023be6fd57b8c"
+		},
+		{
+			"path": "docs/hcm/domain/HCM-1-NOTIFICATIONS.md",
+			"sha256": "518c21b74ffec085d6005cbe69c23c3f131fdf4f713488bcbcc5b46a7326a5a7"
+		},
+		{
+			"path": "docs/hcm/roadmap/HCM-1-DECISIONS.md",
+			"sha256": "cbbcfdbf781de6f2ff9711d870c86ed4155e82a3d685d00f1a74421212bb9365"
+		},
+		{
+			"path": "docs/hcm/tdd/HCM-1-PERMISSION-MATRIX.md",
+			"sha256": "2e792a5dd2eb6544ae51048856610881a8283ce818e29f3fa2265092c4a0a735"
+		},
+		{
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md",
+			"sha256": "7496105fd98a7a651ab5bcd50847f8ec4fd9e62266f1a0497f8f2e7846124c45"
+		},
+		{
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+			"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+		},
+		{
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+			"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+		},
+		{
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+			"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+		},
+		{
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+			"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+		},
+		{
+			"path": "docs/hcm/ux/floorplans/README.md",
+			"sha256": "b9c8b7722233db5b4af94f4128f93a8614c6c6cfc44ba65f15d08938bd6f3ad7"
+		}
+	]
+}
