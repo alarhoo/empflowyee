@@ -1240,12 +1240,18 @@
 			"runtime": "web",
 			"domain": "documents",
 			"deliveryWave": "HCM-1",
-			"catalogueIds": ["hr-specialist-operations"],
+			"catalogueIds": ["hr-specialist-operations", "employee-self-service"],
 			"placements": [
 				{
 					"spaceId": "hr-operations",
 					"pageId": "hr-governance-assets-engagement",
 					"sectionId": "hr-documents-governance",
+					"display": "tiles"
+				},
+				{
+					"spaceId": "employee",
+					"pageId": "employee-lifecycle",
+					"sectionId": "employee-documents-compliance",
 					"display": "tiles"
 				}
 			],
@@ -1255,7 +1261,7 @@
 			"fddStatus": "approved",
 			"tddStatus": "approved",
 			"blockingDecisionStatus": "clear",
-			"implementationStatus": "planned",
+			"implementationStatus": "implementing",
 			"dataPolicy": "real-api-only",
 			"themeContract": "theme-agnostic",
 			"customCssPolicy": "forbidden-by-default",

@@ -42,6 +42,8 @@ export function documentErrorMessage(error: unknown): string {
 	const code = error instanceof HttpErrorResponse ? error.error?.code : undefined
 	const messages: Record<string, string> = {
 		'invalid-request': 'Check the fields and filters.',
+		'invalid-state':
+			'This request no longer allows that action. Reload its current state before continuing.',
 		'not-found': 'This document record is no longer available.',
 		'storage-unavailable':
 			'Private file storage is unavailable. Retry with the same file and draft.',

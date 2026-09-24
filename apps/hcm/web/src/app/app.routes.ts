@@ -5,6 +5,15 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'documents/document-requests',
+		data: { catalogId: 'DOCUMENT_REQUESTS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the request-owned FCL and routed complex create. */ () =>
+			import('@empflowyee/hcm-web-documents-feature-document-requests').then(
+				/** Retain domain route guards. */ (m) => m.DOCUMENT_REQUESTS_ROUTES,
+			),
+	},
+	{
 		path: 'documents/my-documents',
 		data: { catalogId: 'MY_DOCUMENTS' },
 		canMatch: [hcmRouteAccess],

@@ -1,0 +1,313 @@
+<ui5-flexible-column-layout
+	[layout]="selectedId() ? 'TwoColumnsMidExpanded' : 'OneColumn'"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Request list' },
+		midColumn: { role: 'region', name: 'Selected request' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Document Requests"
+		summary="Track requested documents and retained submissions"
+		[state]="state()"
+		[readOnly]="!canManage() && !canSubmit()"
+		[actions]="pageActions()"
+		(action)="create()"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Request filters"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			@if (canChooseScope()) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="request-scope">
+						Scope
+					</ui5-label>
+					<ui5-select
+						id="request-scope"
+						accessibleName="Request scope"
+						(ui5Change)="changeScope($event)">
+						<ui5-option
+							value="own"
+							[selected]="scope() === 'own'">
+							Own requests
+						</ui5-option>
+						<ui5-option
+							value="hr"
+							[selected]="scope() === 'hr'">
+							HR tenant requests
+						</ui5-option>
+					</ui5-select>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="request-status">
+					Status
+				</ui5-label>
+				<ui5-select
+					id="request-status"
+					accessibleName="Request status"
+					[formField]="fields.status">
+					<ui5-option value="">All statuses</ui5-option>
+					<ui5-option value="Open">Open</ui5-option>
+					<ui5-option value="Submitted">Submitted</ui5-option>
+					<ui5-option value="Completed">Completed</ui5-option>
+					<ui5-option value="Cancelled">Cancelled</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="request-search">
+					Search
+				</ui5-label>
+				<ui5-input
+					id="request-search"
+					accessibleName="Search request IDs"
+					[formField]="fields.q"></ui5-input>
+			</ui5-form-item>
+			@if (scope() === 'hr') {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="request-type-filter">
+						Document type ID
+					</ui5-label>
+					<ui5-input
+						id="request-type-filter"
+						accessibleName="Filter document type ID"
+						[formField]="fields.typeId"></ui5-input>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="request-worker-filter">
+						Worker ID
+					</ui5-label>
+					<ui5-input
+						id="request-worker-filter"
+						accessibleName="Filter worker ID"
+						[formField]="fields.workerId"></ui5-input>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="request-sort">
+					Sort
+				</ui5-label>
+				<ui5-select
+					id="request-sort"
+					accessibleName="Document sort"
+					[formField]="fields.sort">
+					<ui5-option value="createdAt:asc">Oldest first</ui5-option>
+					<ui5-option value="createdAt:desc">Newest first</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="load()">
+					Apply filters
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			accessibleName="Document requests"
+			overflowMode="Popin"
+			noDataText="No requests match the filters">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="10rem">
+					Request ID
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="12rem"
+					popinText="Type ID">
+					Type ID
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="7rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="7rem"
+					popinText="Due date">
+					Due date
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="7rem">
+					Actions
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of rows(); track item.id) {
+				<ui5-table-row>
+					<ui5-table-cell>{{ item.id }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.typeId }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.status }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.dueDate ?? 'No due date' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'View ' + item.id"
+							(click)="select(item.id)">
+							View request
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+		@if (cursor()) {
+			<ui5-button
+				[disabled]="busy()"
+				(click)="more()">
+				Load more requests
+			</ui5-button>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selectedId()) {
+		<ef-hcm-object-page
+			slot="midColumn"
+			[title]="selected()?.id ?? 'Document request'"
+			summary="Request lifecycle and immutable submissions"
+			[state]="detailState()"
+			[readOnly]="!canManage() && !canSubmit()"
+			[actions]="detailActions()"
+			[errorMessage]="detailMessage()"
+			(action)="detailAction($event)"
+			(retry)="loadDetail()">
+			<ng-template
+				efHcmObjectSection="overview"
+				label="Overview">
+				@if (selected(); as item) {
+					<dl>
+						<dt>Request ID</dt>
+						<dd>{{ item.id }}</dd>
+						<dt>Status</dt>
+						<dd>{{ item.status }}</dd>
+						<dt>Revision</dt>
+						<dd>{{ item.revision }}</dd>
+						<dt>Document type ID</dt>
+						<dd>{{ item.typeId }}</dd>
+						@if (scope() === 'hr') {
+							<dt>Worker ID</dt>
+							<dd>{{ worker(item) }}</dd>
+						}
+						<dt>Requested by</dt>
+						<dd>{{ requester(item) }}</dd>
+						<dt>Instructions</dt>
+						<dd>{{ item.instructions || 'No additional instructions' }}</dd>
+						<dt>Due date</dt>
+						<dd>{{ item.dueDate ?? 'No due date' }}</dd>
+						<dt>Created</dt>
+						<dd>{{ item.createdAt }}</dd>
+						<dt>Accepted submission</dt>
+						<dd>{{ item.acceptedVersionId ?? 'None' }}</dd>
+						<dt>Latest submission</dt>
+						<dd>{{ versions()[0]?.filename ?? 'No submissions loaded' }}</dd>
+					</dl>
+					<p>
+						Due dates are informational. Previous submissions remain available after replacement or
+						completion.
+					</p>
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="submissions"
+				label="Submissions">
+				@if (versionMessage()) {
+					<ui5-message-strip
+						design="Negative"
+						[hideCloseButton]="true">
+						{{ versionMessage() }}
+					</ui5-message-strip>
+				}
+				<ui5-button
+					[disabled]="versionBusy()"
+					(click)="loadVersions()">
+					{{ versionBusy() ? 'Loading submissions…' : 'Reload submissions' }}
+				</ui5-button>
+				<ui5-table
+					accessibleName="Request submissions"
+					overflowMode="Popin"
+					noDataText="No submissions are available">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="4rem">
+							Version
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="80"
+							minWidth="10rem"
+							popinText="File">
+							File
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="30"
+							minWidth="7rem"
+							popinText="Bytes">
+							Bytes
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="20"
+							minWidth="10rem"
+							popinText="Created">
+							Created
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="7rem">
+							Actions
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (version of versions(); track version.id) {
+						<ui5-table-row>
+							<ui5-table-cell>{{ version.versionNumber }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.filename }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.byteLength }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.createdAt }}</ui5-table-cell>
+							<ui5-table-cell>
+								@if (canDownload()) {
+									<ui5-button
+										[disabled]="!!downloading()"
+										[accessibleName]="'Download version ' + version.versionNumber"
+										(click)="download(version)">
+										{{ downloading() === version.id ? 'Downloading…' : 'Download' }}
+									</ui5-button>
+								}
+							</ui5-table-cell>
+						</ui5-table-row>
+					}
+				</ui5-table>
+				@if (versionCursor()) {
+					<ui5-button
+						[disabled]="versionBusy()"
+						(click)="loadVersions(true)">
+						Load more submissions
+					</ui5-button>
+				}
+			</ng-template>
+		</ef-hcm-object-page>
+	}
+</ui5-flexible-column-layout>
+
+@if (dialogAction(); as action) {
+	@if (selected(); as item) {
+		<ef-hcm-request-action-dialog
+			[item]="item"
+			[action]="action"
+			[submission]="versions()[0] ?? null"
+			(closed)="actionClosed()"></ef-hcm-request-action-dialog>
+	}
+}

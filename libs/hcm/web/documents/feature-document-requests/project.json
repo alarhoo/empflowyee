@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-documents-feature-document-requests",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/documents/feature-document-requests/src",
+	"prefix": "ef",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:documents", "type:feature"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

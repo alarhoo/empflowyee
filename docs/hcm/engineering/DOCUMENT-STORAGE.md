@@ -29,7 +29,7 @@ After filesystem publication, a second transaction reauthorizes and verifies byt
 before committing Ready state, immutable version, safe audit and successful receipt.
 A 503 is never reported as success. Retry with the same metadata, file and key
 resumes reserved bytes or returns the committed response. Changed bytes or metadata
-conflict. A revoked grant or stale revision terminally fails only that reservation.
+conflict. A revoked grant, stale revision or invalidated request state terminally fails only that reservation.
 Transient storage/database/audit failure leaves the reservation resumable.
 
 Run `pnpm hcm:documents:cleanup` explicitly after inspection. Under tenant locks it

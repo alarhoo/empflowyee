@@ -21,6 +21,7 @@
 				"EMPLOYEE_DIRECTORY",
 				"ORG_CHART",
 				"MY_DOCUMENTS",
+				"DOCUMENT_REQUESTS",
 				"MY_HR_REQUESTS",
 				"MY_SECURITY",
 				"MY_NOTIFICATIONS",
@@ -426,7 +427,7 @@
 					"sectionId": "employee-documents-compliance",
 					"title": "Documents and Compliance",
 					"display": "tiles",
-					"appCodes": ["MY_DOCUMENTS", "POLICY_ACKNOWLEDGEMENTS", "MY_ASSETS"]
+					"appCodes": ["MY_DOCUMENTS", "DOCUMENT_REQUESTS", "POLICY_ACKNOWLEDGEMENTS", "MY_ASSETS"]
 				}
 			]
 		},

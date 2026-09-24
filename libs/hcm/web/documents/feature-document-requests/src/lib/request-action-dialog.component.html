@@ -1,0 +1,81 @@
+<ui5-dialog
+	[open]="open()"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)"
+	(ui5Close)="finish($event)">
+	<p>Request {{ item().id }} · {{ item().status }} · Revision {{ item().revision }}</p>
+	@if (action() === 'submit') {
+		<ui5-label for="request-file">Document file</ui5-label>
+		<ui5-file-uploader
+			id="request-file"
+			accessibleName="Document file"
+			accept=".pdf,.png,.jpg,.jpeg"
+			[maxFileSize]="10"
+			[multiple]="false"
+			[required]="true"
+			[disabled]="saving()"
+			(ui5Change)="chooseFile($event)"
+			(ui5FileSizeExceed)="rejectFile()"></ui5-file-uploader>
+		<p>PDF, PNG or JPEG, up to 10 MiB. Submit one file for HR review.</p>
+	} @else {
+		@if (action() === 'accept') {
+			<p>
+				Accept latest submission: {{ submission()?.filename ?? 'Unavailable' }} (version
+				{{ submission()?.versionNumber }}).
+			</p>
+		}
+		<ui5-label
+			for="request-reason"
+			[required]="true">
+			Reason
+		</ui5-label>
+		<ui5-textarea
+			id="request-reason"
+			accessibleName="Reason"
+			[formField]="fields.reason"
+			[disabled]="saving()"></ui5-textarea>
+	}
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="saving()"
+			(click)="save()">
+			{{ saving() ? 'Saving…' : 'Confirm' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ui5-dialog
+	[open]="confirm()"
+	headerText="Discard changes?"
+	accessibleName="Discard changes?"
+	(ui5Close)="decide(false)">
+	<p>Your unsaved request action will be discarded.</p>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Negative"
+			(click)="decide(true)">
+			Discard changes
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			(click)="decide(false)">
+			Keep editing
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
