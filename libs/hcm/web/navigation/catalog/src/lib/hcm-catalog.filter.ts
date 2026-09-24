@@ -1,3 +1,4 @@
+import { hasHcmDiscoveryCapabilities, hasHcmSpacePlacement } from '@empflowyee/hcm-runtime-contract'
 import type { HcmAccessContext } from '@empflowyee/hcm-runtime-contract'
 import { HCM_FEATURES, HCM_SPACES, HCM_FOUNDATION_FEATURES } from './hcm-catalog.fixture'
 import type {
@@ -19,20 +20,7 @@ export function canDiscoverHcmFeature(
 	feature: HcmFeatureDefinition | undefined,
 	access: HcmAccessContext,
 ): boolean {
-	return (
-		!!feature &&
-		(feature.requiredPermissions ?? []).every(
-			/** Match each independently authorized capability. */ (permission) =>
-				access.permissions.includes(permission),
-		) &&
-		(feature.requiredEntitlements ?? []).every(
-			/** Require every licensed product capability. */ (entitlement) =>
-				access.entitlements.includes(entitlement),
-		) &&
-		(feature.requiredFeatureFlags ?? []).every(
-			/** Hide disabled product rollouts. */ (flag) => access.featureFlags.includes(flag),
-		)
-	)
+	return !!feature && hasHcmDiscoveryCapabilities(feature, access)
 }
 
 /** Look up one canonical stable ID for route and navigation policy. */
@@ -59,15 +47,7 @@ export function getVisibleHcmSpaces(
 	)
 	const visible: VisibleHcmSpace[] = []
 	for (const space of spaces) {
-		if (
-			!inspectAll &&
-			space.roleIds &&
-			!space.roleIds.some(
-				/** Check navigation placement independently of capability authorization. */ (role) =>
-					access.roles.includes(role),
-			)
-		)
-			continue
+		if (!inspectAll && !hasHcmSpacePlacement(space.roleIds, access)) continue
 		const pages: VisibleHcmSpace['pages'][number][] = []
 		for (const page of space.pages) {
 			const groups: VisibleHcmSpace['pages'][number]['groups'][number][] = []

@@ -1,7 +1,10 @@
+import { HCM_CATALOGUE } from '@empflowyee/hcm-runtime-contract/catalogue'
 import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { assertLocalRuntime } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
+	CatalogueInspection,
+	CatalogueInspectionUnit,
 	AccessAssignments,
 	AssignmentUnitOfWork,
 	RoleManagement,
@@ -9,12 +12,14 @@ import {
 	RoleContext,
 } from '@empflowyee/hcm-api-access-control-application'
 import {
+	KyselyCatalogueInspectionUnit,
 	KyselyAssignmentUnitOfWork,
 	HcmAccessDatabase,
 	KyselyRoleUnitOfWork,
 	KyselyRoleContext,
 } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	CatalogueInspectionController,
 	AssignmentController,
 	RoleManagementController,
 	HCM_ROLE_WRITE_ORIGIN,
@@ -65,9 +70,23 @@ function writeOrigin(): string | null {
 }
 @Module({
 	imports: [HcmRuntimeModule],
-	controllers: [RoleManagementController, AssignmentController],
+	controllers: [RoleManagementController, AssignmentController, CatalogueInspectionController],
 	exports: [HcmAccessDatabase, HCM_ROLE_WRITE_ORIGIN],
 	providers: [
+		{
+			provide: CatalogueInspectionUnit,
+			inject: [HcmAccessDatabase],
+			useFactory: /** Bind the read-only catalogue projection ports. */ (
+				database: HcmAccessDatabase | null,
+			) => new KyselyCatalogueInspectionUnit(database),
+		},
+		{
+			provide: CatalogueInspection,
+			inject: [CatalogueInspectionUnit],
+			useFactory: /** Compose canonical metadata with authorized tenant reads. */ (
+				unit: CatalogueInspectionUnit,
+			) => new CatalogueInspection(unit, HCM_CATALOGUE),
+		},
 		{
 			provide: AssignmentUnitOfWork,
 			inject: [HcmAccessDatabase],

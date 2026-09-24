@@ -9,3 +9,5 @@ export {
 	type RoleRequest,
 	type RoleResponse,
 } from './lib/access-request'
+
+export * from './lib/catalogue-controller'

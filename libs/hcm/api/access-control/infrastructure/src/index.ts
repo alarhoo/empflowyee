@@ -3,3 +3,5 @@ export * from './lib/role-repository'
 export * from './lib/role-context'
 export * from './lib/assignment-queries'
 export * from './lib/assignment-repository'
+
+export * from './lib/catalogue-inspection'
