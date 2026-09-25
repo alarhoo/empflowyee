@@ -1,3 +1,7 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { DateTimePicker } from '@fundamental-ngx/ui5-webcomponents/date-time-picker'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -38,6 +42,10 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-sensitive-access-log',
 	imports: [
+		ObjectStatusComponent,
+		DateTimePicker,
+		HcmDatePipe,
+		HcmViewSettings,
 		HcmDynamicPage,
 		Form,
 		FormItem,
@@ -147,5 +155,15 @@ export class SensitiveAccessLogComponent {
 					this.state.set('content')
 				},
 			})
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

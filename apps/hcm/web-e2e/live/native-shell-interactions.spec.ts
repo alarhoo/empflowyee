@@ -127,7 +127,7 @@ test('notification tray shares real inbox content and local sign-out survives re
 	await expect(page.getByRole('button', { name: 'Jim Halpert', exact: true })).toBeVisible()
 	const response = page.waitForResponse(
 		/** Match the tray read, excluding the separate unread badge projection. */ (res) =>
-			res.url().includes('/notifications/me/inbox') && !res.url().includes('unread='),
+			res.url().includes('/notifications/me/inbox') && res.url().includes('unread=true'),
 	)
 	await page.locator('ui5-shellbar [data-ui5-stable="notifications"]').click()
 	const inbox = await (await response).json()

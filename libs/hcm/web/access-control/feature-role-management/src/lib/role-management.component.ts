@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
@@ -45,6 +47,8 @@ import { RoleEditorComponent, type RoleEdit } from './role-editor.component'
 @Component({
 	selector: 'ef-hcm-role-management',
 	imports: [
+		ObjectStatusComponent,
+		HcmViewSettings,
 		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
@@ -265,5 +269,15 @@ export class RoleManagementComponent {
 				item.id === key,
 		)
 		if (row) void this.open('view', row)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

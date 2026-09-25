@@ -20,11 +20,15 @@
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Email</ui5-label>
-					<ui5-text>{{ item.email }}</ui5-text>
+					<ui5-link [href]="'mailto:' + item.email">{{ item.email }}</ui5-link>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Status</ui5-label>
-					<ui5-text>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-text>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="item.enabled ? 'positive' : 'neutral'"
+						[label]="item.enabled ? 'Enabled' : 'Disabled'"></span>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Person</ui5-label>
@@ -36,7 +40,7 @@
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Created</ui5-label>
-					<ui5-text>{{ item.createdAt }}</ui5-text>
+					<ui5-text>{{ item.createdAt | hcmDate }}</ui5-text>
 				</ui5-form-item>
 			</ui5-form>
 			<ui5-text>

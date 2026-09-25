@@ -1,3 +1,6 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -7,7 +10,6 @@ import {
 	signal,
 	untracked,
 } from '@angular/core'
-import { DatePipe } from '@angular/common'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { form, FormField } from '@angular/forms/signals'
 import { Subscription } from 'rxjs'
@@ -33,6 +35,9 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-my-security',
 	imports: [
+		ObjectStatusComponent,
+		Link,
+		HcmDatePipe,
 		Page,
 		Bar,
 		Title,
@@ -49,7 +54,6 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 		TableHeaderCell,
 		TableRow,
 		TableCell,
-		DatePipe,
 	],
 	templateUrl: './my-security.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,

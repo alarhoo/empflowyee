@@ -1,3 +1,5 @@
+import { DatePicker } from '@fundamental-ngx/ui5-webcomponents/date-picker'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
 import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
@@ -37,8 +39,6 @@ import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
-import { Select } from '@fundamental-ngx/ui5-webcomponents/select'
-import { Option } from '@fundamental-ngx/ui5-webcomponents/option'
 import { Table } from '@fundamental-ngx/ui5-webcomponents/table'
 import { TableHeaderRow } from '@fundamental-ngx/ui5-webcomponents/table-header-row'
 import { TableHeaderCell } from '@fundamental-ngx/ui5-webcomponents/table-header-cell'
@@ -49,6 +49,8 @@ import { TemplateDialogComponent } from './templates-dialog.component'
 @Component({
 	selector: 'ef-hcm-notification-templates',
 	imports: [
+		DatePicker,
+		HcmViewSettings,
 		Title,
 		TableRowActionNavigation,
 		Text,
@@ -60,8 +62,6 @@ import { TemplateDialogComponent } from './templates-dialog.component'
 		Form,
 		FormItem,
 		Label,
-		Select,
-		Option,
 		Table,
 		TableHeaderRow,
 		TableHeaderCell,
@@ -83,15 +83,16 @@ export class NotificationTemplatesComponent {
 	readonly rows = signal<NotificationTemplate[]>([])
 	readonly state = signal<HcmPageState>('loading')
 	readonly message = signal('')
-	readonly filters = signal({ sort: 'label' })
+	readonly filters = signal({ sort: 'label:asc' })
 	readonly fields = form(this.filters)
 	readonly ordered = computed(
 		/** Sort only the explicitly bounded server collection. */ () =>
 			[...this.rows()].sort(
 				/** Respect the approved client-side sort field. */ (a, b) =>
-					this.filters().sort === 'event'
+					(this.filters().sort.startsWith('event:')
 						? a.eventType.localeCompare(b.eventType)
-						: this.eventLabel(a.eventType).localeCompare(this.eventLabel(b.eventType)),
+						: this.eventLabel(a.eventType).localeCompare(this.eventLabel(b.eventType))) *
+					(this.filters().sort.endsWith(':desc') ? -1 : 1),
 			),
 	)
 	readonly canManage = computed(
@@ -210,5 +211,14 @@ export class NotificationTemplatesComponent {
 				item.eventType === key,
 		)
 		if (item) void this.select(item.eventType)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
 	}
 }

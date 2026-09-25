@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
@@ -13,7 +15,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { HttpErrorResponse } from '@angular/common/http'
 import type { Subscription } from 'rxjs'
-import { form, FormField } from '@angular/forms/signals'
+import { form } from '@angular/forms/signals'
 import {
 	NotificationApi,
 	notificationErrorMessage,
@@ -27,8 +29,6 @@ import { HcmDynamicPage, type HcmPageState } from '@empflowyee/hcm-web-ux-floorp
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
-import { Select } from '@fundamental-ngx/ui5-webcomponents/select'
-import { Option } from '@fundamental-ngx/ui5-webcomponents/option'
 import { Table } from '@fundamental-ngx/ui5-webcomponents/table'
 import { TableHeaderRow } from '@fundamental-ngx/ui5-webcomponents/table-header-row'
 import { TableHeaderCell } from '@fundamental-ngx/ui5-webcomponents/table-header-cell'
@@ -39,20 +39,19 @@ import { RuleDialogComponent } from './rules-dialog.component'
 @Component({
 	selector: 'ef-hcm-notification-rules',
 	imports: [
+		ObjectStatusComponent,
+		HcmViewSettings,
 		Text,
 		HcmDynamicPage,
 		Form,
 		FormItem,
 		Label,
-		Select,
-		Option,
 		Table,
 		TableHeaderRow,
 		TableHeaderCell,
 		TableRow,
 		TableCell,
 		Button,
-		FormField,
 		RuleDialogComponent,
 	],
 	templateUrl: 'notification-rules.component.html',
@@ -67,15 +66,16 @@ export class NotificationRulesComponent {
 	readonly rows = signal<NotificationRule[]>([])
 	readonly state = signal<HcmPageState>('loading')
 	readonly message = signal('')
-	readonly filters = signal({ sort: 'label' })
+	readonly filters = signal({ sort: 'label:asc' })
 	readonly fields = form(this.filters)
 	readonly ordered = computed(
 		/** Sort only the explicitly bounded server collection. */ () =>
 			[...this.rows()].sort(
 				/** Respect the approved client-side sort field. */ (a, b) =>
-					this.filters().sort === 'event'
+					(this.filters().sort.startsWith('event:')
 						? a.eventType.localeCompare(b.eventType)
-						: this.eventLabel(a.eventType).localeCompare(this.eventLabel(b.eventType)),
+						: this.eventLabel(a.eventType).localeCompare(this.eventLabel(b.eventType))) *
+					(this.filters().sort.endsWith(':desc') ? -1 : 1),
 			),
 	)
 	readonly canManage = computed(
@@ -135,5 +135,14 @@ export class NotificationRulesComponent {
 	/** Preserve unsaved actions across route and persona changes. */
 	canLeave(): Promise<boolean> {
 		return this.dialog()?.canLeave() ?? Promise.resolve(true)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
 	}
 }

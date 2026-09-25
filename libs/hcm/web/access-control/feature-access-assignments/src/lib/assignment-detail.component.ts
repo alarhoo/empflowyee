@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
@@ -40,6 +42,8 @@ import { AssignmentDialogComponent, type AssignmentAction } from './assignment-d
 @Component({
 	selector: 'ef-hcm-assignment-detail',
 	imports: [
+		ObjectStatusComponent,
+		Link,
 		Text,
 		Label,
 		FormItem,

@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -38,6 +40,8 @@ import { DocumentTypeDialogComponent } from './document-type-dialog.component'
 @Component({
 	selector: 'ef-hcm-document-types',
 	imports: [
+		ObjectStatusComponent,
+		HcmViewSettings,
 		HcmDynamicPage,
 		Form,
 		FormItem,
@@ -179,5 +183,15 @@ export class DocumentTypesComponent {
 	/** Route all navigation and persona changes through focused-form draft protection. */
 	canLeave(): Promise<boolean> {
 		return this.dialog()?.canLeave() ?? Promise.resolve(true)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

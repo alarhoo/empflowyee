@@ -1,3 +1,7 @@
+import { List } from '@fundamental-ngx/ui5-webcomponents/list'
+import { ListItemCustom } from '@fundamental-ngx/ui5-webcomponents/list-item-custom'
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
@@ -25,7 +29,21 @@ import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 
 @Component({
 	selector: 'ef-hcm-domain-configuration',
-	imports: [Label, FormItem, Form, Page, Bar, Title, Button, MessageStrip, Text],
+	imports: [
+		List,
+		ListItemCustom,
+		Link,
+		ObjectStatusComponent,
+		Label,
+		FormItem,
+		Form,
+		Page,
+		Bar,
+		Title,
+		Button,
+		MessageStrip,
+		Text,
+	],
 	templateUrl: './domain-configuration.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -2,13 +2,14 @@ import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core'
 import { FormField, form } from '@angular/forms/signals'
 import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
-import { CheckBox } from '@fundamental-ngx/ui5-webcomponents/check-box'
-import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
+import { List } from '@fundamental-ngx/ui5-webcomponents/list'
+import { ListItemGroup } from '@fundamental-ngx/ui5-webcomponents/list-item-group'
+import { ListItemStandard } from '@fundamental-ngx/ui5-webcomponents/list-item-standard'
 import type { PermissionOption, PermissionKind } from '@empflowyee/hcm-access-control-contract'
 
 @Component({
 	selector: 'ef-hcm-role-permissions',
-	imports: [Text, Input, CheckBox, Title, FormField],
+	imports: [Text, Input, List, ListItemGroup, ListItemStandard, FormField],
 	templateUrl: './role-permissions.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,7 +35,13 @@ export class RolePermissionsComponent {
 	)
 	/** Toggle only a registered code; runtime APIs remain the authorization boundary. */
 	toggle(code: string, checked: boolean): void {
-		if (this.readOnly()) return
+		if (
+			this.readOnly() ||
+			!this.options().some(
+				/** Accept only a registered permission row. */ (option) => option.code === code,
+			)
+		)
+			return
 		if (checked)
 			this.selected.update(
 				/** Add only one occurrence of the selected registered code. */ (values) =>

@@ -56,20 +56,7 @@
 					}
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="inbox-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="inbox-sort"
-					accessibleName="Notification sort order"
-					[formField]="filterForm.sort">
-					<ui5-option value="createdAt:desc">Newest first</ui5-option>
-					<ui5-option value="createdAt:asc">Oldest first</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
+
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
@@ -79,10 +66,25 @@
 				</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Notification"
+			[value]="filters().sort"
+			[fields]="[{ key: 'createdAt', label: 'Date and time' }]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		<ng-container [ngTemplateOutlet]="inbox"></ng-container>
 	</ef-hcm-dynamic-page>
 }
 <ng-template #inbox>
+	@if (embedded()) {
+		<ui5-button
+			design="Transparent"
+			icon="refresh"
+			[disabled]="pending() || !!reading()"
+			(ui5Click)="refreshInbox()">
+			Refresh unread notifications
+		</ui5-button>
+	}
+
 	@if (pending()) {
 		<ui5-text>Loading notifications…</ui5-text>
 	}
@@ -105,7 +107,12 @@
 			Retry inbox
 		</ui5-button>
 	}
-	<ui5-notification-list noDataText="No notifications match the filters">
+	<ui5-notification-list
+		[noDataText]="
+			embedded()
+				? 'You are all caught up. No unread notifications.'
+				: 'No notifications match the filters'
+		">
 		@for (item of rows(); track item.id) {
 			<ui5-li-notification
 				[titleText]="item.title"
@@ -121,19 +128,21 @@
 				{{ item.body }}
 				<ui5-text slot="footnotes">{{ eventLabel(item.eventType) }}</ui5-text>
 				<ui5-text slot="footnotes">{{ runtime.formatTimestamp(item.createdAt) }}</ui5-text>
-				<ui5-menu slot="menu">
-					@if (!item.readAt && canManage()) {
-						<ui5-menu-item
-							text="Mark read"
-							[disabled]="!!reading()"
-							(ui5Click)="markRead(item)"></ui5-menu-item>
-					}
-					@if (requestFeature()) {
-						<ui5-menu-item
-							text="View request"
-							(ui5Click)="openRequest(item)"></ui5-menu-item>
-					}
-				</ui5-menu>
+				@if ((!item.readAt && canManage()) || requestFeature()) {
+					<ui5-menu slot="menu">
+						@if (!item.readAt && canManage()) {
+							<ui5-menu-item
+								text="Mark read"
+								[disabled]="!!reading()"
+								(ui5Click)="markRead(item)"></ui5-menu-item>
+						}
+						@if (requestFeature()) {
+							<ui5-menu-item
+								text="View request"
+								(ui5Click)="openRequest(item)"></ui5-menu-item>
+						}
+					</ui5-menu>
+				}
 			</ui5-li-notification>
 		}
 	</ui5-notification-list>

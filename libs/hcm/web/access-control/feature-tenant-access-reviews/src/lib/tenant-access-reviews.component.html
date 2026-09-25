@@ -45,20 +45,7 @@
 					<ui5-option value="Closed">Closed</ui5-option>
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="reviews-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="reviews-sort"
-					accessibleName="Review sort order"
-					[formField]="filterForm.sort">
-					<ui5-option value="createdAt:desc">Newest first</ui5-option>
-					<ui5-option value="createdAt:asc">Oldest first</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
+
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
@@ -68,6 +55,11 @@
 				</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Review"
+			[value]="filters().sort"
+			[fields]="[{ key: 'createdAt', label: 'Date and time' }]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		@if (message()) {
 			<ui5-message-strip
 				design="Negative"
@@ -106,8 +98,24 @@
 					[rowKey]="item.id"
 					[interactive]="true">
 					<ui5-table-cell>{{ item.label }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.status }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.createdAt }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="
+								['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+									item.status.toLowerCase()
+								)
+									? 'positive'
+									: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+												item.status.toLowerCase()
+										  )
+										? 'negative'
+										: 'informative'
+							"
+							[label]="item.status"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>{{ item.createdAt | hcmDate }}</ui5-table-cell>
 
 					<ui5-table-row-action-navigation
 						slot="actions"

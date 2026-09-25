@@ -110,14 +110,16 @@
 			<ui5-label
 				slot="labelContent"
 				for="request-due">
-				Due date (YYYY-MM-DD)
+				Due date
 			</ui5-label>
-			<ui5-input
+			<ui5-date-picker
+				valueFormat="yyyy-MM-dd"
+				displayFormat="medium"
 				id="request-due"
-				accessibleName="Due date (YYYY-MM-DD)"
+				accessibleName="Due date"
 				placeholder="YYYY-MM-DD"
 				[formField]="fields.dueDate"
-				[disabled]="saving()"></ui5-input>
+				[disabled]="saving()"></ui5-date-picker>
 		</ui5-form-item>
 		<ui5-form-item>
 			<ui5-label

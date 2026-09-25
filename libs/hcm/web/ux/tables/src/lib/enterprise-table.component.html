@@ -10,11 +10,12 @@
 	} @else {
 		<div class="toolbar">
 			<ui5-input
+				#searchInput="ui5Input"
 				[accessibleName]="'Search ' + label()"
 				[value]="query().search"
 				type="Search"
 				placeholder="Search results"
-				(ui5Input)="search($event.target.value)" />
+				(ui5Input)="search(searchInput.element.value)" />
 			<span role="status">{{ page().total }} results</span>
 		</div>
 		@if (state() === 'error') {

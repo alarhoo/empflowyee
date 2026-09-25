@@ -12,24 +12,18 @@
 		layout="S1 M1 L1 XL1"
 		labelSpan="S12 M12 L12 XL12">
 		<ui5-form-item>
-			<ui5-label
-				slot="labelContent"
-				for="configuration-sort">
-				Sort
-			</ui5-label>
-			<ui5-select
-				id="configuration-sort"
-				accessibleName="Configuration sort"
-				[formField]="fields.sort">
-				<ui5-option value="label">Event label</ui5-option>
-				<ui5-option value="event">Event code</ui5-option>
-			</ui5-select>
-		</ui5-form-item>
-		<ui5-form-item>
 			<ui5-label slot="labelContent">Actions</ui5-label>
 			<ui5-button (click)="load()">Reload rules</ui5-button>
 		</ui5-form-item>
 	</ui5-form>
+	<ef-hcm-view-settings
+		label="Configuration"
+		[value]="filters().sort"
+		[fields]="[
+			{ key: 'label', label: 'Event label' },
+			{ key: 'event', label: 'Event code' },
+		]"
+		(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 	<ui5-table
 		accessibleName="Notification rules"
 		overflowMode="Popin"
@@ -61,7 +55,13 @@
 		@for (item of ordered(); track item.eventType) {
 			<ui5-table-row>
 				<ui5-table-cell>{{ eventLabel(item.eventType) }}</ui5-table-cell>
-				<ui5-table-cell>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-table-cell>
+				<ui5-table-cell>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="item.enabled ? 'positive' : 'neutral'"
+						[label]="item.enabled ? 'Enabled' : 'Disabled'"></span>
+				</ui5-table-cell>
 				<ui5-table-cell>{{ item.revision }}</ui5-table-cell>
 				<ui5-table-cell>
 					@if (canManage()) {

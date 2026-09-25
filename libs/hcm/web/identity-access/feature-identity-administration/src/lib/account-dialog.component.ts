@@ -1,3 +1,4 @@
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
@@ -29,6 +30,7 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-account-dialog',
 	imports: [
+		Link,
 		Text,
 		Dialog,
 		Form,

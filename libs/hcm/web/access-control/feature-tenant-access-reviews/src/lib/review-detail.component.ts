@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
@@ -41,6 +43,8 @@ import { ReviewDialogComponent, type ReviewAction } from './review-dialog.compon
 @Component({
 	selector: 'ef-hcm-review-detail',
 	imports: [
+		ObjectStatusComponent,
+		HcmDatePipe,
 		Text,
 		HcmObjectPage,
 		HcmObjectSection,
