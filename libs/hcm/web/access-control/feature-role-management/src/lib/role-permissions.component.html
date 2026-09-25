@@ -7,25 +7,33 @@
 	{{ selected().length }} permissions selected. Discovery controls navigation; business operations
 	require independent API authorization.
 </ui5-text>
-@for (group of groups; track group.kind) {
-	<ui5-title
-		level="H2"
-		size="H5">
-		{{ group.label }}
-	</ui5-title>
-	@for (option of visible(); track option.code) {
-		@if (option.kind === group.kind) {
-			<ui5-text>
-				<ui5-checkbox
-					[text]="option.code + ' — ' + option.description"
-					[checked]="selected().includes(option.code)"
-					[readonly]="readOnly()"
-					wrappingType="Normal"
-					(ui5Change)="toggle(option.code, !selected().includes(option.code))"></ui5-checkbox>
-			</ui5-text>
-		}
+<ui5-list
+	accessibleName="Role permissions"
+	[selectionMode]="readOnly() ? 'None' : 'Multiple'"
+	noDataText="No permissions match this selection."
+	(ui5SelectionChange)="
+		toggle(
+			$event.detail.targetItem.getAttribute('data-code') ?? '',
+			$event.detail.targetItem.selected
+		)
+	">
+	@for (group of groups; track group.kind) {
+		<ui5-li-group [headerText]="group.label">
+			@for (option of visible(); track option.code) {
+				@if (option.kind === group.kind) {
+					<ui5-li
+						[attr.data-code]="option.code"
+						[text]="option.description"
+						[description]="option.code"
+						[selected]="selected().includes(option.code)"
+						[type]="readOnly() ? 'Inactive' : 'Active'"
+						wrappingType="Normal"></ui5-li>
+				}
+			}
+		</ui5-li-group>
 	}
-}
+</ui5-list>
+
 @if (!visible().length) {
 	<ui5-text>No permissions match this selection.</ui5-text>
 }

@@ -7,7 +7,12 @@
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
 	@if (account(); as item) {
-		<ui5-text>{{ item.displayName }} — {{ item.email }}</ui5-text>
+		<ui5-text>{{ item.displayName }}</ui5-text>
+		<ui5-link
+			[href]="'mailto:' + item.email"
+			[accessibleName]="'Email ' + item.displayName">
+			{{ item.email }}
+		</ui5-link>
 		<ui5-text>
 			{{
 				item.enabled

@@ -96,20 +96,7 @@
 						[formField]="fields.workerId"></ui5-input>
 				</ui5-form-item>
 			}
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="request-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="request-sort"
-					accessibleName="Document sort"
-					[formField]="fields.sort">
-					<ui5-option value="createdAt:asc">Oldest first</ui5-option>
-					<ui5-option value="createdAt:desc">Newest first</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
+
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
@@ -119,6 +106,11 @@
 				</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Document"
+			[value]="filters().sort"
+			[fields]="[{ key: 'createdAt', label: 'Date and time' }]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		<ui5-table
 			(ui5RowClick)="openRow($event.detail.row.rowKey)"
 			[rowActionCount]="1"
@@ -156,8 +148,26 @@
 					[interactive]="true">
 					<ui5-table-cell>{{ item.id }}</ui5-table-cell>
 					<ui5-table-cell>{{ item.typeId }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.status }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.dueDate ?? 'No due date' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="
+								['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+									item.status.toLowerCase()
+								)
+									? 'positive'
+									: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+												item.status.toLowerCase()
+										  )
+										? 'negative'
+										: 'informative'
+							"
+							[label]="item.status"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						{{ item.dueDate ? (item.dueDate | hcmDate: 'date') : 'No due date' }}
+					</ui5-table-cell>
 
 					<ui5-table-row-action-navigation
 						slot="actions"
@@ -198,7 +208,21 @@
 						</ui5-form-item>
 						<ui5-form-item>
 							<ui5-label slot="labelContent">Status</ui5-label>
-							<ui5-text>{{ item.status }}</ui5-text>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="
+									['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+										item.status.toLowerCase()
+									)
+										? 'positive'
+										: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+													item.status.toLowerCase()
+											  )
+											? 'negative'
+											: 'informative'
+								"
+								[label]="item.status"></span>
 						</ui5-form-item>
 						<ui5-form-item>
 							<ui5-label slot="labelContent">Revision</ui5-label>
@@ -224,11 +248,13 @@
 						</ui5-form-item>
 						<ui5-form-item>
 							<ui5-label slot="labelContent">Due date</ui5-label>
-							<ui5-text>{{ item.dueDate ?? 'No due date' }}</ui5-text>
+							<ui5-text>
+								{{ item.dueDate ? (item.dueDate | hcmDate: 'date') : 'No due date' }}
+							</ui5-text>
 						</ui5-form-item>
 						<ui5-form-item>
 							<ui5-label slot="labelContent">Created</ui5-label>
-							<ui5-text>{{ item.createdAt }}</ui5-text>
+							<ui5-text>{{ item.createdAt | hcmDate }}</ui5-text>
 						</ui5-form-item>
 						<ui5-form-item>
 							<ui5-label slot="labelContent">Accepted submission</ui5-label>
@@ -294,7 +320,7 @@
 							<ui5-table-cell>{{ version.versionNumber }}</ui5-table-cell>
 							<ui5-table-cell>{{ version.filename }}</ui5-table-cell>
 							<ui5-table-cell>{{ version.byteLength }}</ui5-table-cell>
-							<ui5-table-cell>{{ version.createdAt }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.createdAt | hcmDate }}</ui5-table-cell>
 							<ui5-table-cell>
 								@if (canDownload()) {
 									<ui5-button

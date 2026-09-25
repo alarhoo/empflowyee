@@ -1,3 +1,7 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { DateTimePicker } from '@fundamental-ngx/ui5-webcomponents/date-time-picker'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -19,8 +23,6 @@ import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
-import { Select } from '@fundamental-ngx/ui5-webcomponents/select'
-import { Option } from '@fundamental-ngx/ui5-webcomponents/option'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
@@ -33,13 +35,15 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-data-export-log',
 	imports: [
+		ObjectStatusComponent,
+		DateTimePicker,
+		HcmDatePipe,
+		HcmViewSettings,
 		HcmDynamicPage,
 		Form,
 		FormItem,
 		Label,
 		Input,
-		Select,
-		Option,
 		Button,
 		MessageStrip,
 		Text,
@@ -138,5 +142,15 @@ export class DataExportLogComponent {
 					this.state.set('content')
 				},
 			})
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

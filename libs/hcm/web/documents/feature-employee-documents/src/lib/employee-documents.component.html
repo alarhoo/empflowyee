@@ -53,20 +53,7 @@
 					accessibleName="Filter worker ID"
 					[formField]="fields.workerId"></ui5-input>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="document-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="document-sort"
-					accessibleName="Document sort"
-					[formField]="fields.sort">
-					<ui5-option value="label:asc">Label ascending</ui5-option>
-					<ui5-option value="label:desc">Label descending</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
+
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
@@ -76,6 +63,11 @@
 				</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Document"
+			[value]="filters().sort"
+			[fields]="[{ key: 'label', label: 'Label' }]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		<ui5-table
 			(ui5RowClick)="openRow($event.detail.row.rowKey)"
 			[rowActionCount]="1"
@@ -219,7 +211,7 @@
 								</ui5-text>
 							</ui5-table-cell>
 							<ui5-table-cell>{{ version.byteLength }}</ui5-table-cell>
-							<ui5-table-cell>{{ version.createdAt }}</ui5-table-cell>
+							<ui5-table-cell>{{ version.createdAt | hcmDate }}</ui5-table-cell>
 							<ui5-table-cell>
 								@if (canManage()) {
 									<ui5-button

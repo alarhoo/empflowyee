@@ -47,20 +47,7 @@
 					<ui5-option value="false">Custom roles</ui5-option>
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="roles-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="roles-sort"
-					accessibleName="Role sort order"
-					[formField]="filterForm.sort">
-					<ui5-option value="label:asc">Name ascending</ui5-option>
-					<ui5-option value="label:desc">Name descending</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
+
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
@@ -70,6 +57,11 @@
 				</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Role"
+			[value]="filters().sort"
+			[fields]="[{ key: 'label', label: 'Name' }]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		@if (notice()) {
 			<ui5-message-strip
 				[hideCloseButton]="true"
@@ -134,13 +126,17 @@
 					[interactive]="true">
 					<ui5-table-cell>{{ row.label }}</ui5-table-cell>
 					<ui5-table-cell>
-						{{
-							row.protectedAdmin
-								? 'Protected administrator'
-								: row.systemRole
-									? 'System role'
-									: 'Custom role'
-						}}
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="row.protectedAdmin ? 'critical' : 'informative'"
+							[label]="
+								row.protectedAdmin
+									? 'Protected administrator'
+									: row.systemRole
+										? 'System role'
+										: 'Custom role'
+							"></span>
 					</ui5-table-cell>
 					<ui5-table-cell>{{ row.permissionCount }}</ui5-table-cell>
 					<ui5-table-cell>{{ row.assigneeCount }}</ui5-table-cell>

@@ -19,24 +19,18 @@
 			layout="S1 M1 L1 XL1"
 			labelSpan="S12 M12 L12 XL12">
 			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="configuration-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="configuration-sort"
-					accessibleName="Configuration sort"
-					[formField]="fields.sort">
-					<ui5-option value="label">Event label</ui5-option>
-					<ui5-option value="event">Event code</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
-			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button (click)="load()">Reload templates</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Configuration"
+			[value]="filters().sort"
+			[fields]="[
+				{ key: 'label', label: 'Event label' },
+				{ key: 'event', label: 'Event code' },
+			]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		<ui5-table
 			(ui5RowClick)="openRow($event.detail.row.rowKey)"
 			[rowActionCount]="1"
@@ -145,10 +139,12 @@
 							for="preview-due">
 							Sample due date
 						</ui5-label>
-						<ui5-input
+						<ui5-date-picker
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
 							id="preview-due"
 							accessibleName="Sample due date"
-							[formField]="sampleFields.dueDate"></ui5-input>
+							[formField]="sampleFields.dueDate"></ui5-date-picker>
 					</ui5-form-item>
 				</ui5-form>
 				@if (selected(); as item) {

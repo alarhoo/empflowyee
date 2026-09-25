@@ -1,3 +1,5 @@
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
+import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -28,6 +30,8 @@ import '@ui5/webcomponents-icons/dist/bell.js'
 @Component({
 	selector: 'ef-hcm-settings',
 	imports: [
+		Link,
+		MessageStrip,
 		UserSettingsDialog,
 		UserSettingsItem,
 		UserSettingsView,

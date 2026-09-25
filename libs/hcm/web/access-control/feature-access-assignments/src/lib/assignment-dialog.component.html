@@ -4,7 +4,12 @@
 	[accessibleName]="action().role ? 'Revoke role' : 'Grant role'"
 	(ui5BeforeClose)="beforeClose($event)"
 	(ui5Close)="finish($event)">
-	<ui5-text>{{ action().account.displayName }} — {{ action().account.email }}</ui5-text>
+	<ui5-text>{{ action().account.displayName }}</ui5-text>
+	<ui5-link
+		[href]="'mailto:' + action().account.email"
+		[accessibleName]="'Email ' + action().account.displayName">
+		{{ action().account.email }}
+	</ui5-link>
 	@if (error()) {
 		<ui5-message-strip
 			design="Negative"

@@ -1,3 +1,6 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
@@ -38,6 +41,9 @@ import { RolePermissionsComponent } from './role-permissions.component'
 @Component({
 	selector: 'ef-hcm-role-detail',
 	imports: [
+		ObjectStatusComponent,
+		Link,
+		HcmDatePipe,
 		Text,
 		Label,
 		FormItem,

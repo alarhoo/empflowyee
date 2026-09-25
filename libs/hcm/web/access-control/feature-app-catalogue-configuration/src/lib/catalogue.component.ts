@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
@@ -46,6 +48,8 @@ import { CatalogueDetailComponent } from './catalogue-detail.component'
 @Component({
 	selector: 'ef-hcm-catalogue-configuration',
 	imports: [
+		ObjectStatusComponent,
+		HcmViewSettings,
 		Text,
 		TableRowActionNavigation,
 		HcmDynamicPage,
@@ -291,5 +295,15 @@ export class CatalogueConfigurationComponent {
 				item.appCode === key,
 		)
 		if (app) void this.select(app.appCode)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

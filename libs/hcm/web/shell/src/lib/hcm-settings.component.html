@@ -26,7 +26,11 @@
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Email</ui5-label>
-					<ui5-text>{{ runtime.context()?.user.email ?? 'Not provided' }}</ui5-text>
+					@if (runtime.context()?.user.email; as email) {
+						<ui5-link [href]="'mailto:' + email">{{ email }}</ui5-link>
+					} @else {
+						<ui5-text>Not provided</ui5-text>
+					}
 				</ui5-form-item>
 				@if (runtime.context()?.development; as development) {
 					<ui5-form-item>
@@ -153,6 +157,20 @@
 					<ui5-text>{{ runtime.preferences().timezone }}</ui5-text>
 				</ui5-form-item>
 			</ui5-form>
+			@if (runtime.preferenceSaveState() === 'saved') {
+				<ui5-message-strip
+					design="Positive"
+					[hideCloseButton]="true">
+					Preferences saved in this browser and applied to displayed dates and times.
+				</ui5-message-strip>
+			} @else if (runtime.preferenceSaveState() === 'failed') {
+				<ui5-message-strip
+					design="Critical"
+					[hideCloseButton]="true">
+					Preferences applied for this session. Browser storage is unavailable, so they could not be
+					saved for your next visit.
+				</ui5-message-strip>
+			}
 			<ui5-text>
 				Presentation preferences are saved for this account in this browser. Business content
 				remains in its authored language.

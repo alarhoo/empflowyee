@@ -1,3 +1,5 @@
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import getActiveElement from '@ui5/webcomponents-base/dist/util/getActiveElement.js'
@@ -38,8 +40,6 @@ import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
-import { Select } from '@fundamental-ngx/ui5-webcomponents/select'
-import { Option } from '@fundamental-ngx/ui5-webcomponents/option'
 import { Table } from '@fundamental-ngx/ui5-webcomponents/table'
 import { TableHeaderRow } from '@fundamental-ngx/ui5-webcomponents/table-header-row'
 import { TableHeaderCell } from '@fundamental-ngx/ui5-webcomponents/table-header-cell'
@@ -51,6 +51,8 @@ import { TemplateUploadDialogComponent } from './template-upload-dialog.componen
 @Component({
 	selector: 'ef-hcm-document-templates',
 	imports: [
+		HcmDatePipe,
+		HcmViewSettings,
 		TableRowActionNavigation,
 		Text,
 		HcmDynamicPage,
@@ -61,8 +63,6 @@ import { TemplateUploadDialogComponent } from './template-upload-dialog.componen
 		FormItem,
 		Input,
 		Label,
-		Select,
-		Option,
 		Table,
 		TableHeaderRow,
 		TableHeaderCell,
@@ -376,5 +376,15 @@ export class DocumentTemplatesComponent {
 				item.id === key,
 		)
 		if (item) void this.select(item.id)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

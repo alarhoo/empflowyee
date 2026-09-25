@@ -16,11 +16,25 @@
 				layout="S1 M1 L2 XL2">
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Status</ui5-label>
-					<ui5-text>{{ item.status }}</ui5-text>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="
+							['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+								item.status.toLowerCase()
+							)
+								? 'positive'
+								: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+											item.status.toLowerCase()
+									  )
+									? 'negative'
+									: 'informative'
+						"
+						[label]="item.status"></span>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Snapshot time</ui5-label>
-					<ui5-text>{{ item.createdAt }}</ui5-text>
+					<ui5-text>{{ item.createdAt | hcmDate }}</ui5-text>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Revision</ui5-label>
@@ -29,7 +43,7 @@
 				@if (item.closedAt) {
 					<ui5-form-item>
 						<ui5-label slot="labelContent">Closed at</ui5-label>
-						<ui5-text>{{ item.closedAt }}</ui5-text>
+						<ui5-text>{{ item.closedAt | hcmDate }}</ui5-text>
 					</ui5-form-item>
 				}
 			</ui5-form>
@@ -128,7 +142,23 @@
 			@for (item of rows(); track item.id) {
 				<ui5-table-row>
 					<ui5-table-cell>{{ item.accountLabel }} — {{ item.roleLabel }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.decision }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="
+								['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+									item.decision.toLowerCase()
+								)
+									? 'positive'
+									: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+												item.decision.toLowerCase()
+										  )
+										? 'negative'
+										: 'informative'
+							"
+							[label]="item.decision"></span>
+					</ui5-table-cell>
 					<ui5-table-cell>
 						{{ evidence(item) }}
 					</ui5-table-cell>

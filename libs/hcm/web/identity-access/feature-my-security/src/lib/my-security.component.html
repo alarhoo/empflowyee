@@ -35,11 +35,15 @@
 			</ui5-form-item>
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Email</ui5-label>
-				<ui5-text>{{ summary.email }}</ui5-text>
+				<ui5-link [href]="'mailto:' + summary.email">{{ summary.email }}</ui5-link>
 			</ui5-form-item>
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Account state</ui5-label>
-				<ui5-text>{{ summary.enabled ? 'Enabled' : 'Disabled' }}</ui5-text>
+				<span
+					fd-object-status
+					[inverted]="true"
+					[status]="summary.enabled ? 'positive' : 'neutral'"
+					[label]="summary.enabled ? 'Enabled' : 'Disabled'"></span>
 			</ui5-form-item>
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Session mode</ui5-label>
@@ -47,7 +51,7 @@
 			</ui5-form-item>
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Current runtime context expires</ui5-label>
-				<ui5-text>{{ summary.expiresAt | date: 'medium' }}</ui5-text>
+				<ui5-text>{{ summary.expiresAt | hcmDate }}</ui5-text>
 			</ui5-form-item>
 		</ui5-form>
 		<ui5-title level="H2">Assigned roles</ui5-title>

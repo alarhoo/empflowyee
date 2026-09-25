@@ -185,6 +185,12 @@ describe('HCM remote bootstrap', /** Exercise real HTTP sequencing and state tra
 		runtime.setPresentationPreference('language', 'javascript:invalid')
 		expect(runtime.preferences().timeFormat).toBe('12h')
 		expect(runtime.preferences().dateFormat).toBe('long')
+		expect(runtime.preferenceSaveState()).toBe('saved')
+		expect(runtime.formatTimestamp('2026-09-25T17:30:00Z')).toMatch(/AM|PM/)
+		expect(runtime.formatTimestamp('2026-09-25', true)).toBe('September 25, 2026')
+		runtime.setPresentationPreference('timeFormat', '24h')
+		expect(runtime.formatTimestamp('2026-09-25T17:30:00Z')).not.toMatch(/AM|PM/)
+		runtime.setPresentationPreference('timeFormat', '12h')
 		expect(runtime.preferences().language).toBe('en')
 		expect(JSON.parse(window.localStorage.getItem('hcm.preferences.acme.test') ?? '{}')).toEqual({
 			timeFormat: '12h',

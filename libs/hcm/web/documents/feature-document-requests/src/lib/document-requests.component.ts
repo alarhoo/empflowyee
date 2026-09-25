@@ -1,3 +1,6 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { viewChild } from '@angular/core'
@@ -52,6 +55,9 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-document-requests',
 	imports: [
+		ObjectStatusComponent,
+		HcmDatePipe,
+		HcmViewSettings,
 		TableRowActionNavigation,
 		Text,
 		RequestActionDialogComponent,
@@ -422,5 +428,15 @@ export class DocumentRequestsComponent {
 				item.id === key,
 		)
 		if (item) void this.select(item.id)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

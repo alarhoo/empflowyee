@@ -1,3 +1,7 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { DateTimePicker } from '@fundamental-ngx/ui5-webcomponents/date-time-picker'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -22,7 +26,6 @@ import { HcmDynamicPage, type HcmPageState } from '@empflowyee/hcm-web-ux-floorp
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
-import { Input } from '@fundamental-ngx/ui5-webcomponents/input'
 import { Select } from '@fundamental-ngx/ui5-webcomponents/select'
 import { Option } from '@fundamental-ngx/ui5-webcomponents/option'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
@@ -37,11 +40,14 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-my-activity',
 	imports: [
+		ObjectStatusComponent,
+		DateTimePicker,
+		HcmDatePipe,
+		HcmViewSettings,
 		HcmDynamicPage,
 		Form,
 		FormItem,
 		Label,
-		Input,
 		Select,
 		Option,
 		Button,
@@ -154,5 +160,15 @@ export class MyActivityComponent {
 		if (value.fromState) parts.push('From: ' + value.fromState)
 		if (value.toState) parts.push('To: ' + value.toState)
 		return parts.join(' · ')
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

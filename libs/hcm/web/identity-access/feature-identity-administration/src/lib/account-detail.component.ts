@@ -1,3 +1,5 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { HcmDatePipe } from '@empflowyee/hcm-web-runtime-context'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
@@ -38,6 +40,8 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 @Component({
 	selector: 'ef-hcm-account-detail',
 	imports: [
+		ObjectStatusComponent,
+		HcmDatePipe,
 		Text,
 		Label,
 		FormItem,

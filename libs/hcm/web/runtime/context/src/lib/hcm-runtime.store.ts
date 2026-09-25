@@ -19,6 +19,7 @@ export class HcmRuntimeStore {
 	private readonly http = inject(HttpClient)
 	private readonly window = inject(DOCUMENT).defaultView
 	private readonly localPreferences = signal<HcmPreferences>({})
+	readonly preferenceSaveState = signal<'idle' | 'saved' | 'failed'>('idle')
 	private readonly current = signal<HcmRuntimeState>({ kind: 'tenant-loading' })
 	private pending?: Promise<void>
 	private developmentPersona?: string
@@ -45,7 +46,7 @@ export class HcmRuntimeStore {
 	)
 
 	/** Format a runtime timestamp with the current account's display preferences. */
-	formatTimestamp(value: string | Date): string {
+	formatTimestamp(value: string | Date, dateOnly = false): string {
 		const preferences = this.preferences(),
 			date = new Date(value)
 		if (!Number.isFinite(date.getTime())) return '—'
@@ -54,8 +55,8 @@ export class HcmRuntimeStore {
 			: 'medium'
 		return new Intl.DateTimeFormat(preferences.language, {
 			dateStyle,
-			timeStyle: 'short',
-			timeZone: preferences.timezone,
+			...(dateOnly ? {} : { timeStyle: 'short' as const }),
+			timeZone: dateOnly ? 'UTC' : preferences.timezone,
 			hour12: preferences.timeFormat === '12h',
 		}).format(date)
 	}
@@ -72,11 +73,14 @@ export class HcmRuntimeStore {
 			/** Preserve other local presentation choices. */ (current) => ({ ...current, [key]: value }),
 		)
 		try {
+			if (!this.window) throw new Error('Browser storage unavailable')
 			this.window?.localStorage.setItem(
 				`hcm.preferences.${context.tenant.slug}.${context.user.id}`,
 				JSON.stringify(this.localPreferences()),
 			)
+			this.preferenceSaveState.set('saved')
 		} catch {
+			this.preferenceSaveState.set('failed')
 			/* In-memory preferences remain usable when storage is blocked. */
 		}
 	}
@@ -117,6 +121,7 @@ export class HcmRuntimeStore {
 		} catch {
 			/* Ignore malformed browser preferences and retain server defaults. */
 		}
+		this.preferenceSaveState.set('idle')
 	}
 	/** Share one bootstrap between the shell and route guards; retries explicitly request a refresh. */
 	ensureLoaded(): Promise<void> {

@@ -1,3 +1,4 @@
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { NotificationSummary } from './notification-summary'
 import { NgTemplateOutlet } from '@angular/common'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
@@ -50,6 +51,7 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-my-notifications',
 	imports: [
+		HcmViewSettings,
 		NgTemplateOutlet,
 		Text,
 		MenuItem,
@@ -87,7 +89,7 @@ export class MyNotificationsComponent {
 	readonly embedded = input(false)
 	readonly events = NOTIFICATION_EVENTS
 	readonly eventLabel = notificationEventLabel
-	readonly filters = signal({ q: '', unread: '', eventType: '', sort: 'createdAt:desc' })
+	readonly filters = signal({ q: '', unread: 'true', eventType: '', sort: 'createdAt:desc' })
 	readonly filterForm = form(this.filters)
 	readonly state = signal<HcmPageState>('loading')
 	readonly rows = signal<NotificationItem[]>([])
@@ -118,10 +120,17 @@ export class MyNotificationsComponent {
 						this.attempts.clear()
 						this.reading.set(null)
 						this.notice.set('')
-						this.filters.set({ q: '', unread: '', eventType: '', sort: 'createdAt:desc' })
+						this.filters.set({ q: '', unread: 'true', eventType: '', sort: 'createdAt:desc' })
 						this.load()
 					},
 				)
+			},
+		)
+		effect(
+			/** Refresh another mounted inbox after a committed read, preserving its filters. */ () => {
+				const revision = this.summary.revision()
+				if (revision)
+					untracked(/** Reload the current query rather than stale read rows. */ () => this.load())
 			},
 		)
 	}
@@ -131,6 +140,10 @@ export class MyNotificationsComponent {
 		if (!more) {
 			const params = new URLSearchParams()
 			for (const [key, value] of Object.entries(this.filters())) if (value) params.set(key, value)
+			if (this.embedded()) {
+				params.set('unread', 'true')
+				params.set('limit', '100')
+			}
 			try {
 				this.applied = parseInboxQuery(params)
 			} catch {
@@ -153,6 +166,7 @@ export class MyNotificationsComponent {
 							more ? [...rows, ...page.items] : page.items,
 					)
 					this.cursor.set(page.nextCursor)
+					if (this.embedded() && !more) this.summary.publish(page)
 					this.state.set('content')
 					this.pending.set(false)
 					if (this.focusAfterLoad) {
@@ -192,9 +206,8 @@ export class MyNotificationsComponent {
 				next: /** Refresh filters only after the committed first-read timestamp is acknowledged. */ () => {
 					this.reading.set(null)
 					this.notice.set('Notification marked as read.')
-					this.summary.refresh()
 					this.focusAfterLoad = true
-					this.load()
+					this.summary.readCommitted()
 				},
 				error: /** Retain current evidence and its safe retry identity. */ (error) => {
 					this.reading.set(null)
@@ -207,5 +220,21 @@ export class MyNotificationsComponent {
 		const feature = this.requestFeature()
 		if (feature)
 			void this.router.navigate([feature.route], { queryParams: { request: item.requestId } })
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
+	}
+
+	/** Refresh both notification evidence and the unread badge on explicit user demand. */
+	refreshInbox(): void {
+		this.summary.refresh()
+		this.load()
 	}
 }

@@ -35,7 +35,21 @@
 			</ui5-form-item>
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Tenant state</ui5-label>
-				<ui5-text>{{ projection.tenantStatus }}</ui5-text>
+				<span
+					fd-object-status
+					[inverted]="true"
+					[status]="
+						['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+							projection.tenantStatus.toLowerCase()
+						)
+							? 'positive'
+							: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+										projection.tenantStatus.toLowerCase()
+								  )
+								? 'negative'
+								: 'informative'
+					"
+					[label]="projection.tenantStatus"></span>
 			</ui5-form-item>
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Source</ui5-label>
@@ -44,13 +58,17 @@
 		</ui5-form>
 		<ui5-title level="H2">Current hostnames</ui5-title>
 		@if (projection.hostnames.length) {
-			<ul aria-label="Current hostnames">
+			<ui5-list accessibleName="Current hostnames">
 				@for (entry of projection.hostnames; track entry.hostname) {
-					<li>
-						<ui5-text>{{ entry.hostname }}</ui5-text>
-					</li>
+					<ui5-li-custom type="Inactive">
+						<ui5-link
+							[href]="'https://' + entry.hostname"
+							target="_blank">
+							{{ entry.hostname }}
+						</ui5-link>
+					</ui5-li-custom>
 				}
-			</ul>
+			</ui5-list>
 		} @else {
 			<ui5-message-strip
 				design="Information"

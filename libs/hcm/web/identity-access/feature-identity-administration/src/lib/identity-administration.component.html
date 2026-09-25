@@ -46,20 +46,7 @@
 					<ui5-option value="false">Disabled</ui5-option>
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="accounts-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="accounts-sort"
-					accessibleName="Account sort order"
-					[formField]="filterForm.sort">
-					<ui5-option value="displayName:asc">Name ascending</ui5-option>
-					<ui5-option value="displayName:desc">Name descending</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
+
 			<ui5-form-item>
 				<ui5-label slot="labelContent">Actions</ui5-label>
 				<ui5-button
@@ -69,6 +56,11 @@
 				</ui5-button>
 			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Account"
+			[value]="filters().sort"
+			[fields]="[{ key: 'displayName', label: 'Name' }]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		@if (message()) {
 			<ui5-message-strip
 				design="Negative"
@@ -107,8 +99,16 @@
 					[rowKey]="item.id"
 					[interactive]="true">
 					<ui5-table-cell>{{ item.displayName }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.email }}</ui5-table-cell>
-					<ui5-table-cell>{{ item.enabled ? 'Enabled' : 'Disabled' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-link [href]="'mailto:' + item.email">{{ item.email }}</ui5-link>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="item.enabled ? 'positive' : 'neutral'"
+							[label]="item.enabled ? 'Enabled' : 'Disabled'"></span>
+					</ui5-table-cell>
 
 					<ui5-table-row-action-navigation
 						slot="actions"

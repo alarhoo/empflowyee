@@ -22,11 +22,29 @@
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Availability</ui5-label>
-					<ui5-text>{{ app.status === 'complete' ? 'Available' : 'Planned' }}</ui5-text>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="app.status === 'complete' ? 'positive' : 'informative'"
+						[label]="app.status === 'complete' ? 'Available' : 'Planned'"></span>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Implementation status</ui5-label>
-					<ui5-text>{{ app.status }}</ui5-text>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="
+							['active', 'complete', 'closed', 'submitted', 'approved', 'retain'].includes(
+								app.status.toLowerCase()
+							)
+								? 'positive'
+								: ['suspended', 'deactivated', 'cancelled', 'revoke'].includes(
+											app.status.toLowerCase()
+									  )
+									? 'negative'
+									: 'informative'
+						"
+						[label]="app.status"></span>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Route</ui5-label>
@@ -42,7 +60,11 @@
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Tenant entitlement</ui5-label>
-					<ui5-text>{{ app.entitled ? 'Enabled' : 'Not enabled' }}</ui5-text>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="app.entitled ? 'positive' : 'neutral'"
+						[label]="app.entitled ? 'Enabled' : 'Not enabled'"></span>
 				</ui5-form-item>
 			</ui5-form>
 			<ui5-text>

@@ -1,5 +1,6 @@
 export * from './lib/hcm-runtime.models'
 export * from './lib/hcm-runtime.store'
+export * from './lib/hcm-date.pipe'
 export * from './lib/theme-lab-policy'
 export * from './lib/hcm-access.service'
 export * from './lib/hcm-route-access'

@@ -77,21 +77,15 @@
 					<ui5-option value="false">Not enabled</ui5-option>
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="catalogue-sort">
-					Sort
-				</ui5-label>
-				<ui5-select
-					id="catalogue-sort"
-					accessibleName="Catalogue sort"
-					[formField]="filterForm.sort">
-					<ui5-option value="title">Title</ui5-option>
-					<ui5-option value="appCode">App code</ui5-option>
-				</ui5-select>
-			</ui5-form-item>
 		</ui5-form>
+		<ef-hcm-view-settings
+			label="Catalogue"
+			[value]="filters().sort"
+			[fields]="[
+				{ key: 'title', label: 'Title' },
+				{ key: 'appCode', label: 'App code' },
+			]"
+			(sortChange)="sortBy($event)"></ef-hcm-view-settings>
 		<ui5-form
 			accessibleName="Discovery account selection"
 			accessibleMode="Edit"
@@ -192,8 +186,20 @@
 					<ui5-table-cell>{{ app.title }}</ui5-table-cell>
 					<ui5-table-cell>{{ app.appCode }}</ui5-table-cell>
 					<ui5-table-cell>{{ app.domain }}</ui5-table-cell>
-					<ui5-table-cell>{{ app.status === 'complete' ? 'Available' : 'Planned' }}</ui5-table-cell>
-					<ui5-table-cell>{{ app.entitled ? 'Enabled' : 'Not enabled' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="app.status === 'complete' ? 'positive' : 'informative'"
+							[label]="app.status === 'complete' ? 'Available' : 'Planned'"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="app.entitled ? 'positive' : 'neutral'"
+							[label]="app.entitled ? 'Enabled' : 'Not enabled'"></span>
+					</ui5-table-cell>
 
 					<ui5-table-row-action-navigation
 						slot="actions"

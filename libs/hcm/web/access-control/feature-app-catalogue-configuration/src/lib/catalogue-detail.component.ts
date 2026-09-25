@@ -1,3 +1,4 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
 import { Label } from '@fundamental-ngx/ui5-webcomponents/label'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
@@ -16,6 +17,7 @@ import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
 @Component({
 	selector: 'ef-hcm-catalogue-detail',
 	imports: [
+		ObjectStatusComponent,
 		Label,
 		FormItem,
 		Form,

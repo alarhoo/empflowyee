@@ -1,3 +1,6 @@
+import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
+import { Link } from '@fundamental-ngx/ui5-webcomponents/link'
+import { HcmViewSettings } from '@empflowyee/hcm-web-ux-tables'
 import { TableRowActionNavigation } from '@fundamental-ngx/ui5-webcomponents/table-row-action-navigation'
 import {
 	ChangeDetectionStrategy,
@@ -41,6 +44,9 @@ import { AccountDialogComponent } from './account-dialog.component'
 @Component({
 	selector: 'ef-hcm-identity-administration',
 	imports: [
+		ObjectStatusComponent,
+		Link,
+		HcmViewSettings,
 		TableRowActionNavigation,
 		HcmDynamicPage,
 		FlexibleColumnLayout,
@@ -232,5 +238,15 @@ export class IdentityAdministrationComponent {
 				item.id === key,
 		)
 		if (item) void this.select(item.id)
+	}
+	/** Apply confirmed table sorting independently of filter-bar controls. */
+	sortBy(sort: string): void {
+		this.filters.update(
+			/** Preserve current field filters while changing sort order. */ (value) => ({
+				...value,
+				sort,
+			}),
+		)
+		this.load()
 	}
 }

@@ -1,3 +1,4 @@
+import { DatePicker } from '@fundamental-ngx/ui5-webcomponents/date-picker'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import {
 	ChangeDetectionStrategy,
@@ -36,6 +37,7 @@ import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 @Component({
 	selector: 'ef-hcm-request-create',
 	imports: [
+		DatePicker,
 		Text,
 		HcmDynamicPage,
 		Dialog,
