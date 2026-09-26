@@ -23,25 +23,24 @@ import '@ui5/webcomponents-icons/dist/sort.js'
 				(ui5Click)="open.set(true)"
 			></ui5-toolbar-button>
 		</ui5-toolbar>
-		@if (open()) {
-			<ui5-view-settings-dialog
-				[open]="true"
-				[sortDescending]="value().endsWith(':desc')"
-				(ui5Confirm)="
-					confirm($event.detail.sortByItem.getAttribute('data-field'), $event.detail.sortDescending)
-				"
-				(ui5Close)="open.set(false)"
-			>
-				@for (field of fields(); track field.key) {
-					<ui5-sort-item
-						slot="sortItems"
-						[attr.data-field]="field.key"
-						[text]="field.label"
-						[selected]="value().split(':')[0] === field.key"
-					></ui5-sort-item>
-				}
-			</ui5-view-settings-dialog>
-		}
+		<!-- Keep the dialog mounted: UI5 reads its slotted sort items when it opens. -->
+		<ui5-view-settings-dialog
+			[open]="open()"
+			[sortDescending]="value().endsWith(':desc')"
+			(ui5Confirm)="
+				confirm($event.detail.sortByItem.getAttribute('data-field'), $event.detail.sortDescending)
+			"
+			(ui5Close)="open.set(false)"
+		>
+			@for (field of fields(); track field.key) {
+				<ui5-sort-item
+					slot="sortItems"
+					[attr.data-field]="field.key"
+					[text]="field.label"
+					[selected]="value().split(':')[0] === field.key"
+				></ui5-sort-item>
+			}
+		</ui5-view-settings-dialog>
 	`,
 })
 export class HcmViewSettings {
