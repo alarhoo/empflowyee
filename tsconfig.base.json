@@ -217,10 +217,22 @@
 			"@empflowyee/hcm-web-documents-feature-document-requests": [
 				"./libs/hcm/web/documents/feature-document-requests/src/index.ts"
 			],
+			"@empflowyee/hcm-job-architecture-contract": [
+				"./libs/hcm/contracts/job-architecture/src/index.ts"
+			],
 			"@empflowyee/hcm-employee-contract": ["./libs/hcm/contracts/employee/src/index.ts"],
+			"@empflowyee/hcm-api-job-architecture-domain": [
+				"./libs/hcm/api/job-architecture/domain/src/index.ts"
+			],
 			"@empflowyee/hcm-api-employee-domain": ["./libs/hcm/api/employee/domain/src/index.ts"],
+			"@empflowyee/hcm-api-job-architecture-application": [
+				"./libs/hcm/api/job-architecture/application/src/index.ts"
+			],
 			"@empflowyee/hcm-api-employee-application": [
 				"./libs/hcm/api/employee/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-job-architecture-infrastructure": [
+				"./libs/hcm/api/job-architecture/infrastructure/src/index.ts"
 			],
 			"@empflowyee/hcm-api-employee-infrastructure": [
 				"./libs/hcm/api/employee/infrastructure/src/index.ts"
@@ -240,6 +252,9 @@
 			],
 			"@empflowyee/hcm-web-employee-feature-employee-profile-configuration": [
 				"./libs/hcm/web/employee/feature-employee-profile-configuration/src/index.ts"
+			],
+			"@empflowyee/hcm-api-job-architecture-module": [
+				"./libs/hcm/api/job-architecture/module/src/index.ts"
 			],
 			"@empflowyee/hcm-api-employee-module": ["./libs/hcm/api/employee/module/src/index.ts"],
 			"@empflowyee/hcm-api-workforce-foundation-domain": [
