@@ -136,6 +136,15 @@
 			"requiresMigrations": ["000020_workforce_employment.sql"],
 			"apply": "workforce.foundation.3.apply.sql",
 			"reset": "workforce.foundation.3.reset.sql"
+		},
+		{
+			"id": "employee.profile",
+			"domain": "employee",
+			"version": 1,
+			"dependsOn": ["workforce.foundation@3"],
+			"requiresMigrations": ["000022_employee_profile_policy.sql"],
+			"apply": "employee.profile.1.apply.sql",
+			"reset": "employee.profile.1.reset.sql"
 		}
 	]
 }
