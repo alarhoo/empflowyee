@@ -4,6 +4,7 @@ import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-modul
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
 import {
+	EmployeeDirectory,
 	EmployeePortBinder,
 	EmployeeUnitOfWork,
 	ProfileConfiguration,
@@ -17,7 +18,10 @@ import {
 	KyselyEmployeeUnitOfWork,
 	KyselyOrgChartFieldPolicyBinder,
 } from '@empflowyee/hcm-api-employee-infrastructure'
-import { ProfileConfigurationController } from '@empflowyee/hcm-api-employee-transport'
+import {
+	DirectoryController,
+	ProfileConfigurationController,
+} from '@empflowyee/hcm-api-employee-transport'
 
 /**
  * Employee composition. Global so the workforce org chart can inject the
@@ -27,7 +31,7 @@ import { ProfileConfigurationController } from '@empflowyee/hcm-api-employee-tra
 @Global()
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [ProfileConfigurationController],
+	controllers: [ProfileConfigurationController, DirectoryController],
 	providers: [
 		{
 			provide: EmployeeUnitOfWork,
@@ -42,6 +46,12 @@ import { ProfileConfigurationController } from '@empflowyee/hcm-api-employee-tra
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the profile configuration use cases. */ (unit: EmployeeUnitOfWork) =>
 				new ProfileConfiguration(unit),
+		},
+		{
+			provide: EmployeeDirectory,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the read-only directory use cases. */ (unit: EmployeeUnitOfWork) =>
+				new EmployeeDirectory(unit),
 		},
 		{
 			provide: EmployeePortBinder,
