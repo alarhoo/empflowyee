@@ -11,6 +11,7 @@ import {
 } from '@empflowyee/hcm-api-employee-application'
 import type { WorkforcePortBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { KyselyProfilePolicyRepository } from './profile-policy-repository'
+import { KyselySelfServiceRepository } from './self-service-repository'
 
 export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 	/** Reuse the verified access transaction boundary and the workforce ports. */
@@ -36,10 +37,8 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 			/** Compose employee adapters on the authorized executor. */ async (access) => {
 				const executor = access.transaction as unknown as Kysely<unknown>
 				const actor = { tenantId: access.actor.tenantId, accountId: access.actor.accountId }
-				const policy: ProfilePolicyRepository = new KyselyProfilePolicyRepository({
-					executor,
-					...actor,
-				})
+				const scope = { executor, ...actor }
+				const policy: ProfilePolicyRepository = new KyselyProfilePolicyRepository(scope)
 				const workforce = this.workforce.bind(executor, actor)
 				const reads = workforce.reads
 				return work({
@@ -49,6 +48,8 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 					team: new TeamScopeResolver(reads),
 					reads,
 					directory: workforce.directory,
+					profile: workforce.profile,
+					selfService: new KyselySelfServiceRepository(scope),
 					receipts: new SqlCommandReceipts(
 						executor,
 						'hcm.employee_command_receipt',

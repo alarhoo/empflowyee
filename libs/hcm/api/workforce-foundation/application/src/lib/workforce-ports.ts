@@ -1,4 +1,5 @@
 import type { WorkforceDirectoryPort } from './workforce-directory'
+import type { WorkforceProfilePort } from './workforce-profile'
 
 /**
  * Cross-domain workforce ports (TDD-HCM-2-COMMON#ports). Workforce Foundation is the sole writer of
@@ -246,5 +247,10 @@ export abstract class WorkforcePortBinder {
 	abstract bind(
 		transaction: unknown,
 		actor: WorkforceActor,
-	): { facts: WorkforceFactsPort; reads: WorkforceReadPort; directory: WorkforceDirectoryPort }
+	): {
+		facts: WorkforceFactsPort
+		reads: WorkforceReadPort
+		directory: WorkforceDirectoryPort
+		profile: WorkforceProfilePort
+	}
 }
