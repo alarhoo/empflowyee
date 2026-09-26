@@ -40,13 +40,15 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 					executor,
 					...actor,
 				})
-				const reads = this.workforce.bind(executor, actor).reads
+				const workforce = this.workforce.bind(executor, actor)
+				const reads = workforce.reads
 				return work({
 					accountId: actor.accountId,
 					policy,
 					visibility: new PolicyProfileFieldVisibility(policy),
 					team: new TeamScopeResolver(reads),
 					reads,
+					directory: workforce.directory,
 					receipts: new SqlCommandReceipts(
 						executor,
 						'hcm.employee_command_receipt',

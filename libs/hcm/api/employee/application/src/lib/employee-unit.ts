@@ -3,7 +3,10 @@ import type {
 	CommandReceiptStore,
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
-import type { WorkforceReadPort } from '@empflowyee/hcm-api-workforce-foundation-application'
+import type {
+	WorkforceDirectoryPort,
+	WorkforceReadPort,
+} from '@empflowyee/hcm-api-workforce-foundation-application'
 import type { ProfilePolicyRepository } from './profile-configuration'
 import type { ProfileFieldVisibilityPort } from './profile-visibility-port'
 import type { TeamScopeResolver } from './team-scope'
@@ -17,6 +20,8 @@ export interface EmployeeWork {
 	team: TeamScopeResolver
 	/** Workforce projections read inside the same transaction. */
 	reads: WorkforceReadPort
+	/** Current-workforce projections for the directories. */
+	directory: WorkforceDirectoryPort
 	receipts: CommandReceiptStore
 	audit: AppendAudit
 	/** Today's business date in the organisation time zone. */
