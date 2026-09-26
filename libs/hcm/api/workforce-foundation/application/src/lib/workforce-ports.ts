@@ -180,6 +180,8 @@ export interface DuplicateCandidate {
 
 /** As-of workforce projections for other domains; established rows only, never guessed facts. */
 export interface WorkforceReadPort {
+	/** Today's business date in the organisation time zone. */
+	businessToday(): Promise<string>
 	/** The worker of the person linked to an account, if that person is a worker. */
 	accountWorker(accountId: string): Promise<string | null>
 	/** Established assignments of a worker effective on a date. */
