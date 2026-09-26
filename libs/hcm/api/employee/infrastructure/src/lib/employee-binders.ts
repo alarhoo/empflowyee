@@ -16,6 +16,7 @@ import { KyselyProfilePolicyReader } from './profile-policy-reader'
 
 /** Org-chart fields and the standard profile fields that govern them. */
 const ORG_CHART_FIELDS: readonly OrgChartField[] = [
+	'display-name',
 	'preferred-name',
 	'worker-number',
 	'work-email',
@@ -73,6 +74,15 @@ export class KyselyOrgChartFieldPolicyBinder extends OrgChartFieldPolicyBinder {
 								),
 							),
 						],
+					),
+				)
+			},
+			/** Map the Organization search allowlist onto org-chart fields. */
+			async searchable() {
+				const refs = await port.searchable('Organization')
+				return new Set(
+					ORG_CHART_FIELDS.filter(
+						/** Searchable field. */ (field) => refs.has(`standard:${field}`),
 					),
 				)
 			},
