@@ -18,5 +18,15 @@ validation record pass.
 Steps 1, 4 and 5 were delivered together on
 `codex/hcm-2-catalogue-organization-structure` as separate commits.
 
+## Implementation decisions
+
+Decisions answered after design approval are recorded here, not in the
+[decision register](HCM-2-DECISIONS.md), whose reviewed content hash every HCM-2
+app approval binds.
+
+| ID           | Question                                                                                                                                                                             | Answer (product owner, 2026-09-26)                                                                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| DEC-HCM2-017 | The FDD names HR Operations as a reader of the organisation structure, but the reviewed seed granted Organization Structure discovery to Administration only. Should HR discover it? | Yes. `access.discovery@3` grants `hr-specialist` discovery, and the app joins the HR specialist catalogue under Workforce Operations. Discovery grants no business permission. |
+
 The open points found during step 5 are listed in the
 [Organization Structure validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md#open-points).

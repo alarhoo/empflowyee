@@ -87,7 +87,8 @@ belong to shared components, not this app:
 
 - **HR Operations read access (resolved).** The reviewed seed granted discovery
   to Administration only, although the FDD names HR Operations as a reader. The
-  product owner resolved this as DEC-HCM2-017: `access.discovery@3` also grants
+  product owner resolved this as
+  [DEC-HCM2-017](../roadmap/HCM-2-DELIVERY.md#implementation-decisions): `access.discovery@3` also grants
   `hr-specialist` discovery. Toby now opens the app read-only; the acceptance test
   asserts no mutation controls and API refusal of writes.
 - **Position usage.** Unit usage shows current assignments and child units.

@@ -61,13 +61,6 @@ documents do not answer them, and each changes business behavior or authority.
     tenant administration. May tenants only view them, enable or disable product
     types for their use, or also define their own types?
 
-## Added during implementation
-
-17. **Organization Structure discovery for HR Operations** — the FDD names HR
-    Operations as a reader of the organisation structure, but the reviewed seed
-    grants the app's discovery permission to Administration only. Should HR
-    Operations also discover the app?
-
 ## Already fixed by current architecture
 
 - SQL-first migrations + Kysely typed query layer.
@@ -102,7 +95,6 @@ classifies the same item against that app's own scope.
 | DEC-HCM2-014 | 14   | RESOLVED                | Answered 2026-09-26: A new Organization Structure app in workforce-foundation maintains legal entities, unit types, effective-dated units, departments, designations and locations.                                                                                                |
 | DEC-HCM2-015 | 15   | RESOLVED                | Answered 2026-09-26: Team scope is direct reports only: workers whose current primary solid line points to one of the manager's current assignments.                                                                                                                               |
 | DEC-HCM2-016 | 16   | RESOLVED                | Answered 2026-09-26: Tenants view the product-maintained identification type catalogue only; there is no tenant management action.                                                                                                                                                 |
-| DEC-HCM2-017 | 17   | RESOLVED                | Answered 2026-09-26: HR Operations (`hr-specialist`) discovers Organization Structure as well as Administration, delivered by `access.discovery@3`; discovery grants no business permission.                                                                                       |
 
 <a id="evidence"></a>
 
@@ -127,11 +119,6 @@ _Recommended_ for every question:
 | DEC-HCM2-014 | Add Organization Structure app           |
 | DEC-HCM2-015 | Direct reports only                      |
 | DEC-HCM2-016 | View the product catalogue only          |
-| DEC-HCM2-017 | HR Operations discovers the app          |
-
-DEC-HCM2-017 was answered separately during Organization Structure delivery: the
-FDD names HR Operations as a reader, but the reviewed seed granted discovery to
-Administration only. The owner chose HR discovery.
 
 These answers resolve business policy. They are not approval of the FDD, TDD or
 blueprint revisions written from them; those need their own review under the
