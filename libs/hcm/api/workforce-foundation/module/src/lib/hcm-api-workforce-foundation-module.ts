@@ -3,15 +3,19 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	IdentificationTypes,
 	OrganisationStructure,
 	WorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { KyselyWorkforceUnitOfWork } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
-import { OrganisationStructureController } from '@empflowyee/hcm-api-workforce-foundation-transport'
+import {
+	IdentificationTypesController,
+	OrganisationStructureController,
+} from '@empflowyee/hcm-api-workforce-foundation-transport'
 
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [OrganisationStructureController],
+	controllers: [OrganisationStructureController, IdentificationTypesController],
 	providers: [
 		{
 			provide: WorkforceUnitOfWork,
@@ -27,7 +31,14 @@ import { OrganisationStructureController } from '@empflowyee/hcm-api-workforce-f
 				unit: WorkforceUnitOfWork,
 			) => new OrganisationStructure(unit),
 		},
+		{
+			provide: IdentificationTypes,
+			inject: [WorkforceUnitOfWork],
+			useFactory: /** Compose the read-only product catalogue use cases. */ (
+				unit: WorkforceUnitOfWork,
+			) => new IdentificationTypes(unit),
+		},
 	],
-	exports: [WorkforceUnitOfWork, OrganisationStructure],
+	exports: [WorkforceUnitOfWork, OrganisationStructure, IdentificationTypes],
 })
 export class HcmWorkforceFoundationModule {}

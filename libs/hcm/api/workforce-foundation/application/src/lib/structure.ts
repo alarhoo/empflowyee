@@ -45,6 +45,7 @@ import {
 	type CommandReceiptStore,
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
+import type { IdentificationTypeRepository } from './identification-types'
 
 export interface UnitVersionRow {
 	id: string
@@ -108,6 +109,7 @@ export interface StructureRepository {
 
 export interface WorkforceWork {
 	structure: StructureRepository
+	identification: IdentificationTypeRepository
 	receipts: CommandReceiptStore
 	audit: AppendAudit
 	/** Today's business date in the organisation time zone. */
