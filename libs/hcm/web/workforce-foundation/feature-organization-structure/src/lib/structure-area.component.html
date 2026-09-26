@@ -1,0 +1,208 @@
+<ef-hcm-dynamic-page
+	[title]="area().label"
+	[summary]="area().description"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		[accessibleName]="area().label + ' filters'"
+		accessibleMode="Edit"
+		layout="S1 M2 L4 XL4"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-query">
+				Code or name
+			</ui5-label>
+			<ui5-input
+				id="structure-query"
+				accessibleName="Search code or name"
+				type="Search"
+				[formField]="filterForm.q"
+				(keydown.enter)="apply()"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-active">
+				Status
+			</ui5-label>
+			<ui5-select
+				id="structure-active"
+				accessibleName="Status"
+				[formField]="filterForm.active">
+				<ui5-option value="">All</ui5-option>
+				<ui5-option value="true">Active</ui5-option>
+				<ui5-option value="false">Inactive</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		@if (units()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-as-of">
+					As of
+				</ui5-label>
+				<ui5-date-picker
+					id="structure-as-of"
+					accessibleName="As of date"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					placeholder="Today"
+					[showClearIcon]="true"
+					[value]="asOf()"
+					(ui5Change)="changeAsOf($event.detail.value)"></ui5-date-picker>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Actions</ui5-label>
+			<ui5-button
+				[disabled]="busy()"
+				(click)="apply()">
+				Apply filters
+			</ui5-button>
+		</ui5-form-item>
+	</ui5-form>
+	@if (truncated()) {
+		<ui5-message-strip
+			[hideCloseButton]="true"
+			design="Critical">
+			Only the first 200 {{ area().label.toLowerCase() }} are shown.
+		</ui5-message-strip>
+	}
+	@if (units()) {
+		<ui5-tree
+			[accessibleName]="searching() ? 'Unit search results' : 'Unit hierarchy'"
+			[noDataText]="
+				applied().q || applied().active
+					? 'No units match these filters'
+					: 'No units are effective on this date'
+			"
+			(ui5ItemToggle)="toggle($any($event.detail.item))"
+			(ui5ItemClick)="treeClick($any($event.detail.item))">
+			<ng-container
+				[ngTemplateOutlet]="nodes"
+				[ngTemplateOutletContext]="{ $implicit: roots() }"></ng-container>
+		</ui5-tree>
+		@if (cursor()) {
+			<ui5-button
+				[disabled]="busy()"
+				(click)="more()">
+				Load more units
+			</ui5-button>
+		}
+	} @else {
+		<ui5-table
+			(ui5RowClick)="openRow($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[accessibleName]="area().label"
+			overflowMode="Popin"
+			[noDataText]="
+				applied().q || applied().active
+					? 'No ' + area().label.toLowerCase() + ' match these filters'
+					: 'No ' + area().label.toLowerCase() + ' have been created yet'
+			"
+			[loading]="busy()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Name
+				</ui5-table-header-cell>
+				@for (column of columns(); track column.label) {
+					<ui5-table-header-cell
+						[importance]="column.importance"
+						[minWidth]="column.minWidth"
+						[popinText]="column.label">
+						{{ column.label }}
+					</ui5-table-header-cell>
+				}
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="7rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of rows(); track row.id) {
+				<ui5-table-row
+					[rowKey]="row.id"
+					[interactive]="true"
+					[navigated]="row.id === selectedId()">
+					<ui5-table-cell>{{ row.name }}{{ row.code ? ' (' + row.code + ')' : '' }}</ui5-table-cell>
+					@for (cell of row.cells; track $index) {
+						<ui5-table-cell>
+							@if (cell.check !== undefined) {
+								<ui5-checkbox
+									[displayOnly]="true"
+									[checked]="cell.check"
+									[accessibleName]="columns()[$index].label"></ui5-checkbox>
+							} @else {
+								{{ cell.text }}
+							}
+						</ui5-table-cell>
+					}
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="row.active ? 'positive' : 'neutral'"
+							[label]="row.active ? 'Active' : 'Inactive'"></span>
+					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="openRow(row.id)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					[text]="'Load more ' + area().label.toLowerCase()"
+					(ui5LoadMore)="more()"></ui5-table-growing>
+			}
+		</ui5-table>
+	}
+</ef-hcm-dynamic-page>
+<ng-template
+	#nodes
+	let-list>
+	@for (unit of list; track unit.id) {
+		<ui5-tree-item
+			type="Active"
+			[text]="unit.name"
+			[additionalText]="subtitle(unit)"
+			[attr.data-id]="unit.id"
+			[hasChildren]="unit.hasChildren && !searching()"
+			[expanded]="expanded().has(unit.id)"
+			[navigated]="unit.id === selectedId()">
+			@if (expanded().has(unit.id)) {
+				@let branch = branches()[unit.id];
+				@if (branch) {
+					<ng-container
+						[ngTemplateOutlet]="nodes"
+						[ngTemplateOutletContext]="{ $implicit: branch.items }"></ng-container>
+					@if (branch.state === 'loading') {
+						<ui5-tree-item text="Loading units…"></ui5-tree-item>
+					} @else if (branch.state === 'error') {
+						<ui5-tree-item
+							type="Active"
+							text="Units could not be loaded. Select to retry."
+							[attr.data-more]="unit.id"></ui5-tree-item>
+					} @else if (branch.cursor) {
+						<ui5-tree-item
+							type="Active"
+							text="Load more units"
+							[attr.data-more]="unit.id"></ui5-tree-item>
+					}
+				}
+			}
+		</ui5-tree-item>
+	}
+</ng-template>

@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-workforce-foundation-feature-organization-structure",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/workforce-foundation/feature-organization-structure/src",
+	"prefix": "ef-hcm",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:workforce-foundation", "type:feature"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

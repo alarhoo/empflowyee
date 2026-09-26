@@ -1,0 +1,87 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Structure areas' },
+		midColumn: { role: 'region', name: 'Area items' },
+		endColumn: { role: 'region', name: 'Selected item' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Organization Structure"
+		summary="Organisation defaults, legal entities, units and reference structure"
+		[readOnly]="!canManage()">
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-list
+			accessibleName="Structure areas"
+			(ui5ItemClick)="chooseArea($any($event.detail.item))">
+			@for (section of sections; track section.id) {
+				<ui5-li
+					type="Navigation"
+					[text]="section.label"
+					[description]="section.description"
+					[navigated]="section.id === area()?.id"
+					[attr.data-area]="section.id"></ui5-li>
+			}
+		</ui5-list>
+	</ef-hcm-dynamic-page>
+	@if (area(); as current) {
+		@if (current.id === 'organisation') {
+			<ef-hcm-organisation-profile
+				slot="midColumn"
+				[refresh]="refresh()"
+				[canManage]="canManage()"
+				(edit)="profileDialog.set($event)"
+				(closed)="closeArea()"></ef-hcm-organisation-profile>
+		} @else {
+			@for (key of [current.id]; track key) {
+				<ef-hcm-structure-area
+					slot="midColumn"
+					[area]="current"
+					[asOf]="asOf()"
+					[selectedId]="itemId()"
+					[refresh]="refresh()"
+					[canManage]="canManage()"
+					(opened)="openItem($event)"
+					(create)="create(current)"
+					(asOfChange)="changeAsOf($event)"
+					(closed)="closeArea()"></ef-hcm-structure-area>
+			}
+		}
+		@for (id of itemId() ? [itemId()!] : []; track id) {
+			<ef-hcm-structure-detail
+				slot="endColumn"
+				[area]="current"
+				[itemId]="id"
+				[asOf]="asOf()"
+				[refresh]="refresh()"
+				[canManage]="canManage()"
+				(closed)="closeItem()"
+				(edit)="edit(current, $event)"
+				(status)="changeStatus(current, $event)"></ef-hcm-structure-detail>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (itemDialog(); as request) {
+	<ef-hcm-structure-item-dialog
+		[request]="request"
+		(saved)="saved($event)"
+		(closed)="itemDialog.set(null)"></ef-hcm-structure-item-dialog>
+}
+@if (statusDialog(); as request) {
+	<ef-hcm-structure-status-dialog
+		[request]="request"
+		(saved)="saved($event)"
+		(closed)="statusDialog.set(null)"></ef-hcm-structure-status-dialog>
+}
+@if (profileDialog(); as view) {
+	<ef-hcm-organisation-profile-dialog
+		[view]="view"
+		(saved)="profileSaved()"
+		(closed)="profileDialog.set(null)"></ef-hcm-organisation-profile-dialog>
+}
