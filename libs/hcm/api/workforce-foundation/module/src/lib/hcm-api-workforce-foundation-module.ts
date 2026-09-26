@@ -5,6 +5,8 @@ import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastruc
 import {
 	IdentificationTypes,
 	LookupValues,
+	OrgChart,
+	OrgChartFieldPolicyBinder,
 	OrganisationStructure,
 	WorkforcePortBinder,
 	WorkforceUnitOfWork,
@@ -16,6 +18,7 @@ import {
 import {
 	IdentificationTypesController,
 	LookupValuesController,
+	OrgChartController,
 	OrganisationStructureController,
 } from '@empflowyee/hcm-api-workforce-foundation-transport'
 
@@ -25,14 +28,16 @@ import {
 		OrganisationStructureController,
 		IdentificationTypesController,
 		LookupValuesController,
+		OrgChartController,
 	],
 	providers: [
 		{
 			provide: WorkforceUnitOfWork,
-			inject: [HcmAccessDatabase],
+			inject: [HcmAccessDatabase, { token: OrgChartFieldPolicyBinder, optional: true }],
 			useFactory: /** Bind workforce adapters to the existing authorized transaction boundary. */ (
 				database: HcmAccessDatabase | null,
-			) => new KyselyWorkforceUnitOfWork(database),
+				orgChartPolicy: OrgChartFieldPolicyBinder | null,
+			) => new KyselyWorkforceUnitOfWork(database, orgChartPolicy ?? null),
 		},
 		{
 			provide: OrganisationStructure,
@@ -55,6 +60,12 @@ import {
 				new LookupValues(unit),
 		},
 		{
+			provide: OrgChart,
+			inject: [WorkforceUnitOfWork],
+			useFactory: /** Compose the read-only org chart use cases. */ (unit: WorkforceUnitOfWork) =>
+				new OrgChart(unit),
+		},
+		{
 			provide: WorkforcePortBinder,
 			useFactory: /** Let other domains bind workforce ports to their own transaction. */ () =>
 				new KyselyWorkforcePortBinder(),
@@ -65,6 +76,7 @@ import {
 		OrganisationStructure,
 		IdentificationTypes,
 		LookupValues,
+		OrgChart,
 		WorkforcePortBinder,
 	],
 })
