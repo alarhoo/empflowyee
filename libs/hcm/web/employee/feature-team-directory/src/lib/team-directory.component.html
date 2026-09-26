@@ -1,0 +1,177 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'My team' },
+		midColumn: { role: 'region', name: 'Selected team member' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Team Directory"
+		summary="Your direct reports, with the facts managers may see"
+		[state]="state()"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Team filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="team-query">
+					Name
+				</ui5-label>
+				<ui5-input
+					id="team-query"
+					accessibleName="Search team member name"
+					type="Search"
+					[value]="query()"
+					(input)="setQuery($event.target)"
+					(keydown.enter)="apply()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="team-location">
+					Location
+				</ui5-label>
+				<ef-hcm-team-location-box
+					kind="locations"
+					controlId="team-location"
+					label="Location"
+					[selected]="location()"
+					(selectedChange)="location.set($event)"></ef-hcm-team-location-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="team-probation">
+					Probation
+				</ui5-label>
+				<ui5-select
+					id="team-probation"
+					accessibleName="Probation"
+					(ui5Change)="setProbation($event.target)">
+					<ui5-option
+						value=""
+						[selected]="probationFilter() === ''">
+						Any probation state
+					</ui5-option>
+					@for (item of probationFilters; track item.value) {
+						<ui5-option
+							[value]="item.value"
+							[selected]="probationFilter() === item.value">
+							{{ item.label }}
+						</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="apply()">
+					Apply filters
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			accessibleName="Team members"
+			overflowMode="Popin"
+			[noDataText]="
+				filtered() ? 'No team members match these filters' : 'No one reports to you directly'
+			"
+			[loading]="busy()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="14rem">
+					Name
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="10rem"
+					popinText="Designation">
+					Designation
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="8rem"
+					popinText="Location">
+					Location
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="70"
+					minWidth="8rem"
+					popinText="Employment">
+					Employment
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="8rem"
+					popinText="Probation">
+					Probation
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (member of items(); track member.workerId) {
+				<ui5-table-row
+					[rowKey]="member.workerId"
+					[interactive]="true"
+					[navigated]="member.workerId === selectedId()">
+					<ui5-table-cell>
+						<ui5-avatar
+							size="XS"
+							[initials]="initials(member)"
+							[accessibleName]="name(member)"></ui5-avatar>
+						{{ name(member) }}
+					</ui5-table-cell>
+					<ui5-table-cell>{{ member.designation ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ member.location ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>
+						@if (member.employmentStatus; as status) {
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="employment(status).status"
+								[label]="employment(status).label"></span>
+						} @else {
+							—
+						}
+					</ui5-table-cell>
+					<ui5-table-cell>
+						@if (member.probationStatus; as status) {
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="probation(status).status"
+								[label]="probation(status).label"></span>
+						} @else {
+							—
+						}
+					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(member.workerId)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more team members"
+					(ui5LoadMore)="more()"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@for (id of selectedId() ? [selectedId()!] : []; track id) {
+		<ef-hcm-team-member
+			slot="midColumn"
+			[workerId]="id"
+			(closed)="close()"></ef-hcm-team-member>
+	}
+</ui5-flexible-column-layout>
