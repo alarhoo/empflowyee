@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common'
 import {
+	FieldCipher,
 	HcmRuntimeApplication,
 	HcmSessionReader,
 	TenantDirectory,
 } from '@empflowyee/hcm-api-runtime-application'
 import {
+	createFieldCipher,
 	createSessionReader,
 	createTenantDirectory,
 	createRuntimeStore,
@@ -44,8 +46,13 @@ import {
 				sessions: HcmSessionReader,
 			) => new HcmRuntimeApplication(tenants, sessions),
 		},
+		{
+			provide: FieldCipher,
+			useFactory: /** Field encryption with the environment's key hierarchy. */ () =>
+				createFieldCipher(process.env),
+		},
 		HcmRequestTenantContext,
 	],
-	exports: [HcmRequestTenantContext, HcmRuntimeApplication],
+	exports: [HcmRequestTenantContext, HcmRuntimeApplication, FieldCipher],
 })
 export class HcmRuntimeModule {}
