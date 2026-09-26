@@ -124,13 +124,14 @@ it('serves all persisted personas with workforce identity and database grants', 
 		expect(response.body.development?.personas).toHaveLength(4)
 	}
 	expect((await get()).body.user.displayName).toBe('Jim Halpert')
+	// Four persona assignments plus four workforce.foundation@3 workers without accounts.
 	expect(
 		(
 			await admin.query(
 				'SELECT count(*)::int AS count FROM hcm.assignment a JOIN hcm.employment e USING (tenant_id) WHERE a.employment_id=e.id',
 			)
 		).rows[0].count,
-	).toBe(4)
+	).toBe(8)
 	expect((await get('unknown.localhost')).status).toBe(404)
 	expect((await get('acme.localhost', 'unknown')).status).toBe(401)
 })
