@@ -27,6 +27,7 @@ Purpose: keep intentionally deferred decisions visible without polluting current
 - Business apps are theme-agnostic. Feature work uses approved floorplans and maintained semantic controls; it does not implement HER/Horizon behavior or visual theme CSS.
 - Storybook/Theme Lab are optional developer tooling and are currently outside normal business-app delivery.
 - Semantic data presentation is governed by `.ai/skills/hcm-data-presentation/SKILL.md`.
+- Shared accessibility watch items found by HCM-2 axe runs: the three-column FCL separator arrow has no accessible name and nests inside the focusable separator, and the known Display Form definition-list and inverted positive ObjectStatus contrast findings remain. See the [Organization Structure validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md#accessibility-findings-excluded-as-shared).
 
 ## Data
 
