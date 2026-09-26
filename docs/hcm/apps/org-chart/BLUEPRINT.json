@@ -279,7 +279,7 @@
 		},
 		{
 			"id": "employee-field-policy",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "COMMON2#PORTS"
 		}
 	],

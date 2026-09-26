@@ -291,12 +291,12 @@
 		},
 		{
 			"id": "position-change-foundation",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "DOMAIN#dependencies"
 		},
 		{
 			"id": "field-encryption-adr",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "ENCRYPTION#Decision"
 		}
 	],

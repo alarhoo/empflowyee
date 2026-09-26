@@ -346,12 +346,12 @@
 		},
 		{
 			"id": "wizard-floorplan-acceptance",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "COMMON2#UX"
 		},
 		{
 			"id": "employee-field-policy",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "COMMON2#PORTS"
 		}
 	],

@@ -136,13 +136,13 @@ approved floorplans only.
 
 Workforce employment foundation; Positions foundation; notification event registration; migration `000025`.
 
-| Prerequisite                  | State      | Note                                                               |
-| ----------------------------- | ---------- | ------------------------------------------------------------------ |
-| `hcm2-shared-contract`        | resolved   | Shared HCM-2 design complete for review.                           |
-| `hcm2-physical-model`         | resolved   | Shared HCM-2 design complete for review.                           |
-| `hcm2-permission-register`    | resolved   | Shared HCM-2 design complete for review.                           |
-| `wizard-floorplan-acceptance` | unresolved | Shared HcmWizardPage accepted.                                     |
-| `position-read-port`          | unresolved | Positions foundation provides PositionReadPort capacity decisions. |
+| Prerequisite                  | State    | Note                                                                                                                                                                                      |
+| ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hcm2-shared-contract`        | resolved | Shared HCM-2 design complete.                                                                                                                                                             |
+| `hcm2-physical-model`         | resolved | Shared HCM-2 design complete.                                                                                                                                                             |
+| `hcm2-permission-register`    | resolved | Shared HCM-2 design complete.                                                                                                                                                             |
+| `wizard-floorplan-acceptance` | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Shared HcmWizardPage accepted.                                     |
+| `position-read-port`          | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Positions foundation provides PositionReadPort capacity decisions. |
 
 Foundations HCM0-01 to HCM0-04 are referenced through their validation records.
 

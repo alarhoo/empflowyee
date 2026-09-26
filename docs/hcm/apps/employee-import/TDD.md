@@ -143,13 +143,13 @@ approved floorplans only.
 
 Workforce foundations; Employee profile policy foundation; documents import-source extension; shared wizard acceptance; migration `000026`.
 
-| Prerequisite                  | State      | Note                                                                             |
-| ----------------------------- | ---------- | -------------------------------------------------------------------------------- |
-| `hcm2-shared-contract`        | resolved   | Shared HCM-2 design complete for review.                                         |
-| `hcm2-physical-model`         | resolved   | Shared HCM-2 design complete for review.                                         |
-| `hcm2-permission-register`    | resolved   | Shared HCM-2 design complete for review.                                         |
-| `wizard-floorplan-acceptance` | unresolved | Shared HcmWizardPage accepted.                                                   |
-| `documents-import-source`     | resolved   | Documents import-source design; migration delivered before the import migration. |
+| Prerequisite                  | State    | Note                                                                                                                                                                                                    |
+| ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hcm2-shared-contract`        | resolved | Shared HCM-2 design complete.                                                                                                                                                                           |
+| `hcm2-physical-model`         | resolved | Shared HCM-2 design complete.                                                                                                                                                                           |
+| `hcm2-permission-register`    | resolved | Shared HCM-2 design complete.                                                                                                                                                                           |
+| `wizard-floorplan-acceptance` | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Shared HcmWizardPage accepted.                                                   |
+| `documents-import-source`     | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Documents import-source design; migration delivered before the import migration. |
 
 Foundations HCM0-01 to HCM0-04 are referenced through their validation records.
 

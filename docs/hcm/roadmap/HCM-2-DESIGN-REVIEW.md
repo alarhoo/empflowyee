@@ -140,9 +140,9 @@ Every app shares two blocking reasons:
   CATALOGUE_NOT_APPROVED, ROUTE_REQUIRED, FLOORPLAN_REQUIRED and the matching
   mismatch checks fail. They are updated only after the TDD is approved.
 
-Additional technical prerequisites, each resolved by an earlier [ORDER](#order) step:
+Implementation prerequisites. Their designs are resolved; each is built by an earlier [ORDER](#order) step before the app ships:
 
-| App                              | Readiness | Unresolved technical prerequisites                        | Later-capability warnings |
+| App                              | Readiness | Implementation prerequisites                              | Later-capability warnings |
 | -------------------------------- | --------- | --------------------------------------------------------- | ------------------------- |
 | `ORGANIZATION_STRUCTURE`         | BLOCKED   | catalogue admission                                       | 2                         |
 | `IDENTIFICATION_TYPES`           | BLOCKED   | None                                                      | 1                         |

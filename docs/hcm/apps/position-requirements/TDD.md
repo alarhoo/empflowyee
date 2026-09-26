@@ -128,13 +128,13 @@ approved floorplans only.
 
 Positions change-request foundation and migration `000023`.
 
-| Prerequisite                 | State      | Note                                              |
-| ---------------------------- | ---------- | ------------------------------------------------- |
-| `hcm2-shared-contract`       | resolved   | Shared HCM-2 design complete for review.          |
-| `hcm2-physical-model`        | resolved   | Shared HCM-2 design complete for review.          |
-| `hcm2-permission-register`   | resolved   | Shared HCM-2 design complete for review.          |
-| `position-change-foundation` | unresolved | Positions change-request foundation implemented.  |
-| `field-encryption-adr`       | unresolved | Field-encryption ADR accepted for justifications. |
+| Prerequisite                 | State    | Note                                                                                                                                                                     |
+| ---------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `hcm2-shared-contract`       | resolved | Shared HCM-2 design complete.                                                                                                                                            |
+| `hcm2-physical-model`        | resolved | Shared HCM-2 design complete.                                                                                                                                            |
+| `hcm2-permission-register`   | resolved | Shared HCM-2 design complete.                                                                                                                                            |
+| `position-change-foundation` | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Positions change-request foundation implemented.  |
+| `field-encryption-adr`       | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Field-encryption ADR accepted for justifications. |
 
 Foundations HCM0-01 to HCM0-04 are referenced through their validation records.
 

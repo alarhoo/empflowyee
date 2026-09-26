@@ -139,12 +139,12 @@ approved floorplans only.
 
 Workforce structure foundation (migrations `000017` and `000018`); `PositionReadPort` usage counts once positions exist; catalogue admission slice.
 
-| Prerequisite               | State      | Note                                                                                         |
-| -------------------------- | ---------- | -------------------------------------------------------------------------------------------- |
-| `hcm2-shared-contract`     | resolved   | Shared HCM-2 design complete for review.                                                     |
-| `hcm2-physical-model`      | resolved   | Shared HCM-2 design complete for review.                                                     |
-| `hcm2-permission-register` | resolved   | Shared HCM-2 design complete for review.                                                     |
-| `catalogue-admission`      | unresolved | Canonical catalogue, launchpad, seed-generator and discovery-seed change admitting this app. |
+| Prerequisite               | State    | Note                                                                                                                                                                                                                |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hcm2-shared-contract`     | resolved | Shared HCM-2 design complete.                                                                                                                                                                                       |
+| `hcm2-physical-model`      | resolved | Shared HCM-2 design complete.                                                                                                                                                                                       |
+| `hcm2-permission-register` | resolved | Shared HCM-2 design complete.                                                                                                                                                                                       |
+| `catalogue-admission`      | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Canonical catalogue, launchpad, seed-generator and discovery-seed change admitting this app. |
 
 Foundations HCM0-01 to HCM0-04 are referenced through their validation records.
 

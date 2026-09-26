@@ -350,12 +350,12 @@
 		},
 		{
 			"id": "wizard-floorplan-acceptance",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "COMMON2#UX"
 		},
 		{
 			"id": "position-read-port",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "COMMON2#PORTS"
 		}
 	],

@@ -342,7 +342,7 @@
 		},
 		{
 			"id": "catalogue-admission",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "REVIEW#catalogue-admission"
 		}
 	],
