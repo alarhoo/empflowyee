@@ -5,9 +5,13 @@ import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastruc
 import {
 	IdentificationTypes,
 	OrganisationStructure,
+	WorkforcePortBinder,
 	WorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
-import { KyselyWorkforceUnitOfWork } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import {
+	KyselyWorkforcePortBinder,
+	KyselyWorkforceUnitOfWork,
+} from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import {
 	IdentificationTypesController,
 	OrganisationStructureController,
@@ -38,7 +42,12 @@ import {
 				unit: WorkforceUnitOfWork,
 			) => new IdentificationTypes(unit),
 		},
+		{
+			provide: WorkforcePortBinder,
+			useFactory: /** Let other domains bind workforce ports to their own transaction. */ () =>
+				new KyselyWorkforcePortBinder(),
+		},
 	],
-	exports: [WorkforceUnitOfWork, OrganisationStructure, IdentificationTypes],
+	exports: [WorkforceUnitOfWork, OrganisationStructure, IdentificationTypes, WorkforcePortBinder],
 })
 export class HcmWorkforceFoundationModule {}
