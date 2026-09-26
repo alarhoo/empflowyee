@@ -203,6 +203,7 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'tenant',
 			'tenant_entitlement',
 			'tenant_feature_flag',
+			'tenant_field_key',
 			'tenant_hostname',
 			'user_account',
 			'worker',
