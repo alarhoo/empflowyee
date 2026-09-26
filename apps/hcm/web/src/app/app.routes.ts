@@ -193,6 +193,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'job-architecture/job-catalogue',
+		data: { catalogId: 'JOB_CATALOGUE' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the versioned job catalogue and job profiles. */ () =>
+			import('@empflowyee/hcm-web-job-architecture-feature-job-catalogue').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.JOB_CATALOGUE_ROUTES,
+			),
+	},
+	{
 		path: 'employee/my-profile',
 		data: { catalogId: 'MY_PROFILE' },
 		canMatch: [hcmRouteAccess],

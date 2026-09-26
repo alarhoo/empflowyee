@@ -1,0 +1,288 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Catalogue versions and job profiles' },
+		midColumn: { role: 'region', name: 'Selected version' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Job Catalogue"
+		summary="Versioned job families, career tracks, levels, bands, grades and job profiles"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Job catalogue scope and filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Catalogue scope"
+					(ui5SelectionChange)="chooseScope($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-scope="catalogue"
+						[selected]="scope() === 'catalogue'">
+						Catalogue
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-scope="profiles"
+						[selected]="scope() === 'profiles'">
+						Job profiles
+					</ui5-segmented-button-item>
+				</ui5-segmented-button>
+			</ui5-form-item>
+			@if (scope() === 'profiles') {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="job-profile-query">
+						Code or name
+					</ui5-label>
+					<ui5-input
+						id="job-profile-query"
+						accessibleName="Search code or name"
+						type="Search"
+						[formField]="filterForm.q"
+						(keyup.enter)="loadProfiles(false)"></ui5-input>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="job-profile-family">
+						Job family
+					</ui5-label>
+					<ui5-select
+						id="job-profile-family"
+						accessibleName="Job family"
+						[formField]="filterForm.familyId">
+						<ui5-option value="all">All families</ui5-option>
+						@for (family of families(); track family.id) {
+							<ui5-option [value]="family.id">{{ familyLabel(family) }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="job-profile-status">
+						Status
+					</ui5-label>
+					<ui5-select
+						id="job-profile-status"
+						accessibleName="Status"
+						[formField]="filterForm.status">
+						<ui5-option value="all">All statuses</ui5-option>
+						@for (item of statuses; track item) {
+							<ui5-option [value]="item">{{ status(item).label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Actions</ui5-label>
+					<ui5-button (click)="loadProfiles(false)">Apply filters</ui5-button>
+				</ui5-form-item>
+			}
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		@if (scope() === 'catalogue') {
+			<ui5-table
+				(ui5RowClick)="open('versions', $event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				accessibleName="Catalogue versions"
+				overflowMode="Popin"
+				noDataText="No job catalogue has been set up for this organisation">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="8rem">
+						Version
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="8rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="8rem"
+						popinText="Effective from">
+						Effective from
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="8rem"
+						popinText="Effective to">
+						Effective to
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="30"
+						minWidth="14rem"
+						popinText="Change summary">
+						Change summary
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (version of catalogue()?.versions ?? []; track version.id) {
+					<ui5-table-row
+						[rowKey]="version.id"
+						[interactive]="true"
+						[navigated]="selected()?.id === version.id">
+						<ui5-table-cell>Version {{ version.versionNumber }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="status(version.status).status"
+								[label]="
+									status(version.status).label + (version.current ? ' (current)' : '')
+								"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{ version.effectiveFrom ? (version.effectiveFrom | hcmDate: 'date') : '—' }}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{ version.effectiveTo ? (version.effectiveTo | hcmDate: 'date') : '—' }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ version.changeSummary }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open('versions', version.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		} @else {
+			<ui5-table
+				(ui5RowClick)="open('profiles', $event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="profileState() === 'loading'"
+				accessibleName="Job profiles"
+				overflowMode="Popin"
+				[noDataText]="
+					profileState() === 'error'
+						? 'Job profiles could not be loaded'
+						: 'No job profiles match these filters'
+				">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Job profile
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="10rem"
+						popinText="Job family">
+						Job family
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="10rem"
+						popinText="Level">
+						Level
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="7rem"
+						popinText="Default grade">
+						Default grade
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="8rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (profile of profiles(); track profile.id) {
+					<ui5-table-row
+						[rowKey]="profile.latestVersionId"
+						[interactive]="true"
+						[navigated]="
+							selected()?.id === profile.latestVersionId ||
+							selected()?.id === profile.currentVersionId
+						">
+						<ui5-table-cell>{{ profile.name }} ({{ profile.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ profile.family?.name ?? '—' }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ profile.level ? profile.level.name + ' (' + profile.level.code + ')' : '—' }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ profile.defaultGrade?.code ?? '—' }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="status(profile.status).status"
+								[label]="status(profile.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="
+								open('profiles', profile.latestVersionId)
+							"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more job profiles"
+						(ui5LoadMore)="loadProfiles(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selected(); as selection) {
+		@if (selection.type === 'versions') {
+			@for (id of [selection.id]; track id) {
+				<ef-hcm-job-catalogue-version
+					slot="midColumn"
+					[versionId]="id"
+					[refresh]="refresh()"
+					[canManage]="canManage()"
+					[canPublish]="canPublish()"
+					[openDraft]="openDraft()"
+					(commanded)="command($event)"
+					(closed)="close()"></ef-hcm-job-catalogue-version>
+			}
+		} @else {
+			@for (id of [selection.id]; track id) {
+				<ef-hcm-job-profile-version
+					slot="midColumn"
+					[versionId]="id"
+					[refresh]="refresh()"
+					[canManage]="canManage()"
+					[canPublish]="canPublish()"
+					(commanded)="profileCommand($event)"
+					(edited)="edit($event)"
+					(opened)="open('profiles', $event)"
+					(closed)="close()"></ef-hcm-job-profile-version>
+			}
+		}
+	}
+</ui5-flexible-column-layout>
+@if (elementDialog(); as request) {
+	<ef-hcm-job-catalogue-element-dialog
+		[request]="request"
+		(saved)="elementSaved()"
+		(closed)="elementDialog.set(null)"></ef-hcm-job-catalogue-element-dialog>
+}
+@if (lifecycleDialog(); as request) {
+	<ef-hcm-job-catalogue-lifecycle-dialog
+		[request]="request"
+		(saved)="lifecycleSaved($event)"
+		(closed)="lifecycleDialog.set(null)"></ef-hcm-job-catalogue-lifecycle-dialog>
+}

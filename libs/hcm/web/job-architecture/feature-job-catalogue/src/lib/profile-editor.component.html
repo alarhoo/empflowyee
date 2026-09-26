@@ -1,0 +1,478 @@
+<ef-hcm-dynamic-page
+	[title]="title()"
+	summary="Job profiles reference the current published catalogue version and hold no salary data"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (existing() && existing()!.catalogueVersionId !== catalogue()?.id) {
+		<ui5-message-strip
+			design="Information"
+			[hideCloseButton]="true">
+			This draft moves to catalogue version {{ catalogue()?.versionNumber }}; references were
+			matched by code. Check them before saving.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Job profile"
+		accessibleMode="Edit"
+		layout="S1 M1 L2 XL2"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-group
+			headerText="Profile"
+			headerLevel="H2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-code"
+					[required]="!existing()">
+					Code
+				</ui5-label>
+				@if (existing(); as current) {
+					<ui5-text>{{ current.profileCode }}</ui5-text>
+				} @else {
+					<ui5-input
+						id="profile-code"
+						accessibleName="Code"
+						[formField]="fields.code"
+						[disabled]="draft.saving()"
+						[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+						<ui5-text slot="valueStateMessage">
+							Use 2–40 capital letters, digits or underscores, starting with a letter.
+						</ui5-text>
+					</ui5-input>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-name"
+					[required]="!existing()">
+					Name
+				</ui5-label>
+				@if (existing(); as current) {
+					<ui5-text>{{ current.profileName }}</ui5-text>
+				} @else {
+					<ui5-input
+						id="profile-name"
+						accessibleName="Name"
+						[formField]="fields.name"
+						[disabled]="draft.saving()"
+						[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+						<ui5-text slot="valueStateMessage">Enter a name of 1–100 characters.</ui5-text>
+					</ui5-input>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-family"
+					[required]="true">
+					Job family
+				</ui5-label>
+				<ui5-select
+					id="profile-family"
+					accessibleName="Job family"
+					[formField]="fields.familyId"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.familyId().touched() && fields.familyId().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-option value="">Choose a family</ui5-option>
+					@for (family of families(); track family.id) {
+						<ui5-option [value]="family.id">
+							{{ family.depth > 1 ? '— ' + family.name : family.name }}
+						</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-track"
+					[required]="true">
+					Career track
+				</ui5-label>
+				<ui5-select
+					id="profile-track"
+					accessibleName="Career track"
+					[formField]="fields.trackId"
+					[disabled]="draft.saving()"
+					(ui5Change)="chooseTrack()">
+					<ui5-option value="">Choose a track</ui5-option>
+					@for (track of catalogue()?.tracks ?? []; track track.id) {
+						@if (track.active) {
+							<ui5-option [value]="track.id">{{ trackKinds[track.kind] }}</ui5-option>
+						}
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-level"
+					[required]="true">
+					Level
+				</ui5-label>
+				<ui5-select
+					id="profile-level"
+					accessibleName="Level"
+					[formField]="fields.levelId"
+					[disabled]="draft.saving() || !levels().length"
+					[valueState]="
+						fields.levelId().touched() && fields.levelId().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-option value="">Choose a level</ui5-option>
+					@for (level of levels(); track level.id) {
+						<ui5-option [value]="level.id">{{ level.name }} ({{ level.code }})</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-grades"
+					[required]="true">
+					Allowed grades
+				</ui5-label>
+				<ui5-multi-combobox
+					id="profile-grades"
+					accessibleName="Allowed grades"
+					[selectedValues]="gradeIds()"
+					[disabled]="draft.saving()"
+					(ui5SelectionChange)="setGrades($event.target)">
+					@for (grade of grades(); track grade.id) {
+						<ui5-mcb-item
+							[value]="grade.id"
+							[text]="grade.code + ' · ' + grade.name"
+							[additionalText]="grade.band"></ui5-mcb-item>
+					}
+				</ui5-multi-combobox>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-default-grade"
+					[required]="true">
+					Default grade
+				</ui5-label>
+				<ui5-select
+					id="profile-default-grade"
+					accessibleName="Default grade"
+					[formField]="fields.defaultGradeId"
+					[disabled]="draft.saving() || !chosenGrades().length"
+					[valueState]="
+						fields.defaultGradeId().touched() && fields.defaultGradeId().invalid()
+							? 'Negative'
+							: 'None'
+					">
+					<ui5-option value="">Choose an allowed grade</ui5-option>
+					@for (grade of chosenGrades(); track grade.id) {
+						<ui5-option [value]="grade.id">{{ grade.code }} · {{ grade.name }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		</ui5-form-group>
+		<ui5-form-group
+			headerText="Description"
+			headerLevel="H2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-summary">
+					Summary
+				</ui5-label>
+				<ui5-textarea
+					id="profile-summary"
+					accessibleName="Summary"
+					[rows]="2"
+					[formField]="fields.summary"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-purpose">
+					Purpose
+				</ui5-label>
+				<ui5-textarea
+					id="profile-purpose"
+					accessibleName="Purpose"
+					[rows]="3"
+					[formField]="fields.purpose"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-scope">
+					Scope of impact
+				</ui5-label>
+				<ui5-textarea
+					id="profile-scope"
+					accessibleName="Scope of impact"
+					[rows]="3"
+					[formField]="fields.scopeOfImpact"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-autonomy">
+					Autonomy
+				</ui5-label>
+				<ui5-input
+					id="profile-autonomy"
+					accessibleName="Autonomy"
+					[formField]="fields.autonomyLevel"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+		</ui5-form-group>
+	</ui5-form>
+	@if (rowError()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ rowError() }}
+		</ui5-message-strip>
+	}
+	<ui5-toolbar
+		design="Transparent"
+		accessibleName="Responsibility actions">
+		<ui5-toolbar-button
+			text="Add responsibility"
+			[disabled]="draft.saving()"
+			(ui5Click)="addResponsibility()"></ui5-toolbar-button>
+	</ui5-toolbar>
+	<ui5-table
+		accessibleName="Responsibilities"
+		overflowMode="Popin"
+		noDataText="No responsibilities yet"
+		[rowActionCount]="1">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="80"
+				minWidth="9rem">
+				Code
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="16rem"
+				popinText="Statement">
+				Statement
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="7rem"
+				popinText="Essential">
+				Essential
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (row of responsibilities(); track row.key; let index = $index) {
+			<ui5-table-row [rowKey]="'r' + row.key">
+				<ui5-table-cell>
+					<ui5-input
+						[accessibleName]="'Responsibility ' + (index + 1) + ' code'"
+						[value]="row.code"
+						[disabled]="draft.saving()"
+						(ui5Input)="setResponsibility(row.key, 'code', $event.target)"></ui5-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-textarea
+						[accessibleName]="'Responsibility ' + (index + 1) + ' statement'"
+						[rows]="2"
+						[value]="row.statement"
+						[disabled]="draft.saving()"
+						(ui5Input)="setResponsibility(row.key, 'statement', $event.target)"></ui5-textarea>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-checkbox
+						[accessibleName]="'Responsibility ' + (index + 1) + ' essential'"
+						text="Essential"
+						[checked]="row.essential"
+						[disabled]="draft.saving()"
+						(ui5Change)="setResponsibility(row.key, 'essential', $event.target)"></ui5-checkbox>
+				</ui5-table-cell>
+				<ui5-table-row-action
+					slot="actions"
+					icon="delete"
+					text="Remove"
+					(ui5Click)="remove('responsibilities', row.key)"></ui5-table-row-action>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	<ui5-toolbar
+		design="Transparent"
+		accessibleName="Requirement actions">
+		<ui5-toolbar-button
+			text="Add requirement"
+			[disabled]="draft.saving()"
+			(ui5Click)="addRequirement()"></ui5-toolbar-button>
+	</ui5-toolbar>
+	<ui5-table
+		accessibleName="Requirements"
+		overflowMode="Popin"
+		noDataText="No requirements yet"
+		[rowActionCount]="1">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="80"
+				minWidth="9rem">
+				Code
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="70"
+				minWidth="9rem"
+				popinText="Type">
+				Type
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem"
+				popinText="Name">
+				Name
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="50"
+				minWidth="8rem"
+				popinText="Minimum">
+				Minimum
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="50"
+				minWidth="8rem"
+				popinText="Unit">
+				Unit
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="8rem"
+				popinText="Proficiency">
+				Proficiency
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="7rem"
+				popinText="Mandatory">
+				Mandatory
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (row of requirements(); track row.key; let index = $index) {
+			<ui5-table-row [rowKey]="'q' + row.key">
+				<ui5-table-cell>
+					<ui5-input
+						[accessibleName]="'Requirement ' + (index + 1) + ' code'"
+						[value]="row.code"
+						[disabled]="draft.saving()"
+						(ui5Input)="setRequirement(row.key, 'code', $event.target)"></ui5-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-select
+						[accessibleName]="'Requirement ' + (index + 1) + ' type'"
+						[value]="row.type"
+						[disabled]="draft.saving()"
+						(ui5Change)="setRequirement(row.key, 'type', $event.target)">
+						@for (type of types; track type) {
+							<ui5-option [value]="type">{{ type }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-input
+						[accessibleName]="'Requirement ' + (index + 1) + ' name'"
+						[value]="row.name"
+						[disabled]="draft.saving()"
+						(ui5Input)="setRequirement(row.key, 'name', $event.target)"></ui5-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-step-input
+						[accessibleName]="'Requirement ' + (index + 1) + ' minimum quantity'"
+						[min]="0"
+						[max]="999999"
+						[value]="row.quantity ?? 0"
+						[disabled]="draft.saving() || row.unit === 'none'"
+						(ui5Change)="setRequirement(row.key, 'quantity', $event.target)"></ui5-step-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-select
+						[accessibleName]="'Requirement ' + (index + 1) + ' unit'"
+						[value]="row.unit"
+						[disabled]="draft.saving()"
+						(ui5Change)="setUnit(row.key, $event.target)">
+						<ui5-option value="none">No quantity</ui5-option>
+						@for (unit of units; track unit) {
+							<ui5-option [value]="unit">{{ unit }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-input
+						[accessibleName]="'Requirement ' + (index + 1) + ' proficiency'"
+						[value]="row.proficiency"
+						[disabled]="draft.saving()"
+						(ui5Input)="setRequirement(row.key, 'proficiency', $event.target)"></ui5-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-checkbox
+						[accessibleName]="'Requirement ' + (index + 1) + ' mandatory'"
+						text="Mandatory"
+						[checked]="row.mandatory"
+						[disabled]="draft.saving()"
+						(ui5Change)="setRequirement(row.key, 'mandatory', $event.target)"></ui5-checkbox>
+				</ui5-table-cell>
+				<ui5-table-row-action
+					slot="actions"
+					icon="delete"
+					text="Remove"
+					(ui5Click)="remove('requirements', row.key)"></ui5-table-row-action>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	<ui5-form
+		accessibleName="Reason for change"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="profile-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="profile-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar hcmFooter>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : existing() ? 'Save draft' : 'Create profile' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="back()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

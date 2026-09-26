@@ -1,0 +1,389 @@
+<ef-hcm-object-page
+	[title]="version() ? 'Catalogue version ' + version()!.versionNumber : 'Catalogue version'"
+	[summary]="version()?.changeSummary ?? ''"
+	[state]="state()"
+	[actions]="actions()"
+	[readOnly]="!canManage()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (version(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label + (current.current ? ' (current)' : '')"></span>
+	}
+	@if (version(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			<ui5-form
+				accessibleName="Version overview"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Version</ui5-label>
+					<ui5-text>{{ current.versionNumber }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status(current.status).status"
+						[label]="status(current.status).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective from</ui5-label>
+					<ui5-text>
+						{{
+							current.effectiveFrom ? (current.effectiveFrom | hcmDate: 'date') : 'Not published'
+						}}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective to</ui5-label>
+					<ui5-text>
+						{{ current.effectiveTo ? (current.effectiveTo | hcmDate: 'date') : 'Open-ended' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Change summary</ui5-label>
+					<ui5-text>{{ current.changeSummary || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Contents</ui5-label>
+					<ui5-text>
+						{{ current.familyCount }} families, {{ current.tracks.length }} tracks,
+						{{ levels().length }} levels, {{ current.bands.length }} bands and
+						{{ grades().length }} grades
+					</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="families"
+			label="Job families">
+			@if (editable()) {
+				<ui5-toolbar
+					design="Transparent"
+					accessibleName="Job family actions">
+					<ui5-toolbar-button
+						text="Add family"
+						(ui5Click)="element('families', null)"></ui5-toolbar-button>
+				</ui5-toolbar>
+			}
+			<ui5-tree
+				accessibleName="Job families"
+				noDataText="This version has no job families yet"
+				(ui5ItemClick)="editFamily($any($event.detail.item))">
+				@for (root of roots(); track root.id) {
+					<ui5-tree-item
+						[type]="editable() ? 'Active' : 'Inactive'"
+						[text]="root.name"
+						[additionalText]="root.active ? root.code : root.code + ' · Retired'"
+						[attr.data-id]="root.id"
+						[expanded]="true"
+						[hasChildren]="root.childCount > 0">
+						@for (child of children()[root.id] ?? []; track child.id) {
+							<ui5-tree-item
+								[type]="editable() ? 'Active' : 'Inactive'"
+								[text]="child.name"
+								[additionalText]="child.active ? child.code : child.code + ' · Retired'"
+								[attr.data-id]="child.id"></ui5-tree-item>
+						}
+					</ui5-tree-item>
+				}
+			</ui5-tree>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="tracks"
+			label="Career tracks and levels">
+			@if (editable()) {
+				<ui5-toolbar
+					design="Transparent"
+					accessibleName="Track and level actions">
+					<ui5-toolbar-button
+						text="Add track"
+						[disabled]="current.tracks.length >= trackKindCount"
+						(ui5Click)="element('tracks', null)"></ui5-toolbar-button>
+					<ui5-toolbar-button
+						text="Add level"
+						[disabled]="!current.tracks.length"
+						(ui5Click)="element('levels', null)"></ui5-toolbar-button>
+				</ui5-toolbar>
+			}
+			<ui5-table
+				accessibleName="Career tracks"
+				overflowMode="Popin"
+				noDataText="This version has no career tracks yet"
+				[rowActionCount]="editable() ? 1 : 0">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Track
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="10rem"
+						popinText="Kind">
+						Kind
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="6rem"
+						popinText="Levels">
+						Levels
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="30"
+						minWidth="6rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (track of current.tracks; track track.id) {
+					<ui5-table-row [rowKey]="track.id">
+						<ui5-table-cell>{{ track.name }} ({{ track.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ trackKinds[track.kind] }}</ui5-table-cell>
+						<ui5-table-cell>{{ track.levels.length }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="track.active ? 'positive' : 'neutral'"
+								[label]="track.active ? 'Active' : 'Retired'"></span>
+						</ui5-table-cell>
+						@if (editable()) {
+							<ui5-table-row-action
+								slot="actions"
+								icon="edit"
+								text="Edit"
+								(ui5Click)="
+									element('tracks', {
+										id: track.id,
+										code: track.code,
+										name: track.name,
+										description: track.description,
+										active: track.active,
+										order: track.sortOrder,
+									})
+								"></ui5-table-row-action>
+						}
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-table
+				accessibleName="Levels"
+				overflowMode="Popin"
+				noDataText="This version has no levels yet"
+				[rowActionCount]="editable() ? 1 : 0">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Level
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="10rem"
+						popinText="Track">
+						Track
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="5rem"
+						popinText="Sequence">
+						Sequence
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="14rem"
+						popinText="Scope">
+						Scope
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="30"
+						minWidth="6rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (level of levels(); track level.id) {
+					<ui5-table-row [rowKey]="level.id">
+						<ui5-table-cell>{{ level.name }} ({{ level.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ level.track }}</ui5-table-cell>
+						<ui5-table-cell>{{ level.sequence }}</ui5-table-cell>
+						<ui5-table-cell>{{ level.scopeSummary }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="level.active ? 'positive' : 'neutral'"
+								[label]="level.active ? 'Active' : 'Retired'"></span>
+						</ui5-table-cell>
+						@if (editable()) {
+							<ui5-table-row-action
+								slot="actions"
+								icon="edit"
+								text="Edit"
+								(ui5Click)="
+									element('levels', {
+										id: level.id,
+										code: level.code,
+										name: level.name,
+										description: level.description,
+										active: level.active,
+										order: level.sequence,
+										scopeSummary: level.scopeSummary,
+									})
+								"></ui5-table-row-action>
+						}
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="bands"
+			label="Bands and grades">
+			@if (editable()) {
+				<ui5-toolbar
+					design="Transparent"
+					accessibleName="Band and grade actions">
+					<ui5-toolbar-button
+						text="Add band"
+						(ui5Click)="element('bands', null)"></ui5-toolbar-button>
+					<ui5-toolbar-button
+						text="Add grade"
+						[disabled]="!current.bands.length"
+						(ui5Click)="element('grades', null)"></ui5-toolbar-button>
+				</ui5-toolbar>
+			}
+			<ui5-table
+				accessibleName="Bands"
+				overflowMode="Popin"
+				noDataText="This version has no bands yet"
+				[rowActionCount]="editable() ? 1 : 0">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Band
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="5rem"
+						popinText="Sequence">
+						Sequence
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="8rem"
+						popinText="Grades">
+						Grades
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="30"
+						minWidth="6rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (band of current.bands; track band.id) {
+					<ui5-table-row [rowKey]="band.id">
+						<ui5-table-cell>{{ band.name }} ({{ band.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ band.sequence }}</ui5-table-cell>
+						<ui5-table-cell>{{ gradeCodes(band.grades) }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="band.active ? 'positive' : 'neutral'"
+								[label]="band.active ? 'Active' : 'Retired'"></span>
+						</ui5-table-cell>
+						@if (editable()) {
+							<ui5-table-row-action
+								slot="actions"
+								icon="edit"
+								text="Edit"
+								(ui5Click)="
+									element('bands', {
+										id: band.id,
+										code: band.code,
+										name: band.name,
+										description: band.description,
+										active: band.active,
+										order: band.sequence,
+									})
+								"></ui5-table-row-action>
+						}
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-table
+				accessibleName="Grades"
+				overflowMode="Popin"
+				noDataText="This version has no grades yet"
+				[rowActionCount]="editable() ? 1 : 0">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Grade
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="10rem"
+						popinText="Band">
+						Band
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="5rem"
+						popinText="Sequence">
+						Sequence
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="30"
+						minWidth="6rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (grade of grades(); track grade.id) {
+					<ui5-table-row [rowKey]="grade.id">
+						<ui5-table-cell>{{ grade.name }} ({{ grade.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ grade.band }}</ui5-table-cell>
+						<ui5-table-cell>{{ grade.sequence }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="grade.active ? 'positive' : 'neutral'"
+								[label]="grade.active ? 'Active' : 'Retired'"></span>
+						</ui5-table-cell>
+						@if (editable()) {
+							<ui5-table-row-action
+								slot="actions"
+								icon="edit"
+								text="Edit"
+								(ui5Click)="
+									element('grades', {
+										id: grade.id,
+										code: grade.code,
+										name: grade.name,
+										description: grade.description,
+										active: grade.active,
+										order: grade.sequence,
+									})
+								"></ui5-table-row-action>
+						}
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

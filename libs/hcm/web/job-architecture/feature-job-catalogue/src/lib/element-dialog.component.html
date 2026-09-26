@@ -1,0 +1,233 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="editing() ? 'element-name' : 'element-code'"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (!editing()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="element-code"
+					[required]="true">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="element-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use 2–40 capital letters, digits or underscores, starting with a letter.
+					</ui5-text>
+				</ui5-input>
+				<ui5-text>The code cannot be changed after creation.</ui5-text>
+			</ui5-form-item>
+			@switch (kind()) {
+				@case ('families') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="element-parent">
+							Parent family
+						</ui5-label>
+						<ui5-select
+							id="element-parent"
+							accessibleName="Parent family"
+							[formField]="fields.parent"
+							[disabled]="draft.saving()">
+							<ui5-option value="none">None (top-level family)</ui5-option>
+							@for (root of request().roots; track root.id) {
+								<ui5-option [value]="root.id">{{ root.name }}</ui5-option>
+							}
+						</ui5-select>
+						<ui5-text>Families are at most two levels deep.</ui5-text>
+					</ui5-form-item>
+				}
+				@case ('tracks') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="element-kind"
+							[required]="true">
+							Track kind
+						</ui5-label>
+						<ui5-select
+							id="element-kind"
+							accessibleName="Track kind"
+							[formField]="fields.trackKind"
+							[disabled]="draft.saving()">
+							@for (kind of trackKinds; track kind) {
+								<ui5-option [value]="kind">{{ trackKindLabels[kind] }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+				}
+				@case ('levels') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="element-track"
+							[required]="true">
+							Career track
+						</ui5-label>
+						<ui5-select
+							id="element-track"
+							accessibleName="Career track"
+							[formField]="fields.parent"
+							[disabled]="draft.saving()">
+							@for (track of request().version.tracks; track track.id) {
+								<ui5-option [value]="track.id">{{ track.name }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+				}
+				@case ('grades') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="element-band"
+							[required]="true">
+							Band
+						</ui5-label>
+						<ui5-select
+							id="element-band"
+							accessibleName="Band"
+							[formField]="fields.parent"
+							[disabled]="draft.saving()">
+							@for (band of request().version.bands; track band.id) {
+								<ui5-option [value]="band.id">{{ band.name }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+				}
+			}
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="element-name"
+				[required]="true">
+				Name
+			</ui5-label>
+			<ui5-input
+				id="element-name"
+				accessibleName="Name"
+				[formField]="fields.name"
+				[disabled]="draft.saving()"
+				[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a name of 1–100 characters.</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="element-description">
+				Description
+			</ui5-label>
+			<ui5-textarea
+				id="element-description"
+				accessibleName="Description"
+				[rows]="2"
+				[formField]="fields.description"
+				[disabled]="draft.saving()"></ui5-textarea>
+		</ui5-form-item>
+		@if (kind() === 'levels') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="element-scope">
+					Scope summary
+				</ui5-label>
+				<ui5-textarea
+					id="element-scope"
+					accessibleName="Scope summary"
+					[rows]="2"
+					[formField]="fields.scopeSummary"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="element-order">
+				{{ ordered() ? 'Display order' : 'Sequence' }}
+			</ui5-label>
+			<ui5-step-input
+				id="element-order"
+				[accessibleName]="ordered() ? 'Display order' : 'Sequence'"
+				[min]="ordered() ? 0 : 1"
+				[max]="ordered() ? 9999 : 99"
+				[value]="order()"
+				[disabled]="draft.saving()"
+				(ui5Change)="setOrder($event.target)"></ui5-step-input>
+			@if (!ordered()) {
+				<ui5-text>Sequences are unique within their track or band.</ui5-text>
+			}
+		</ui5-form-item>
+		@if (editing()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="element-active">
+					Status
+				</ui5-label>
+				<ui5-checkbox
+					id="element-active"
+					accessibleName="Active"
+					text="Active"
+					[checked]="active()"
+					[disabled]="draft.saving()"
+					(ui5Change)="setActive($event.target)"></ui5-checkbox>
+				<ui5-text>Retired elements stay visible in this version.</ui5-text>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="element-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="element-reason"
+				accessibleName="Reason for change"
+				[rows]="2"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : editing() ? 'Save' : 'Add' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

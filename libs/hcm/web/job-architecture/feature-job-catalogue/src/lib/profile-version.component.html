@@ -1,0 +1,214 @@
+<ef-hcm-object-page
+	[title]="version()?.profileName ?? 'Job profile'"
+	[summary]="version() ? version()!.profileCode + ' · version ' + version()!.versionNumber : ''"
+	[state]="state()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (version(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label + (current.current ? ' (current)' : '')"></span>
+	}
+	@if (version(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			<ui5-form
+				accessibleName="Profile overview"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Job family</ui5-label>
+					<ui5-text>{{ current.family.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Career track</ui5-label>
+					<ui5-text>{{ trackKinds[current.track.kind] }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Level</ui5-label>
+					<ui5-text>{{ current.level.name }} ({{ current.level.code }})</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Catalogue version</ui5-label>
+					<ui5-text>{{ current.catalogueVersionNumber }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective from</ui5-label>
+					<ui5-text>
+						{{
+							current.effectiveFrom ? (current.effectiveFrom | hcmDate: 'date') : 'Not published'
+						}}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective to</ui5-label>
+					<ui5-text>
+						{{ current.effectiveTo ? (current.effectiveTo | hcmDate: 'date') : 'Open-ended' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Summary</ui5-label>
+					<ui5-text>{{ current.summary || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Purpose</ui5-label>
+					<ui5-text>{{ current.purpose || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Scope of impact</ui5-label>
+					<ui5-text>{{ current.scopeOfImpact || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Autonomy</ui5-label>
+					<ui5-text>{{ current.autonomyLevel || '—' }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="responsibilities"
+			label="Responsibilities">
+			<ui5-table
+				accessibleName="Responsibilities"
+				overflowMode="Popin"
+				noDataText="No responsibilities are described">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="16rem">
+						Statement
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="8rem"
+						popinText="Code">
+						Code
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="7rem"
+						popinText="Essential">
+						Essential
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of current.responsibilities; track item.code) {
+					<ui5-table-row [rowKey]="item.code">
+						<ui5-table-cell>{{ item.statement }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.code }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.essential ? 'Essential' : 'Desirable' }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="requirements"
+			label="Requirements">
+			<ui5-table
+				accessibleName="Requirements"
+				overflowMode="Popin"
+				noDataText="No requirements are defined">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Requirement
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="8rem"
+						popinText="Type">
+						Type
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="8rem"
+						popinText="Minimum">
+						Minimum
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="8rem"
+						popinText="Proficiency">
+						Proficiency
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="7rem"
+						popinText="Mandatory">
+						Mandatory
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of current.requirements; track item.code) {
+					<ui5-table-row [rowKey]="item.code">
+						<ui5-table-cell>{{ item.name }} ({{ item.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ item.type }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ item.minimumQuantity !== null ? item.minimumQuantity + ' ' + item.unit : '—' }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ item.proficiency || '—' }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.mandatory ? 'Mandatory' : 'Optional' }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="grades"
+			label="Allowed grades">
+			<ui5-table
+				accessibleName="Allowed grades"
+				overflowMode="Popin"
+				noDataText="No grades are allowed yet">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Grade
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="8rem"
+						popinText="Default">
+						Default
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (grade of current.allowedGrades; track grade.gradeId) {
+					<ui5-table-row [rowKey]="grade.gradeId">
+						<ui5-table-cell>{{ grade.name }} ({{ grade.code }})</ui5-table-cell>
+						<ui5-table-cell>
+							@if (grade.isDefault) {
+								<span
+									fd-object-status
+									[inverted]="true"
+									status="informative"
+									label="Default grade"></span>
+							}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="versions"
+			label="Versions">
+			<ui5-timeline accessibleName="Profile versions">
+				@for (item of current.versions; track item.id) {
+					<ui5-timeline-item
+						icon="history"
+						[name]="'Version ' + item.versionNumber"
+						[nameClickable]="item.id !== current.id"
+						[titleText]="status(item.status).label"
+						[subtitleText]="
+							subtitle(item) +
+							(item.effectiveFrom ? ' · from ' + (item.effectiveFrom | hcmDate: 'date') : '')
+						"
+						(ui5NameClick)="open(item.id)"></ui5-timeline-item>
+				}
+			</ui5-timeline>
+		</ng-template>
+	}
+</ef-hcm-object-page>

@@ -241,6 +241,12 @@
 				"./libs/hcm/api/job-architecture/transport/src/index.ts"
 			],
 			"@empflowyee/hcm-api-employee-transport": ["./libs/hcm/api/employee/transport/src/index.ts"],
+			"@empflowyee/hcm-web-job-architecture-data-access": [
+				"./libs/hcm/web/job-architecture/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-job-architecture-feature-job-catalogue": [
+				"./libs/hcm/web/job-architecture/feature-job-catalogue/src/index.ts"
+			],
 			"@empflowyee/hcm-web-employee-data-access": [
 				"./libs/hcm/web/employee/data-access/src/index.ts"
 			],
