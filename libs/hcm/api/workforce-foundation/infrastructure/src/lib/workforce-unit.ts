@@ -10,6 +10,7 @@ import { todayIn } from '@empflowyee/hcm-api-workforce-foundation-domain'
 import { KyselyStructureRepository, type WorkforceScope } from './structure-repository'
 import { KyselyIdentificationTypeRepository } from './identification-type-repository'
 import { KyselyWorkforceFacts, KyselyWorkforceReads } from './workforce-facts'
+import { KyselyLookupRepository } from './lookup-repository'
 
 /** Resolve today's business date from the organisation profile, then the tenant default, then UTC. */
 export async function organisationToday(
@@ -59,6 +60,7 @@ export class KyselyWorkforceUnitOfWork extends WorkforceUnitOfWork {
 				return work({
 					structure: new KyselyStructureRepository(scope),
 					identification: new KyselyIdentificationTypeRepository(scope),
+					lookups: new KyselyLookupRepository(scope),
 					facts: new KyselyWorkforceFacts(scope),
 					reads: new KyselyWorkforceReads(scope),
 					receipts: new SqlCommandReceipts(
