@@ -576,7 +576,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['hr-specialist-operations', 'employee-self-service'],
 			route: '/documents/document-requests',
 			floorplan: 'UX-FP-FCL',
-			implementationStatus: 'implementing',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {

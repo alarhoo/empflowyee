@@ -10,4 +10,4 @@ and real PostgreSQL-backed runtime contracts. No custom CSS, theme imports, fixt
 business data or assignment/workforce mutation belongs here.
 
 See [approved design](../../../../../docs/hcm/apps/document-requests/TDD.md) and
-[validation and remaining decision](../../../../../docs/hcm/testing/HCM-1-DOCUMENT-REQUESTS-VALIDATION.md).
+[validation evidence](../../../../../docs/hcm/testing/HCM-1-DOCUMENT-REQUESTS-VALIDATION.md).

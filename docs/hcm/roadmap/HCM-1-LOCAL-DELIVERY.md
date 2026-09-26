@@ -1,6 +1,10 @@
 # HCM-1 local platform delivery
 
-Status: **20-app local stage and business policies approved; app designs complete for review**.
+Status: **20-app local stage delivered**. All 20 local apps are `complete` in the
+canonical catalogue; Document Requests was the last, released on 2026-09-26 with
+[its validation](../testing/HCM-1-DOCUMENT-REQUESTS-VALIDATION.md). The six deferred
+apps remain Planned, so full HCM-1 completion and the full-wave gate stay blocked.
+
 Catalogue inspected on 2026-09-24. HCM-1 contains 26 planned applications in five
 application-owning domains. None currently has an approved app blueprint.
 
