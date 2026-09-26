@@ -1,0 +1,117 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="
+		mode() === 'add' ? 'option-code' : detailsShown() ? 'option-name' : 'option-reason'
+	"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (mode() === 'retire') {
+		<ui5-message-strip
+			design="Critical"
+			[hideCloseButton]="true">
+			This option will no longer be offered. Existing values that use it stay readable.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (mode() === 'add') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="option-code"
+					[required]="true">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="option-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use up to 40 capital letters, digits or underscores, starting with a letter.
+					</ui5-text>
+				</ui5-input>
+				<ui5-text>The code cannot be changed after creation.</ui5-text>
+			</ui5-form-item>
+		}
+		@if (detailsShown()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="option-name"
+					[required]="true">
+					Name
+				</ui5-label>
+				<ui5-input
+					id="option-name"
+					accessibleName="Name"
+					[formField]="fields.name"
+					[disabled]="draft.saving()"
+					[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">Enter a name of 1–100 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="option-order">
+					Display order
+				</ui5-label>
+				<ui5-step-input
+					id="option-order"
+					accessibleName="Display order"
+					[min]="0"
+					[max]="9999"
+					[value]="sortOrder()"
+					[disabled]="draft.saving()"
+					(ui5Change)="setOrder($event.target)"></ui5-step-input>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="option-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="option-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			[design]="mode() === 'retire' ? 'Negative' : 'Emphasized'"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : confirmLabel() }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
