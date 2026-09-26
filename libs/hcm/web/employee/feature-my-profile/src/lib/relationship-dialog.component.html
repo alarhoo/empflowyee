@@ -1,0 +1,208 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	initialFocus="my-profile-relationship-type"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@switch (optionsState()) {
+		@case ('loading') {
+			<ui5-busy-indicator
+				[active]="true"
+				[delay]="0"
+				text="Loading options"></ui5-busy-indicator>
+		}
+		@case ('error') {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ optionsError() }}
+				<ui5-button
+					design="Transparent"
+					(click)="loadOptions()">
+					Retry
+				</ui5-button>
+			</ui5-message-strip>
+		}
+		@default {
+			<ui5-form
+				[accessibleName]="title() + ' fields'"
+				accessibleMode="Edit"
+				layout="S1 M1 L1 XL1">
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="my-profile-relationship-type"
+						[required]="true">
+						Relationship
+					</ui5-label>
+					<ui5-select
+						id="my-profile-relationship-type"
+						accessibleName="Relationship"
+						[formField]="fields.relationshipType"
+						[disabled]="draft.saving()">
+						@for (type of types(); track type.code) {
+							<ui5-option [value]="type.code">{{ type.name }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="my-profile-relationship-name"
+						[required]="true">
+						Full name
+					</ui5-label>
+					<ui5-input
+						id="my-profile-relationship-name"
+						accessibleName="Full name"
+						[formField]="fields.fullName"
+						[disabled]="draft.saving()"
+						[valueState]="
+							fields.fullName().touched() && fields.fullName().invalid() ? 'Negative' : 'None'
+						">
+						<ui5-text slot="valueStateMessage">Enter a name of 1–150 characters.</ui5-text>
+					</ui5-input>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="my-profile-relationship-birth">
+						Birth date
+					</ui5-label>
+					<ui5-date-picker
+						id="my-profile-relationship-birth"
+						accessibleName="Birth date"
+						valueFormat="yyyy-MM-dd"
+						displayFormat="medium"
+						[showClearIcon]="true"
+						[value]="model().birthDate"
+						[disabled]="draft.saving()"
+						(ui5Change)="setBirthDate($event.detail.value)"></ui5-date-picker>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="my-profile-relationship-gender">
+						Gender
+					</ui5-label>
+					<ui5-select
+						id="my-profile-relationship-gender"
+						accessibleName="Gender"
+						[formField]="fields.gender"
+						[disabled]="draft.saving()">
+						<ui5-option value="none">Not recorded</ui5-option>
+						@for (gender of genders(); track gender.code) {
+							<ui5-option [value]="gender.code">{{ gender.name }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="my-profile-relationship-phone"
+						[required]="emergencyContact()">
+						Contact number
+					</ui5-label>
+					<ui5-input
+						id="my-profile-relationship-phone"
+						type="Tel"
+						accessibleName="Contact number"
+						[formField]="fields.contactNumber"
+						[disabled]="draft.saving()"
+						[valueState]="
+							fields.contactNumber().touched() && fields.contactNumber().invalid()
+								? 'Negative'
+								: 'None'
+						">
+						<ui5-text slot="valueStateMessage">
+							Emergency contacts need a phone number of digits, spaces, brackets or dashes.
+						</ui5-text>
+					</ui5-input>
+				</ui5-form-item>
+				@if (request().family) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="my-profile-relationship-dependent">
+							Dependant
+						</ui5-label>
+						<ui5-checkbox
+							id="my-profile-relationship-dependent"
+							accessibleName="Dependant"
+							text="This person is my dependant"
+							[checked]="dependent() && dependentAllowed()"
+							[disabled]="draft.saving() || !dependentAllowed()"
+							(ui5Change)="setFlag('dependent', $event.target)"></ui5-checkbox>
+						@if (!dependentAllowed()) {
+							<ui5-text>This relationship type cannot be a dependant.</ui5-text>
+						}
+					</ui5-form-item>
+				}
+				@if (request().emergency) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="my-profile-relationship-emergency">
+							Emergency contact
+						</ui5-label>
+						<ui5-checkbox
+							id="my-profile-relationship-emergency"
+							accessibleName="Emergency contact"
+							text="Contact this person in an emergency"
+							[checked]="emergencyContact()"
+							[disabled]="draft.saving() || !request().family"
+							(ui5Change)="setFlag('emergency', $event.target)"></ui5-checkbox>
+					</ui5-form-item>
+				}
+				@if (emergencyContact()) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="my-profile-relationship-priority"
+							[required]="true">
+							Emergency priority
+						</ui5-label>
+						<ui5-step-input
+							id="my-profile-relationship-priority"
+							accessibleName="Emergency priority"
+							[min]="1"
+							[max]="99"
+							[value]="priority()"
+							[valueState]="priorityTaken() ? 'Negative' : 'None'"
+							[disabled]="draft.saving()"
+							(ui5Change)="setPriority($event.target)">
+							<ui5-text slot="valueStateMessage">
+								Another emergency contact already has this priority.
+							</ui5-text>
+						</ui5-step-input>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		}
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving() || optionsState() !== 'ready'"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : editing() ? 'Save' : 'Add' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

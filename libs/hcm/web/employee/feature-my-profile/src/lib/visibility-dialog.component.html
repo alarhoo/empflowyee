@@ -1,0 +1,58 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="'Who sees ' + field().name"
+	[accessibleName]="'Who sees ' + field().name"
+	initialFocus="my-profile-visibility"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Visibility preference"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="my-profile-visibility">
+				Visible to
+			</ui5-label>
+			<ui5-select
+				id="my-profile-visibility"
+				accessibleName="Visible to"
+				[value]="choice()"
+				[disabled]="draft.saving()"
+				(ui5Change)="setChoice($event.target)">
+				<ui5-option value="policy">Company setting</ui5-option>
+				@for (option of field().preference?.options ?? []; track option) {
+					<ui5-option [value]="option">{{ labels[option] }}</ui5-option>
+				}
+			</ui5-select>
+			<ui5-text>
+				You can only narrow who sees this field; the company setting is the widest choice.
+			</ui5-text>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

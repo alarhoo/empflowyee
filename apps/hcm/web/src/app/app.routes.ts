@@ -193,6 +193,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/my-profile',
+		data: { catalogId: 'MY_PROFILE' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the worker's own profile. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-my-profile').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.MY_PROFILE_ROUTES,
+			),
+	},
+	{
 		path: 'employee/team-directory',
 		data: { catalogId: 'TEAM_DIRECTORY' },
 		canMatch: [hcmRouteAccess],

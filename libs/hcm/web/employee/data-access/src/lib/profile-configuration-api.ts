@@ -164,6 +164,29 @@ const fieldLabels: Record<string, string> = {
 	name: 'Name',
 	options: 'Options',
 	searchable: 'Searchable',
+	preferredName: 'Preferred name',
+	bloodGroup: 'Blood group',
+	value: 'Value',
+	type: 'Type',
+	primary: 'Primary',
+	relationshipType: 'Relationship',
+	fullName: 'Full name',
+	birthDate: 'Birth date',
+	gender: 'Gender',
+	contactNumber: 'Contact number',
+	dependent: 'Dependant',
+	emergencyContact: 'Emergency contact',
+	emergencyPriority: 'Emergency priority',
+}
+
+/** Field-specific explanations of a rejected value. */
+const fieldCodeMessages: Record<string, (label: string) => string> = {
+	duplicate: /** Uniqueness. */ (label) => `${label} is already used. Choose another value.`,
+	'not-eligible': /** Eligibility. */ (label) =>
+		`${label} is not allowed for this relationship type.`,
+	format: /** Shape. */ (label) => `${label} has an invalid format.`,
+	'too-many': /** Bound. */ () => 'The maximum number of entries is reached.',
+	'encryption-unavailable': /** Protected values. */ () => 'Protected values cannot be stored yet.',
 }
 
 /** Translate stable server classifications; never display arbitrary provider error bodies. */
@@ -175,6 +198,12 @@ export function employeeErrorMessage(error: unknown): string {
 			? (body.fieldErrors[0].field as string)
 			: ''
 	const label = fieldLabels[field.split('.')[0] ?? ''] ?? field
+	const fieldCode =
+		Array.isArray(body?.fieldErrors) && typeof body.fieldErrors[0]?.code === 'string'
+			? (body.fieldErrors[0].code as string)
+			: ''
+	const specific = fieldCodeMessages[fieldCode]
+	if (specific && label) return specific(label)
 	const messages: Record<string, string> = {
 		'invalid-request': label ? `Check ${label}.` : 'Check the highlighted fields.',
 		'visibility-ceiling-exceeded': `${label || 'This policy'} would widen the product baseline. Choose a narrower value.`,
@@ -185,6 +214,7 @@ export function employeeErrorMessage(error: unknown): string {
 		forbidden: 'You no longer have permission for this operation.',
 		unauthenticated: 'Your session is no longer available.',
 		'not-found': 'This field is no longer available.',
+		'field-not-editable': `${label || 'This field'} cannot be changed here. Reload your profile.`,
 	}
 	return typeof code === 'string' && messages[code]
 		? messages[code]
