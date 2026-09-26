@@ -6,10 +6,14 @@ import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foun
 import {
 	JobArchitectureUnitOfWork,
 	JobCatalogue,
+	PositionReadPortBinder,
 } from '@empflowyee/hcm-api-job-architecture-application'
 import { JobCatalogueController } from '@empflowyee/hcm-api-job-architecture-transport'
 import { WorkforcePortBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
-import { KyselyJobArchitectureUnitOfWork } from '@empflowyee/hcm-api-job-architecture-infrastructure'
+import {
+	KyselyJobArchitectureUnitOfWork,
+	KyselyPositionReadPortBinder,
+} from '@empflowyee/hcm-api-job-architecture-infrastructure'
 
 /** Job architecture composition over the shared access transaction boundary. */
 @Module({
@@ -30,7 +34,14 @@ import { KyselyJobArchitectureUnitOfWork } from '@empflowyee/hcm-api-job-archite
 			useFactory: /** Compose the Job Catalogue use cases. */ (unit: JobArchitectureUnitOfWork) =>
 				new JobCatalogue(unit),
 		},
+		{
+			provide: PositionReadPortBinder,
+			inject: [WorkforcePortBinder],
+			useFactory: /** Publish position reads to other domains. */ (
+				workforce: WorkforcePortBinder,
+			) => new KyselyPositionReadPortBinder(workforce),
+		},
 	],
-	exports: [JobArchitectureUnitOfWork],
+	exports: [JobArchitectureUnitOfWork, PositionReadPortBinder],
 })
 export class HcmJobArchitectureModule {}
