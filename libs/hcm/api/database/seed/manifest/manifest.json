@@ -129,6 +129,15 @@
 			"reset": "access.discovery.4.reset.sql"
 		},
 		{
+			"id": "access.discovery",
+			"domain": "access-control",
+			"version": 5,
+			"dependsOn": ["access.discovery@4"],
+			"requiresMigrations": ["000005_identity_access_spine.sql"],
+			"apply": "access.discovery.5.apply.sql",
+			"reset": "access.discovery.5.reset.sql"
+		},
+		{
 			"id": "workforce.foundation",
 			"domain": "workforce-foundation",
 			"version": 3,
