@@ -45,6 +45,16 @@ export const AUDIT_ACTIONS = [
 	'employee.custom-field-option-updated',
 	'employee.my-profile-changed',
 	'employee.visibility-preference-changed',
+	'job-architecture.catalogue-version-created',
+	'job-architecture.catalogue-element-added',
+	'job-architecture.catalogue-element-updated',
+	'job-architecture.catalogue-version-submitted',
+	'job-architecture.catalogue-version-published',
+	'job-architecture.profile-created',
+	'job-architecture.profile-version-created',
+	'job-architecture.profile-version-updated',
+	'job-architecture.profile-version-submitted',
+	'job-architecture.profile-version-published',
 ] as const
 /** HCM-2 workforce, job architecture and employee actions recorded with explicit target types. */
 export const HCM2_AUDIT_ACTIONS: readonly string[] = AUDIT_ACTIONS.filter(

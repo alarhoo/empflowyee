@@ -153,12 +153,10 @@ export class KyselyCatalogueReader implements CatalogueReader {
 		)
 		return {
 			items: page.items.map(
-				/** Drop the internal family path. */ (row) => {
-					const { familyPath: _path, ...summary } = row as JobProfileSummaryDto & {
-						familyPath?: string
-					}
-					return summary
-				},
+				/** Drop the internal family path. */ (row) =>
+					Object.fromEntries(
+						Object.entries(row).filter(/** Public field. */ ([name]) => name !== 'familyPath'),
+					) as unknown as JobProfileSummaryDto,
 			),
 			nextCursor: page.nextCursor,
 		}

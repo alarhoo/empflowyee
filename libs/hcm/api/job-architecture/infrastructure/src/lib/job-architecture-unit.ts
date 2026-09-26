@@ -7,7 +7,7 @@ import {
 	type JobArchitectureWork,
 } from '@empflowyee/hcm-api-job-architecture-application'
 import type { WorkforcePortBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
-import { KyselyCatalogueReader } from './catalogue-reader'
+import { KyselyCatalogueRepository } from './catalogue-repository'
 
 export class KyselyJobArchitectureUnitOfWork extends JobArchitectureUnitOfWork {
 	/** Reuse the verified access transaction boundary; the business date comes from workforce. */
@@ -36,7 +36,7 @@ export class KyselyJobArchitectureUnitOfWork extends JobArchitectureUnitOfWork {
 				const reads = this.workforce.bind(executor, actor).reads
 				return work({
 					accountId: actor.accountId,
-					catalogue: new KyselyCatalogueReader({ executor, ...actor }),
+					catalogue: new KyselyCatalogueRepository({ executor, ...actor }),
 					receipts: new SqlCommandReceipts(
 						executor,
 						'hcm.job_architecture_command_receipt',
