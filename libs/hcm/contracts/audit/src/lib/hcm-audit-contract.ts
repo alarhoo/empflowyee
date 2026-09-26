@@ -55,6 +55,15 @@ export const AUDIT_ACTIONS = [
 	'job-architecture.profile-version-updated',
 	'job-architecture.profile-version-submitted',
 	'job-architecture.profile-version-published',
+	'job-architecture.position-change-requested',
+	'job-architecture.position-change-updated',
+	'job-architecture.position-change-previewed',
+	'job-architecture.position-change-submitted',
+	'job-architecture.position-change-withdrawn',
+	'job-architecture.position-change-approved',
+	'job-architecture.position-change-rejected',
+	'job-architecture.position-version-published',
+	'job-architecture.position-lifecycle-changed',
 ] as const
 /** HCM-2 workforce, job architecture and employee actions recorded with explicit target types. */
 export const HCM2_AUDIT_ACTIONS: readonly string[] = AUDIT_ACTIONS.filter(
