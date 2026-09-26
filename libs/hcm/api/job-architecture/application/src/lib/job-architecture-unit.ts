@@ -3,13 +3,13 @@ import type {
 	CommandReceiptStore,
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
-import type { CatalogueReader } from './catalogue-repository'
+import type { CatalogueRepository } from './job-catalogue'
 
 /** Job architecture adapters bound to one authorized tenant transaction. */
 export interface JobArchitectureWork {
 	/** The verified actor of the transaction. */
 	accountId: string
-	catalogue: CatalogueReader
+	catalogue: CatalogueRepository
 	receipts: CommandReceiptStore
 	audit: AppendAudit
 	/** Today's business date in the organisation time zone. */
