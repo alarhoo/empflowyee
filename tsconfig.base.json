@@ -234,6 +234,9 @@
 			],
 			"@empflowyee/hcm-workforce-foundation-contract": [
 				"./libs/hcm/contracts/workforce-foundation/src/index.ts"
+			],
+			"@empflowyee/hcm-web-workforce-foundation-data-access": [
+				"./libs/hcm/web/workforce-foundation/data-access/src/index.ts"
 			]
 		}
 	},
