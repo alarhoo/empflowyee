@@ -75,7 +75,8 @@ Recorded on 2026-09-26.
 ## Open points
 
 - **Position occupancy.** `PositionOccupancyPort` needs `assignment.position_id`,
-  which migration `000024` adds in step 12. It is not declared yet; it is delivered
+  which the positions migration adds in step 12 (planned as `000024`, now `000025`; see
+  [delivery](../roadmap/HCM-2-DELIVERY.md)). It is not declared yet; it is delivered
   with the positions foundation.
 - **Structure usage counts.** Organization Structure's unit usage still counts every
   assignment row of the unit. Now that assignments are dated, counting only
