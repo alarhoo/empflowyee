@@ -69,12 +69,11 @@ The page has no Display Form and no three-column layout.
 
 ## Open points
 
-- **HR Operations navigation.** The FDD names HR Operations (Toby) as a reader, and
-  `access.hcm2@1` grants Toby read. The app's discovery, however, stays with
-  Administration (catalogue `tenant-administration`), so Toby reads through the API
-  but cannot open the app. This is the same question answered for Organization
-  Structure by [DEC-HCM2-017](../roadmap/HCM-2-DELIVERY.md#implementation-decisions);
-  it is not assumed to extend here without the product owner's answer.
+- **HR Operations navigation (resolved).** The FDD names HR Operations as a reader,
+  but discovery was Administration-only. The product owner resolved this as
+  [DEC-HCM2-018](../roadmap/HCM-2-DELIVERY.md#implementation-decisions):
+  `access.discovery@4` grants `hr-specialist` discovery, and the app joins the HR
+  specialist catalogue. The acceptance test now opens the app as Toby.
 - **Unrelated failure seen while re-running the shared sort test.** In
   `native-data-presentation.spec.ts`, the role-sorting case now gets past view
   settings but fails later: its role-detail `[fd-object-status]` locator matches two

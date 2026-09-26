@@ -16,7 +16,7 @@ async function violations(page: Page): Promise<string[]> {
 }
 
 /** Switch persona through the real Settings dialog and open the app from catalogue search. */
-async function open(page: Page, loaded = true): Promise<void> {
+async function open(page: Page, loaded = true, name = 'David Wallace'): Promise<void> {
 	page.on(
 		'pageerror',
 		/** Surface component runtime errors during browser acceptance. */ (error) =>
@@ -33,8 +33,8 @@ async function open(page: Page, loaded = true): Promise<void> {
 	await page.getByRole('button', { name: 'Jim Halpert', exact: true }).click()
 	await page.getByRole('menuitem', { name: /^Settings/ }).click()
 	await page.getByRole('combobox', { name: 'Development persona' }).click()
-	await page.getByRole('option', { name: 'David Wallace', exact: false }).click()
-	await expect(page.getByRole('button', { name: 'David Wallace', exact: true })).toBeVisible()
+	await page.getByRole('option', { name, exact: false }).click()
+	await expect(page.getByRole('button', { name, exact: true })).toBeVisible()
 	await openApplicationSearch(page)
 	await page.getByRole('textbox', { name: 'Search applications' }).fill('IDENTIFICATION_TYPES')
 	await page
@@ -124,9 +124,15 @@ test('reports a failed load truthfully and recovers with Retry', /** REQ-005: no
 	await expect(view.getByRole('row').filter({ hasText: 'Passport (PASSPORT)' })).toBeVisible()
 })
 
-test('lets HR Operations read through the API while refusing any write', /** REQ-004: navigation never authorizes; the product catalogue has no write route. */ async ({
+test('lets HR Operations open the catalogue while the API refuses any write', /** REQ-004 and DEC-HCM2-018: Toby discovers and reads the app; navigation never authorizes a write. */ async ({
+	page,
 	request,
 }) => {
+	await open(page, true, 'Toby Flenderson')
+	await expect(
+		page.locator('ef-hcm-identification-types').getByRole('row').filter({ hasText: '(PAN)' }),
+	).toBeVisible()
+	expect(await violations(page)).toEqual([])
 	const headers = {
 		host: 'acme.localhost',
 		origin: 'http://acme.localhost:4302',
