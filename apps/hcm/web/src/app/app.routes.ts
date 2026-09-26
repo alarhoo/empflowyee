@@ -184,6 +184,15 @@ export const appRoutes: Routes = [
 	},
 
 	{
+		path: 'workforce-foundation/identification-types',
+		data: { catalogId: 'IDENTIFICATION_TYPES' },
+		canMatch: [hcmRouteAccess],
+		loadComponent: /** Load the read-only product identification-type catalogue. */ () =>
+			import('@empflowyee/hcm-web-workforce-foundation-feature-identification-types').then(
+				/** Select the workforce-owned feature. */ (m) => m.IdentificationTypesComponent,
+			),
+	},
+	{
 		path: 'workforce-foundation/organization-structure',
 		data: { catalogId: 'ORGANIZATION_STRUCTURE' },
 		canMatch: [hcmRouteAccess],

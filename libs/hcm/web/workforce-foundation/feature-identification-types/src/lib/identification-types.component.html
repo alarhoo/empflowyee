@@ -1,0 +1,170 @@
+<ef-hcm-dynamic-page
+	title="Identification Types"
+	summary="Product-maintained identification types used by statutory and duplicate checks"
+	[state]="state()"
+	[readOnly]="true"
+	[errorMessage]="message()"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		accessibleName="Identification type filters"
+		accessibleMode="Edit"
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="identification-query">
+				Code or name
+			</ui5-label>
+			<ui5-input
+				id="identification-query"
+				accessibleName="Search code or name"
+				type="Search"
+				[formField]="filterForm.q"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="identification-country">
+				Issuing country
+			</ui5-label>
+			<ui5-combobox
+				id="identification-country"
+				accessibleName="Issuing country"
+				filter="Contains"
+				[showClearIcon]="true"
+				[selectedValue]="country()"
+				(ui5SelectionChange)="chooseCountry($event.detail.item?.value)"
+				(ui5Change)="countryText($any($event.target).value)">
+				<ui5-cb-item
+					value="ALL"
+					text="All countries"></ui5-cb-item>
+				@for (item of countries(); track item.code) {
+					<ui5-cb-item
+						[value]="item.code"
+						[text]="item.name"
+						[additionalText]="item.code"></ui5-cb-item>
+				}
+			</ui5-combobox>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="identification-active">
+				Status
+			</ui5-label>
+			<ui5-select
+				id="identification-active"
+				accessibleName="Status"
+				[formField]="filterForm.active">
+				<ui5-option value="">All</ui5-option>
+				<ui5-option value="true">Active</ui5-option>
+				<ui5-option value="false">Inactive</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-message-strip [hideCloseButton]="true">
+		This catalogue is maintained by the product and cannot be changed by your organisation.
+		Identification values of people are never shown here.
+	</ui5-message-strip>
+	@if (types().length >= limit) {
+		<ui5-message-strip
+			design="Critical"
+			[hideCloseButton]="true">
+			Only the first {{ limit }} identification types are shown.
+		</ui5-message-strip>
+	}
+	<ef-hcm-view-settings
+		label="Identification type"
+		[value]="sort()"
+		[fields]="[
+			{ key: 'name', label: 'Name' },
+			{ key: 'code', label: 'Code' },
+		]"
+		(sortChange)="sort.set($event)"></ef-hcm-view-settings>
+	<ui5-table
+		accessibleName="Identification types"
+		overflowMode="Popin"
+		[noDataText]="
+			filtered()
+				? 'No identification types match these filters'
+				: 'No identification types are available'
+		">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem">
+				Identification type
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="70"
+				minWidth="9rem"
+				popinText="Issuing country">
+				Issuing country
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="12rem"
+				popinText="Format">
+				Format
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="7rem"
+				popinText="Unique per person">
+				Unique per person
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="7rem"
+				popinText="Requires masking">
+				Requires masking
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="7rem"
+				popinText="Required for payroll">
+				Required for payroll
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="80"
+				minWidth="7rem"
+				popinText="Status">
+				Status
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (row of rows(); track row.code) {
+			<ui5-table-row [rowKey]="row.code">
+				<ui5-table-cell>{{ row.name }} ({{ row.code }})</ui5-table-cell>
+				<ui5-table-cell>{{ countryName(row.countryCode) }}</ui5-table-cell>
+				<ui5-table-cell>{{ row.validationDescription }}</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-checkbox
+						[displayOnly]="true"
+						[checked]="row.uniquePerPerson"
+						[accessibleName]="row.name + ' unique per person'"></ui5-checkbox>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-checkbox
+						[displayOnly]="true"
+						[checked]="row.requiresMasking"
+						[accessibleName]="row.name + ' requires masking'"></ui5-checkbox>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-checkbox
+						[displayOnly]="true"
+						[checked]="row.requiredForPayroll"
+						[accessibleName]="row.name + ' required for payroll'"></ui5-checkbox>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="row.active ? 'positive' : 'neutral'"
+						[label]="row.active ? 'Active' : 'Inactive'"></span>
+				</ui5-table-cell>
+			</ui5-table-row>
+		}
+	</ui5-table>
+</ef-hcm-dynamic-page>
