@@ -1,0 +1,115 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="mode() === 'publish' ? 'lifecycle-date' : 'lifecycle-reason'"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@switch (mode()) {
+		@case ('submit') {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				After submission the version can no longer be edited; it can only be published.
+			</ui5-message-strip>
+		}
+		@case ('publish') {
+			<ui5-message-strip
+				design="Critical"
+				[hideCloseButton]="true">
+				The published version becomes current and cannot change. The version it replaces ends the
+				day before. Existing positions and assignments are not changed.
+			</ui5-message-strip>
+		}
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (mode() === 'new-draft' && catalogue()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="lifecycle-summary"
+					[required]="true">
+					Change summary
+				</ui5-label>
+				<ui5-textarea
+					id="lifecycle-summary"
+					accessibleName="Change summary"
+					[rows]="2"
+					[formField]="fields.changeSummary"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.changeSummary().touched() && fields.changeSummary().invalid()
+							? 'Negative'
+							: 'None'
+					">
+					<ui5-text slot="valueStateMessage">Summarize the change in 1–500 characters.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+		}
+		@if (mode() === 'publish') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="lifecycle-date"
+					[required]="true">
+					Effective from
+				</ui5-label>
+				<ui5-date-picker
+					id="lifecycle-date"
+					accessibleName="Effective from"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[value]="effectiveFrom()"
+					[valueState]="dateInvalid() ? 'Negative' : 'None'"
+					[disabled]="draft.saving()"
+					(ui5Change)="setDate($event.detail.value)">
+					<ui5-text slot="valueStateMessage">Choose the date the version takes effect.</ui5-text>
+				</ui5-date-picker>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lifecycle-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="lifecycle-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : confirmLabel() }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
