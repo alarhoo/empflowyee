@@ -1680,6 +1680,21 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			},
 		},
 		{
+			appCode: 'ORGANIZATION_STRUCTURE',
+			title: 'Organization Structure',
+			domain: 'workforce-foundation',
+			catalogueIds: ['tenant-administration'],
+			route: '/workforce-foundation/organization-structure',
+			floorplan: 'UX-FP-FCL',
+			implementationStatus: 'planned',
+			fddStatus: 'approved',
+			tddStatus: 'approved',
+			discoveryPolicy: {
+				permission: 'hcm.catalogue.ORGANIZATION_STRUCTURE.discover',
+				entitlement: 'hcm.workforce-foundation',
+			},
+		},
+		{
 			appCode: 'OUTBOUND_WEBHOOKS',
 			title: 'Outbound Webhooks',
 			domain: 'notifications',
@@ -3113,6 +3128,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 					title: 'People and Documents',
 					display: 'tiles',
 					appCodes: [
+						'ORGANIZATION_STRUCTURE',
 						'IDENTIFICATION_TYPES',
 						'LOOKUP_VALUES',
 						'JOB_CATALOGUE',
@@ -3490,7 +3506,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 		{
 			domain: 'workforce-foundation',
 			deliveryWaves: ['HCM-2'],
-			apps: ['IDENTIFICATION_TYPES', 'LOOKUP_VALUES', 'ORG_CHART'],
+			apps: ['IDENTIFICATION_TYPES', 'LOOKUP_VALUES', 'ORG_CHART', 'ORGANIZATION_STRUCTURE'],
 		},
 	],
 }

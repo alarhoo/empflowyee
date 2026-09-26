@@ -376,7 +376,8 @@
       "apps": [
         "IDENTIFICATION_TYPES",
         "LOOKUP_VALUES",
-        "ORG_CHART"
+        "ORG_CHART",
+        "ORGANIZATION_STRUCTURE"
       ]
     }
   ]

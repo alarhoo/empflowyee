@@ -27,7 +27,7 @@ it('projects persona access and recovers permitted page selections without grant
 	expect(state.applicationCount()).toBe(1)
 	navigation.inspectAll.set(true)
 	expect(state.spaces()).toHaveLength(5)
-	expect(state.applicationCount()).toBe(170)
+	expect(state.applicationCount()).toBe(171)
 	state.selectSpace('tenant-administration')
 	navigation.inspectAll.set(false)
 	expect(state.activeSpace()?.id).toBe('employee')

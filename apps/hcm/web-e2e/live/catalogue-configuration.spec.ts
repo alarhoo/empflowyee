@@ -32,9 +32,9 @@ test('TEST-APP-CATALOGUE-CONFIGURATION-005 inspects canonical data and real acco
 	context,
 }) => {
 	await openCatalogue(page)
-	await expect(page.getByText('170 of 170 applications', { exact: true })).toBeVisible()
+	await expect(page.getByText('171 of 171 applications', { exact: true })).toBeVisible()
 	await page.getByRole('textbox', { name: 'Search catalogue metadata' }).fill('SSO_CONFIGURATION')
-	await expect(page.getByText('1 of 170 applications', { exact: true })).toBeVisible()
+	await expect(page.getByText('1 of 171 applications', { exact: true })).toBeVisible()
 	await page.getByRole('row').filter({ hasText: 'SSO Configuration' }).first().click()
 	const detail = page.locator('ef-hcm-catalogue-detail')
 	await expect(detail.getByText('Planned', { exact: true })).toBeVisible()

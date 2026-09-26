@@ -199,6 +199,7 @@
 				"NOTIFICATION_TEMPLATES",
 				"NOTIFICATION_RULES",
 				"OUTBOUND_WEBHOOKS",
+				"ORGANIZATION_STRUCTURE",
 				"IDENTIFICATION_TYPES",
 				"LOOKUP_VALUES",
 				"JOB_CATALOGUE",
@@ -810,6 +811,7 @@
 					"title": "People and Documents",
 					"display": "tiles",
 					"appCodes": [
+						"ORGANIZATION_STRUCTURE",
 						"IDENTIFICATION_TYPES",
 						"LOOKUP_VALUES",
 						"JOB_CATALOGUE",
