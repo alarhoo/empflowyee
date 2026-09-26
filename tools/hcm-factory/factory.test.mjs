@@ -120,10 +120,10 @@ test('foundation context is deterministic and unknown waves cannot become output
 	assert.equal(run(directory, 'wave-context.mjs', '--wave=../../escape').status, 1)
 	assert.equal(run(directory, 'wave-context.mjs', '--wave=HCM-99').status, 1)
 	assert.equal(run(directory, 'app-context.mjs', '--app=UNKNOWN_APP').status, 1)
-	assert.equal(run(directory, 'app-context.mjs', '--app=EMPLOYEE_DIRECTORY').status, 0)
+	assert.equal(run(directory, 'app-context.mjs', '--app=PAYROLL_RUNS').status, 0)
 	const app = JSON.parse(
 		fs.readFileSync(
-			path.join(directory, '.tmp/hcm-factory/EMPLOYEE_DIRECTORY.context.json'),
+			path.join(directory, '.tmp/hcm-factory/PAYROLL_RUNS.context.json'),
 			'utf8',
 		),
 	)
