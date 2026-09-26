@@ -270,6 +270,7 @@ for (const person of people) {
 					].includes(app.appCode)) ||
 				(person.role === 'tenant-administrator' &&
 					app.appCode === 'EMPLOYEE_PROFILE_CONFIGURATION') ||
+				(person.role === 'hr-specialist' && app.appCode === 'JOB_CATALOGUE') ||
 				(app.appCode === 'DOCUMENT_REQUESTS' && person.role !== 'hr-specialist')
 			) &&
 			app.catalogueIds.some(

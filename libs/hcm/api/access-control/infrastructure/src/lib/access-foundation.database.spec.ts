@@ -170,7 +170,7 @@ it('preserves HCM-0 identities and discovery grants while applying the exact loc
 	const current = await snapshot()
 	expect(current).toEqual(expect.arrayContaining(original))
 	// Nine discovery grants plus the four workforce.foundation@3 worker assignments.
-	expect(current).toHaveLength(original.length + 14)
+	expect(current).toHaveLength(original.length + 15)
 	for (const worker of ['dwight', 'pam', 'angela', 'oscar'])
 		expect(current).toContainEqual({
 			kind: 'assignment',
@@ -179,6 +179,10 @@ it('preserves HCM-0 identities and discovery grants while applying the exact loc
 	expect(current).toContainEqual({
 		kind: 'grant',
 		key: 'tenant-administrator:hcm.catalogue.EMPLOYEE_PROFILE_CONFIGURATION.discover',
+	})
+	expect(current).toContainEqual({
+		kind: 'grant',
+		key: 'hr-specialist:hcm.catalogue.JOB_CATALOGUE.discover',
 	})
 	for (const app of ['IDENTIFICATION_TYPES', 'LOOKUP_VALUES'])
 		expect(current).toContainEqual({
