@@ -4,6 +4,7 @@ import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-modul
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
 	IdentificationTypes,
+	LookupValues,
 	OrganisationStructure,
 	WorkforcePortBinder,
 	WorkforceUnitOfWork,
@@ -14,12 +15,17 @@ import {
 } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import {
 	IdentificationTypesController,
+	LookupValuesController,
 	OrganisationStructureController,
 } from '@empflowyee/hcm-api-workforce-foundation-transport'
 
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	controllers: [OrganisationStructureController, IdentificationTypesController],
+	controllers: [
+		OrganisationStructureController,
+		IdentificationTypesController,
+		LookupValuesController,
+	],
 	providers: [
 		{
 			provide: WorkforceUnitOfWork,
@@ -43,11 +49,23 @@ import {
 			) => new IdentificationTypes(unit),
 		},
 		{
+			provide: LookupValues,
+			inject: [WorkforceUnitOfWork],
+			useFactory: /** Compose the lookup maintenance use cases. */ (unit: WorkforceUnitOfWork) =>
+				new LookupValues(unit),
+		},
+		{
 			provide: WorkforcePortBinder,
 			useFactory: /** Let other domains bind workforce ports to their own transaction. */ () =>
 				new KyselyWorkforcePortBinder(),
 		},
 	],
-	exports: [WorkforceUnitOfWork, OrganisationStructure, IdentificationTypes, WorkforcePortBinder],
+	exports: [
+		WorkforceUnitOfWork,
+		OrganisationStructure,
+		IdentificationTypes,
+		LookupValues,
+		WorkforcePortBinder,
+	],
 })
 export class HcmWorkforceFoundationModule {}
