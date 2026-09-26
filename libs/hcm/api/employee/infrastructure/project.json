@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-employee-infrastructure",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/employee/infrastructure/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:employee", "type:infrastructure"],
+	"// targets": "to see all targets run: nx show project hcm-api-employee-infrastructure --web",
+	"targets": {}
+}
