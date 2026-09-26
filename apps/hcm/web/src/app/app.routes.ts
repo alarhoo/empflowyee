@@ -193,6 +193,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/team-directory',
+		data: { catalogId: 'TEAM_DIRECTORY' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the manager's read-only team view. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-team-directory').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.TEAM_DIRECTORY_ROUTES,
+			),
+	},
+	{
 		path: 'employee/employee-directory',
 		data: { catalogId: 'EMPLOYEE_DIRECTORY' },
 		canMatch: [hcmRouteAccess],

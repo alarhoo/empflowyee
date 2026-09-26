@@ -1,0 +1,171 @@
+<ef-hcm-object-page
+	[title]="member() ? name(member()!) : 'Team member'"
+	[summary]="member()?.designation ?? ''"
+	[state]="state()"
+	[actions]="actions"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (member(); as current) {
+		<ui5-avatar
+			hcmHeader
+			size="S"
+			[initials]="avatar()"
+			[accessibleName]="name(current)"></ui5-avatar>
+	}
+	@if (member(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			<ui5-form
+				accessibleName="Placement"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				@if (current.designation) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Designation</ui5-label>
+						<ui5-text>{{ current.designation }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.department) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Department</ui5-label>
+						<ui5-text>{{ current.department }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.organisationUnit) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Organisation unit</ui5-label>
+						<ui5-text>{{ current.organisationUnit }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.location) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Location</ui5-label>
+						<ui5-text>{{ current.location }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.workEmail) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Work email</ui5-label>
+						<ui5-link [href]="'mailto:' + current.workEmail">{{ current.workEmail }}</ui5-link>
+					</ui5-form-item>
+				}
+				@if (current.workerNumber) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Worker number</ui5-label>
+						<ui5-text>{{ current.workerNumber }}</ui5-text>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="employment"
+			label="Employment">
+			<ui5-form
+				accessibleName="Employment facts"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				@if (current.employmentStatus; as status) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employment status</ui5-label>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="employment(status).status"
+							[label]="employment(status).label"></span>
+					</ui5-form-item>
+				}
+				@if (current.employmentType) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employment type</ui5-label>
+						<ui5-text>
+							{{ employmentTypes[current.employmentType] ?? current.employmentType }}
+						</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.workerType) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Worker type</ui5-label>
+						<ui5-text>{{ current.workerType }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.legalEntity) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Legal entity</ui5-label>
+						<ui5-text>{{ current.legalEntity }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.hireDate) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Hire date</ui5-label>
+						<ui5-text>{{ current.hireDate | hcmDate: 'date' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.continuousServiceStartDate) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Continuous service since</ui5-label>
+						<ui5-text>{{ current.continuousServiceStartDate | hcmDate: 'date' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.noticePeriodDays !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Notice period</ui5-label>
+						<ui5-text>{{ current.noticePeriodDays }} days</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.workMode) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Work mode</ui5-label>
+						<ui5-text>{{ workModes[current.workMode] ?? current.workMode }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.fullTimeEquivalent !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Full-time equivalent</ui5-label>
+						<ui5-text>{{ current.fullTimeEquivalent }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.standardHoursPerWeek !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Standard weekly hours</ui5-label>
+						<ui5-text>{{ current.standardHoursPerWeek }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.costCentre) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Cost centre</ui5-label>
+						<ui5-text>{{ current.costCentre }}</ui5-text>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="probation"
+			label="Probation">
+			@if (current.probationStatus; as status) {
+				<ui5-form
+					accessibleName="Probation facts"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Probation status</ui5-label>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="probation(status).status"
+							[label]="probation(status).label"></span>
+					</ui5-form-item>
+					@if (current.probationEndDate) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Probation ends</ui5-label>
+							<ui5-text>{{ current.probationEndDate | hcmDate: 'date' }}</ui5-text>
+						</ui5-form-item>
+					}
+				</ui5-form>
+			} @else {
+				<ui5-text>No probation facts are shared for this person.</ui5-text>
+			}
+		</ng-template>
+	}
+</ef-hcm-object-page>
