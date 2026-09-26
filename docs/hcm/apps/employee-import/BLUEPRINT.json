@@ -1,0 +1,510 @@
+{
+	"formatVersion": 1,
+	"appCode": "EMPLOYEE_IMPORT",
+	"domain": "employee",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/employee-import/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/employee-import/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/employee-import/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/employee-import/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/employee/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "contract",
+			"path": "docs/hcm/domains/employee/BUSINESS-RULES.md"
+		},
+		{
+			"id": "COMMON2",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-COMMON.md"
+		},
+		{
+			"id": "COMMON1",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "DATAMODEL",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-DATA-MODEL.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-2-PERMISSION-MATRIX.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-2-DECISIONS.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "PROFILEPOLICY",
+			"kind": "contract",
+			"path": "docs/hcm/domains/employee/PROFILE-FIELD-POLICY.md"
+		},
+		{
+			"id": "WORKFORCE",
+			"kind": "contract",
+			"path": "docs/hcm/domains/workforce-foundation/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "DOCUMENTS",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-DOCUMENTS.md"
+		},
+		{
+			"id": "IMPORTSOURCE",
+			"kind": "contract",
+			"path": "docs/hcm/domains/documents/IMPORT-SOURCE-FILES.md"
+		}
+	],
+	"route": "/employee/employee-import",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": [
+				"FlexibleColumnLayout",
+				"DynamicPage",
+				"DynamicPageTitle",
+				"DynamicPageHeader",
+				"Wizard",
+				"WizardStep",
+				"ViewSettingsDialog"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"ToolbarButton",
+				"Bar",
+				"Title",
+				"Label",
+				"Text",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"SegmentedButton",
+				"SegmentedButtonItem",
+				"Input",
+				"TextArea",
+				"Select",
+				"Option",
+				"ComboBox",
+				"ComboBoxItem",
+				"CheckBox",
+				"FileUploader"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent"],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "EMPLOYEE_IMPORT-HTTP",
+			"owner": "employee",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "employee-DTO",
+			"owner": "employee",
+			"ref": "DOMAIN#contract"
+		},
+		{
+			"id": "WorkforceReadPort",
+			"owner": "workforce-foundation",
+			"ref": "COMMON2#PORTS"
+		},
+		{
+			"id": "WorkforceFactsPort",
+			"owner": "workforce-foundation",
+			"ref": "COMMON2#PORTS"
+		},
+		{
+			"id": "ProfileFieldVisibilityPort",
+			"owner": "employee",
+			"ref": "COMMON2#PORTS"
+		},
+		{
+			"id": "audit-append",
+			"owner": "audit",
+			"ref": "AUDIT#contract"
+		},
+		{
+			"id": "request-authorization",
+			"owner": "access-control",
+			"ref": "ACCESS_CONTROL#contract"
+		},
+		{
+			"id": "document-storage",
+			"owner": "documents",
+			"ref": "IMPORTSOURCE#contract"
+		}
+	],
+	"data": [
+		{
+			"id": "employee_import_template",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "employee_import_template_column",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "employee_import_run",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "employee_import_row",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "employee_import_issue",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "document_blob",
+			"owner": "documents",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "person",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "worker",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "employment",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "assignment",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "custom_field_value",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "employee_command_receipt",
+			"owner": "employee",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "audit_event",
+			"owner": "audit",
+			"ref": "DATAMODEL#MAPPING"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.employee.import.read",
+			"owner": "employee",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.employee.import.manage",
+			"owner": "employee",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-employee-feature-employee-import",
+			"root": "libs/hcm/web/employee/feature-employee-import",
+			"tags": ["product:hcm", "runtime:web", "domain:employee", "type:feature"]
+		},
+		{
+			"name": "hcm-web-employee-data-access",
+			"root": "libs/hcm/web/employee/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:employee", "type:data-access"]
+		},
+		{
+			"name": "hcm-employee-contract",
+			"root": "libs/hcm/contracts/employee",
+			"tags": ["product:hcm", "runtime:universal", "domain:employee", "type:contract"]
+		},
+		{
+			"name": "hcm-api-employee-domain",
+			"root": "libs/hcm/api/employee/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:employee", "type:domain"]
+		},
+		{
+			"name": "hcm-api-employee-application",
+			"root": "libs/hcm/api/employee/application",
+			"tags": ["product:hcm", "runtime:api", "domain:employee", "type:application"]
+		},
+		{
+			"name": "hcm-api-employee-infrastructure",
+			"root": "libs/hcm/api/employee/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:employee", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-employee-transport",
+			"root": "libs/hcm/api/employee/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:employee", "type:transport"]
+		},
+		{
+			"name": "hcm-api-employee-module",
+			"root": "libs/hcm/api/employee/module",
+			"tags": ["product:hcm", "runtime:api", "domain:employee", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "hcm2-shared-contract",
+			"state": "resolved",
+			"ref": "COMMON2#API"
+		},
+		{
+			"id": "hcm2-physical-model",
+			"state": "resolved",
+			"ref": "DATAMODEL#MIGRATIONS"
+		},
+		{
+			"id": "hcm2-permission-register",
+			"state": "resolved",
+			"ref": "GRANTS#GRANTS"
+		},
+		{
+			"id": "wizard-floorplan-acceptance",
+			"state": "unresolved",
+			"ref": "COMMON2#UX"
+		},
+		{
+			"id": "documents-import-source",
+			"state": "resolved",
+			"ref": "IMPORTSOURCE#policy"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-EMPLOYEE-IMPORT-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-EMPLOYEE-IMPORT-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-EMPLOYEE-IMPORT-003",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-EMPLOYEE-IMPORT-004",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-EMPLOYEE-IMPORT-001",
+		"FDD#REQ-EMPLOYEE-IMPORT-002",
+		"FDD#REQ-EMPLOYEE-IMPORT-003",
+		"FDD#REQ-EMPLOYEE-IMPORT-004",
+		"FDD#REQ-EMPLOYEE-IMPORT-005",
+		"FDD#REQ-EMPLOYEE-IMPORT-006",
+		"FDD#REQ-EMPLOYEE-IMPORT-007",
+		"FDD#REQ-EMPLOYEE-IMPORT-008"
+	],
+	"tests": [
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-001",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-001"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-002",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-002"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-003",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-003"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-004",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-004"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-005",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-005"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-006",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-006"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-007",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-007"
+		},
+		{
+			"id": "TEST-EMPLOYEE-IMPORT-008",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-EMPLOYEE-IMPORT-008"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-001",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-EMPLOYEE-IMPORT-001"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-002",
+			"design": "TDD#RULES",
+			"tests": ["TEST-EMPLOYEE-IMPORT-002"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-003",
+			"design": "TDD#READ",
+			"tests": ["TEST-EMPLOYEE-IMPORT-003"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-004",
+			"design": "TDD#RULES",
+			"tests": ["TEST-EMPLOYEE-IMPORT-004"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-005",
+			"design": "TDD#DATA",
+			"tests": ["TEST-EMPLOYEE-IMPORT-005"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-006",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-EMPLOYEE-IMPORT-006"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-007",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-EMPLOYEE-IMPORT-007"]
+		},
+		{
+			"requirement": "FDD#REQ-EMPLOYEE-IMPORT-008",
+			"design": "TDD#UX",
+			"tests": ["TEST-EMPLOYEE-IMPORT-008"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-2-employee-import",
+		"commits": [
+			"feat(hcm-documents): accept staged import source files",
+			"feat(hcm-employee): add employee import contracts and persistence",
+			"feat(hcm-employee): expose authorized employee import API",
+			"feat(hcm-employee): add employee import native UI",
+			"test(hcm-employee): verify employee import acceptance"
+		]
+	}
+}

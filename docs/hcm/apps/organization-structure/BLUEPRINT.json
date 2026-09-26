@@ -1,0 +1,500 @@
+{
+	"formatVersion": 1,
+	"appCode": "ORGANIZATION_STRUCTURE",
+	"domain": "workforce-foundation",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/organization-structure/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/organization-structure/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/organization-structure/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/organization-structure/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workforce-foundation/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "contract",
+			"path": "docs/hcm/domains/workforce-foundation/BUSINESS-RULES.md"
+		},
+		{
+			"id": "COMMON2",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-COMMON.md"
+		},
+		{
+			"id": "COMMON1",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "DATAMODEL",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-DATA-MODEL.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-2-PERMISSION-MATRIX.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-2-DECISIONS.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "JOBARCH",
+			"kind": "contract",
+			"path": "docs/hcm/domains/job-architecture/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "REVIEW",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-2-DESIGN-REVIEW.md"
+		}
+	],
+	"route": "/workforce-foundation/organization-structure",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": [
+				"FlexibleColumnLayout",
+				"DynamicPage",
+				"DynamicPageTitle",
+				"DynamicPageHeader",
+				"Timeline",
+				"TimelineItem",
+				"ViewSettingsDialog"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"ToolbarButton",
+				"Bar",
+				"Title",
+				"Label",
+				"Text",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"List",
+				"ListItemStandard",
+				"Tree",
+				"TreeItem",
+				"Input",
+				"TextArea",
+				"Select",
+				"Option",
+				"ComboBox",
+				"ComboBoxItem",
+				"CheckBox",
+				"StepInput",
+				"DatePicker",
+				"Link"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent"],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "ORGANIZATION_STRUCTURE-HTTP",
+			"owner": "workforce-foundation",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "workforce-foundation-DTO",
+			"owner": "workforce-foundation",
+			"ref": "DOMAIN#contract"
+		},
+		{
+			"id": "PositionReadPort",
+			"owner": "job-architecture",
+			"ref": "COMMON2#PORTS"
+		},
+		{
+			"id": "audit-append",
+			"owner": "audit",
+			"ref": "AUDIT#contract"
+		},
+		{
+			"id": "request-authorization",
+			"owner": "access-control",
+			"ref": "ACCESS_CONTROL#contract"
+		}
+	],
+	"data": [
+		{
+			"id": "organisation_profile",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "legal_entity",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "organisation_unit_type",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "organisation",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "organisation_version",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "department",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "designation",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "location",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "country",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "currency",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "assignment",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "position_version",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "workforce_command_receipt",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "audit_event",
+			"owner": "audit",
+			"ref": "DATAMODEL#MAPPING"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.workforce-foundation.structure.read",
+			"owner": "workforce-foundation",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.workforce-foundation.structure.manage",
+			"owner": "workforce-foundation",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-workforce-foundation-feature-organization-structure",
+			"root": "libs/hcm/web/workforce-foundation/feature-organization-structure",
+			"tags": ["product:hcm", "runtime:web", "domain:workforce-foundation", "type:feature"]
+		},
+		{
+			"name": "hcm-web-workforce-foundation-data-access",
+			"root": "libs/hcm/web/workforce-foundation/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:workforce-foundation", "type:data-access"]
+		},
+		{
+			"name": "hcm-workforce-foundation-contract",
+			"root": "libs/hcm/contracts/workforce-foundation",
+			"tags": ["product:hcm", "runtime:universal", "domain:workforce-foundation", "type:contract"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-domain",
+			"root": "libs/hcm/api/workforce-foundation/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:domain"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-application",
+			"root": "libs/hcm/api/workforce-foundation/application",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:application"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-infrastructure",
+			"root": "libs/hcm/api/workforce-foundation/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-transport",
+			"root": "libs/hcm/api/workforce-foundation/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:transport"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-module",
+			"root": "libs/hcm/api/workforce-foundation/module",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "hcm2-shared-contract",
+			"state": "resolved",
+			"ref": "COMMON2#API"
+		},
+		{
+			"id": "hcm2-physical-model",
+			"state": "resolved",
+			"ref": "DATAMODEL#MIGRATIONS"
+		},
+		{
+			"id": "hcm2-permission-register",
+			"state": "resolved",
+			"ref": "GRANTS#GRANTS"
+		},
+		{
+			"id": "catalogue-admission",
+			"state": "unresolved",
+			"ref": "REVIEW#catalogue-admission"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-ORGANIZATION-STRUCTURE-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-ORGANIZATION-STRUCTURE-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-ORGANIZATION-STRUCTURE-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-ORGANIZATION-STRUCTURE-004",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-ORGANIZATION-STRUCTURE-001",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-002",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-003",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-004",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-005",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-006",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-007",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-008",
+		"FDD#REQ-ORGANIZATION-STRUCTURE-009"
+	],
+	"tests": [
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-001"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-002"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-003"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-004",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-004"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-005",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-005"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-006",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-006"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-007",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-007"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-008",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-008"
+		},
+		{
+			"id": "TEST-ORGANIZATION-STRUCTURE-009",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-ORGANIZATION-STRUCTURE-009"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-001"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-002"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-003",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-003"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-004",
+			"design": "TDD#RULES",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-004"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-005",
+			"design": "TDD#RULES",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-005"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-006",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-006"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-007",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-007"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-008",
+			"design": "TDD#UX",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-008"]
+		},
+		{
+			"requirement": "FDD#REQ-ORGANIZATION-STRUCTURE-009",
+			"design": "TDD#DATA",
+			"tests": ["TEST-ORGANIZATION-STRUCTURE-009"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-2-organization-structure",
+		"commits": [
+			"feat(hcm-catalogue): admit Organization Structure to HCM-2",
+			"feat(hcm-workforce): add organisation structure contracts and persistence",
+			"feat(hcm-workforce): expose authorized organisation structure API",
+			"feat(hcm-workforce): add organisation structure native UI",
+			"test(hcm-workforce): verify organisation structure acceptance"
+		]
+	}
+}

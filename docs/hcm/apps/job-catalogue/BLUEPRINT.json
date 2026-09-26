@@ -1,0 +1,470 @@
+{
+	"formatVersion": 1,
+	"appCode": "JOB_CATALOGUE",
+	"domain": "job-architecture",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/job-catalogue/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/job-catalogue/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/job-catalogue/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/job-catalogue/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/job-architecture/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "contract",
+			"path": "docs/hcm/domains/job-architecture/BUSINESS-RULES.md"
+		},
+		{
+			"id": "COMMON2",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-COMMON.md"
+		},
+		{
+			"id": "COMMON1",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "DATAMODEL",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-DATA-MODEL.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-2-PERMISSION-MATRIX.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-2-DECISIONS.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "WORKFORCE",
+			"kind": "contract",
+			"path": "docs/hcm/domains/workforce-foundation/TECHNICAL-DESIGN.md"
+		}
+	],
+	"route": "/job-architecture/job-catalogue",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": [
+				"FlexibleColumnLayout",
+				"DynamicPage",
+				"DynamicPageTitle",
+				"DynamicPageHeader",
+				"Timeline",
+				"TimelineItem",
+				"ViewSettingsDialog"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"ToolbarButton",
+				"Bar",
+				"Title",
+				"Label",
+				"Text",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"Tree",
+				"TreeItem",
+				"SegmentedButton",
+				"SegmentedButtonItem",
+				"Input",
+				"TextArea",
+				"Select",
+				"Option",
+				"MultiComboBox",
+				"MultiComboBoxItem",
+				"StepInput",
+				"DatePicker",
+				"CheckBox"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent"],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "JOB_CATALOGUE-HTTP",
+			"owner": "job-architecture",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "job-architecture-DTO",
+			"owner": "job-architecture",
+			"ref": "DOMAIN#contract"
+		},
+		{
+			"id": "audit-append",
+			"owner": "audit",
+			"ref": "AUDIT#contract"
+		},
+		{
+			"id": "request-authorization",
+			"owner": "access-control",
+			"ref": "ACCESS_CONTROL#contract"
+		}
+	],
+	"data": [
+		{
+			"id": "job_catalogue",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_catalogue_version",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_family",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "career_track",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_level",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_band",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_grade",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_profile",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_profile_version",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_profile_responsibility",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_profile_requirement",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_profile_grade",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_architecture_command_receipt",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "audit_event",
+			"owner": "audit",
+			"ref": "DATAMODEL#MAPPING"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.job-architecture.catalogue.read",
+			"owner": "job-architecture",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.job-architecture.catalogue.manage",
+			"owner": "job-architecture",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.job-architecture.catalogue.publish",
+			"owner": "job-architecture",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-job-architecture-feature-job-catalogue",
+			"root": "libs/hcm/web/job-architecture/feature-job-catalogue",
+			"tags": ["product:hcm", "runtime:web", "domain:job-architecture", "type:feature"]
+		},
+		{
+			"name": "hcm-web-job-architecture-data-access",
+			"root": "libs/hcm/web/job-architecture/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:job-architecture", "type:data-access"]
+		},
+		{
+			"name": "hcm-job-architecture-contract",
+			"root": "libs/hcm/contracts/job-architecture",
+			"tags": ["product:hcm", "runtime:universal", "domain:job-architecture", "type:contract"]
+		},
+		{
+			"name": "hcm-api-job-architecture-domain",
+			"root": "libs/hcm/api/job-architecture/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:domain"]
+		},
+		{
+			"name": "hcm-api-job-architecture-application",
+			"root": "libs/hcm/api/job-architecture/application",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:application"]
+		},
+		{
+			"name": "hcm-api-job-architecture-infrastructure",
+			"root": "libs/hcm/api/job-architecture/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-job-architecture-transport",
+			"root": "libs/hcm/api/job-architecture/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:transport"]
+		},
+		{
+			"name": "hcm-api-job-architecture-module",
+			"root": "libs/hcm/api/job-architecture/module",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "hcm2-shared-contract",
+			"state": "resolved",
+			"ref": "COMMON2#API"
+		},
+		{
+			"id": "hcm2-physical-model",
+			"state": "resolved",
+			"ref": "DATAMODEL#MIGRATIONS"
+		},
+		{
+			"id": "hcm2-permission-register",
+			"state": "resolved",
+			"ref": "GRANTS#GRANTS"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-JOB-CATALOGUE-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-JOB-CATALOGUE-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-JOB-CATALOGUE-003",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-JOB-CATALOGUE-004",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-JOB-CATALOGUE-005",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-JOB-CATALOGUE-001",
+		"FDD#REQ-JOB-CATALOGUE-002",
+		"FDD#REQ-JOB-CATALOGUE-003",
+		"FDD#REQ-JOB-CATALOGUE-004",
+		"FDD#REQ-JOB-CATALOGUE-005",
+		"FDD#REQ-JOB-CATALOGUE-006",
+		"FDD#REQ-JOB-CATALOGUE-007"
+	],
+	"tests": [
+		{
+			"id": "TEST-JOB-CATALOGUE-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-001"
+		},
+		{
+			"id": "TEST-JOB-CATALOGUE-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-002"
+		},
+		{
+			"id": "TEST-JOB-CATALOGUE-003",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-003"
+		},
+		{
+			"id": "TEST-JOB-CATALOGUE-004",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-004"
+		},
+		{
+			"id": "TEST-JOB-CATALOGUE-005",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-005"
+		},
+		{
+			"id": "TEST-JOB-CATALOGUE-006",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-006"
+		},
+		{
+			"id": "TEST-JOB-CATALOGUE-007",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-JOB-CATALOGUE-007"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-JOB-CATALOGUE-001"]
+		},
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-JOB-CATALOGUE-002"]
+		},
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-003",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-JOB-CATALOGUE-003"]
+		},
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-004",
+			"design": "TDD#RULES",
+			"tests": ["TEST-JOB-CATALOGUE-004"]
+		},
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-005",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-JOB-CATALOGUE-005"]
+		},
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-006",
+			"design": "TDD#UX",
+			"tests": ["TEST-JOB-CATALOGUE-006"]
+		},
+		{
+			"requirement": "FDD#REQ-JOB-CATALOGUE-007",
+			"design": "TDD#DATA",
+			"tests": ["TEST-JOB-CATALOGUE-007"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-2-job-catalogue",
+		"commits": [
+			"feat(hcm-job-architecture): add catalogue contracts and persistence",
+			"feat(hcm-job-architecture): expose authorized catalogue API",
+			"feat(hcm-job-architecture): add job catalogue native UI",
+			"test(hcm-job-architecture): verify job catalogue acceptance"
+		]
+	}
+}
