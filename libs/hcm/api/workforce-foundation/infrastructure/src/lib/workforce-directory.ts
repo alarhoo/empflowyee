@@ -38,7 +38,7 @@ export class KyselyWorkforceDirectory implements WorkforceDirectoryPort {
 
 	/** Current engaged assignments, ranked so rank 1 is the worker's primary placement. */
 	private current(asOf: string): RawBuilder<unknown> {
-		return sql`SELECT a.id,a.is_primary_assignment AS primary_assignment,e.worker_id,a.designation_id,a.department_id,a.location_id,a.organisation_id,e.legal_entity_id,e.work_email,
+		return sql`SELECT a.id,a.is_primary_assignment AS primary_assignment,e.worker_id,e.id AS employment_id,a.work_mode,a.full_time_equivalent,a.standard_hours_per_week,a.cost_center_code,a.designation_id,a.department_id,a.location_id,a.organisation_id,e.legal_entity_id,e.work_email,
 			row_number() OVER (PARTITION BY e.worker_id ORDER BY a.is_primary_assignment DESC NULLS LAST,e.is_primary_employment DESC NULLS LAST,a.effective_from,a.id) AS rank
 			FROM hcm.assignment a JOIN hcm.employment e ON e.tenant_id=a.tenant_id AND e.id=a.employment_id
 			WHERE a.tenant_id=${this.scope.tenantId} AND a.effective_period @> ${asOf}::date AND e.employment_status IN ${DIRECTORY_STATUSES}`
@@ -61,10 +61,17 @@ export class KyselyWorkforceDirectory implements WorkforceDirectoryPort {
 				(SELECT count(DISTINCT rc.worker_id)::int FROM hcm.reporting_line r JOIN cur rc ON rc.id=r.assignment_id
 					WHERE r.tenant_id=${t} AND r.is_primary AND r.effective_period @> ${d} AND r.manager_assignment_id IN (SELECT cm.id FROM cur cm WHERE cm.worker_id=c.worker_id)) AS "directReportCount",
 				(SELECT jsonb_agg(jsonb_build_object('assignmentId',ca.id,'isPrimary',coalesce(ca.primary_assignment,false),'designation',${name('designation', 'ca', 'designation_id')},'organisationUnit',${unit('ca')},'department',${name('department', 'ca', 'department_id')},'location',${name('location', 'ca', 'location_id')},'legalEntity',${name('legal_entity', 'ca', 'legal_entity_id')}) ORDER BY ca.rank)
-					FROM cur ca WHERE ca.worker_id=c.worker_id) AS assignments
+					FROM cur ca WHERE ca.worker_id=c.worker_id) AS assignments,
+				jsonb_build_object('workerType',(SELECT wt.name FROM hcm.worker_type wt WHERE wt.tenant_id=${t} AND wt.id=wk.worker_type_id),
+					'employmentType',ep.employment_type,'employmentStatus',ep.employment_status,
+					'hireDate',to_char(ep.hire_date,'YYYY-MM-DD'),'continuousServiceStartDate',to_char(ep.continuous_service_start_date,'YYYY-MM-DD'),
+					'probationStatus',ep.probation_status,'probationEndDate',to_char(ep.probation_end_date,'YYYY-MM-DD'),'noticePeriodDays',ep.notice_period_days,
+					'legalEntity',${name('legal_entity', 'ep', 'legal_entity_id')},'workMode',c.work_mode,'fullTimeEquivalent',c.full_time_equivalent::float8,
+					'standardHoursPerWeek',c.standard_hours_per_week::float8,'costCentre',nullif(c.cost_center_code,'')) AS facts
 			FROM cur c
 			JOIN hcm.worker wk ON wk.tenant_id=${t} AND wk.id=c.worker_id
 			JOIN hcm.person p ON p.tenant_id=wk.tenant_id AND p.id=wk.person_id
+			JOIN hcm.employment ep ON ep.tenant_id=${t} AND ep.id=c.employment_id
 			LEFT JOIN hcm.reporting_line m ON m.tenant_id=${t} AND m.assignment_id=c.id AND m.is_primary AND m.effective_period @> ${d}
 			LEFT JOIN cur mc ON mc.id=m.manager_assignment_id
 			LEFT JOIN hcm.worker mw ON mw.tenant_id=${t} AND mw.id=mc.worker_id
@@ -83,6 +90,8 @@ export class KyselyWorkforceDirectory implements WorkforceDirectoryPort {
 		if (filter.departmentId) parts.push(placed('department_id', filter.departmentId))
 		if (filter.locationId) parts.push(placed('location_id', filter.locationId))
 		if (filter.designationId) parts.push(placed('designation_id', filter.designationId))
+		if (filter.probationStatus)
+			parts.push(sql`n.facts->>'probationStatus'=${filter.probationStatus}`)
 		if (filter.workerIds) parts.push(sql`n."workerId" = ANY(${[...filter.workerIds]}::text[])`)
 		if (filter.reportsOf)
 			parts.push(sql`EXISTS (SELECT 1 FROM hcm.reporting_line r JOIN hcm.assignment ra ON ra.tenant_id=r.tenant_id AND ra.id=r.assignment_id JOIN hcm.employment re ON re.tenant_id=ra.tenant_id AND re.id=ra.employment_id

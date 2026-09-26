@@ -11,6 +11,23 @@ export interface DirectoryAssignmentRow {
 	legalEntity: string | null
 }
 
+/** Employment and assignment facts of the primary placement; only relations above Organization see them. */
+export interface DirectoryFactsRow {
+	workerType: string | null
+	employmentType: string | null
+	employmentStatus: string | null
+	hireDate: string | null
+	continuousServiceStartDate: string | null
+	probationStatus: string | null
+	probationEndDate: string | null
+	noticePeriodDays: number | null
+	legalEntity: string | null
+	workMode: string | null
+	fullTimeEquivalent: number | null
+	standardHoursPerWeek: number | null
+	costCentre: string | null
+}
+
 /** One engaged worker with a current assignment, before any field policy is applied. */
 export interface DirectoryRow {
 	workerId: string
@@ -27,6 +44,7 @@ export interface DirectoryRow {
 	managerDisplayName: string | null
 	directReportCount: number
 	assignments: DirectoryAssignmentRow[]
+	facts: DirectoryFactsRow
 }
 
 export type DirectoryOptionKind = 'units' | 'departments' | 'locations' | 'designations'
@@ -50,6 +68,8 @@ export interface DirectoryFilter {
 	departmentId?: string
 	locationId?: string
 	designationId?: string
+	/** Probation status of the primary employment. */
+	probationStatus?: string
 	/** Restrict to these workers, for team views. */
 	workerIds?: readonly string[]
 	/** Workers whose primary solid line points to one of this worker's current assignments. */
