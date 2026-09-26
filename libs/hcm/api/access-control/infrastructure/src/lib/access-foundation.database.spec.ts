@@ -169,7 +169,13 @@ afterAll(
 it('preserves HCM-0 identities and discovery grants while applying the exact local business register', /** Verify data continuity, persisted system flags and independently count the new permission kind. */ async () => {
 	const current = await snapshot()
 	expect(current).toEqual(expect.arrayContaining(original))
-	expect(current).toHaveLength(original.length + 9)
+	// Nine discovery grants plus the four workforce.foundation@3 worker assignments.
+	expect(current).toHaveLength(original.length + 13)
+	for (const worker of ['dwight', 'pam', 'angela', 'oscar'])
+		expect(current).toContainEqual({
+			kind: 'assignment',
+			key: 'dunder-mifflin/assignment/' + worker,
+		})
 	for (const app of ['IDENTIFICATION_TYPES', 'LOOKUP_VALUES'])
 		expect(current).toContainEqual({
 			kind: 'grant',
