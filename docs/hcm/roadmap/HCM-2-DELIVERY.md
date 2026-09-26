@@ -6,42 +6,44 @@ Status: **8 of 18 HCM-2 apps released; step 10 is complete.** Delivery follows t
 `complete` in the canonical catalogue only after its implementation, tests and
 validation record pass.
 
-| Step  | Delivers                                                                                                                                        | State       | Evidence                                                                    |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------- |
-| 1     | Catalogue admission of Organization Structure                                                                                                   | Delivered   | 171-app catalogue; `access.discovery@2`                                     |
-| 2     | Shared `HcmWizardPage`                                                                                                                          | Not started | —                                                                           |
-| 3     | `FieldCipher` port and local key                                                                                                                | Not started | —                                                                           |
-| 4     | Workforce structure foundation: migrations `000017`–`000018`, contracts, API, `workforce.foundation@2`, `access.hcm2@1`                         | Delivered   | `libs/hcm/api/workforce-foundation/**`; `pnpm hcm:db:test`                  |
-| 5     | Organization Structure app                                                                                                                      | Released    | [Validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md)         |
-| 6     | Identification Types app                                                                                                                        | Released    | [Validation](../testing/HCM-2-IDENTIFICATION-TYPES-VALIDATION.md)           |
-| 7     | Workforce people foundation: migrations `000019`–`000020`, `WorkforceFactsPort`, reporting queries, `workforce.foundation@3`                    | Delivered   | [Validation](../testing/HCM-2-WORKFORCE-PEOPLE-FOUNDATION-VALIDATION.md)    |
-| 8     | Lookup Values app, with grant migration `000021`                                                                                                | Released    | [Validation](../testing/HCM-2-LOOKUP-VALUES-VALIDATION.md)                  |
-| 9     | Employee profile foundation: migration `000022`, `ProfileFieldVisibilityPort`, `OrgChartFieldPolicy`, `TeamScopeResolver`, `employee.profile@1` | Delivered   | [Validation](../testing/HCM-2-EMPLOYEE-PROFILE-FOUNDATION-VALIDATION.md)    |
-| 10    | Employee Profile Configuration app                                                                                                              | Released    | [Validation](../testing/HCM-2-EMPLOYEE-PROFILE-CONFIGURATION-VALIDATION.md) |
-| 10    | Org Chart app                                                                                                                                   | Released    | [Validation](../testing/HCM-2-ORG-CHART-VALIDATION.md)                      |
-| 10    | Employee Directory app                                                                                                                          | Released    | [Validation](../testing/HCM-2-EMPLOYEE-DIRECTORY-VALIDATION.md)             |
-| 10    | Team Directory app                                                                                                                              | Released    | [Validation](../testing/HCM-2-TEAM-DIRECTORY-VALIDATION.md)                 |
-| 10    | My Profile app, with grant migration `000023`                                                                                                   | Released    | [Validation](../testing/HCM-2-MY-PROFILE-VALIDATION.md)                     |
-| 11–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                           |
+| Step  | Delivers                                                                                                                                        | State       | Evidence                                                                           |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
+| 1     | Catalogue admission of Organization Structure                                                                                                   | Delivered   | 171-app catalogue; `access.discovery@2`                                            |
+| 2     | Shared `HcmWizardPage`                                                                                                                          | Not started | —                                                                                  |
+| 3     | `FieldCipher` port and local key                                                                                                                | Not started | —                                                                                  |
+| 4     | Workforce structure foundation: migrations `000017`–`000018`, contracts, API, `workforce.foundation@2`, `access.hcm2@1`                         | Delivered   | `libs/hcm/api/workforce-foundation/**`; `pnpm hcm:db:test`                         |
+| 5     | Organization Structure app                                                                                                                      | Released    | [Validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md)                |
+| 6     | Identification Types app                                                                                                                        | Released    | [Validation](../testing/HCM-2-IDENTIFICATION-TYPES-VALIDATION.md)                  |
+| 7     | Workforce people foundation: migrations `000019`–`000020`, `WorkforceFactsPort`, reporting queries, `workforce.foundation@3`                    | Delivered   | [Validation](../testing/HCM-2-WORKFORCE-PEOPLE-FOUNDATION-VALIDATION.md)           |
+| 8     | Lookup Values app, with grant migration `000021`                                                                                                | Released    | [Validation](../testing/HCM-2-LOOKUP-VALUES-VALIDATION.md)                         |
+| 9     | Employee profile foundation: migration `000022`, `ProfileFieldVisibilityPort`, `OrgChartFieldPolicy`, `TeamScopeResolver`, `employee.profile@1` | Delivered   | [Validation](../testing/HCM-2-EMPLOYEE-PROFILE-FOUNDATION-VALIDATION.md)           |
+| 10    | Employee Profile Configuration app                                                                                                              | Released    | [Validation](../testing/HCM-2-EMPLOYEE-PROFILE-CONFIGURATION-VALIDATION.md)        |
+| 10    | Org Chart app                                                                                                                                   | Released    | [Validation](../testing/HCM-2-ORG-CHART-VALIDATION.md)                             |
+| 10    | Employee Directory app                                                                                                                          | Released    | [Validation](../testing/HCM-2-EMPLOYEE-DIRECTORY-VALIDATION.md)                    |
+| 10    | Team Directory app                                                                                                                              | Released    | [Validation](../testing/HCM-2-TEAM-DIRECTORY-VALIDATION.md)                        |
+| 10    | My Profile app, with grant migration `000023`                                                                                                   | Released    | [Validation](../testing/HCM-2-MY-PROFILE-VALIDATION.md)                            |
+| 11    | Job architecture catalogue foundation: migration `000024`, catalogue part of `job.architecture@1`                                               | Delivered   | [Validation](../testing/HCM-2-JOB-ARCHITECTURE-CATALOGUE-FOUNDATION-VALIDATION.md) |
+| 12–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
 `codex/hcm-2-catalogue-organization-structure`. Each step now also has its own branch,
 stacked in order, and every later step starts a new branch from the previous one:
 
-| Step | Branch                                       |
-| ---- | -------------------------------------------- |
-| —    | `codex/hcm-1-foundation-and-hcm-2-design`    |
-| 1    | `codex/hcm-2-catalogue-admission`            |
-| 4–5  | `codex/hcm-2-organization-structure`         |
-| 6    | `codex/hcm-2-identification-types`           |
-| 7    | `codex/hcm-2-workforce-people-foundation`    |
-| 8    | `codex/hcm-2-lookup-values`                  |
-| 9    | `codex/hcm-2-employee-profile-foundation`    |
-| 10   | `codex/hcm-2-employee-profile-configuration` |
-| 10   | `codex/hcm-2-org-chart`                      |
-| 10   | `codex/hcm-2-employee-directory`             |
-| 10   | `codex/hcm-2-team-directory`                 |
-| 10   | `codex/hcm-2-my-profile`                     |
+| Step | Branch                                              |
+| ---- | --------------------------------------------------- |
+| —    | `codex/hcm-1-foundation-and-hcm-2-design`           |
+| 1    | `codex/hcm-2-catalogue-admission`                   |
+| 4–5  | `codex/hcm-2-organization-structure`                |
+| 6    | `codex/hcm-2-identification-types`                  |
+| 7    | `codex/hcm-2-workforce-people-foundation`           |
+| 8    | `codex/hcm-2-lookup-values`                         |
+| 9    | `codex/hcm-2-employee-profile-foundation`           |
+| 10   | `codex/hcm-2-employee-profile-configuration`        |
+| 10   | `codex/hcm-2-org-chart`                             |
+| 10   | `codex/hcm-2-employee-directory`                    |
+| 10   | `codex/hcm-2-team-directory`                        |
+| 10   | `codex/hcm-2-my-profile`                            |
+| 11   | `codex/hcm-2-job-architecture-catalogue-foundation` |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -57,6 +59,10 @@ Every migration the approved plan numbers `000022` or later therefore takes the 
 above its planned one: the job architecture catalogue of step 11 becomes `000024`, the
 positions migrations of step 12 become `000025`–`000026`, and the workforce changes, import,
 probation and HR service migrations become `000027`–`000030`.
+
+Seed modules are immutable once applied. `job.architecture@1` therefore carries only the
+catalogue part delivered in step 11; the position part planned for it arrives in step 12 as
+the forward module `job.architecture@2`.
 
 ## Implementation decisions
 
