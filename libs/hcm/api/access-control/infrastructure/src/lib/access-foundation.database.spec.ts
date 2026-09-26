@@ -169,7 +169,11 @@ afterAll(
 it('preserves HCM-0 identities and discovery grants while applying the exact local business register', /** Verify data continuity, persisted system flags and independently count the new permission kind. */ async () => {
 	const current = await snapshot()
 	expect(current).toEqual(expect.arrayContaining(original))
-	expect(current).toHaveLength(original.length + 5)
+	expect(current).toHaveLength(original.length + 6)
+	expect(current).toContainEqual({
+		kind: 'grant',
+		key: 'tenant-administrator:hcm.catalogue.ORGANIZATION_STRUCTURE.discover',
+	})
 	expect(current).toContainEqual({
 		kind: 'grant',
 		key: 'hr-specialist:hcm.catalogue.DOCUMENT_TYPES.discover',
@@ -189,7 +193,7 @@ it('preserves HCM-0 identities and discovery grants while applying the exact loc
 				"SELECT count(*)::int AS count FROM hcm.access_permission WHERE kind='business-operation'",
 			)
 		).rows[0].count,
-	).toBe(39)
+	).toBe(75)
 	expect((await admin.query('SELECT id FROM hcm.access_role WHERE protected_admin')).rows).toEqual([
 		{ id: 'tenant-administrator' },
 	])
