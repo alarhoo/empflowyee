@@ -35,6 +35,14 @@ export const AUDIT_ACTIONS = [
 	'workforce.lookup-updated',
 	'workforce.lookup-activated',
 	'workforce.lookup-retired',
+	'employee.profile-policy-changed',
+	'employee.profile-policy-reset',
+	'employee.custom-field-created',
+	'employee.custom-field-updated',
+	'employee.custom-field-retired',
+	'employee.custom-field-activated',
+	'employee.custom-field-option-added',
+	'employee.custom-field-option-updated',
 ] as const
 /** HCM-2 workforce, job architecture and employee actions recorded with explicit target types. */
 export const HCM2_AUDIT_ACTIONS: readonly string[] = AUDIT_ACTIONS.filter(
