@@ -193,6 +193,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'workforce-foundation/lookup-values',
+		data: { catalogId: 'LOOKUP_VALUES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the workforce-owned lookup set FCL and draft guard. */ () =>
+			import('@empflowyee/hcm-web-workforce-foundation-feature-lookup-values').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.LOOKUP_VALUES_ROUTES,
+			),
+	},
+	{
 		path: 'workforce-foundation/organization-structure',
 		data: { catalogId: 'ORGANIZATION_STRUCTURE' },
 		canMatch: [hcmRouteAccess],

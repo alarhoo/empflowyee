@@ -1,0 +1,182 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="creating() ? 'lookup-value-code' : 'lookup-value-name'"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (creating()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="lookup-value-code"
+					[required]="true">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="lookup-value-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use 2–40 capital letters, digits or underscores, starting with a letter.
+					</ui5-text>
+				</ui5-input>
+				<ui5-text>The code cannot be changed after creation.</ui5-text>
+			</ui5-form-item>
+		} @else {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Code</ui5-label>
+				<ui5-text>{{ request().value?.code }}</ui5-text>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lookup-value-name"
+				[required]="true">
+				Name
+			</ui5-label>
+			<ui5-input
+				id="lookup-value-name"
+				accessibleName="Name"
+				[formField]="fields.name"
+				[disabled]="draft.saving()"
+				[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a name of 1–100 characters.</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lookup-value-description">
+				Description
+			</ui5-label>
+			<ui5-textarea
+				id="lookup-value-description"
+				accessibleName="Description"
+				[rows]="3"
+				[formField]="fields.description"
+				[disabled]="draft.saving()"
+				[valueState]="fields.description().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Use at most 500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+		@if (setKey() === 'worker-types') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="lookup-value-class"
+					[required]="true">
+					Statutory class
+				</ui5-label>
+				<ui5-select
+					id="lookup-value-class"
+					accessibleName="Statutory class"
+					[formField]="fields.statutoryClass"
+					[disabled]="draft.saving()">
+					@for (item of statutoryClasses; track item) {
+						<ui5-option [value]="item">{{ item }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		}
+		@if (setKey() === 'worker-event-types') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="lookup-value-category"
+					[required]="true">
+					Category
+				</ui5-label>
+				<ui5-select
+					id="lookup-value-category"
+					accessibleName="Category"
+					[formField]="fields.category"
+					[disabled]="draft.saving()">
+					@for (item of categories; track item.value) {
+						<ui5-option [value]="item.value">{{ item.label }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Requires approval</ui5-label>
+				<ui5-text>
+					{{ requiresApproval() ? 'Yes' : 'No' }}. The employment-change approval policy sets this.
+				</ui5-text>
+			</ui5-form-item>
+		}
+		@for (flag of flagFields(); track flag.key) {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">{{ flag.label }}</ui5-label>
+				<ui5-checkbox
+					[text]="flag.label"
+					[accessibleName]="flag.label"
+					[checked]="flags()[flag.key] === true"
+					[disabled]="draft.saving()"
+					(ui5Change)="setFlag(flag.key, $event.target)"></ui5-checkbox>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lookup-value-order">
+				Display order
+			</ui5-label>
+			<ui5-step-input
+				id="lookup-value-order"
+				accessibleName="Display order"
+				[min]="0"
+				[max]="9999"
+				[value]="sortOrder()"
+				[disabled]="draft.saving()"
+				(ui5Change)="setOrder($event.target)"></ui5-step-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lookup-value-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="lookup-value-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : creating() ? 'Add value' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
