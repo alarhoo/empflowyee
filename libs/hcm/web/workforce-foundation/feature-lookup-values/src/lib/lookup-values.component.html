@@ -1,0 +1,79 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Lookup sets' },
+		midColumn: { role: 'region', name: 'Selected set' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Lookup Values"
+		summary="Organisation-maintained workforce lists and product reference lists"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		(retry)="load()">
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		@if (unknown()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				The requested list does not exist. Choose a list below.
+			</ui5-message-strip>
+		}
+		<ui5-list
+			accessibleName="Lookup sets"
+			(ui5ItemClick)="choose($any($event.detail.item))">
+			@for (group of groups(); track group.ownership) {
+				<ui5-li-group [headerText]="group.label">
+					@for (set of group.items; track set.key) {
+						<ui5-li
+							type="Navigation"
+							[text]="set.label"
+							[description]="
+								set.ownership === 'Tenant'
+									? 'Maintained by your organisation'
+									: 'Maintained by the product'
+							"
+							[additionalText]="set.itemCount + ' active'"
+							[navigated]="set.key === setKey()"
+							[attr.data-set]="set.key"></ui5-li>
+					}
+				</ui5-li-group>
+			}
+		</ui5-list>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as current) {
+		@for (key of [current.key]; track key) {
+			<ef-hcm-lookup-set
+				slot="midColumn"
+				[set]="current"
+				[refresh]="refresh()"
+				[canManage]="canManage()"
+				[fullScreen]="fullScreen()"
+				(create)="create(current)"
+				(edit)="edit(current, $event)"
+				(active)="changeActive(current, $event)"
+				(fullScreenChange)="fullScreen.set($event)"
+				(closed)="close()"></ef-hcm-lookup-set>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (valueDialog(); as request) {
+	<ef-hcm-lookup-value-dialog
+		[request]="request"
+		(saved)="saved($event)"
+		(closed)="valueDialog.set(null)"></ef-hcm-lookup-value-dialog>
+}
+@if (activeDialog(); as request) {
+	<ef-hcm-lookup-active-dialog
+		[set]="request.set"
+		[value]="request.value"
+		(saved)="saved($event)"
+		(closed)="activeDialog.set(null)"></ef-hcm-lookup-active-dialog>
+}

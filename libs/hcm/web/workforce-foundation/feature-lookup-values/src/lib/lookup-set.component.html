@@ -1,0 +1,155 @@
+<ef-hcm-dynamic-page
+	[title]="set().label"
+	[summary]="
+		set().ownership === 'Tenant' ? 'Maintained by your organisation' : 'Maintained by the product'
+	"
+	[state]="state()"
+	[readOnly]="!editable()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		[accessibleName]="set().label + ' filters'"
+		accessibleMode="Edit"
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lookup-query">
+				Code or name
+			</ui5-label>
+			<ui5-input
+				id="lookup-query"
+				accessibleName="Search code or name"
+				type="Search"
+				[formField]="filterForm.q"
+				(keydown.enter)="load()"></ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="lookup-active">
+				Status
+			</ui5-label>
+			<ui5-select
+				id="lookup-active"
+				accessibleName="Status"
+				[formField]="filterForm.active">
+				<ui5-option value="">All</ui5-option>
+				<ui5-option value="true">Active</ui5-option>
+				<ui5-option value="false">Inactive</ui5-option>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Actions</ui5-label>
+			<ui5-button
+				[disabled]="busy()"
+				(click)="load()">
+				Apply filters
+			</ui5-button>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-table
+		[accessibleName]="set().label"
+		overflowMode="Popin"
+		[noDataText]="
+			applied().q || applied().active
+				? 'No values match these filters'
+				: 'This list has no values yet'
+		"
+		[loading]="busy()">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem">
+				Name
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="10"
+				minWidth="12rem"
+				popinText="Description">
+				Description
+			</ui5-table-header-cell>
+			@for (column of columns(); track column.label) {
+				<ui5-table-header-cell
+					[importance]="column.importance"
+					[minWidth]="column.minWidth"
+					[popinText]="column.label">
+					{{ column.label }}
+				</ui5-table-header-cell>
+			}
+			<ui5-table-header-cell
+				[importance]="30"
+				minWidth="5rem"
+				popinText="Order">
+				Order
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="80"
+				minWidth="7rem"
+				popinText="Status">
+				Status
+			</ui5-table-header-cell>
+			@if (editable()) {
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="12rem"
+					popinText="Actions">
+					Actions
+				</ui5-table-header-cell>
+			}
+		</ui5-table-header-row>
+		@for (row of rows(); track row.value.id) {
+			<ui5-table-row [rowKey]="row.value.id">
+				<ui5-table-cell>{{ row.value.name }} ({{ row.value.code }})</ui5-table-cell>
+				<ui5-table-cell>{{ row.value.description || '—' }}</ui5-table-cell>
+				@for (cell of row.cells; track $index) {
+					<ui5-table-cell>
+						@if (columns()[$index].check) {
+							<ui5-checkbox
+								[displayOnly]="true"
+								[checked]="cell === true"
+								[accessibleName]="columns()[$index].label"></ui5-checkbox>
+						} @else {
+							{{ cell }}
+						}
+					</ui5-table-cell>
+				}
+				<ui5-table-cell>{{ row.value.sortOrder }}</ui5-table-cell>
+				<ui5-table-cell>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="row.value.active ? 'positive' : 'neutral'"
+						[label]="row.value.active ? 'Active' : 'Inactive'"></span>
+				</ui5-table-cell>
+				@if (editable()) {
+					<ui5-table-cell>
+						<ui5-button
+							design="Transparent"
+							[accessibleName]="'Edit ' + row.value.name"
+							(click)="edit.emit(row.value)">
+							Edit
+						</ui5-button>
+						<ui5-button
+							design="Transparent"
+							[accessibleName]="(row.value.active ? 'Retire ' : 'Reactivate ') + row.value.name"
+							(click)="active.emit(row.value)">
+							{{ row.value.active ? 'Retire' : 'Reactivate' }}
+						</ui5-button>
+					</ui5-table-cell>
+				}
+			</ui5-table-row>
+		}
+		@if (cursor()) {
+			<ui5-table-growing
+				slot="features"
+				mode="Button"
+				text="Load more values"
+				(ui5LoadMore)="more()"></ui5-table-growing>
+		}
+	</ui5-table>
+</ef-hcm-dynamic-page>
