@@ -1,0 +1,179 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Colleagues' },
+		midColumn: { role: 'region', name: 'Selected colleague' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Employee Directory"
+		summary="Current colleagues, organisation-visible information only"
+		[state]="state()"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Directory filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="directory-query">
+					Name, work email or worker number
+				</ui5-label>
+				<ui5-input
+					id="directory-query"
+					accessibleName="Search name, work email or worker number"
+					type="Search"
+					[value]="query()"
+					(input)="setQuery($event.target)"
+					(keydown.enter)="apply()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="directory-unit">
+					Organisation unit
+				</ui5-label>
+				<ef-hcm-directory-option-box
+					kind="units"
+					controlId="directory-unit"
+					label="Organisation unit"
+					[selected]="filters().unit"
+					(selectedChange)="setFilter('unit', $event)"></ef-hcm-directory-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="directory-department">
+					Department
+				</ui5-label>
+				<ef-hcm-directory-option-box
+					kind="departments"
+					controlId="directory-department"
+					label="Department"
+					[selected]="filters().department"
+					(selectedChange)="setFilter('department', $event)"></ef-hcm-directory-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="directory-location">
+					Location
+				</ui5-label>
+				<ef-hcm-directory-option-box
+					kind="locations"
+					controlId="directory-location"
+					label="Location"
+					[selected]="filters().location"
+					(selectedChange)="setFilter('location', $event)"></ef-hcm-directory-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="directory-designation">
+					Designation
+				</ui5-label>
+				<ef-hcm-directory-option-box
+					kind="designations"
+					controlId="directory-designation"
+					label="Designation"
+					[selected]="filters().designation"
+					(selectedChange)="setFilter('designation', $event)"></ef-hcm-directory-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button
+					[disabled]="busy()"
+					(click)="apply()">
+					Apply filters
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ef-hcm-view-settings
+			label="Colleague view settings"
+			[value]="sort()"
+			[fields]="sortFields"
+			[disabled]="busy()"
+			(sortChange)="sort.set($event)"></ef-hcm-view-settings>
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			accessibleName="Colleagues"
+			overflowMode="Popin"
+			[noDataText]="
+				filtered() ? 'No colleagues match this search' : 'No one is in the current workforce'
+			"
+			[loading]="busy()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="14rem">
+					Name
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="10rem"
+					popinText="Designation">
+					Designation
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="8rem"
+					popinText="Department">
+					Department
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="70"
+					minWidth="8rem"
+					popinText="Location">
+					Location
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="14rem"
+					popinText="Work email">
+					Work email
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (entry of items(); track entry.workerId) {
+				<ui5-table-row
+					[rowKey]="entry.workerId"
+					[interactive]="true"
+					[navigated]="entry.workerId === selectedId()">
+					<ui5-table-cell>
+						<ui5-avatar
+							size="XS"
+							[initials]="initials(entry)"
+							[accessibleName]="name(entry)"></ui5-avatar>
+						{{ name(entry) }}
+					</ui5-table-cell>
+					<ui5-table-cell>{{ entry.designation ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ entry.department ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ entry.location ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ entry.workEmail ?? '—' }}</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(entry.workerId)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more colleagues"
+					(ui5LoadMore)="more()"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@for (id of selectedId() ? [selectedId()!] : []; track id) {
+		<ef-hcm-directory-person
+			slot="midColumn"
+			[workerId]="id"
+			(opened)="open($event)"
+			(closed)="close()"></ef-hcm-directory-person>
+	}
+</ui5-flexible-column-layout>
