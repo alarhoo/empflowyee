@@ -58,15 +58,16 @@ test('role sorting uses view settings and permissions use native grouped rows', 
 		page.locator('ui5-form[hcmHeader] ui5-select').filter({ hasText: /ascending|descending/i }),
 	).toHaveCount(0)
 	await page.getByRole('button', { name: 'Role view settings', exact: true }).click()
-	const dialog = page.locator('ui5-view-settings-dialog')
+	const dialog = page.getByRole('dialog', { name: 'View Settings' })
 	await expect(dialog).toBeVisible()
-	await dialog.getByText('Descending', { exact: true }).click()
+	// Native rows in order: Ascending, Descending, then the declared sort fields.
+	await page.getByRole('radio', { name: 'Item Selection.' }).nth(1).click()
 	const response = page.waitForResponse(
 		/** Observe actual server sort parameters. */ (res) =>
 			res.url().includes('/access-control/roles?') &&
 			new URL(res.url()).searchParams.get('sort') === 'label:desc',
 	)
-	await dialog.getByRole('button', { name: 'OK', exact: true }).click()
+	await page.getByRole('button', { name: 'OK', exact: true }).click()
 	expect((await response).status()).toBe(200)
 	await page.getByRole('row').filter({ hasText: 'Manager' }).first().click()
 	const detail = page.locator('ef-hcm-role-detail')
