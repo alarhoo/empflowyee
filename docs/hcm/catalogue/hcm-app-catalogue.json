@@ -3638,12 +3638,18 @@
 			"runtime": "web",
 			"domain": "workforce-foundation",
 			"deliveryWave": "HCM-2",
-			"catalogueIds": ["tenant-administration"],
+			"catalogueIds": ["tenant-administration", "hr-specialist-operations"],
 			"placements": [
 				{
 					"spaceId": "tenant-administration",
 					"pageId": "admin-reference-data",
 					"sectionId": "admin-people-documents",
+					"display": "tiles"
+				},
+				{
+					"spaceId": "hr-operations",
+					"pageId": "hr-workforce",
+					"sectionId": "hr-workforce-service",
 					"display": "tiles"
 				}
 			],

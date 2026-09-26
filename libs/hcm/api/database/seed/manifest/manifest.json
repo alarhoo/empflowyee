@@ -109,6 +109,15 @@
 			"requiresMigrations": ["000006_access_audit_foundation.sql"],
 			"apply": "access.hcm2.1.apply.sql",
 			"reset": "access.hcm2.1.reset.sql"
+		},
+		{
+			"id": "access.discovery",
+			"domain": "access-control",
+			"version": 3,
+			"dependsOn": ["access.discovery@2"],
+			"requiresMigrations": ["000005_identity_access_spine.sql"],
+			"apply": "access.discovery.3.apply.sql",
+			"reset": "access.discovery.3.reset.sql"
 		}
 	]
 }
