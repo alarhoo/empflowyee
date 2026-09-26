@@ -4,6 +4,7 @@ import { HcmDomainError, invalidField } from '@empflowyee/hcm-runtime-contract'
 import { classifyConstraint } from '@empflowyee/hcm-api-database-kysely'
 import { organisationToday } from './business-date'
 import { KyselyWorkforceDirectory } from './workforce-directory'
+import { KyselyWorkforceProfile } from './workforce-profile'
 import {
 	WorkforcePortBinder,
 	type AssignmentFact,
@@ -20,6 +21,7 @@ import {
 	type WorkforceActor,
 	type WorkforceDirectoryPort,
 	type WorkforceFactsPort,
+	type WorkforceProfilePort,
 	type WorkforceReadPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
@@ -553,7 +555,12 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 	bind(
 		transaction: unknown,
 		actor: WorkforceActor,
-	): { facts: WorkforceFactsPort; reads: WorkforceReadPort; directory: WorkforceDirectoryPort } {
+	): {
+		facts: WorkforceFactsPort
+		reads: WorkforceReadPort
+		directory: WorkforceDirectoryPort
+		profile: WorkforceProfilePort
+	} {
 		const scope: WorkforceScope = {
 			executor: transaction as Kysely<unknown>,
 			tenantId: actor.tenantId,
@@ -563,6 +570,7 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 			facts: new KyselyWorkforceFacts(scope),
 			reads: new KyselyWorkforceReads(scope),
 			directory: new KyselyWorkforceDirectory(scope),
+			profile: new KyselyWorkforceProfile(scope),
 		}
 	}
 }

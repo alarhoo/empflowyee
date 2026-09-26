@@ -5,8 +5,10 @@ import type {
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type {
 	WorkforceDirectoryPort,
+	WorkforceProfilePort,
 	WorkforceReadPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
+import type { SelfServiceRepository } from './my-profile'
 import type { ProfilePolicyRepository } from './profile-configuration'
 import type { ProfileFieldVisibilityPort } from './profile-visibility-port'
 import type { TeamScopeResolver } from './team-scope'
@@ -22,6 +24,10 @@ export interface EmployeeWork {
 	reads: WorkforceReadPort
 	/** Current-workforce projections for the directories. */
 	directory: WorkforceDirectoryPort
+	/** The worker's own facts and the self-service person commands. */
+	profile: WorkforceProfilePort
+	/** Employee-owned custom values and visibility preferences. */
+	selfService: SelfServiceRepository
 	receipts: CommandReceiptStore
 	audit: AppendAudit
 	/** Today's business date in the organisation time zone. */

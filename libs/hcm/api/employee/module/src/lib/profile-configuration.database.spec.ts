@@ -1,6 +1,11 @@
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
-import type { ProfileFieldDetailDto, ProfileFieldList } from '@empflowyee/hcm-employee-contract'
+import type {
+	CustomFieldDefinitionDto,
+	CustomFieldOptionDto,
+	ProfileFieldDetailDto,
+	ProfileFieldList,
+} from '@empflowyee/hcm-employee-contract'
 import { HcmEmployeeModule } from './hcm-api-employee-module'
 import { startHcmTestApi, type HcmTestApi } from './employee-test-harness'
 

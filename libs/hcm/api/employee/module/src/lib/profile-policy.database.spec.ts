@@ -142,6 +142,9 @@ describe('employee profile policy foundation', /** Migration 000022 and employee
 		).toEqual([
 			'custom_field_definition:INSERT',
 			'custom_field_option:INSERT',
+			'custom_field_value:INSERT',
+			'custom_field_value_option:DELETE',
+			'custom_field_value_option:INSERT',
 			'employee_command_receipt:INSERT',
 			'profile_field_tenant_policy:INSERT',
 			'profile_visibility_preference:INSERT',
@@ -259,10 +262,15 @@ describe('employee profile policy foundation', /** Migration 000022 and employee
 				sql`INSERT INTO hcm.custom_field_definition(tenant_id,id,code,name,owner_scope,data_type,sensitivity,section_code,is_searchable_when_visible) VALUES (${TENANT},'cf-x','SECRET','Secret','Person','Text','Personal','Other',true)`,
 			),
 		).toBe('23514')
-		// Values are written by later apps, so runtime cannot insert them yet.
+		// My Profile (migration 000023) writes values; the deferred shape rules still apply to runtime.
+		/** A runtime value insert into one typed column. */
+		const value = (column: string, literal: string) =>
+			sql`INSERT INTO hcm.custom_field_value(tenant_id,id,custom_field_id,worker_id,${sql.raw(column)},effective_from) VALUES (${TENANT},'v1','cf-shoe',${P + 'worker/jim'},${sql.raw(literal)},'2026-01-01')`
+		expect(await sqlState([define, value('integer_value', '10')], true)).toBe('ok')
+		expect(await sqlState([define, value('text_value', "'ten'")], true)).toBe('23514')
 		expect(
 			await sqlState(
-				sql`INSERT INTO hcm.custom_field_value(tenant_id,id,custom_field_id,worker_id,integer_value,effective_from) VALUES (${TENANT},'v1','cf-shoe',${P + 'worker/jim'},10,'2026-01-01')`,
+				sql`UPDATE hcm.custom_field_value SET custom_field_id='cf-badge' WHERE tenant_id=${TENANT}`,
 			),
 		).toBe('42501')
 		// The migrator arranges values to prove the deferred shape rules.
