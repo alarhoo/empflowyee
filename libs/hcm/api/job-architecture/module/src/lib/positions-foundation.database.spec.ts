@@ -84,8 +84,8 @@ const draftPosition = (grade = 'dunder-mifflin/job-grade/v1/G3', fte = 1, headco
 /** A submitted change request on the new position with a ready preview and an approval case. */
 const pendingCase = [
 	...draftPosition(),
-	sql`INSERT INTO hcm.position_change_request(tenant_id,id,position_id,request_type,status,proposed_position_version_id,encrypted_reason,reason_key_version,requested_by_account_id)
-		VALUES (${TENANT},'r1','np','Create','PendingApproval','np-v1','\\x00'::bytea,1,${TOBY})`,
+	sql`INSERT INTO hcm.position_change_request(tenant_id,id,position_id,request_type,status,proposed_position_version_id,proposed_name,encrypted_reason,reason_key_version,requested_by_account_id)
+		VALUES (${TENANT},'r1','np','Create','PendingApproval','np-v1','New position','\\x00'::bytea,1,${TOBY})`,
 	sql`INSERT INTO hcm.position_impact_preview(tenant_id,id,position_change_request_id,preview_revision,status,active_assignment_count,assigned_full_time_equivalent,occupancy_complete,child_position_count,downstream_reference_count,source_version_digest,expires_at)
 		VALUES (${TENANT},'pv1','r1',1,'Ready',0,0,true,0,0,repeat('a',64),now()+interval '15 minutes')`,
 	sql`INSERT INTO hcm.position_approval_case(tenant_id,id,position_change_request_id,subject_version,preview_id,policy_snapshot_digest)

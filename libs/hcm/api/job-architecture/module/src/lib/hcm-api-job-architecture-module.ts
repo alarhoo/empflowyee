@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
+import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
@@ -7,8 +8,12 @@ import {
 	JobArchitectureUnitOfWork,
 	JobCatalogue,
 	PositionReadPortBinder,
+	Positions,
 } from '@empflowyee/hcm-api-job-architecture-application'
-import { JobCatalogueController } from '@empflowyee/hcm-api-job-architecture-transport'
+import {
+	JobCatalogueController,
+	PositionsController,
+} from '@empflowyee/hcm-api-job-architecture-transport'
 import { WorkforcePortBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
 	KyselyJobArchitectureUnitOfWork,
@@ -18,21 +23,28 @@ import {
 /** Job architecture composition over the shared access transaction boundary. */
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [JobCatalogueController],
+	controllers: [JobCatalogueController, PositionsController],
 	providers: [
 		{
 			provide: JobArchitectureUnitOfWork,
-			inject: [HcmAccessDatabase, WorkforcePortBinder],
+			inject: [HcmAccessDatabase, WorkforcePortBinder, FieldCipher],
 			useFactory: /** Bind job architecture adapters to the authorized transaction boundary. */ (
 				database: HcmAccessDatabase | null,
 				workforce: WorkforcePortBinder,
-			) => new KyselyJobArchitectureUnitOfWork(database, workforce),
+				cipher: FieldCipher,
+			) => new KyselyJobArchitectureUnitOfWork(database, workforce, cipher),
 		},
 		{
 			provide: JobCatalogue,
 			inject: [JobArchitectureUnitOfWork],
 			useFactory: /** Compose the Job Catalogue use cases. */ (unit: JobArchitectureUnitOfWork) =>
 				new JobCatalogue(unit),
+		},
+		{
+			provide: Positions,
+			inject: [JobArchitectureUnitOfWork],
+			useFactory: /** Compose the Positions use cases. */ (unit: JobArchitectureUnitOfWork) =>
+				new Positions(unit),
 		},
 		{
 			provide: PositionReadPortBinder,
