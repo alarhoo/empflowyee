@@ -1,0 +1,128 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="resetting() ? 'profile-policy-reason' : 'profile-policy-visibility'"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (resetting()) {
+		<ui5-message-strip
+			design="Critical"
+			[hideCloseButton]="true">
+			The tenant narrowing ends and the product default applies to the next read of every profile
+			screen.
+		</ui5-message-strip>
+	} @else {
+		<ui5-message-strip [hideCloseButton]="true">
+			You can only narrow the product baseline. Wider options are not offered.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (!resetting()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-policy-visibility"
+					[required]="true">
+					Visible to
+				</ui5-label>
+				<ui5-select
+					id="profile-policy-visibility"
+					accessibleName="Visible to"
+					[formField]="fields.visibility"
+					[disabled]="draft.saving()">
+					@for (item of visibilities(); track item) {
+						<ui5-option [value]="item">{{ visibilityLabels[item] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-policy-edit"
+					[required]="true">
+					Employee edits
+				</ui5-label>
+				<ui5-select
+					id="profile-policy-edit"
+					accessibleName="Employee edits"
+					[formField]="fields.selfEditMode"
+					[disabled]="draft.saving()">
+					@for (item of editModes(); track item) {
+						<ui5-option [value]="item">{{ editModeLabels[item] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-policy-requiredness"
+					[required]="true">
+					Requiredness at activation
+				</ui5-label>
+				<ui5-select
+					id="profile-policy-requiredness"
+					accessibleName="Requiredness at activation"
+					[formField]="fields.requiredness"
+					[disabled]="draft.saving()">
+					@for (item of requirednessOptions(); track item) {
+						<ui5-option [value]="item">{{ requirednessLabels[item] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Worker preference</ui5-label>
+				<ui5-checkbox
+					text="Employees may narrow who sees this field"
+					accessibleName="Employees may narrow who sees this field"
+					[checked]="allowPreference()"
+					[disabled]="draft.saving() || !preferenceAllowed()"
+					(ui5Change)="setPreference($event.target)"></ui5-checkbox>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="profile-policy-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="profile-policy-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			[design]="resetting() ? 'Negative' : 'Emphasized'"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : resetting() ? 'Reset' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

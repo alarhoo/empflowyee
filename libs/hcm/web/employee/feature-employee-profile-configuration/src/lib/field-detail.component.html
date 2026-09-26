@@ -1,0 +1,263 @@
+<ef-hcm-object-page
+	[title]="field()?.name || 'Profile field'"
+	[summary]="
+		field() ? (field()!.custom ? 'Custom field · ' : 'Standard field · ') + field()!.code : ''
+	"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (field(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="current.active ? 'positive' : 'neutral'"
+			[label]="current.active ? 'Active' : 'Retired'"></span>
+	}
+	@if (field(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			@if (!current.active) {
+				<ui5-message-strip [hideCloseButton]="true">
+					This field is retired. It is not offered for new values; existing values stay readable.
+				</ui5-message-strip>
+			}
+			<ui5-form
+				accessibleName="Field overview"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Code</ui5-label>
+					<ui5-text>{{ current.code }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Section</ui5-label>
+					<ui5-text>{{ current.section }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Sensitivity</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status()"
+						[label]="sensitivities[current.sensitivity]"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Widest possible audience</ui5-label>
+					<ui5-text>{{ visibility[current.ceiling] }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Searchable when visible</ui5-label>
+					<ui5-checkbox
+						accessibleName="Searchable when visible"
+						[displayOnly]="true"
+						[checked]="current.searchable"></ui5-checkbox>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Description</ui5-label>
+					<ui5-text>{{ current.description || '—' }}</ui5-text>
+				</ui5-form-item>
+				@if (current.customField; as custom) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Belongs to</ui5-label>
+						<ui5-text>{{ ownerScopes[custom.ownerScope] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Data type</ui5-label>
+						<ui5-text>{{ dataTypes[custom.dataType] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Values stored</ui5-label>
+						<ui5-checkbox
+							accessibleName="Values stored"
+							[displayOnly]="true"
+							[checked]="current.hasValues"></ui5-checkbox>
+					</ui5-form-item>
+				}
+			</ui5-form>
+			@if (current.productDefault; as product) {
+				<ui5-form
+					accessibleName="Product default"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2"
+					headerText="Product default">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Requiredness at activation</ui5-label>
+						<ui5-text>{{ requiredness[product.requiredness] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Visible to</ui5-label>
+						<ui5-text>{{ visibility[product.visibility] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employee edits</ui5-label>
+						<ui5-text>{{ editModes[product.selfEditMode] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Worker preference</ui5-label>
+						<ui5-checkbox
+							accessibleName="Product allows a worker preference"
+							[displayOnly]="true"
+							[checked]="product.allowWorkerPreference"></ui5-checkbox>
+					</ui5-form-item>
+				</ui5-form>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="tenant-policy"
+			label="Tenant policy">
+			@if (current.tenantPolicy; as policy) {
+				<ui5-form
+					accessibleName="Tenant policy"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Requiredness at activation</ui5-label>
+						<ui5-text>{{ requiredness[policy.requiredness] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Visible to</ui5-label>
+						<ui5-text>{{ visibility[policy.visibility] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employee edits</ui5-label>
+						<ui5-text>{{ editModes[policy.selfEditMode] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Worker preference</ui5-label>
+						<ui5-checkbox
+							accessibleName="Tenant allows a worker preference"
+							[displayOnly]="true"
+							[checked]="policy.allowWorkerPreference"></ui5-checkbox>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">In force since</ui5-label>
+						<ui5-text>{{ policy.effectiveFromAt | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			} @else {
+				<ui5-text>
+					{{
+						current.custom
+							? 'No tenant policy yet. The field is visible up to its widest audience and not editable by employees.'
+							: 'No tenant narrowing. The product default applies.'
+					}}
+				</ui5-text>
+			}
+		</ng-template>
+		@if (selectField() && current.customField; as custom) {
+			<ng-template
+				efHcmObjectSection="options"
+				label="Options">
+				<ui5-table
+					accessibleName="Options"
+					overflowMode="Popin"
+					noDataText="This field has no options">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="10rem">
+							Option
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="20"
+							minWidth="5rem"
+							popinText="Order">
+							Order
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="50"
+							minWidth="7rem"
+							popinText="Status">
+							Status
+						</ui5-table-header-cell>
+						@if (canManage()) {
+							<ui5-table-header-cell
+								[importance]="80"
+								minWidth="12rem"
+								popinText="Actions">
+								Actions
+							</ui5-table-header-cell>
+						}
+					</ui5-table-header-row>
+					@for (option of custom.options; track option.id) {
+						<ui5-table-row [rowKey]="option.id">
+							<ui5-table-cell>{{ option.name }} ({{ option.code }})</ui5-table-cell>
+							<ui5-table-cell>{{ option.sortOrder }}</ui5-table-cell>
+							<ui5-table-cell>
+								<span
+									fd-object-status
+									[inverted]="true"
+									[status]="option.active ? 'positive' : 'neutral'"
+									[label]="option.active ? 'Active' : 'Retired'"></span>
+							</ui5-table-cell>
+							@if (canManage()) {
+								<ui5-table-cell>
+									<ui5-button
+										design="Transparent"
+										[accessibleName]="'Edit option ' + option.name"
+										(click)="optionAction('edit-option', option)">
+										Edit
+									</ui5-button>
+									<ui5-button
+										design="Transparent"
+										[accessibleName]="
+											(option.active ? 'Retire option ' : 'Reactivate option ') + option.name
+										"
+										(click)="
+											optionAction(option.active ? 'retire-option' : 'reactivate-option', option)
+										">
+										{{ option.active ? 'Retire' : 'Reactivate' }}
+									</ui5-button>
+								</ui5-table-cell>
+							}
+						</ui5-table-row>
+					}
+				</ui5-table>
+			</ng-template>
+		}
+		<ng-template
+			efHcmObjectSection="effective"
+			label="Effective visibility">
+			<ui5-table
+				accessibleName="Effective visibility by viewer"
+				overflowMode="Popin">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Viewer
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="7rem"
+						popinText="Sees the field">
+						Sees the field
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Edits">
+						Edits
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (entry of current.preview; track entry.relation) {
+					<ui5-table-row [rowKey]="entry.relation">
+						<ui5-table-cell>{{ relations[entry.relation] }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-checkbox
+								[accessibleName]="relations[entry.relation] + ' sees the field'"
+								[displayOnly]="true"
+								[checked]="entry.visible"></ui5-checkbox>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ entry.editMode ? editModes[entry.editMode] : '—' }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

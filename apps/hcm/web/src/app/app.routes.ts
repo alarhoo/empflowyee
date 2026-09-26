@@ -193,6 +193,16 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/employee-profile-configuration',
+		data: { catalogId: 'EMPLOYEE_PROFILE_CONFIGURATION' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the employee-owned profile policy FCL and custom field route. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-employee-profile-configuration').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.EMPLOYEE_PROFILE_CONFIGURATION_ROUTES,
+			),
+	},
+	{
 		path: 'workforce-foundation/lookup-values',
 		data: { catalogId: 'LOOKUP_VALUES' },
 		canMatch: [hcmRouteAccess],

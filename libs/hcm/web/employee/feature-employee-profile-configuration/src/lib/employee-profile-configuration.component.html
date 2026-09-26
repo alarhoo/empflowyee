@@ -1,0 +1,199 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Profile field catalogue' },
+		midColumn: { role: 'region', name: 'Selected profile field' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Employee Profile Configuration"
+		summary="Narrow the product field policy and define custom fields"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Profile field filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Fields</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Field scope"
+					(ui5SelectionChange)="chooseScope($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-scope="standard"
+						[selected]="scope() === 'standard'">
+						Standard
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-scope="custom"
+						[selected]="scope() === 'custom'">
+						Custom
+					</ui5-segmented-button-item>
+				</ui5-segmented-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-field-query">
+					Code or name
+				</ui5-label>
+				<ui5-input
+					id="profile-field-query"
+					accessibleName="Search code or name"
+					type="Search"
+					[formField]="filterForm.q"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-field-section">
+					Section
+				</ui5-label>
+				<ui5-select
+					id="profile-field-section"
+					accessibleName="Section"
+					[formField]="filterForm.section">
+					<ui5-option value="">All sections</ui5-option>
+					@for (section of sections; track section) {
+						<ui5-option [value]="section">{{ section }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="profile-field-sensitivity">
+					Sensitivity
+				</ui5-label>
+				<ui5-select
+					id="profile-field-sensitivity"
+					accessibleName="Sensitivity"
+					[formField]="filterForm.sensitivity">
+					<ui5-option value="">All sensitivities</ui5-option>
+					@for (sensitivity of sensitivities; track sensitivity) {
+						<ui5-option [value]="sensitivity">{{ sensitivityLabels[sensitivity] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[accessibleName]="scope() === 'custom' ? 'Custom fields' : 'Standard fields'"
+			overflowMode="Popin"
+			[noDataText]="
+				scope() === 'custom' && !filters().q && !filters().section && !filters().sensitivity
+					? 'No custom fields have been defined yet'
+					: 'No fields match these filters'
+			">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Field
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="7rem"
+					popinText="Section">
+					Section
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="8rem"
+					popinText="Sensitivity">
+					Sensitivity
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="10rem"
+					popinText="Visible to">
+					Visible to
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="20"
+					minWidth="10rem"
+					popinText="Employee edits">
+					Employee edits
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="30"
+					minWidth="7rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of rows(); track row.field.ref) {
+				<ui5-table-row
+					[rowKey]="row.field.ref"
+					[interactive]="true"
+					[navigated]="row.field.ref === selectedRef()">
+					<ui5-table-cell>{{ row.field.name }} ({{ row.field.code }})</ui5-table-cell>
+					<ui5-table-cell>{{ row.field.section }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="row.status"
+							[label]="row.sensitivity"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						{{ row.visibility }}{{ row.narrowed ? ' (narrowed)' : '' }}
+					</ui5-table-cell>
+					<ui5-table-cell>{{ row.editMode }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="row.field.active ? 'positive' : 'neutral'"
+							[label]="row.field.active ? 'Active' : 'Retired'"></span>
+					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(row.field.ref)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@for (ref of selectedRef() ? [selectedRef()!] : []; track ref) {
+		<ef-hcm-profile-field-detail
+			slot="midColumn"
+			[fieldRef]="ref"
+			[refresh]="refresh()"
+			[canManage]="canManage()"
+			(commanded)="command($event)"
+			(closed)="close()"></ef-hcm-profile-field-detail>
+	}
+</ui5-flexible-column-layout>
+@if (policyDialog(); as request) {
+	<ef-hcm-profile-policy-dialog
+		[request]="request"
+		(saved)="saved($event)"
+		(closed)="policyDialog.set(null)"></ef-hcm-profile-policy-dialog>
+}
+@if (fieldDialog(); as request) {
+	<ef-hcm-custom-field-dialog
+		[request]="request"
+		(saved)="saved($event)"
+		(closed)="fieldDialog.set(null)"></ef-hcm-custom-field-dialog>
+}
+@if (optionDialog(); as request) {
+	<ef-hcm-custom-field-option-dialog
+		[request]="request"
+		(saved)="saved($event)"
+		(closed)="optionDialog.set(null)"></ef-hcm-custom-field-option-dialog>
+}

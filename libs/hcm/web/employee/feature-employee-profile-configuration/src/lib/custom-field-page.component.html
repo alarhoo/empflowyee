@@ -1,0 +1,237 @@
+<ef-hcm-dynamic-page
+	title="New custom field"
+	summary="Owner, data type and sensitivity cannot change after creation"
+	[state]="state()"
+	[showFooter]="true">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="New custom field fields"
+		accessibleMode="Edit"
+		layout="S1 M1 L2 XL2"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-code"
+				[required]="true">
+				Code
+			</ui5-label>
+			<ui5-input
+				id="new-field-code"
+				accessibleName="Code"
+				[formField]="fields.code"
+				[disabled]="draft.saving()"
+				[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">
+					Use 2–40 capital letters, digits or underscores, starting with a letter.
+				</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-name"
+				[required]="true">
+				Name
+			</ui5-label>
+			<ui5-input
+				id="new-field-name"
+				accessibleName="Name"
+				[formField]="fields.name"
+				[disabled]="draft.saving()"
+				[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a name of 1–100 characters.</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-owner"
+				[required]="true">
+				Belongs to
+			</ui5-label>
+			<ui5-select
+				id="new-field-owner"
+				accessibleName="Belongs to"
+				[formField]="fields.ownerScope"
+				[disabled]="draft.saving()">
+				@for (item of ownerScopes; track item) {
+					<ui5-option [value]="item">{{ ownerScopeLabels[item] }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-type"
+				[required]="true">
+				Data type
+			</ui5-label>
+			<ui5-select
+				id="new-field-type"
+				accessibleName="Data type"
+				[formField]="fields.dataType"
+				[disabled]="draft.saving()">
+				@for (item of dataTypes; track item) {
+					<ui5-option [value]="item">{{ dataTypeLabels[item] }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-sensitivity"
+				[required]="true">
+				Sensitivity
+			</ui5-label>
+			<ui5-select
+				id="new-field-sensitivity"
+				accessibleName="Sensitivity"
+				[formField]="fields.sensitivity"
+				[disabled]="draft.saving()">
+				@for (item of sensitivities; track item) {
+					<ui5-option [value]="item">{{ sensitivityLabels[item] }}</ui5-option>
+				}
+			</ui5-select>
+			<ui5-text>Widest possible audience: {{ ceiling() }}.</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-section">
+				Section
+			</ui5-label>
+			<ui5-select
+				id="new-field-section"
+				accessibleName="Section"
+				[formField]="fields.section"
+				[disabled]="draft.saving()">
+				@for (item of sections; track item) {
+					<ui5-option [value]="item">{{ item }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Searchable</ui5-label>
+			<ui5-checkbox
+				text="Searchable in the directory when visible"
+				accessibleName="Searchable in the directory when visible"
+				[checked]="directorySafe() && searchable()"
+				[disabled]="draft.saving() || !directorySafe()"
+				(ui5Change)="setSearchable($event.target)"></ui5-checkbox>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-description">
+				Description
+			</ui5-label>
+			<ui5-textarea
+				id="new-field-description"
+				accessibleName="Description"
+				[rows]="3"
+				[formField]="fields.description"
+				[disabled]="draft.saving()"
+				[valueState]="fields.description().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Use at most 500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	@if (select()) {
+		<ui5-form
+			accessibleName="Options"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2"
+			labelSpan="S12 M12 L12 XL12"
+			headerText="Options">
+			@if (optionError()) {
+				<ui5-form-item>
+					<ui5-message-strip
+						design="Negative"
+						[hideCloseButton]="true">
+						{{ optionError() }}
+					</ui5-message-strip>
+				</ui5-form-item>
+			}
+			@for (option of options(); track option.key; let index = $index) {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Option {{ index + 1 }}</ui5-label>
+					<ui5-input
+						[accessibleName]="'Option ' + (index + 1) + ' code'"
+						placeholder="Code"
+						[value]="option.code"
+						[disabled]="draft.saving()"
+						(input)="setOption(option.key, 'code', $event.target)"></ui5-input>
+					<ui5-input
+						[accessibleName]="'Option ' + (index + 1) + ' name'"
+						placeholder="Name"
+						[value]="option.name"
+						[disabled]="draft.saving()"
+						(input)="setOption(option.key, 'name', $event.target)"></ui5-input>
+					<ui5-button
+						design="Transparent"
+						[accessibleName]="'Remove option ' + (index + 1)"
+						[disabled]="draft.saving()"
+						(click)="removeOption(option.key)">
+						Remove
+					</ui5-button>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label slot="labelContent">More options</ui5-label>
+				<ui5-button
+					[disabled]="draft.saving()"
+					(click)="addOption()">
+					Add option
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+	}
+	<ui5-form
+		accessibleName="Change reason"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="new-field-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="new-field-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar hcmFooter>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Create field' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="back()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
