@@ -46,8 +46,7 @@ import {
 	type UnitDetailDto,
 } from '@empflowyee/hcm-workforce-foundation-contract'
 import { StructureOptionBox, type OptionRef } from './option-box.component'
-import { StructureDiscardDialog } from './discard-dialog.component'
-import { StructureDraft } from './structure-draft'
+import { HcmDiscardDialog, HcmDraft } from '@empflowyee/hcm-web-ux-forms'
 import {
 	MANAGE_PERMISSION,
 	MONTHS,
@@ -132,7 +131,7 @@ const COORDINATE = /^-?\d{1,3}(\.\d{1,6})?$/
 		HcmDynamicPage,
 		HcmDatePipe,
 		StructureOptionBox,
-		StructureDiscardDialog,
+		HcmDiscardDialog,
 	],
 	templateUrl: './structure-edit-page.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -200,7 +199,7 @@ export class StructureEditPageComponent implements OnDestroy {
 			maxLength(path.reason, 500)
 		},
 	)
-	readonly draft = new StructureDraft(
+	readonly draft = new HcmDraft(
 		/** Track every editable value. */ () => ({
 			text: this.text(),
 			refs: Object.fromEntries(

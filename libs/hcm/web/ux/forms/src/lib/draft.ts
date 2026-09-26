@@ -1,10 +1,10 @@
 import { signal } from '@angular/core'
 
 /**
- * Draft lifecycle shared by structure dialogs and routed editors: dirty tracking against the loaded
+ * Draft lifecycle shared by business dialogs and routed editors: dirty tracking against the loaded
  * baseline, an explicit discard decision, and one idempotency key per distinct submitted command.
  */
-export class StructureDraft {
+export class HcmDraft {
 	readonly confirmOpen = signal(false)
 	readonly saving = signal(false)
 	readonly error = signal('')

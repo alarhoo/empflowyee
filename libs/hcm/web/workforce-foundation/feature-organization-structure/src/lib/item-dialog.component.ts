@@ -38,8 +38,7 @@ import type {
 	UnitTypeDto,
 } from '@empflowyee/hcm-workforce-foundation-contract'
 import { StructureOptionBox, type OptionRef } from './option-box.component'
-import { StructureDiscardDialog } from './discard-dialog.component'
-import { StructureDraft } from './structure-draft'
+import { HcmDiscardDialog, HcmDraft } from '@empflowyee/hcm-web-ux-forms'
 import type { StructureAreaInfo } from './structure-areas'
 
 export type DialogArea = Extract<StructureArea, 'unit-types' | 'departments' | 'designations'>
@@ -68,7 +67,7 @@ const CODE = /^[A-Z][A-Z0-9_]{1,39}$/
 		Text,
 		MessageStrip,
 		StructureOptionBox,
-		StructureDiscardDialog,
+		HcmDiscardDialog,
 	],
 	templateUrl: './item-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -118,7 +117,7 @@ export class StructureItemDialog implements OnInit, OnDestroy {
 			maxLength(path.reason, 500)
 		},
 	)
-	readonly draft = new StructureDraft(
+	readonly draft = new HcmDraft(
 		/** Every editable value participates in dirty tracking. */ () => ({
 			model: this.model(),
 			parent: this.parent()?.id ?? null,
