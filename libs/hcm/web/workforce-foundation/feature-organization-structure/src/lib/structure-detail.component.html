@@ -1,0 +1,373 @@
+<ef-hcm-object-page
+	column="end"
+	[title]="item()?.name || area().singular"
+	[summary]="area().singular + (item() && $any(item()).code ? ' · ' + $any(item()).code : '')"
+	[state]="state()"
+	[readOnly]="!canManage()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	<span
+		hcmHeader
+		fd-object-status
+		[inverted]="true"
+		[status]="active() ? 'positive' : 'neutral'"
+		[label]="
+			active()
+				? is('unit-types')
+					? 'Enabled'
+					: 'Active'
+				: is('unit-types')
+					? 'Disabled'
+					: 'Inactive'
+		"></span>
+	<ng-template
+		efHcmObjectSection="overview"
+		label="Overview">
+		@if (legalEntity(); as entity) {
+			<ui5-form
+				accessibleName="Legal entity details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Registered name</ui5-label>
+					<ui5-text>{{ entity.registeredName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Entity type</ui5-label>
+					<ui5-text>{{ label(entity.entityType) }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Country</ui5-label>
+					<ui5-text>{{ entity.country.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Reporting currency</ui5-label>
+					<ui5-text>
+						{{ entity.reportingCurrency.name }} ({{ entity.reportingCurrency.code }})
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Registered location</ui5-label>
+					<ui5-text>{{ entity.registeredLocation?.name ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Financial year starts</ui5-label>
+					<ui5-text>
+						{{ yearStart(entity.financialYearStartMonth, entity.financialYearStartDay) }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Registration number</ui5-label>
+					<ui5-text>{{ entity.registrationNumber || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Tax identification number</ui5-label>
+					<ui5-text>{{ entity.taxIdentificationNumber || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Tax deduction account number</ui5-label>
+					<ui5-text>{{ entity.taxDeductionAccountNumber || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Social security employer code</ui5-label>
+					<ui5-text>{{ entity.socialSecurityEmployerCode || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">State insurance employer code</ui5-label>
+					<ui5-text>{{ entity.stateInsuranceEmployerCode || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Incorporated on</ui5-label>
+					<ui5-text>{{ entity.incorporatedOn | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Operations started on</ui5-label>
+					<ui5-text>{{ entity.operationsStartedOn | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Operations closed on</ui5-label>
+					<ui5-text>{{ entity.operationsClosedOn | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		}
+		@if (unitType(); as type) {
+			<ui5-form
+				accessibleName="Unit type details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Plural name</ui5-label>
+					<ui5-text>{{ type.pluralName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Parent type</ui5-label>
+					<ui5-text>{{ type.parentType?.name ?? 'None (top level)' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Hierarchy level</ui5-label>
+					<ui5-text>{{ type.hierarchyLevel }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Display order</ui5-label>
+					<ui5-text>{{ type.sortOrder }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Legal entity level</ui5-label>
+					<ui5-checkbox
+						accessibleName="Legal entity level"
+						[displayOnly]="true"
+						[checked]="type.legalEntityBearing"></ui5-checkbox>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Several units per parent</ui5-label>
+					<ui5-checkbox
+						accessibleName="Several units per parent"
+						[displayOnly]="true"
+						[checked]="type.allowMultiplePerParent"></ui5-checkbox>
+				</ui5-form-item>
+			</ui5-form>
+		}
+		@if (unit(); as current) {
+			@if (!current.active) {
+				<ui5-message-strip [hideCloseButton]="true">
+					This unit is retired{{
+						current.supersededBy ? ' and succeeded by ' + current.supersededBy.name : ''
+					}}.
+				</ui5-message-strip>
+			}
+			<ui5-form
+				accessibleName="Unit details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Unit type</ui5-label>
+					<ui5-text>{{ current.unitType.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Parent unit</ui5-label>
+					<ui5-text>{{ current.parent?.name ?? 'None (top level)' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Legal entity</ui5-label>
+					<ui5-text>
+						{{ current.legalEntity?.name ?? '—'
+						}}{{ current.legalEntityInherited ? ' (inherited)' : '' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective from</ui5-label>
+					<ui5-text>{{ current.effectiveFrom | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective to</ui5-label>
+					<ui5-text>
+						{{ current.effectiveTo ? (current.effectiveTo | hcmDate: 'date') : 'Open' }}
+					</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		}
+		@if (department(); as dept) {
+			<ui5-form
+				accessibleName="Department details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Parent department</ui5-label>
+					<ui5-text>{{ dept.parent?.name ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Head</ui5-label>
+					<ui5-text>
+						{{
+							dept.headWorker
+								? dept.headWorker.displayName + ' (' + dept.headWorker.workerNumber + ')'
+								: '—'
+						}}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Cost centre</ui5-label>
+					<ui5-text>{{ dept.costCenterCode || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Target headcount</ui5-label>
+					<ui5-text>{{ dept.targetHeadcount ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Display order</ui5-label>
+					<ui5-text>{{ dept.sortOrder }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Description</ui5-label>
+					<ui5-text>{{ dept.description || '—' }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		}
+		@if (designation(); as title) {
+			<ui5-message-strip [hideCloseButton]="true">
+				A designation is a title only. It carries no grade, band or authorization meaning.
+			</ui5-message-strip>
+			<ui5-form
+				accessibleName="Designation details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Parent designation</ui5-label>
+					<ui5-text>{{ title.parent?.name ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Display order</ui5-label>
+					<ui5-text>{{ title.sortOrder }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Description</ui5-label>
+					<ui5-text>{{ title.description || '—' }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		}
+		@if (location(); as place) {
+			<ui5-form
+				accessibleName="Location details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Location type</ui5-label>
+					<ui5-text>{{ label(place.locationType) }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Owning unit</ui5-label>
+					<ui5-text>{{ place.owningUnit.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Address</ui5-label>
+					<ui5-text>
+						{{ address(place) }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Country</ui5-label>
+					<ui5-text>{{ place.country.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Time zone</ui5-label>
+					<ui5-text>{{ place.timeZone }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Virtual location</ui5-label>
+					<ui5-checkbox
+						accessibleName="Virtual location"
+						[displayOnly]="true"
+						[checked]="place.virtual"></ui5-checkbox>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Coordinates</ui5-label>
+					<ui5-text>
+						{{ place.latitude === null ? '—' : place.latitude + ', ' + place.longitude }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Geofence radius</ui5-label>
+					<ui5-text>
+						{{ place.geofenceRadiusMeters === null ? '—' : place.geofenceRadiusMeters + ' m' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Contact phone</ui5-label>
+					@if (place.contactPhone) {
+						<ui5-link [href]="'tel:' + place.contactPhone">{{ place.contactPhone }}</ui5-link>
+					} @else {
+						<ui5-text>—</ui5-text>
+					}
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Contact email</ui5-label>
+					@if (place.contactEmail) {
+						<ui5-link [href]="'mailto:' + place.contactEmail">{{ place.contactEmail }}</ui5-link>
+					} @else {
+						<ui5-text>—</ui5-text>
+					}
+				</ui5-form-item>
+			</ui5-form>
+		}
+	</ng-template>
+	@if (unit()) {
+		<ng-template
+			efHcmObjectSection="versions"
+			label="Versions">
+			@if (unit(); as current) {
+				<ui5-timeline accessibleName="Unit versions">
+					@for (version of current.versions; track version.id) {
+						<ui5-timeline-item
+							icon="history"
+							[titleText]="version.name"
+							[subtitleText]="
+								(version.effectiveFrom | hcmDate: 'date') +
+								' – ' +
+								(version.effectiveTo ? (version.effectiveTo | hcmDate: 'date') : 'open')
+							">
+							<ui5-form
+								[accessibleName]="'Version from ' + version.effectiveFrom"
+								accessibleMode="Display"
+								layout="S1 M1 L1 XL1">
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Unit type</ui5-label>
+									<ui5-text>{{ version.unitType.name }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Parent unit</ui5-label>
+									<ui5-text>{{ version.parent?.name ?? 'None (top level)' }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Legal entity</ui5-label>
+									<ui5-text>{{ version.legalEntity?.name ?? '—' }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Primary location</ui5-label>
+									<ui5-text>{{ version.primaryLocation?.name ?? '—' }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Cost centre</ui5-label>
+									<ui5-text>{{ version.costCenterCode || '—' }}</ui5-text>
+								</ui5-form-item>
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Head</ui5-label>
+									<ui5-text>{{ version.headWorker?.displayName ?? '—' }}</ui5-text>
+								</ui5-form-item>
+								@if (version.description) {
+									<ui5-form-item>
+										<ui5-label slot="labelContent">Description</ui5-label>
+										<ui5-text>{{ version.description }}</ui5-text>
+									</ui5-form-item>
+								}
+							</ui5-form>
+						</ui5-timeline-item>
+					}
+				</ui5-timeline>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="usage"
+			label="Usage">
+			@if (unit(); as current) {
+				<ui5-form
+					accessibleName="Unit usage"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Current assignments</ui5-label>
+						<ui5-text>{{ current.usage.currentAssignments }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Child units</ui5-label>
+						<ui5-text>{{ current.usage.childUnits }}</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+				<ui5-text>
+					A unit with current or future assignments, positions or child units cannot be retired.
+				</ui5-text>
+			}
+		</ng-template>
+	}
+</ef-hcm-object-page>

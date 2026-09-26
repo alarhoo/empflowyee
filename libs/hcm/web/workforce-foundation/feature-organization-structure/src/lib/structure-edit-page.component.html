@@ -1,0 +1,732 @@
+<ef-hcm-dynamic-page
+	[title]="title()"
+	[summary]="info?.description ?? 'Organisation structure'"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true"
+	(retry)="load()">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (area === 'units' && !creating) {
+		<ui5-message-strip [hideCloseButton]="true">
+			The new version takes effect from its date and closes the current version the day before.
+			Earlier versions are never rewritten.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L2 XL2"
+		labelSpan="S12 M12 L12 XL12">
+		@if (creating) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-code"
+					[required]="true">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use 2–40 letters, digits, hyphens or underscores as allowed for this area.
+					</ui5-text>
+				</ui5-input>
+				<ui5-text>The code cannot be changed after creation.</ui5-text>
+			</ui5-form-item>
+		} @else {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Code</ui5-label>
+				<ui5-text>{{ $any(loaded())?.code || '—' }}</ui5-text>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-edit-name"
+				[required]="true">
+				Name
+			</ui5-label>
+			<ui5-input
+				id="structure-edit-name"
+				accessibleName="Name"
+				[formField]="fields.name"
+				[disabled]="draft.saving()"
+				[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a name of 1–150 characters.</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		@if (area === 'legal-entities') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-registered-name"
+					[required]="true">
+					Registered name
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-registered-name"
+					accessibleName="Registered name"
+					[formField]="fields.registeredName"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.registeredName().touched() && fields.registeredName().invalid()
+							? 'Negative'
+							: 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a registered name of 1–200 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-entity-type"
+					[required]="true">
+					Entity type
+				</ui5-label>
+				<ui5-select
+					id="structure-edit-entity-type"
+					accessibleName="Entity type"
+					[formField]="fields.entityType"
+					[disabled]="draft.saving()">
+					@for (type of entityTypes; track type) {
+						<ui5-option [value]="type">{{ label(type) }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		}
+		@if (area === 'locations') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-location-type"
+					[required]="true">
+					Location type
+				</ui5-label>
+				<ui5-select
+					id="structure-edit-location-type"
+					accessibleName="Location type"
+					[formField]="fields.locationType"
+					[disabled]="draft.saving()">
+					@for (type of locationTypes; track type) {
+						<ui5-option [value]="type">{{ label(type) }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-owning-unit"
+					[required]="true">
+					Owning unit
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="units"
+					controlId="structure-edit-owning-unit"
+					label="Owning unit"
+					[required]="true"
+					[selected]="ref('owningUnit')"
+					[invalid]="refInvalid('owningUnit')"
+					message="Choose the owning unit."
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('owningUnit', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Virtual location</ui5-label>
+				<ui5-checkbox
+					text="This location has no physical premises"
+					accessibleName="Virtual location"
+					[checked]="virtual()"
+					[disabled]="draft.saving()"
+					(ui5Change)="virtual.set($any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+		}
+		@if (area === 'units') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-effective-from"
+					[required]="true">
+					Effective from
+				</ui5-label>
+				<ui5-date-picker
+					id="structure-edit-effective-from"
+					accessibleName="Effective from"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[formField]="fields.effectiveFrom"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.effectiveFrom().touched() && fields.effectiveFrom().invalid()
+							? 'Negative'
+							: 'None'
+					">
+					<ui5-text slot="valueStateMessage">Choose the date this version takes effect.</ui5-text>
+				</ui5-date-picker>
+				@if (currentUnit(); as unit) {
+					<ui5-text>
+						The current version started {{ unit.effectiveFrom | hcmDate: 'date' }}; choose a later
+						date.
+					</ui5-text>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-description">
+					Description
+				</ui5-label>
+				<ui5-textarea
+					id="structure-edit-description"
+					accessibleName="Description"
+					[rows]="2"
+					[formField]="fields.description"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+		}
+		@if (area === 'units') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-unit-type"
+					[required]="true">
+					Unit type
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="unit-types"
+					controlId="structure-edit-unit-type"
+					label="Unit type"
+					[required]="true"
+					[selected]="ref('unitType')"
+					[invalid]="refInvalid('unitType')"
+					message="Choose a unit type."
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('unitType', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-parent">
+					Parent unit
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="units"
+					controlId="structure-edit-parent"
+					label="Parent unit"
+					[selected]="ref('parent')"
+					[exclude]="id ? [id] : []"
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('parent', $event)"></ef-hcm-structure-option-box>
+				<ui5-text>
+					The parent must be a unit of the type's parent type. Leave empty for a top-level unit.
+				</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-legal-entity">
+					Legal entity
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="legal-entities"
+					controlId="structure-edit-legal-entity"
+					label="Legal entity"
+					[selected]="ref('legalEntity')"
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('legalEntity', $event)"></ef-hcm-structure-option-box>
+				<ui5-text>
+					Required on legal-entity levels only; other units inherit it from their nearest such
+					ancestor.
+				</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-primary-location">
+					Primary location
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="locations"
+					controlId="structure-edit-primary-location"
+					label="Primary location"
+					[selected]="ref('primaryLocation')"
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('primaryLocation', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-cost-centre">
+					Cost centre
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-cost-centre"
+					accessibleName="Cost centre"
+					[formField]="fields.costCenterCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-head">
+					Head
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="workers"
+					controlId="structure-edit-head"
+					label="Head"
+					[selected]="ref('head')"
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('head', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+		}
+		@if (area === 'legal-entities') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-country"
+					[required]="true">
+					Country
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="countries"
+					controlId="structure-edit-country"
+					label="Country"
+					[required]="true"
+					[selected]="ref('country')"
+					[invalid]="refInvalid('country')"
+					message="Choose a country."
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('country', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-registered-location">
+					Registered location
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="locations"
+					controlId="structure-edit-registered-location"
+					label="Registered location"
+					[selected]="ref('registeredLocation')"
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('registeredLocation', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-registration">
+					Registration number
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-registration"
+					accessibleName="Registration number"
+					[formField]="fields.registrationNumber"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-tax-id">
+					Tax identification number
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-tax-id"
+					accessibleName="Tax identification number"
+					[formField]="fields.taxIdentificationNumber"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-tax-deduction">
+					Tax deduction account number
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-tax-deduction"
+					accessibleName="Tax deduction account number"
+					[formField]="fields.taxDeductionAccountNumber"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-social-security">
+					Social security employer code
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-social-security"
+					accessibleName="Social security employer code"
+					[formField]="fields.socialSecurityEmployerCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-state-insurance">
+					State insurance employer code
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-state-insurance"
+					accessibleName="State insurance employer code"
+					[formField]="fields.stateInsuranceEmployerCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-currency"
+					[required]="true">
+					Reporting currency
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="currencies"
+					controlId="structure-edit-currency"
+					label="Reporting currency"
+					[required]="true"
+					[selected]="ref('reportingCurrency')"
+					[invalid]="refInvalid('reportingCurrency')"
+					message="Choose a currency."
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('reportingCurrency', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-fy-month">
+					Financial year start month
+				</ui5-label>
+				<ui5-select
+					id="structure-edit-fy-month"
+					accessibleName="Financial year start month"
+					[formField]="fields.fyMonth"
+					[disabled]="draft.saving()">
+					<ui5-option value="">Use the organisation default</ui5-option>
+					@for (month of months; track month) {
+						<ui5-option [value]="'' + ($index + 1)">{{ month }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			@if (text().fyMonth) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="structure-edit-fy-day">
+						Financial year start day
+					</ui5-label>
+					<ui5-step-input
+						id="structure-edit-fy-day"
+						accessibleName="Financial year start day"
+						[min]="1"
+						[max]="fyDayMax()"
+						[value]="fyDay()"
+						[disabled]="draft.saving()"
+						(ui5Change)="fyDay.set(integer($any($event.target).value, 1))"></ui5-step-input>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-incorporated">
+					Incorporated on
+				</ui5-label>
+				<ui5-date-picker
+					id="structure-edit-incorporated"
+					accessibleName="Incorporated on"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[showClearIcon]="true"
+					[formField]="fields.incorporatedOn"
+					[disabled]="draft.saving()"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-started">
+					Operations started on
+				</ui5-label>
+				<ui5-date-picker
+					id="structure-edit-started"
+					accessibleName="Operations started on"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[showClearIcon]="true"
+					[formField]="fields.operationsStartedOn"
+					[disabled]="draft.saving()"></ui5-date-picker>
+			</ui5-form-item>
+			@if (!creating) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="structure-edit-closed">
+						Operations closed on
+					</ui5-label>
+					<ui5-date-picker
+						id="structure-edit-closed"
+						accessibleName="Operations closed on"
+						valueFormat="yyyy-MM-dd"
+						displayFormat="medium"
+						[showClearIcon]="true"
+						[formField]="fields.operationsClosedOn"
+						[disabled]="draft.saving()"></ui5-date-picker>
+					<ui5-text>
+						Setting this date closes the legal entity. It is rejected while employments remain open.
+					</ui5-text>
+				</ui5-form-item>
+			}
+		}
+		@if (area === 'locations') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-address-1">
+					Address line 1
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-address-1"
+					accessibleName="Address line 1"
+					[formField]="fields.addressLine1"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-address-2">
+					Address line 2
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-address-2"
+					accessibleName="Address line 2"
+					[formField]="fields.addressLine2"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-locality">
+					Locality
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-locality"
+					accessibleName="Locality"
+					[formField]="fields.locality"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-city"
+					[required]="true">
+					City
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-city"
+					accessibleName="City"
+					[formField]="fields.city"
+					[disabled]="draft.saving()"
+					[valueState]="fields.city().touched() && fields.city().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">Enter a city of 1–100 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-state">
+					State or province
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-state"
+					accessibleName="State or province"
+					[formField]="fields.stateOrProvince"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-postal-code">
+					Postal code
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-postal-code"
+					accessibleName="Postal code"
+					[formField]="fields.postalCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-country"
+					[required]="true">
+					Country
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="countries"
+					controlId="structure-edit-country"
+					label="Country"
+					[required]="true"
+					[selected]="ref('country')"
+					[invalid]="refInvalid('country')"
+					message="Choose a country."
+					[disabled]="draft.saving()"
+					(selectedChange)="setRef('country', $event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-time-zone"
+					[required]="true">
+					Time zone
+				</ui5-label>
+				<ui5-combobox
+					id="structure-edit-time-zone"
+					accessibleName="Time zone"
+					filter="Contains"
+					[formField]="fields.timeZone"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.timeZone().touched() && fields.timeZone().invalid() ? 'Negative' : 'None'
+					">
+					@for (zone of zones; track zone) {
+						<ui5-cb-item [text]="zone"></ui5-cb-item>
+					}
+					<ui5-text slot="valueStateMessage">Choose an IANA time zone.</ui5-text>
+				</ui5-combobox>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-phone">
+					Contact phone
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-phone"
+					accessibleName="Contact phone"
+					type="Tel"
+					[formField]="fields.contactPhone"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-email">
+					Contact email
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-email"
+					accessibleName="Contact email"
+					type="Email"
+					[formField]="fields.contactEmail"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.contactEmail().touched() && fields.contactEmail().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a valid email address.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-latitude">
+					Latitude
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-latitude"
+					accessibleName="Latitude"
+					type="Number"
+					[formField]="fields.latitude"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.latitude().touched() && fields.latitude().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter −90 to 90 with up to six decimals.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-edit-longitude">
+					Longitude
+				</ui5-label>
+				<ui5-input
+					id="structure-edit-longitude"
+					accessibleName="Longitude"
+					type="Number"
+					[formField]="fields.longitude"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.longitude().touched() && fields.longitude().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter −180 to 180 with up to six decimals.</ui5-text>
+				</ui5-input>
+				<ui5-text>Enter both coordinates or neither.</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Geofence</ui5-label>
+				<ui5-checkbox
+					text="Set a geofence radius"
+					accessibleName="Set a geofence radius"
+					[checked]="geofence() !== null"
+					[disabled]="draft.saving()"
+					(ui5Change)="geofence.set($any($event.target).checked ? 100 : null)"></ui5-checkbox>
+				@if (geofence() !== null) {
+					<ui5-step-input
+						accessibleName="Geofence radius in metres"
+						[min]="1"
+						[max]="100000"
+						[step]="10"
+						[value]="geofence() ?? 100"
+						[disabled]="draft.saving()"
+						(ui5Change)="geofence.set(integer($any($event.target).value, 100))"></ui5-step-input>
+				}
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-edit-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="structure-edit-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+			<ui5-text>
+				Required for the audit record. Do not include sensitive personal information.
+			</ui5-text>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar hcmFooter>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="back()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ef-hcm-dynamic-page>
+<ef-hcm-structure-discard
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-structure-discard>

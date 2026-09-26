@@ -1,0 +1,251 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="creating() ? 'structure-item-code' : 'structure-item-name'"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (area() === 'designations') {
+		<ui5-message-strip [hideCloseButton]="true">
+			A designation is a title only. It carries no grade, band or authorization meaning.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (creating()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-item-code"
+					[required]="true">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="structure-item-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use 2–40 capital letters, digits or underscores, starting with a letter.
+					</ui5-text>
+				</ui5-input>
+				<ui5-text>The code cannot be changed after creation.</ui5-text>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-item-name"
+				[required]="true">
+				Name
+			</ui5-label>
+			<ui5-input
+				id="structure-item-name"
+				accessibleName="Name"
+				[formField]="fields.name"
+				[disabled]="draft.saving()"
+				[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a name of 1–150 characters.</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		@if (area() === 'unit-types') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-item-plural"
+					[required]="true">
+					Plural name
+				</ui5-label>
+				<ui5-input
+					id="structure-item-plural"
+					accessibleName="Plural name"
+					[formField]="fields.pluralName"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.pluralName().touched() && fields.pluralName().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a plural name of 1–100 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			@if (creating()) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="structure-item-parent">
+						Parent type
+					</ui5-label>
+					<ef-hcm-structure-option-box
+						kind="unit-types"
+						controlId="structure-item-parent"
+						label="Parent type"
+						[selected]="parent()"
+						[disabled]="draft.saving()"
+						(selectedChange)="parent.set($event)"></ef-hcm-structure-option-box>
+					<ui5-text>
+						Leave empty for a top-level type. The type chain cannot be changed later.
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Legal entity level</ui5-label>
+					<ui5-checkbox
+						text="Units of this type carry a legal entity"
+						accessibleName="Legal entity level"
+						[checked]="legalEntityBearing()"
+						[disabled]="draft.saving()"
+						(ui5Change)="legalEntityBearing.set($any($event.target).checked)"></ui5-checkbox>
+				</ui5-form-item>
+			} @else {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Parent type</ui5-label>
+					<ui5-text>{{ parent()?.name ?? 'None (top level)' }}</ui5-text>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Several units per parent</ui5-label>
+				<ui5-checkbox
+					text="Allow several units of this type under one parent"
+					accessibleName="Several units per parent"
+					[checked]="allowMultiplePerParent()"
+					[disabled]="draft.saving()"
+					(ui5Change)="allowMultiplePerParent.set($any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+		} @else {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-item-parent">
+					{{ area() === 'departments' ? 'Parent department' : 'Parent designation' }}
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					[kind]="parentKind()"
+					controlId="structure-item-parent"
+					[label]="area() === 'departments' ? 'Parent department' : 'Parent designation'"
+					[selected]="parent()"
+					[exclude]="request().item ? [request().item!.id] : []"
+					[disabled]="draft.saving()"
+					(selectedChange)="parent.set($event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-item-description">
+					Description
+				</ui5-label>
+				<ui5-textarea
+					id="structure-item-description"
+					accessibleName="Description"
+					[rows]="2"
+					[formField]="fields.description"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+		}
+		@if (area() === 'departments') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-item-head">
+					Head
+				</ui5-label>
+				<ef-hcm-structure-option-box
+					kind="workers"
+					controlId="structure-item-head"
+					label="Head"
+					[selected]="head()"
+					[disabled]="draft.saving()"
+					(selectedChange)="head.set($event)"></ef-hcm-structure-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="structure-item-cost-centre">
+					Cost centre
+				</ui5-label>
+				<ui5-input
+					id="structure-item-cost-centre"
+					accessibleName="Cost centre"
+					[formField]="fields.costCenterCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Target headcount</ui5-label>
+				<ui5-checkbox
+					text="Set a target headcount"
+					accessibleName="Set a target headcount"
+					[checked]="targetHeadcount() !== null"
+					[disabled]="draft.saving()"
+					(ui5Change)="targetHeadcount.set($any($event.target).checked ? 0 : null)"></ui5-checkbox>
+				@if (targetHeadcount() !== null) {
+					<ui5-step-input
+						accessibleName="Target headcount"
+						[min]="0"
+						[max]="1000000"
+						[value]="targetHeadcount() ?? 0"
+						[disabled]="draft.saving()"
+						(ui5Change)="targetHeadcount.set(optionalInteger($event.target))"></ui5-step-input>
+				}
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-item-order">
+				Display order
+			</ui5-label>
+			<ui5-step-input
+				id="structure-item-order"
+				accessibleName="Display order"
+				[min]="0"
+				[max]="9999"
+				[value]="sortOrder()"
+				[disabled]="draft.saving()"
+				(ui5Change)="sortOrder.set(integer($any($event.target).value))"></ui5-step-input>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="structure-item-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="structure-item-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+			<ui5-text>
+				Required for the audit record. Do not include sensitive personal information.
+			</ui5-text>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-structure-discard
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-structure-discard>

@@ -184,6 +184,16 @@ export const appRoutes: Routes = [
 	},
 
 	{
+		path: 'workforce-foundation/organization-structure',
+		data: { catalogId: 'ORGANIZATION_STRUCTURE' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the workforce-owned structure FCL and routed complex forms. */ () =>
+			import('@empflowyee/hcm-web-workforce-foundation-feature-organization-structure').then(
+				/** Keep draft guards inside the feature. */ (module) =>
+					module.ORGANIZATION_STRUCTURE_ROUTES,
+			),
+	},
+	{
 		path: 'access-control/role-management',
 		data: { catalogId: 'ROLE_MANAGEMENT' },
 		canMatch: [hcmRouteAccess],

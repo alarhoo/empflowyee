@@ -237,6 +237,9 @@
 			],
 			"@empflowyee/hcm-web-workforce-foundation-data-access": [
 				"./libs/hcm/web/workforce-foundation/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-workforce-foundation-feature-organization-structure": [
+				"./libs/hcm/web/workforce-foundation/feature-organization-structure/src/index.ts"
 			]
 		}
 	},
