@@ -1,0 +1,174 @@
+{
+	"formatVersion": 1,
+	"appCode": "POSITION_REQUIREMENTS",
+	"approvals": [
+		{
+			"document": "BLUEPRINT",
+			"sha256": "2d3e71e4f9958a61f4b6f1774dc75949220bc4b3eea77aff5c7699210ad9b646",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "FDD",
+			"sha256": "1f28fc6581473ee9b91c70fa02916589a06b4d7133b57e182a53a2899bbbb8bc",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "TDD",
+			"sha256": "9f0adb756edfc4a04a810c2d1ae26631c7cf8f1f4bc15a8304c08cd0f799cf0b",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "TRACE",
+			"sha256": "8b261bdd4b7dd113bcf4ad54577bdd32770271eb9cc5507e2e941a9f73278950",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "DECISIONS",
+			"sha256": "be565dedb2cacf9c48ec77f4d24d84067ae9b6ce8f4c8abe50a7a416b1b7a8fb",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "DOMAIN",
+			"sha256": "f26d90e0d34ad643e5fedd71e5ab8ff823a0eeec986fe55cbab1f25a469f6a15",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "RULES",
+			"sha256": "03b984c5e1b5415d3262db01f57f430a5ddab72e0dac504e99ceb0fffe880ad7",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "COMMON2",
+			"sha256": "55d79b5eec23c2ff88b9696c0e8e3c9bdb04970ce4cdfb8dd9a53d092eb3abc0",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "COMMON1",
+			"sha256": "7496105fd98a7a651ab5bcd50847f8ec4fd9e62266f1a0497f8f2e7846124c45",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "DATAMODEL",
+			"sha256": "15de3c65c8bc326d56bc5cfc0406709b2d480b119ec81e032d4f43b806c84678",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "GRANTS",
+			"sha256": "5e6ac762c9e158134ea3853f759153379f1e93995466c85c696d82bc6e0f31ad",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "SCOPE",
+			"sha256": "7eece5949a48041ed998ff5f3328c05c420708c418f6d6eeb73ec51c030e01c3",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "UX",
+			"sha256": "1a6c0066a8ca207a02c14e042356f9f4ef56762008025d83b2c0937010d23dd9",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "FOUNDATION01",
+			"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "FOUNDATION02",
+			"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "FOUNDATION03",
+			"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "FOUNDATION04",
+			"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "AUDIT",
+			"sha256": "a8917cc63bd762d08e59a143659a0e5193f7473ec5542692f3f34fed7382c6f0",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "ACCESS_CONTROL",
+			"sha256": "ba186484e2ccadadb4c439cf47d526245e28056d859f3c198d6e9be17a345e1c",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "WORKFORCE",
+			"sha256": "c2f2f2cd4bae679e9d1b2adf7793e2640ea59cccf520f2c4413e73936fcc1af8",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		},
+		{
+			"document": "ENCRYPTION",
+			"sha256": "b7b668e50f21551096b80d8ccf3480933db3bc0f236703e901b5cc42e361ac0d",
+			"decision": "approved",
+			"reviewer": "Product owner (user in the HCM-2 preparation and implementation task)",
+			"reviewedAt": "2026-09-26",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md; implementation instruction after design revision b2938b9 with all blocking decisions answered; prerequisite states corrected to design-resolved in the approval commit"
+		}
+	]
+}

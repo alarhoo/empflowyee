@@ -131,11 +131,11 @@ approved floorplans only.
 
 Migration `000021`. This app’s foundation implements `ProfileFieldVisibilityPort` and `OrgChartFieldPolicy`, so it precedes every profile-consuming app.
 
-| Prerequisite               | State    | Note                                     |
-| -------------------------- | -------- | ---------------------------------------- |
-| `hcm2-shared-contract`     | resolved | Shared HCM-2 design complete for review. |
-| `hcm2-physical-model`      | resolved | Shared HCM-2 design complete for review. |
-| `hcm2-permission-register` | resolved | Shared HCM-2 design complete for review. |
+| Prerequisite               | State    | Note                          |
+| -------------------------- | -------- | ----------------------------- |
+| `hcm2-shared-contract`     | resolved | Shared HCM-2 design complete. |
+| `hcm2-physical-model`      | resolved | Shared HCM-2 design complete. |
+| `hcm2-permission-register` | resolved | Shared HCM-2 design complete. |
 
 Foundations HCM0-01 to HCM0-04 are referenced through their validation records.
 

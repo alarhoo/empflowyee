@@ -358,7 +358,7 @@
 		},
 		{
 			"id": "wizard-floorplan-acceptance",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "COMMON2#UX"
 		},
 		{

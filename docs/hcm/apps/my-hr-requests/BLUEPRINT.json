@@ -319,7 +319,7 @@
 		},
 		{
 			"id": "hr-service-foundation",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "DOMAIN#dependencies"
 		}
 	],

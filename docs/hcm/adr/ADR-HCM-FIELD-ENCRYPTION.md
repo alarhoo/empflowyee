@@ -1,7 +1,9 @@
 # ADR: HCM field-level encryption for sensitive values
 
-Status: **Proposed**. Drafted during HCM-2 preparation. Requires architecture and
-security review before any HCM-2 slice stores an encrypted column.
+Status: **Accepted for local implementation** on 2026-09-26 through the
+[HCM-2 implementation approval](../roadmap/HCM-2-IMPLEMENTATION-APPROVAL.md).
+The production Cloud KMS key custody and its IaC change remain pending a
+separate security review before any non-local deployment stores encrypted values.
 
 ## Context
 

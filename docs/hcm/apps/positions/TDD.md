@@ -142,13 +142,13 @@ approved floorplans only.
 
 Job Catalogue foundation; migrations `000023` and `000024`; `PositionOccupancyPort` from Workforce Foundation; notification event registration for position change events.
 
-| Prerequisite               | State      | Note                                                                   |
-| -------------------------- | ---------- | ---------------------------------------------------------------------- |
-| `hcm2-shared-contract`     | resolved   | Shared HCM-2 design complete for review.                               |
-| `hcm2-physical-model`      | resolved   | Shared HCM-2 design complete for review.                               |
-| `hcm2-permission-register` | resolved   | Shared HCM-2 design complete for review.                               |
-| `job-catalogue-published`  | unresolved | Job Catalogue foundation implemented and a published catalogue seeded. |
-| `field-encryption-adr`     | unresolved | Field-encryption ADR accepted for reasons and comments.                |
+| Prerequisite               | State    | Note                                                                                                                                                                                          |
+| -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hcm2-shared-contract`     | resolved | Shared HCM-2 design complete.                                                                                                                                                                 |
+| `hcm2-physical-model`      | resolved | Shared HCM-2 design complete.                                                                                                                                                                 |
+| `hcm2-permission-register` | resolved | Shared HCM-2 design complete.                                                                                                                                                                 |
+| `job-catalogue-published`  | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Job Catalogue foundation implemented and a published catalogue seeded. |
+| `field-encryption-adr`     | resolved | Design resolved. Implemented in its [delivery step](../../roadmap/HCM-2-DESIGN-REVIEW.md#order) before this app ships: Field-encryption ADR accepted for reasons and comments.                |
 
 Foundations HCM0-01 to HCM0-04 are referenced through their validation records.
 

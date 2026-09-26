@@ -279,7 +279,7 @@
 		},
 		{
 			"id": "probation-foundation",
-			"state": "unresolved",
+			"state": "resolved",
 			"ref": "DOMAIN#dependencies"
 		}
 	],
