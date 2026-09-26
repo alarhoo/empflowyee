@@ -198,5 +198,13 @@ Select HR tenant scope initially when requests.read is granted, otherwise Own
 requests when requests.self.read is granted. Show a native scope selector only
 when both are granted; changing scope cancels pending requests and resets query
 state. No HR collection request runs for a self-only actor. If neither entry grant
-exists, show denied without loading request data. Deep links from notifications
-select Own scope and still resolve their object through the self endpoint.
+exists, show denied without loading request data.
+
+Notification deep links select the scope that addresses their recipient
+(DEC-DOCUMENT-REQUESTS-004). `document.requested` and
+`document.replacement-requested` reach the worker and select Own scope, resolving
+the object through the self endpoint. `document.submitted` reaches the HR
+requester and selects HR scope, resolving the object through the HR endpoint.
+Every destination still performs its existing permission and subject checks; a
+recipient without the selected scope's read grant sees denied. Neither grants nor
+recipient rules are broadened to make a link work.

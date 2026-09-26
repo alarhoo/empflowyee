@@ -290,6 +290,10 @@
 		{
 			"id": "DEC-DOCUMENT-REQUESTS-003",
 			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-DOCUMENT-REQUESTS-004",
+			"classification": "RESOLVED"
 		}
 	],
 	"requirements": [
