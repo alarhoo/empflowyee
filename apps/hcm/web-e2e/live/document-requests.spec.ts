@@ -17,8 +17,10 @@ test.use({ actionTimeout: 20000 })
 		'Idempotency-Key': randomUUID(),
 	}
 }
-/** Enter by catalogue search with the selected persisted persona. */ async function openRequests(
+/** Enter a catalogue app by search, switching from the default employee to HR when requested. */ async function openApp(
 	page: Page,
+	code: string,
+	title: string,
 	hr = false,
 ) {
 	await page.goto('/')
@@ -30,9 +32,30 @@ test.use({ actionTimeout: 20000 })
 		await expect(page.getByRole('button', { name: 'Toby Flenderson', exact: true })).toBeVisible()
 	}
 	await openApplicationSearch(page)
-	await page.getByRole('textbox', { name: 'Search applications' }).fill('DOCUMENT_REQUESTS')
-	await page.getByRole('button', { name: 'Document Requests — Available', exact: true }).click()
+	await page.getByRole('textbox', { name: 'Search applications' }).fill(code)
+	await page.getByRole('button', { name: title + ' — Available', exact: true }).click()
+}
+/** Enter by catalogue search with the selected persisted persona. */ async function openRequests(
+	page: Page,
+	hr = false,
+) {
+	await openApp(page, 'DOCUMENT_REQUESTS', 'Document Requests', hr)
 	await expect(page.getByRole('grid', { name: 'Document requests', exact: true })).toBeVisible()
+}
+/** Follow one persisted in-app notice for a request from the recipient's real inbox. */ async function followNotification(
+	page: Page,
+	id: string,
+	title: string,
+	hr = false,
+) {
+	await openApp(page, 'MY_NOTIFICATIONS', 'My Notifications', hr)
+	const view = page.locator('ef-hcm-my-notifications')
+	await view.getByRole('textbox', { name: 'Search notification title or body' }).fill(id)
+	await view.getByRole('button', { name: 'Apply filters', exact: true }).click()
+	await view.locator('ui5-li-notification').filter({ hasText: title }).first().click()
+	await expect(page).toHaveURL(new RegExp('document-requests\\?.*request=' + id))
+	await expect(page.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
+	return new URL(page.url()).searchParams.get('scope')
 }
 /** Find an exact persisted request through server filtering. */ async function selectRequest(
 	page: Page,
@@ -46,6 +69,30 @@ test.use({ actionTimeout: 20000 })
 		.first()
 		.click()
 	await expect(page.getByRole('tab', { name: 'Overview', exact: true })).toBeVisible()
+	await settled(page)
+}
+/**
+ * Wait for the FCL mid column to stop resizing. Opening the native toolbar overflow while it
+ * recalculates can leave the overflow expanded without a popover (shared UX watch item).
+ */ async function settled(page: Page) {
+	await expect
+		.poll(
+			/** Compare the Object Page width across a short interval. */ () =>
+				page.locator('ef-hcm-object-page').evaluate(
+					/** Resolve true once consecutive widths match. */ (element) =>
+						new Promise<boolean>(
+							/** Complete after a second measurement. */ (resolve) => {
+								const width = element.getBoundingClientRect().width
+								setTimeout(
+									/** Measure again after the column transition interval. */ () =>
+										resolve(Math.abs(element.getBoundingClientRect().width - width) < 1),
+									400,
+								)
+							},
+						),
+				),
+		)
+		.toBe(true)
 }
 /** Follow native action relocation while FCL animates between responsive columns. */ async function action(
 	page: Page,
@@ -54,13 +101,15 @@ test.use({ actionTimeout: 20000 })
 ) {
 	const screen = page.locator(selector),
 		button = screen.getByRole('button', { name, exact: true }),
-		overflow = screen.getByRole('button', { name: 'Additional Options', exact: true })
+		// Detail navigation may also overflow while FCL columns resize; object actions precede it.
+		overflow = screen.getByRole('button', { name: 'Additional Options', exact: true }).first()
 	await expect(
-		/** Retry only while the native toolbar moves its action. */ async () => {
+		/** Retry while the native toolbar moves its action; allow the overflow to open before toggling again. */ async () => {
 			if (await button.isVisible()) return
 			await overflow.click({ timeout: 500 })
+			await expect(button).toBeVisible({ timeout: 2000 })
 		},
-	).toPass({ timeout: 15000 })
+	).toPass({ timeout: 20000 })
 	await button.click()
 }
 /** Create an enabled persisted classification for this browser scenario. */ async function type(
@@ -130,9 +179,9 @@ test('creates on a routed page, submits as employee, replaces and accepts the cu
 	await screen
 		.getByRole('textbox', { name: 'Instructions', exact: true })
 		.fill('Provide a clear scanned record')
-	await screen
-		.getByRole('textbox', { name: 'Due date (YYYY-MM-DD)', exact: true })
-		.fill('2026-10-15')
+	const due = screen.getByRole('textbox', { name: 'Due date', exact: true })
+	await due.fill('Oct 15, 2026')
+	await due.press('Tab')
 	await screen
 		.getByRole('textbox', { name: 'Reason', exact: true })
 		.fill('Validate end-to-end request')
@@ -196,6 +245,25 @@ test('creates on a routed page, submits as employee, replaces and accepts the cu
 	expect(uploaded.status()).toBe(200)
 	return item
 }
+test('opens each notification recipient in the request scope that authorizes it', /** Worker notices open Own scope; the HR requester's submitted notice opens HR scope. */ async ({
+	page,
+}) => {
+	test.setTimeout(180000)
+	const item = await requestedDocument(page)
+	expect(await followNotification(page, item.id, 'Document requested')).toBe('own')
+	await expect(
+		page.locator('ef-hcm-object-page').getByText('Submitted', { exact: true }),
+	).toBeVisible()
+	expect(await followNotification(page, item.id, 'Document submitted', true)).toBe('hr')
+	await expect(
+		page.locator('ef-hcm-object-page').getByText('Submitted', { exact: true }),
+	).toBeVisible()
+	await action(page, 'Accept submission')
+	const dialog = page.locator('ef-hcm-request-action-dialog')
+	await expect(dialog.getByRole('textbox', { name: 'Reason', exact: true })).toBeVisible()
+	await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+	await expect(dialog.getByRole('textbox', { name: 'Reason', exact: true })).toBeHidden()
+})
 test('keeps request list and Object Page accessible across all themes and responsive widths', /** Use the approved production floorplans, without feature styling or synthetic HTTP responses. */ async ({
 	page,
 }) => {
