@@ -7,6 +7,7 @@ import {
 	EmployeeDirectory,
 	EmployeePortBinder,
 	EmployeeUnitOfWork,
+	MyProfile,
 	ProfileConfiguration,
 	TeamDirectory,
 } from '@empflowyee/hcm-api-employee-application'
@@ -21,6 +22,7 @@ import {
 } from '@empflowyee/hcm-api-employee-infrastructure'
 import {
 	DirectoryController,
+	MyProfileController,
 	ProfileConfigurationController,
 	TeamController,
 } from '@empflowyee/hcm-api-employee-transport'
@@ -33,7 +35,12 @@ import {
 @Global()
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [ProfileConfigurationController, DirectoryController, TeamController],
+	controllers: [
+		ProfileConfigurationController,
+		DirectoryController,
+		TeamController,
+		MyProfileController,
+	],
 	providers: [
 		{
 			provide: EmployeeUnitOfWork,
@@ -60,6 +67,12 @@ import {
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the read-only team use cases. */ (unit: EmployeeUnitOfWork) =>
 				new TeamDirectory(unit),
+		},
+		{
+			provide: MyProfile,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the self-service use cases. */ (unit: EmployeeUnitOfWork) =>
+				new MyProfile(unit),
 		},
 		{
 			provide: EmployeePortBinder,
