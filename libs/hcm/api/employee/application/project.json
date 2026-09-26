@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-employee-application",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/employee/application/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:employee", "type:application"],
+	"// targets": "to see all targets run: nx show project hcm-api-employee-application --web",
+	"targets": {}
+}

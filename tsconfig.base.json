@@ -217,6 +217,15 @@
 			"@empflowyee/hcm-web-documents-feature-document-requests": [
 				"./libs/hcm/web/documents/feature-document-requests/src/index.ts"
 			],
+			"@empflowyee/hcm-employee-contract": ["./libs/hcm/contracts/employee/src/index.ts"],
+			"@empflowyee/hcm-api-employee-domain": ["./libs/hcm/api/employee/domain/src/index.ts"],
+			"@empflowyee/hcm-api-employee-application": [
+				"./libs/hcm/api/employee/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-employee-infrastructure": [
+				"./libs/hcm/api/employee/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-employee-module": ["./libs/hcm/api/employee/module/src/index.ts"],
 			"@empflowyee/hcm-api-workforce-foundation-domain": [
 				"./libs/hcm/api/workforce-foundation/domain/src/index.ts"
 			],

@@ -1,0 +1,9 @@
+{
+	"name": "hcm-employee-contract",
+	"$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/contracts/employee/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:universal", "domain:employee", "type:contract"],
+	"// targets": "to see all targets run: nx show project hcm-employee-contract --web",
+	"targets": {}
+}
