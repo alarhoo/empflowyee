@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **6 of 18 HCM-2 apps released.** Delivery follows the approved
+Status: **7 of 18 HCM-2 apps released.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -20,7 +20,8 @@ validation record pass.
 | 10    | Employee Profile Configuration app                                                                                                              | Released    | [Validation](../testing/HCM-2-EMPLOYEE-PROFILE-CONFIGURATION-VALIDATION.md) |
 | 10    | Org Chart app                                                                                                                                   | Released    | [Validation](../testing/HCM-2-ORG-CHART-VALIDATION.md)                      |
 | 10    | Employee Directory app                                                                                                                          | Released    | [Validation](../testing/HCM-2-EMPLOYEE-DIRECTORY-VALIDATION.md)             |
-| 10    | Team Directory and My Profile apps                                                                                                              | Not started | —                                                                           |
+| 10    | Team Directory app                                                                                                                              | Released    | [Validation](../testing/HCM-2-TEAM-DIRECTORY-VALIDATION.md)                 |
+| 10    | My Profile app                                                                                                                                  | Not started | —                                                                           |
 | 11–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                           |
 
 Steps 1 and 4–8 were first delivered together on
