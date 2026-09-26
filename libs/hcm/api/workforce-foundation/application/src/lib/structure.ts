@@ -46,6 +46,7 @@ import {
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { IdentificationTypeRepository } from './identification-types'
+import type { WorkforceFactsPort, WorkforceReadPort } from './workforce-ports'
 
 export interface UnitVersionRow {
 	id: string
@@ -110,6 +111,10 @@ export interface StructureRepository {
 export interface WorkforceWork {
 	structure: StructureRepository
 	identification: IdentificationTypeRepository
+	/** Workforce commands bound to this transaction. */
+	facts: WorkforceFactsPort
+	/** Workforce as-of projections bound to this transaction. */
+	reads: WorkforceReadPort
 	receipts: CommandReceiptStore
 	audit: AppendAudit
 	/** Today's business date in the organisation time zone. */
