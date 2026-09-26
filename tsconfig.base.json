@@ -225,6 +225,13 @@
 			"@empflowyee/hcm-api-employee-infrastructure": [
 				"./libs/hcm/api/employee/infrastructure/src/index.ts"
 			],
+			"@empflowyee/hcm-api-employee-transport": ["./libs/hcm/api/employee/transport/src/index.ts"],
+			"@empflowyee/hcm-web-employee-data-access": [
+				"./libs/hcm/web/employee/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-employee-feature-employee-profile-configuration": [
+				"./libs/hcm/web/employee/feature-employee-profile-configuration/src/index.ts"
+			],
 			"@empflowyee/hcm-api-employee-module": ["./libs/hcm/api/employee/module/src/index.ts"],
 			"@empflowyee/hcm-api-workforce-foundation-domain": [
 				"./libs/hcm/api/workforce-foundation/domain/src/index.ts"
