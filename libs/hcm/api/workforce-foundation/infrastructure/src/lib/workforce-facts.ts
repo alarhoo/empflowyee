@@ -453,6 +453,19 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 
 /** As-of workforce projections over established rows. */
 export class KyselyWorkforceReads extends WorkforceSql implements WorkforceReadPort {
+	/** The worker of the person linked to an account. */
+	async accountWorker(accountId: string): Promise<string | null> {
+		return (
+			(
+				await this.run(
+					sql<{
+						id: string
+					}>`SELECT w.id FROM hcm.user_account u JOIN hcm.worker w ON w.tenant_id=u.tenant_id AND w.person_id=u.person_id WHERE u.tenant_id=${this.scope.tenantId} AND u.id=${accountId}`,
+				)
+			)[0]?.id ?? null
+		)
+	}
+
 	/** Established assignments of a worker effective on a date. */
 	currentAssignments(workerId: string, asOf: string): Promise<AssignmentFact[]> {
 		return this.run(

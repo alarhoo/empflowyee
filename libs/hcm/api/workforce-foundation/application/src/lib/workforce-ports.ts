@@ -180,6 +180,8 @@ export interface DuplicateCandidate {
 
 /** As-of workforce projections for other domains; established rows only, never guessed facts. */
 export interface WorkforceReadPort {
+	/** The worker of the person linked to an account, if that person is a worker. */
+	accountWorker(accountId: string): Promise<string | null>
 	/** Established assignments of a worker effective on a date. */
 	currentAssignments(workerId: string, asOf: string): Promise<AssignmentFact[]>
 	/** The primary solid line of an assignment on a date, if any. */
@@ -199,6 +201,33 @@ export interface WorkforceReadPort {
 export interface WorkforceActor {
 	tenantId: string
 	accountId: string
+}
+
+/** Organization-visible person fields the org chart may serialize (TDD-HCM-2-COMMON#ports). */
+export type OrgChartField =
+	| 'preferred-name'
+	| 'worker-number'
+	| 'work-email'
+	| 'organisation-unit'
+	| 'department'
+	| 'designation'
+	| 'location'
+	| 'manager'
+	| 'work-mode'
+
+/**
+ * Field policy of the org chart. Declared here and implemented by the employee module, so
+ * workforce-foundation never depends on employee libraries; the API root wires the binder.
+ */
+export interface OrgChartFieldPolicy {
+	/** Fields each worker exposes to Organization viewers after tenant policy and preferences. */
+	organizationFields(workerIds: readonly string[]): Promise<Map<string, ReadonlySet<OrgChartField>>>
+}
+
+/** Bind the org-chart field policy to the caller's open, authorized transaction. */
+export abstract class OrgChartFieldPolicyBinder {
+	/** Return a policy that reads inside the given transaction as the given actor. */
+	abstract bind(transaction: unknown, actor: WorkforceActor): OrgChartFieldPolicy
 }
 
 /**
