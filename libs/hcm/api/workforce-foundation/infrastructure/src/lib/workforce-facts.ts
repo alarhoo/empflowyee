@@ -5,6 +5,7 @@ import { classifyConstraint } from '@empflowyee/hcm-api-database-kysely'
 import { organisationToday } from './business-date'
 import { KyselyWorkforceDirectory } from './workforce-directory'
 import { KyselyWorkforceProfile } from './workforce-profile'
+import { KyselyPositionOccupancy } from './position-occupancy'
 import {
 	WorkforcePortBinder,
 	type AssignmentFact,
@@ -21,6 +22,8 @@ import {
 	type WorkforceActor,
 	type WorkforceDirectoryPort,
 	type WorkforceFactsPort,
+	type PositionOccupancyPort,
+	type StructureReferencePort,
 	type WorkforceProfilePort,
 	type WorkforceReadPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
@@ -35,7 +38,7 @@ import {
 	requireRevision,
 	requireWithinEmployment,
 } from '@empflowyee/hcm-api-workforce-foundation-domain'
-import type { WorkforceScope } from './structure-repository'
+import { KyselyStructureRepository, type WorkforceScope } from './structure-repository'
 
 /** Deepest manager chain walked when checking reporting cycles. */
 const CHAIN_LIMIT = 50
@@ -560,6 +563,8 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 		reads: WorkforceReadPort
 		directory: WorkforceDirectoryPort
 		profile: WorkforceProfilePort
+		occupancy: PositionOccupancyPort
+		structure: StructureReferencePort
 	} {
 		const scope: WorkforceScope = {
 			executor: transaction as Kysely<unknown>,
@@ -571,6 +576,8 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 			reads: new KyselyWorkforceReads(scope),
 			directory: new KyselyWorkforceDirectory(scope),
 			profile: new KyselyWorkforceProfile(scope),
+			occupancy: new KyselyPositionOccupancy(scope),
+			structure: new KyselyStructureRepository(scope),
 		}
 	}
 }
