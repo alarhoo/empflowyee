@@ -169,11 +169,12 @@ afterAll(
 it('preserves HCM-0 identities and discovery grants while applying the exact local business register', /** Verify data continuity, persisted system flags and independently count the new permission kind. */ async () => {
 	const current = await snapshot()
 	expect(current).toEqual(expect.arrayContaining(original))
-	expect(current).toHaveLength(original.length + 6)
-	expect(current).toContainEqual({
-		kind: 'grant',
-		key: 'tenant-administrator:hcm.catalogue.ORGANIZATION_STRUCTURE.discover',
-	})
+	expect(current).toHaveLength(original.length + 7)
+	for (const role of ['tenant-administrator', 'hr-specialist'])
+		expect(current).toContainEqual({
+			kind: 'grant',
+			key: role + ':hcm.catalogue.ORGANIZATION_STRUCTURE.discover',
+		})
 	expect(current).toContainEqual({
 		kind: 'grant',
 		key: 'hr-specialist:hcm.catalogue.DOCUMENT_TYPES.discover',

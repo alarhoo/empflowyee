@@ -95,6 +95,7 @@
 			"description": "Workforce, recruitment, lifecycle, time, payroll, talent, documents, governance, assets, and engagement operations.",
 			"appCodes": [
 				"EMPLOYEE_RECORDS",
+				"ORGANIZATION_STRUCTURE",
 				"EMPLOYEE_PROFILE_CONFIGURATION",
 				"EMPLOYEE_IMPORT",
 				"EMPLOYMENT_CHANGES",
@@ -526,7 +527,11 @@
 					"sectionId": "hr-workforce-service",
 					"title": "Configuration and Service",
 					"display": "tiles",
-					"appCodes": ["EMPLOYEE_PROFILE_CONFIGURATION", "HR_SERVICE_DESK"]
+					"appCodes": [
+						"ORGANIZATION_STRUCTURE",
+						"EMPLOYEE_PROFILE_CONFIGURATION",
+						"HR_SERVICE_DESK"
+					]
 				}
 			]
 		},

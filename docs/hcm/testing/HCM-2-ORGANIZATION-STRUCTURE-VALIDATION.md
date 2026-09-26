@@ -45,14 +45,14 @@ Recorded on 2026-09-26 against the local stack (`pnpm hcm:db:up`: 18 migrations,
 - `apps/hcm/web-e2e/live/organization-structure.spec.ts`: six live browser tests
   pass, in two consecutive runs.
 
-  | Test                         | Covers                                                                                                                           |
-  | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-  | Unit tree browse             | Keyboard expansion, inherited legal entity, Versions and Usage tabs, as-of date excluding not-yet-effective units (REQ-001)      |
-  | Area widths                  | Every area at 390/768/1440/2560 with no outer overflow; organisation defaults (REQ-001, REQ-008)                                 |
-  | API authorization            | Toby's route is denied; API reads return 200; options return 403; a well-formed create returns 403 (REQ-007)                     |
-  | Designation dialog lifecycle | Dirty cancel, focus on the missing reason, create, edit, retire, reactivate (REQ-006, REQ-008, REQ-009)                          |
-  | Unit route lifecycle         | Routed create with pickers, dirty-leave guard, overlapping version rejected (409), dated version, timeline, retirement (REQ-005) |
-  | Organisation defaults        | Invalid time zone refused with focus; save and restore; no tenant-name control (REQ-002)                                         |
+  | Test                         | Covers                                                                                                                               |
+  | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+  | Unit tree browse             | Keyboard expansion, inherited legal entity, Versions and Usage tabs, as-of date excluding not-yet-effective units (REQ-001)          |
+  | Area widths                  | Every area at 390/768/1440/2560 with no outer overflow; organisation defaults (REQ-001, REQ-008)                                     |
+  | HR Operations read-only      | Toby opens the app with no mutation controls; API reads return 200, options 403 and a well-formed create 403 (REQ-007, DEC-HCM2-017) |
+  | Designation dialog lifecycle | Dirty cancel, focus on the missing reason, create, edit, retire, reactivate (REQ-006, REQ-008, REQ-009)                              |
+  | Unit route lifecycle         | Routed create with pickers, dirty-leave guard, overlapping version rejected (409), dated version, timeline, retirement (REQ-005)     |
+  | Organisation defaults        | Invalid time zone refused with focus; save and restore; no tenant-name control (REQ-002)                                             |
 
 - `pnpm hcm:db:test`: 168 of 169 tests across 26 files pass. The workforce spec
   covers permission-gated reads, idempotent create, duplicate codes, stale
@@ -85,12 +85,11 @@ belong to shared components, not this app:
 
 ## Open points
 
-- **HR Operations read access (FDD/TDD conflict).** The FDD names HR Operations
-  (Toby) as a reader. `access.hcm2@1` grants Toby
-  `hcm.workforce-foundation.structure.read` but not the discovery permission, which
-  the TDD gives to Administration only. As a result, Toby can read through the API
-  but cannot open the app. This is reported for a product decision and was not
-  changed here.
+- **HR Operations read access (resolved).** The reviewed seed granted discovery
+  to Administration only, although the FDD names HR Operations as a reader. The
+  product owner resolved this as DEC-HCM2-017: `access.discovery@3` also grants
+  `hr-specialist` discovery. Toby now opens the app read-only; the acceptance test
+  asserts no mutation controls and API refusal of writes.
 - **Position usage.** Unit usage shows current assignments and child units.
   Position counts arrive with `PositionReadPort` in the positions foundation (step 12).
 

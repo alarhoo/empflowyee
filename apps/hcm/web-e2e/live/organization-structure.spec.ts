@@ -161,12 +161,19 @@ test('reads every area at supported widths without horizontal overflow', /** REQ
 	).toBeVisible()
 })
 
-test('keeps structure reads and writes authorized by the API, not navigation', /** REQ-007: HR Operations can read through the API but has no discovery grant or write permission. */ async ({
+test('gives HR Operations a read-only app while the API refuses writes', /** REQ-007 and DEC-HCM2-017: Toby discovers and reads the structure; mutations stay server-refused. */ async ({
 	page,
 }) => {
 	await persona(page, 'Toby Flenderson')
-	await page.goto('/workforce-foundation/organization-structure?area=designations')
-	await expect(page).toHaveURL(/access-denied/)
+	await openArea(page, 'Designations')
+	await expect(page.getByRole('grid', { name: 'Designations' })).toBeVisible()
+	await expect(page.getByRole('button', { name: 'Create designation', exact: true })).toHaveCount(0)
+	await page.getByRole('row').filter({ hasText: 'Receptionist' }).first().click()
+	const detail = page.locator('ef-hcm-structure-detail')
+	await expect(detail.getByRole('heading', { name: 'Receptionist' }).first()).toBeVisible()
+	for (const name of ['Edit', 'Retire'])
+		await expect(detail.getByRole('button', { name, exact: true })).toHaveCount(0)
+	expect(await violations(page)).toEqual([])
 	const headers = {
 		host: 'acme.localhost',
 		'x-hcm-development-persona': 'toby',
