@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **7 of 18 HCM-2 apps released.** Delivery follows the approved
+Status: **8 of 18 HCM-2 apps released; step 10 is complete.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -21,31 +21,42 @@ validation record pass.
 | 10    | Org Chart app                                                                                                                                   | Released    | [Validation](../testing/HCM-2-ORG-CHART-VALIDATION.md)                      |
 | 10    | Employee Directory app                                                                                                                          | Released    | [Validation](../testing/HCM-2-EMPLOYEE-DIRECTORY-VALIDATION.md)             |
 | 10    | Team Directory app                                                                                                                              | Released    | [Validation](../testing/HCM-2-TEAM-DIRECTORY-VALIDATION.md)                 |
-| 10    | My Profile app                                                                                                                                  | Not started | —                                                                           |
+| 10    | My Profile app, with grant migration `000023`                                                                                                   | Released    | [Validation](../testing/HCM-2-MY-PROFILE-VALIDATION.md)                     |
 | 11–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                           |
 
 Steps 1 and 4–8 were first delivered together on
 `codex/hcm-2-catalogue-organization-structure`. Each step now also has its own branch,
 stacked in order, and every later step starts a new branch from the previous one:
 
-| Step | Branch                                    |
-| ---- | ----------------------------------------- |
-| —    | `codex/hcm-1-foundation-and-hcm-2-design` |
-| 1    | `codex/hcm-2-catalogue-admission`         |
-| 4–5  | `codex/hcm-2-organization-structure`      |
-| 6    | `codex/hcm-2-identification-types`        |
-| 7    | `codex/hcm-2-workforce-people-foundation` |
-| 8    | `codex/hcm-2-lookup-values`               |
-| 9    | `codex/hcm-2-employee-profile-foundation` |
+| Step | Branch                                       |
+| ---- | -------------------------------------------- |
+| —    | `codex/hcm-1-foundation-and-hcm-2-design`    |
+| 1    | `codex/hcm-2-catalogue-admission`            |
+| 4–5  | `codex/hcm-2-organization-structure`         |
+| 6    | `codex/hcm-2-identification-types`           |
+| 7    | `codex/hcm-2-workforce-people-foundation`    |
+| 8    | `codex/hcm-2-lookup-values`                  |
+| 9    | `codex/hcm-2-employee-profile-foundation`    |
+| 10   | `codex/hcm-2-employee-profile-configuration` |
+| 10   | `codex/hcm-2-org-chart`                      |
+| 10   | `codex/hcm-2-employee-directory`             |
+| 10   | `codex/hcm-2-team-directory`                 |
+| 10   | `codex/hcm-2-my-profile`                     |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
-Migration numbers are assigned when a migration is added. Step 8 added
-`000021_workforce_lookup_values.sql`, which grants runtime UPDATE on the two lookup
-attribute columns that `000019` had withheld. Every migration the approved plan
-numbers `000021` or later therefore takes the next number: the employee profile
-foundation of step 9 becomes `000022`, and the positions migration of step 12 becomes
-`000025`.
+Migration numbers are assigned when a migration is added:
+
+- Step 8 added `000021_workforce_lookup_values.sql`, which grants runtime UPDATE on the two
+  lookup attribute columns that `000019` had withheld. The employee profile foundation of
+  step 9 therefore became `000022`.
+- My Profile in step 10 added `000023_employee_self_service.sql`, which grants the runtime the
+  blood group, custom value and custom value option writes that `000022` had withheld.
+
+Every migration the approved plan numbers `000022` or later therefore takes the number two
+above its planned one: the job architecture catalogue of step 11 becomes `000024`, the
+positions migrations of step 12 become `000025`–`000026`, and the workforce changes, import,
+probation and HR service migrations become `000027`–`000030`.
 
 ## Implementation decisions
 

@@ -1431,7 +1431,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['employee-self-service'],
 			route: '/employee/my-profile',
 			floorplan: 'UX-FP-OBJECT-PAGE',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
