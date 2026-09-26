@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { sql, type Kysely, type RawBuilder } from 'kysely'
 import { HcmDomainError, invalidField } from '@empflowyee/hcm-runtime-contract'
 import { classifyConstraint } from '@empflowyee/hcm-api-database-kysely'
+import { organisationToday } from './business-date'
 import {
 	WorkforcePortBinder,
 	type AssignmentFact,
@@ -453,6 +454,11 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 
 /** As-of workforce projections over established rows. */
 export class KyselyWorkforceReads extends WorkforceSql implements WorkforceReadPort {
+	/** Today's business date in the organisation time zone. */
+	businessToday(): Promise<string> {
+		return organisationToday(this.scope.executor, this.scope.tenantId)
+	}
+
 	/** The worker of the person linked to an account. */
 	async accountWorker(accountId: string): Promise<string | null> {
 		return (

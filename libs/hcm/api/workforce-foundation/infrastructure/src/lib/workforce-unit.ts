@@ -1,4 +1,4 @@
-import { sql, type Kysely } from 'kysely'
+import type { Kysely } from 'kysely'
 import { SqlCommandReceipts } from '@empflowyee/hcm-api-database-kysely'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
@@ -6,30 +6,11 @@ import {
 	WorkforceUnitOfWork,
 	type WorkforceWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
-import { todayIn } from '@empflowyee/hcm-api-workforce-foundation-domain'
+import { organisationToday } from './business-date'
 import { KyselyStructureRepository, type WorkforceScope } from './structure-repository'
 import { KyselyIdentificationTypeRepository } from './identification-type-repository'
 import { KyselyWorkforceFacts, KyselyWorkforceReads } from './workforce-facts'
 import { KyselyLookupRepository } from './lookup-repository'
-
-/** Resolve today's business date from the organisation profile, then the tenant default, then UTC. */
-export async function organisationToday(
-	executor: Kysely<unknown>,
-	tenantId: string,
-): Promise<string> {
-	const row = (
-		await sql<{
-			zone: string | null
-		}>`SELECT coalesce((SELECT default_time_zone FROM hcm.organisation_profile WHERE tenant_id=${tenantId}),(SELECT defaults->>'timezone' FROM hcm.tenant WHERE id=${tenantId})) AS zone`.execute(
-			executor,
-		)
-	).rows[0]
-	try {
-		return todayIn(row?.zone ?? 'UTC')
-	} catch {
-		return todayIn('UTC')
-	}
-}
 
 export class KyselyWorkforceUnitOfWork extends WorkforceUnitOfWork {
 	/** Reuse the verified access transaction boundary without introducing a new trust boundary. */
