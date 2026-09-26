@@ -24,6 +24,7 @@ validation record pass.
 | 10    | My Profile app, with grant migration `000023`                                                                                                   | Released    | [Validation](../testing/HCM-2-MY-PROFILE-VALIDATION.md)                            |
 | 11    | Job architecture catalogue foundation: migration `000024`, catalogue part of `job.architecture@1`                                               | Delivered   | [Validation](../testing/HCM-2-JOB-ARCHITECTURE-CATALOGUE-FOUNDATION-VALIDATION.md) |
 | 11    | Job Catalogue app                                                                                                                               | Released    | [Validation](../testing/HCM-2-JOB-CATALOGUE-VALIDATION.md)                         |
+| 12    | Positions foundation: migrations `000026`–`000027`, position ports, `job.architecture@2`                                                        | Delivered   | [Validation](../testing/HCM-2-POSITIONS-FOUNDATION-VALIDATION.md)                  |
 | 12–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -47,6 +48,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 11   | `codex/hcm-2-job-architecture-catalogue-foundation` |
 | 11   | `codex/hcm-2-job-catalogue`                         |
 | 3    | `codex/hcm-2-field-cipher`                          |
+| 12   | `codex/hcm-2-job-architecture-positions-foundation` |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
