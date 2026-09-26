@@ -1,15 +1,14 @@
 # HCM production floorplan procedure
 
-Use when changing a reusable HCM floorplan.
+Use when creating or changing a reusable HCM floorplan, or when a feature TDD needs a floorplan decision.
 
-1. Read the platform catalog, product TDD, installed capability matrix and current validation record.
-   Enforce the [mandatory UX decision matrix](../hcm-ui5-feature/SKILL.md#mandatory-ux-decision-matrix). Business features must use approved native/composed implementations without custom CSS. FCL is a native layout container, not a substitute for page-backed columns; dialogs cannot substitute for meaningful object details or complex routed forms.
-2. Identify the approved production implementation; a catalog ID alone is not approval.
-3. Inspect installed UI5 wrappers, Fundamental Platform and Core declarations. Absence of a component name is not a demonstrated gap.
-4. Select native, maintained Angular integration, supported composition, then custom only for a documented unmet capability. Thin empFLOWyee naming wrappers are allowed when native behavior, slots and accessibility remain intact. For the current pilots, reuse Object Page and ToolPageLayout under `libs/hcm/web/ux/floorplans`; Theme Lab supplies feature fixtures, not another floorplan implementation.
-5. Keep the floorplan domain-neutral and free of requests/authorization decisions. Preserve Nx tags and boundaries.
-6. Make application and Storybook import the same production implementation. Fictional data belongs to shared example hosts, not a second story-only layout.
-7. Prove relevant native interactions, four themes, brand cleanup, responsive behavior and accessibility. Counts and compilation alone do not establish approval.
-8. Update architecture, API and validation documentation together.
-
-Current pilots are Object Page and ToolPageLayout. Other candidates remain deferred. Follow `docs/hcm/ux/page-layout.md`: page-backed content, mandatory headers, optional native footers and the shared centered canvas. Run `pnpm ux:check-pages`; preserve strict Angular imports and format templates with repository Prettier. If capabilities contradict the TDD, document the discrepancy before implementing a custom substitute.
+1. Read the FDD/TDD and `../hcm-floorplan-selection/SKILL.md`.
+2. Prefer a maintained native UI5/Fundamental implementation, then a supported composition, then custom only for a documented capability gap.
+3. Keep reusable floorplans domain-neutral and free of HTTP, authorization decisions, and business-domain ownership.
+4. FlexibleColumnLayout is a layout container. Every content column must be page-backed and own its appropriate header/actions.
+5. Rich list -> detail flows use FCL when preserving master context materially helps the user. The detail is an approved Object Page/detail page, not a dialog.
+6. Small focused create/edit/action flows may use a Dialog. Complex create/edit flows with sections, many fields, collections, long-lived state, or deep-link needs use a dedicated route/page. Multi-step processes use the approved wizard pattern.
+7. Do not invent custom CSS/layout engines to imitate maintained controls. Feature-specific visual differences are not a reason to create a floorplan.
+8. Validate the interactions/states required by the feature and run focused accessibility/responsive checks plus affected lint/test/build.
+9. Storybook/Theme Lab work is optional and out of the normal business-feature critical path unless explicitly requested.
+10. Update the authoritative floorplan/TDD documentation when the reusable production contract changes.

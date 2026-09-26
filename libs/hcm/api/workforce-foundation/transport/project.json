@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-workforce-foundation-transport",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/workforce-foundation/transport/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:transport"],
+	"// targets": "to see all targets run: nx show project hcm-api-workforce-foundation-transport --web",
+	"targets": {}
+}

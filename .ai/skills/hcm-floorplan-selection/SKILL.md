@@ -1,12 +1,19 @@
 # Skill — HCM floorplan selection
 
-Use during FDD/TDD creation for an HCM screen.
+Use during HCM FDD/TDD creation.
 
-1. Identify the user goal, information density, navigation relationship, edit model, and device expectations.
-   Apply the mandatory UX decision matrix in [HCM UI5 implementation](../hcm-ui5-feature/SKILL.md): meaningful list-detail uses native FCL and page-backed Object Page/detail; only small focused flows use dialogs; complex creates/edits and wizard processes use dedicated routes. Record the classification and column/page ownership in the TDD.
-2. Consult the approved HCM floorplan catalog/capability matrix.
-3. Prefer a maintained UI5/Fundamental primitive or existing empFLOWyee floorplan implementation.
-4. Record the selected floorplan ID in the TDD.
-5. Do not create a new floorplan because a feature needs minor styling differences.
-6. A feature may compose domain UI inside a floorplan; the floorplan must not know the business domain.
-7. Define loading, empty, error, read-only, permission-denied, and responsive states in the TDD.
+1. Identify the user goal, information density, navigation relationship, edit model, deep-link needs, and expected devices.
+2. Apply this decision model:
+   - collection/list only -> approved list/report/table floorplan;
+   - list + rich selected-object detail -> FlexibleColumnLayout with page-backed Object Page/detail;
+   - single rich object lifecycle -> Object Page/detail page;
+   - small focused create/edit/action -> Dialog;
+   - complex create/edit with many fields/sections/collections -> dedicated routed page;
+   - staged process -> approved Wizard on a dedicated route;
+   - analytics -> approved analytical floorplan chosen by the TDD.
+3. Consult the approved HCM floorplan catalogue/capability matrix and current production implementations.
+4. Prefer maintained UI5/Fundamental primitives or existing empFLOWyee floorplans. Do not create a new floorplan for minor styling differences.
+5. Record the selected floorplan ID/mode and route/column ownership in the TDD.
+6. Keep business-domain ownership independent of screen composition; contextual sections consume the owning domain contracts/services instead of duplicating writers.
+7. Define loading, empty, error, read-only, permission-denied, and responsive states that are actually relevant to the app.
+8. Business-feature implementation is theme-agnostic. Floorplan selection never introduces feature-specific theme/CSS work.

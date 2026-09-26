@@ -1,12 +1,11 @@
-# Workflow: prepare HCM wave
+# Workflow: prepare an HCM delivery wave
 
-1. Run wave-context for the requested wave.
-   For HCM-0, use `docs/hcm/roadmap/HCM-0-WORK-BREAKDOWN.md`: it has foundation work packages and intentionally no business apps. Context generation does not approve implementation.
-2. Confirm app ownership and prerequisite domains.
-3. Compile a blueprint for every app.
-4. Finalize FDDs.
-5. Finalize TDDs.
-6. Resolve all `BLOCKS_THIS_APP` decisions with the user.
-7. Review cross-app contracts and domain migrations.
-8. Architecture review.
-9. Run `pnpm hcm:wave:context --wave=HCM-N --check` for a business wave. Mark it `implementation-ready` only after every app passes and human review confirms the evidence. HCM-0 uses its foundation validation documents, not an empty-app check.
+1. Generate/read the requested wave context from the canonical catalogue.
+2. Read `docs/hcm/roadmap/HCM-CARRY-FORWARD.md` and apply only items relevant to this wave.
+3. Confirm app ownership and prerequisite domains/contracts.
+4. AI drafts/finalizes each required app FDD. Ask the human only for genuine unresolved business decisions.
+5. AI drafts/finalizes each required app TDD after its FDD is approved, including route, floorplan, contracts, SQL/RLS/Kysely/API/UI/test design.
+6. Resolve every `BLOCKS_THIS_APP` item in scope. Record later/non-blocking concerns in the carry-forward file instead of blocking the wave.
+7. Review cross-app contracts and domain migration order; identify shared domain foundations that must precede individual apps.
+8. Produce a two-level implementation plan: domain foundations first, then app vertical slices with granular branches/commits.
+9. Run the wave/app readiness checks. Do not write business implementation code in the preparation step.
