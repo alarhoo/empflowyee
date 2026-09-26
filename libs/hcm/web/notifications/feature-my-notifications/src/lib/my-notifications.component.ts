@@ -215,11 +215,20 @@ export class MyNotificationsComponent {
 				},
 			})
 	}
-	/** Follow the catalogue route; the destination still authorizes its own request subject. */
+	/**
+	 * Follow the catalogue route in the recipient's event scope: submitted notices reach the HR
+	 * requester, while requested/replacement notices address the worker. The destination still
+	 * authorizes its own scope and request subject.
+	 */
 	openRequest(item: NotificationItem): void {
 		const feature = this.requestFeature()
 		if (feature)
-			void this.router.navigate([feature.route], { queryParams: { request: item.requestId } })
+			void this.router.navigate([feature.route], {
+				queryParams: {
+					request: item.requestId,
+					scope: item.eventType === 'document.submitted' ? 'hr' : 'own',
+				},
+			})
 	}
 	/** Apply confirmed table sorting independently of filter-bar controls. */
 	sortBy(sort: string): void {
