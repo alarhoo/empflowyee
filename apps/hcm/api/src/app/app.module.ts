@@ -5,6 +5,7 @@ import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-modul
 import { HcmDocumentsModule } from '@empflowyee/hcm-api-documents-module'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
 import { HcmEmployeeModule } from '@empflowyee/hcm-api-employee-module'
+import { HcmJobArchitectureModule } from '@empflowyee/hcm-api-job-architecture-module'
 import { Module } from '@nestjs/common'
 import { RuntimeModule } from '@empflowyee/platform-api-runtime-module'
 import { AppController } from './app.controller'
@@ -16,6 +17,7 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 		HcmDocumentsModule,
 		HcmWorkforceFoundationModule,
 		HcmEmployeeModule,
+		HcmJobArchitectureModule,
 		HcmNotificationsModule,
 		HcmAuditModule,
 		RuntimeModule,
