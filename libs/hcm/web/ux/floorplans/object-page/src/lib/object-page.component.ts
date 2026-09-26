@@ -67,13 +67,21 @@ export interface HcmObjectAction {
 export class HcmObjectPage {
 	readonly columns = inject(FlexibleColumnLayout, { optional: true })
 	readonly maximized = signal(false)
-	/** Expand the native middle column or restore its list/detail split. */
+	/** FCL column hosting this detail; an end-column detail expands within a three-column layout. */
+	readonly column = input<'mid' | 'end'>('mid')
+	/** Expand the native detail column or restore its list/detail split. */
 	toggleMaximized(): void {
 		if (!this.columns) return
 		this.maximized.update(/** Toggle the selected detail's presentation only. */ (value) => !value)
-		this.columns.elementRef.nativeElement.layout = this.maximized()
-			? 'MidColumnFullScreen'
-			: 'TwoColumnsMidExpanded'
+		const end = this.column() === 'end'
+		if (this.maximized())
+			this.columns.elementRef.nativeElement.layout = end
+				? 'EndColumnFullScreen'
+				: 'MidColumnFullScreen'
+		else
+			this.columns.elementRef.nativeElement.layout = end
+				? 'ThreeColumnsEndExpanded'
+				: 'TwoColumnsMidExpanded'
 	}
 
 	readonly title = input.required<string>()

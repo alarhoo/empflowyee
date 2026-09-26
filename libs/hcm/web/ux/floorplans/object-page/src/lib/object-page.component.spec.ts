@@ -63,3 +63,20 @@ it('restores the native split and separates navigation close from business close
 		page.visibleActions().map(/** Identify the retained business action. */ (item) => item.id),
 	).toEqual(['close'])
 })
+
+it('expands an end-column detail within the three-column layout', /** A third-column object must not collapse into the middle column when maximized. */ () => {
+	const native = { layout: 'ThreeColumnsEndExpanded' }
+	TestBed.configureTestingModule({
+		providers: [
+			{ provide: FlexibleColumnLayout, useValue: { elementRef: { nativeElement: native } } },
+		],
+	})
+	const fixture = TestBed.createComponent(HcmObjectPage)
+	fixture.componentRef.setInput('title', 'Unit')
+	fixture.componentRef.setInput('column', 'end')
+	const page = fixture.componentInstance
+	page.toggleMaximized()
+	expect(native.layout).toBe('EndColumnFullScreen')
+	page.toggleMaximized()
+	expect(native.layout).toBe('ThreeColumnsEndExpanded')
+})
