@@ -32,8 +32,7 @@ import {
 } from '@empflowyee/hcm-web-workforce-foundation-data-access'
 import type { OrganisationProfileView } from '@empflowyee/hcm-workforce-foundation-contract'
 import { StructureOptionBox, type OptionRef } from './option-box.component'
-import { StructureDiscardDialog } from './discard-dialog.component'
-import { StructureDraft } from './structure-draft'
+import { HcmDiscardDialog, HcmDraft } from '@empflowyee/hcm-web-ux-forms'
 import { MONTHS, languageOptions, timeZones } from './structure-areas'
 
 /** Days valid for a recurring financial-year start in every year. */
@@ -62,7 +61,7 @@ export function maxDay(month: number): number {
 		Text,
 		MessageStrip,
 		StructureOptionBox,
-		StructureDiscardDialog,
+		HcmDiscardDialog,
 	],
 	templateUrl: './profile-dialog.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -103,7 +102,7 @@ export class OrganisationProfileDialog implements OnInit, OnDestroy {
 			maxLength(path.reason, 500)
 		},
 	)
-	readonly draft = new StructureDraft(
+	readonly draft = new HcmDraft(
 		/** Track the whole command draft. */ () => ({
 			...this.model(),
 			day: this.day(),

@@ -29,8 +29,7 @@ import {
 } from '@empflowyee/hcm-web-workforce-foundation-data-access'
 import type { StructureArea, UnitTypeDto } from '@empflowyee/hcm-workforce-foundation-contract'
 import { StructureOptionBox, type OptionRef } from './option-box.component'
-import { StructureDiscardDialog } from './discard-dialog.component'
-import { StructureDraft } from './structure-draft'
+import { HcmDiscardDialog, HcmDraft } from '@empflowyee/hcm-web-ux-forms'
 import type { StructureAreaInfo } from './structure-areas'
 
 export interface StatusDialogRequest {
@@ -54,7 +53,7 @@ export interface StatusDialogRequest {
 		Text,
 		MessageStrip,
 		StructureOptionBox,
-		StructureDiscardDialog,
+		HcmDiscardDialog,
 	],
 	template: `<ui5-dialog
 			[open]="true"
@@ -145,10 +144,10 @@ export interface StatusDialogRequest {
 				</ui5-button>
 			</ui5-bar>
 		</ui5-dialog>
-		<ef-hcm-structure-discard
+		<ef-hcm-discard-dialog
 			[open]="draft.confirmOpen()"
 			(decided)="draft.decide($event)"
-		></ef-hcm-structure-discard>`,
+		></ef-hcm-discard-dialog>`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StructureStatusDialog implements OnInit, OnDestroy {
@@ -171,7 +170,7 @@ export class StructureStatusDialog implements OnInit, OnDestroy {
 			maxLength(path.reason, 500)
 		},
 	)
-	readonly draft = new StructureDraft(
+	readonly draft = new HcmDraft(
 		/** Track the whole command draft. */ () => ({
 			...this.model(),
 			successor: this.successor()?.id,
