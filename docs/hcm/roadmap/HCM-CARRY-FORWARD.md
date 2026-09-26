@@ -39,7 +39,7 @@ Purpose: keep intentionally deferred decisions visible without polluting current
 Recorded during HCM-2 preparation on 2026-09-26. Each item names the capability HCM-2 deliberately leaves out.
 
 - **Background runtime.** Automatic execution of future-dated employment-level changes, pushed probation escalations, SLA breach notifications, automatic closure of resolved HR requests and imports above 2,000 rows need a worker or Cloud Run Job. HCM-2 uses explicit Apply commands and read-time states. Decide the runtime through an ADR before any of these is promised.
-- **Field encryption.** [ADR-HCM-FIELD-ENCRYPTION](../adr/ADR-HCM-FIELD-ENCRYPTION.md) is Proposed. Positions, Position Requirements and sensitive custom field values cannot ship until it is accepted, and production needs the KMS IaC change it describes.
+- **Field encryption.** Resolved for local implementation: [ADR-HCM-FIELD-ENCRYPTION](../adr/ADR-HCM-FIELD-ENCRYPTION.md) is accepted and the `FieldCipher` port with a local key is delivered ([validation](../testing/HCM-2-FIELD-CIPHER-VALIDATION.md)). Production still needs the Cloud KMS key custody and its IaC change, reviewed separately, before any deployed environment stores encrypted values.
 - **Identification values and statutory data.** Person identification values, identifier-based duplicate matching, statutory nominees and GST registrations wait for a named statutory workflow.
 - **Contact verification and invitations.** Personal email and mobile stay unverified, and import creates no invitations, until production authentication and external delivery exist.
 - **Profile groups owned elsewhere.** Photos need a governed photo contract. Skills, education, work experience, languages and certifications belong to later Skills work.

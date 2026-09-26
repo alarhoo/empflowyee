@@ -10,7 +10,7 @@ validation record pass.
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
 | 1     | Catalogue admission of Organization Structure                                                                                                   | Delivered   | 171-app catalogue; `access.discovery@2`                                            |
 | 2     | Shared `HcmWizardPage`                                                                                                                          | Not started | —                                                                                  |
-| 3     | `FieldCipher` port and local key                                                                                                                | Not started | —                                                                                  |
+| 3     | `FieldCipher` port and local key, with migration `000025`                                                                                       | Delivered   | [Validation](../testing/HCM-2-FIELD-CIPHER-VALIDATION.md)                          |
 | 4     | Workforce structure foundation: migrations `000017`–`000018`, contracts, API, `workforce.foundation@2`, `access.hcm2@1`                         | Delivered   | `libs/hcm/api/workforce-foundation/**`; `pnpm hcm:db:test`                         |
 | 5     | Organization Structure app                                                                                                                      | Released    | [Validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md)                |
 | 6     | Identification Types app                                                                                                                        | Released    | [Validation](../testing/HCM-2-IDENTIFICATION-TYPES-VALIDATION.md)                  |
@@ -46,6 +46,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 10   | `codex/hcm-2-my-profile`                            |
 | 11   | `codex/hcm-2-job-architecture-catalogue-foundation` |
 | 11   | `codex/hcm-2-job-catalogue`                         |
+| 3    | `codex/hcm-2-field-cipher`                          |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -56,11 +57,13 @@ Migration numbers are assigned when a migration is added:
   step 9 therefore became `000022`.
 - My Profile in step 10 added `000023_employee_self_service.sql`, which grants the runtime the
   blood group, custom value and custom value option writes that `000022` had withheld.
+- Step 3 was delivered after step 11 because the positions foundation needs it. It added
+  `000025_field_cipher_keys.sql`.
 
-Every migration the approved plan numbers `000022` or later therefore takes the number two
-above its planned one: the job architecture catalogue of step 11 becomes `000024`, the
-positions migrations of step 12 become `000025`–`000026`, and the workforce changes, import,
-probation and HR service migrations become `000027`–`000030`.
+The job architecture catalogue of step 11 therefore became `000024`. Every migration the approved
+plan numbers `000023` or later now takes the number three above its planned one: the positions
+migrations of step 12 become `000026`–`000027`, and the workforce changes, import, probation and
+HR service migrations become `000028`–`000031`.
 
 Seed modules are immutable once applied. `job.architecture@1` therefore carries only the
 catalogue part delivered in step 11; the position part planned for it arrives in step 12 as
