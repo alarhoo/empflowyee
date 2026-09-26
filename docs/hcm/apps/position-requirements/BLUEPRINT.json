@@ -1,0 +1,431 @@
+{
+	"formatVersion": 1,
+	"appCode": "POSITION_REQUIREMENTS",
+	"domain": "job-architecture",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/position-requirements/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/position-requirements/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/position-requirements/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/position-requirements/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/job-architecture/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "contract",
+			"path": "docs/hcm/domains/job-architecture/BUSINESS-RULES.md"
+		},
+		{
+			"id": "COMMON2",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-COMMON.md"
+		},
+		{
+			"id": "COMMON1",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "DATAMODEL",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-DATA-MODEL.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-2-PERMISSION-MATRIX.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-2-DECISIONS.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		},
+		{
+			"id": "WORKFORCE",
+			"kind": "contract",
+			"path": "docs/hcm/domains/workforce-foundation/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "ENCRYPTION",
+			"kind": "contract",
+			"path": "docs/hcm/adr/ADR-HCM-FIELD-ENCRYPTION.md"
+		}
+	],
+	"route": "/job-architecture/position-requirements",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["FlexibleColumnLayout", "DynamicPage", "DynamicPageTitle", "DynamicPageHeader"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"TableGrowing",
+				"Button",
+				"Toolbar",
+				"ToolbarButton",
+				"Bar",
+				"Title",
+				"Label",
+				"Text",
+				"MessageStrip",
+				"BusyIndicator",
+				"Dialog",
+				"Form",
+				"FormItem",
+				"Input",
+				"TextArea",
+				"Select",
+				"Option",
+				"StepInput",
+				"CheckBox"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent"],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "POSITION_REQUIREMENTS-HTTP",
+			"owner": "job-architecture",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "job-architecture-DTO",
+			"owner": "job-architecture",
+			"ref": "DOMAIN#contract"
+		},
+		{
+			"id": "audit-append",
+			"owner": "audit",
+			"ref": "AUDIT#contract"
+		},
+		{
+			"id": "request-authorization",
+			"owner": "access-control",
+			"ref": "ACCESS_CONTROL#contract"
+		}
+	],
+	"data": [
+		{
+			"id": "position_requirement",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "position_change_request",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "position_change_item",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "position_version",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_profile_requirement",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "job_architecture_command_receipt",
+			"owner": "job-architecture",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "audit_event",
+			"owner": "audit",
+			"ref": "DATAMODEL#MAPPING"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.job-architecture.position-requirements.read",
+			"owner": "job-architecture",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.job-architecture.position-requirements.request",
+			"owner": "job-architecture",
+			"ref": "TDD#AUTH"
+		},
+		{
+			"id": "hcm.job-architecture.position-requirements.waive",
+			"owner": "job-architecture",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-job-architecture-feature-position-requirements",
+			"root": "libs/hcm/web/job-architecture/feature-position-requirements",
+			"tags": ["product:hcm", "runtime:web", "domain:job-architecture", "type:feature"]
+		},
+		{
+			"name": "hcm-web-job-architecture-data-access",
+			"root": "libs/hcm/web/job-architecture/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:job-architecture", "type:data-access"]
+		},
+		{
+			"name": "hcm-job-architecture-contract",
+			"root": "libs/hcm/contracts/job-architecture",
+			"tags": ["product:hcm", "runtime:universal", "domain:job-architecture", "type:contract"]
+		},
+		{
+			"name": "hcm-api-job-architecture-domain",
+			"root": "libs/hcm/api/job-architecture/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:domain"]
+		},
+		{
+			"name": "hcm-api-job-architecture-application",
+			"root": "libs/hcm/api/job-architecture/application",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:application"]
+		},
+		{
+			"name": "hcm-api-job-architecture-infrastructure",
+			"root": "libs/hcm/api/job-architecture/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-job-architecture-transport",
+			"root": "libs/hcm/api/job-architecture/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:transport"]
+		},
+		{
+			"name": "hcm-api-job-architecture-module",
+			"root": "libs/hcm/api/job-architecture/module",
+			"tags": ["product:hcm", "runtime:api", "domain:job-architecture", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "hcm2-shared-contract",
+			"state": "resolved",
+			"ref": "COMMON2#API"
+		},
+		{
+			"id": "hcm2-physical-model",
+			"state": "resolved",
+			"ref": "DATAMODEL#MIGRATIONS"
+		},
+		{
+			"id": "hcm2-permission-register",
+			"state": "resolved",
+			"ref": "GRANTS#GRANTS"
+		},
+		{
+			"id": "position-change-foundation",
+			"state": "unresolved",
+			"ref": "DOMAIN#dependencies"
+		},
+		{
+			"id": "field-encryption-adr",
+			"state": "unresolved",
+			"ref": "ENCRYPTION#Decision"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-POSITION-REQUIREMENTS-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-POSITION-REQUIREMENTS-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-POSITION-REQUIREMENTS-003",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-POSITION-REQUIREMENTS-004",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-POSITION-REQUIREMENTS-001",
+		"FDD#REQ-POSITION-REQUIREMENTS-002",
+		"FDD#REQ-POSITION-REQUIREMENTS-003",
+		"FDD#REQ-POSITION-REQUIREMENTS-004",
+		"FDD#REQ-POSITION-REQUIREMENTS-005",
+		"FDD#REQ-POSITION-REQUIREMENTS-006",
+		"FDD#REQ-POSITION-REQUIREMENTS-007"
+	],
+	"tests": [
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-001"
+		},
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-002",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-002"
+		},
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-003",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-003"
+		},
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-004",
+			"kind": "domain-integration",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-004"
+		},
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-005",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-005"
+		},
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-006",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-006"
+		},
+		{
+			"id": "TEST-POSITION-REQUIREMENTS-007",
+			"kind": "postgresql-integration",
+			"ref": "TRACE#TEST-POSITION-REQUIREMENTS-007"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-POSITION-REQUIREMENTS-001"]
+		},
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-POSITION-REQUIREMENTS-002"]
+		},
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-003",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-POSITION-REQUIREMENTS-003"]
+		},
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-004",
+			"design": "TDD#RULES",
+			"tests": ["TEST-POSITION-REQUIREMENTS-004"]
+		},
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-005",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-POSITION-REQUIREMENTS-005"]
+		},
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-006",
+			"design": "TDD#UX",
+			"tests": ["TEST-POSITION-REQUIREMENTS-006"]
+		},
+		{
+			"requirement": "FDD#REQ-POSITION-REQUIREMENTS-007",
+			"design": "TDD#DATA",
+			"tests": ["TEST-POSITION-REQUIREMENTS-007"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-2-position-requirements",
+		"commits": [
+			"feat(hcm-job-architecture): add position requirement variance contracts",
+			"feat(hcm-job-architecture): expose authorized requirement variance API",
+			"feat(hcm-job-architecture): add position requirements native UI",
+			"test(hcm-job-architecture): verify position requirements acceptance"
+		]
+	}
+}

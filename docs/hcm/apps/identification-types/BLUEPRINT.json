@@ -1,0 +1,335 @@
+{
+	"formatVersion": 1,
+	"appCode": "IDENTIFICATION_TYPES",
+	"domain": "workforce-foundation",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/identification-types/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/identification-types/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/identification-types/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/identification-types/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workforce-foundation/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "contract",
+			"path": "docs/hcm/domains/workforce-foundation/BUSINESS-RULES.md"
+		},
+		{
+			"id": "COMMON2",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-COMMON.md"
+		},
+		{
+			"id": "COMMON1",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-1-LOCAL-COMMON.md"
+		},
+		{
+			"id": "DATAMODEL",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/TDD-HCM-2-DATA-MODEL.md"
+		},
+		{
+			"id": "GRANTS",
+			"kind": "contract",
+			"path": "docs/hcm/tdd/HCM-2-PERMISSION-MATRIX.md"
+		},
+		{
+			"id": "SCOPE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-2-DECISIONS.md"
+		},
+		{
+			"id": "UX",
+			"kind": "ux",
+			"path": "docs/hcm/ux/floorplans/README.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		},
+		{
+			"id": "AUDIT",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-AUDIT.md"
+		},
+		{
+			"id": "ACCESS_CONTROL",
+			"kind": "contract",
+			"path": "docs/hcm/domain/HCM-1-ACCESS-CONTROL.md"
+		}
+	],
+	"route": "/workforce-foundation/identification-types",
+	"floorplan": {
+		"id": "UX-FP-DYNAMIC-PAGE",
+		"mode": "NATIVE",
+		"ref": "TDD#UX"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["DynamicPage", "DynamicPageTitle", "DynamicPageHeader", "ViewSettingsDialog"],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"TableHeaderRow",
+				"TableHeaderCell",
+				"TableRow",
+				"TableCell",
+				"Form",
+				"FormItem",
+				"Label",
+				"ComboBox",
+				"ComboBoxItem",
+				"Select",
+				"Option",
+				"CheckBox",
+				"MessageStrip",
+				"BusyIndicator"
+			],
+			"ref": "TDD#UX"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent"],
+			"ref": "TDD#UX"
+		}
+	],
+	"contracts": [
+		{
+			"id": "IDENTIFICATION_TYPES-HTTP",
+			"owner": "workforce-foundation",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "workforce-foundation-DTO",
+			"owner": "workforce-foundation",
+			"ref": "DOMAIN#contract"
+		},
+		{
+			"id": "request-authorization",
+			"owner": "access-control",
+			"ref": "ACCESS_CONTROL#contract"
+		}
+	],
+	"data": [
+		{
+			"id": "identification_type",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		},
+		{
+			"id": "country",
+			"owner": "workforce-foundation",
+			"ref": "DATAMODEL#MAPPING"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.workforce-foundation.identification-types.read",
+			"owner": "workforce-foundation",
+			"ref": "TDD#AUTH"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-web-workforce-foundation-feature-identification-types",
+			"root": "libs/hcm/web/workforce-foundation/feature-identification-types",
+			"tags": ["product:hcm", "runtime:web", "domain:workforce-foundation", "type:feature"]
+		},
+		{
+			"name": "hcm-web-workforce-foundation-data-access",
+			"root": "libs/hcm/web/workforce-foundation/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:workforce-foundation", "type:data-access"]
+		},
+		{
+			"name": "hcm-workforce-foundation-contract",
+			"root": "libs/hcm/contracts/workforce-foundation",
+			"tags": ["product:hcm", "runtime:universal", "domain:workforce-foundation", "type:contract"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-domain",
+			"root": "libs/hcm/api/workforce-foundation/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:domain"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-application",
+			"root": "libs/hcm/api/workforce-foundation/application",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:application"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-infrastructure",
+			"root": "libs/hcm/api/workforce-foundation/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-transport",
+			"root": "libs/hcm/api/workforce-foundation/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:transport"]
+		},
+		{
+			"name": "hcm-api-workforce-foundation-module",
+			"root": "libs/hcm/api/workforce-foundation/module",
+			"tags": ["product:hcm", "runtime:api", "domain:workforce-foundation", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "hcm2-shared-contract",
+			"state": "resolved",
+			"ref": "COMMON2#API"
+		},
+		{
+			"id": "hcm2-physical-model",
+			"state": "resolved",
+			"ref": "DATAMODEL#MIGRATIONS"
+		},
+		{
+			"id": "hcm2-permission-register",
+			"state": "resolved",
+			"ref": "GRANTS#GRANTS"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-IDENTIFICATION-TYPES-001",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-IDENTIFICATION-TYPES-002",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-IDENTIFICATION-TYPES-003",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-IDENTIFICATION-TYPES-001",
+		"FDD#REQ-IDENTIFICATION-TYPES-002",
+		"FDD#REQ-IDENTIFICATION-TYPES-003",
+		"FDD#REQ-IDENTIFICATION-TYPES-004",
+		"FDD#REQ-IDENTIFICATION-TYPES-005"
+	],
+	"tests": [
+		{
+			"id": "TEST-IDENTIFICATION-TYPES-001",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-IDENTIFICATION-TYPES-001"
+		},
+		{
+			"id": "TEST-IDENTIFICATION-TYPES-002",
+			"kind": "api-integration",
+			"ref": "TRACE#TEST-IDENTIFICATION-TYPES-002"
+		},
+		{
+			"id": "TEST-IDENTIFICATION-TYPES-003",
+			"kind": "unit",
+			"ref": "TRACE#TEST-IDENTIFICATION-TYPES-003"
+		},
+		{
+			"id": "TEST-IDENTIFICATION-TYPES-004",
+			"kind": "security-integration",
+			"ref": "TRACE#TEST-IDENTIFICATION-TYPES-004"
+		},
+		{
+			"id": "TEST-IDENTIFICATION-TYPES-005",
+			"kind": "browser-accessibility",
+			"ref": "TRACE#TEST-IDENTIFICATION-TYPES-005"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-IDENTIFICATION-TYPES-001",
+			"design": "TDD#READ",
+			"tests": ["TEST-IDENTIFICATION-TYPES-001"]
+		},
+		{
+			"requirement": "FDD#REQ-IDENTIFICATION-TYPES-002",
+			"design": "TDD#ACTION",
+			"tests": ["TEST-IDENTIFICATION-TYPES-002"]
+		},
+		{
+			"requirement": "FDD#REQ-IDENTIFICATION-TYPES-003",
+			"design": "TDD#RULES",
+			"tests": ["TEST-IDENTIFICATION-TYPES-003"]
+		},
+		{
+			"requirement": "FDD#REQ-IDENTIFICATION-TYPES-004",
+			"design": "TDD#AUTH",
+			"tests": ["TEST-IDENTIFICATION-TYPES-004"]
+		},
+		{
+			"requirement": "FDD#REQ-IDENTIFICATION-TYPES-005",
+			"design": "TDD#UX",
+			"tests": ["TEST-IDENTIFICATION-TYPES-005"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-2-identification-types",
+		"commits": [
+			"feat(hcm-workforce): add identification type reference contract and API",
+			"feat(hcm-workforce): add identification types native UI",
+			"test(hcm-workforce): verify identification types acceptance"
+		]
+	}
+}
