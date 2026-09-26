@@ -193,6 +193,16 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/employee-directory',
+		data: { catalogId: 'EMPLOYEE_DIRECTORY' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the read-only colleague directory. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-employee-directory').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.EMPLOYEE_DIRECTORY_ROUTES,
+			),
+	},
+	{
 		path: 'employee/employee-profile-configuration',
 		data: { catalogId: 'EMPLOYEE_PROFILE_CONFIGURATION' },
 		canMatch: [hcmRouteAccess],

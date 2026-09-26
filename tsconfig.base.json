@@ -229,6 +229,9 @@
 			"@empflowyee/hcm-web-employee-data-access": [
 				"./libs/hcm/web/employee/data-access/src/index.ts"
 			],
+			"@empflowyee/hcm-web-employee-feature-employee-directory": [
+				"./libs/hcm/web/employee/feature-employee-directory/src/index.ts"
+			],
 			"@empflowyee/hcm-web-employee-feature-employee-profile-configuration": [
 				"./libs/hcm/web/employee/feature-employee-profile-configuration/src/index.ts"
 			],

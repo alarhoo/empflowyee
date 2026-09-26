@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-employee-feature-employee-directory",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/employee/feature-employee-directory/src",
+	"prefix": "ef-hcm",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:employee", "type:feature"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}
