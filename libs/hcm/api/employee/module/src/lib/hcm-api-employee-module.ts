@@ -8,6 +8,7 @@ import {
 	EmployeePortBinder,
 	EmployeeUnitOfWork,
 	ProfileConfiguration,
+	TeamDirectory,
 } from '@empflowyee/hcm-api-employee-application'
 import {
 	OrgChartFieldPolicyBinder,
@@ -21,6 +22,7 @@ import {
 import {
 	DirectoryController,
 	ProfileConfigurationController,
+	TeamController,
 } from '@empflowyee/hcm-api-employee-transport'
 
 /**
@@ -31,7 +33,7 @@ import {
 @Global()
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [ProfileConfigurationController, DirectoryController],
+	controllers: [ProfileConfigurationController, DirectoryController, TeamController],
 	providers: [
 		{
 			provide: EmployeeUnitOfWork,
@@ -52,6 +54,12 @@ import {
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the read-only directory use cases. */ (unit: EmployeeUnitOfWork) =>
 				new EmployeeDirectory(unit),
+		},
+		{
+			provide: TeamDirectory,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the read-only team use cases. */ (unit: EmployeeUnitOfWork) =>
+				new TeamDirectory(unit),
 		},
 		{
 			provide: EmployeePortBinder,
