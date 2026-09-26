@@ -71,12 +71,20 @@ async function openArea(page: Page, area: string): Promise<void> {
 /** Click a page action, opening the native overflow first on narrow layouts. */
 async function action(page: Page, name: string, host: string): Promise<void> {
 	const button = page.locator(host).getByRole('button', { name, exact: true })
-	if (!(await button.isVisible()))
-		await page
-			.locator(host)
-			.getByRole('button', { name: 'Additional Options', exact: true })
-			.first()
-			.click()
+	const overflow = page
+		.locator(host)
+		.getByRole('button', { name: 'Additional Options', exact: true })
+		.first()
+	// The native overflow can open without its popover while an FCL column is still resizing.
+	await expect(
+		/** Converge on a visible action, reopening the overflow if needed. */ async () => {
+			if (!(await button.isVisible())) {
+				await page.keyboard.press('Escape')
+				await overflow.click()
+			}
+			await expect(button).toBeVisible({ timeout: 1500 })
+		},
+	).toPass({ timeout: 15000 })
 	await button.click()
 }
 
