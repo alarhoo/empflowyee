@@ -1,6 +1,7 @@
 # Document Requests implementation validation
 
-Branch: `codex/hcm-1-document-requests`.
+Branches: `codex/hcm-1-document-requests` (implementation) and
+`codex/hcm-1-document-requests-release` (notification scope and release).
 
 ## Implemented
 
@@ -65,25 +66,45 @@ Local acceptance records remain in PostgreSQL/private storage. Inspection report
 no missing Ready files and no abandoned cleanup candidates. API startup does not
 run migration or maintenance work.
 
-## Release hold: notification destination
-
-Nineteen other local-stage apps are complete. This last app's core runtime and UI
-are implemented, but catalogue release remains held pending one documented
-navigation decision. The six production-integration apps remain Planned.
+## Resolved release hold: notification destination
 
 The [domain policy](../domain/HCM-1-DOCUMENTS.md#contract) sends submitted notices
-to the HR requester. The [approved TDD discovery rule](../apps/document-requests/TDD.md#discovery)
-says every notification deep link selects Own scope. The HR requester cannot read
-another employee's request through the self endpoint. Neither grants nor recipient
-rules should be broadened to make this link work.
+to the HR requester, but the TDD originally required every notification deep link
+to select Own scope, which that recipient cannot read. On 2026-09-26 the product
+owner resolved [DEC-DOCUMENT-REQUESTS-004](../apps/document-requests/DECISIONS.md):
+requested/replacement notices select Own scope and submitted notices select HR
+scope. The [revised TDD discovery rule](../apps/document-requests/TDD.md#discovery),
+decision register and blueprint carry refreshed approval hashes. Grants, recipient
+rules and destination permission/subject checks are unchanged.
 
-Proposed correction: requested/replacement notifications select Own scope;
-submitted notifications select HR scope. Every destination still performs its
-existing permission/subject checks. The alternative is to retain all-Own links
-and require HR to switch scope manually. No new decision approval is claimed;
-notification navigation and final catalogue activation await the owner's answer.
-The temporary catalogue activation used for browser acceptance is not a release
-approval. Existing approved document hashes remain unchanged.
+My Notifications now passes the event's scope with the request deep link. The
+catalogue entry is `complete`, so the app is Available to HR and employee
+discovery; the six production-integration apps remain Planned.
+
+## Release evidence (2026-09-26)
+
+- New live case `opens each notification recipient in the request scope that
+authorizes it`: Jim's persisted "Document requested" notice opens Own scope and
+  Toby's "Document submitted" notice opens HR scope with HR actions, both through
+  the real inbox, API and PostgreSQL. The routed create/submit/replace/accept
+  lifecycle also passes (`.tmp/requests-release-browser.txt`).
+- PostgreSQL/NestJS suite: **165 tests across 25 files** pass
+  (`.tmp/requests-release-pg.txt`). Production `hcm-web` and `hcm-api` builds
+  pass. Affected project lint, runtime catalogue check/validation, architecture,
+  documentation, 66 page templates and 15 factory tests pass. Single-app and
+  admitted readiness report ready (20/20).
+- Live browser helpers were stabilized for the shared shell and FCL: application
+  search waits for the rendered shellbar instead of toggling an already expanded
+  field, and Object Page actions wait for the mid column to stop resizing.
+
+Known shared regression (not app-specific, not fixed here): the two
+theme/branding accessibility cases now report axe `color-contrast` for the
+inverted positive ObjectStatus mandated by the
+[data-presentation skill](../../../.ai/skills/hcm-data-presentation/SKILL.md)
+(white on Horizon Light `#30914c`, 3.97:1 at 12px). It applies to every app using
+that status and needs a shared UX/theme decision. Opening the native toolbar
+overflow while an FCL column resizes can also leave it expanded without a popover;
+that is a shared Object Page watch item.
 
 ## Reproduction
 
