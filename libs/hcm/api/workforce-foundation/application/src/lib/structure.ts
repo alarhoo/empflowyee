@@ -46,7 +46,8 @@ import {
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { IdentificationTypeRepository } from './identification-types'
-import type { WorkforceFactsPort, WorkforceReadPort } from './workforce-ports'
+import type { OrgChartFieldPolicy, WorkforceFactsPort, WorkforceReadPort } from './workforce-ports'
+import type { OrgChartRepository } from './org-chart'
 import type { LookupRepository } from './lookups'
 
 export interface UnitVersionRow {
@@ -113,6 +114,9 @@ export interface WorkforceWork {
 	structure: StructureRepository
 	identification: IdentificationTypeRepository
 	lookups: LookupRepository
+	orgChart: OrgChartRepository
+	/** The employee-implemented field policy, when the API root provides it. */
+	orgChartPolicy: OrgChartFieldPolicy | null
 	/** Workforce commands bound to this transaction. */
 	facts: WorkforceFactsPort
 	/** Workforce as-of projections bound to this transaction. */

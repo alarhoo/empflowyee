@@ -207,6 +207,7 @@ export interface WorkforceActor {
 
 /** Organization-visible person fields the org chart may serialize (TDD-HCM-2-COMMON#ports). */
 export type OrgChartField =
+	| 'display-name'
 	| 'preferred-name'
 	| 'worker-number'
 	| 'work-email'
@@ -224,6 +225,8 @@ export type OrgChartField =
 export interface OrgChartFieldPolicy {
 	/** Fields each worker exposes to Organization viewers after tenant policy and preferences. */
 	organizationFields(workerIds: readonly string[]): Promise<Map<string, ReadonlySet<OrgChartField>>>
+	/** Fields Organization viewers may search on, before any worker preference. */
+	searchable(): Promise<ReadonlySet<OrgChartField>>
 }
 
 /** Bind the org-chart field policy to the caller's open, authorized transaction. */

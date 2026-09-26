@@ -4,6 +4,7 @@ import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastruc
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import {
 	WorkforceUnitOfWork,
+	type OrgChartFieldPolicyBinder,
 	type WorkforceWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { organisationToday } from './business-date'
@@ -11,10 +12,14 @@ import { KyselyStructureRepository, type WorkforceScope } from './structure-repo
 import { KyselyIdentificationTypeRepository } from './identification-type-repository'
 import { KyselyWorkforceFacts, KyselyWorkforceReads } from './workforce-facts'
 import { KyselyLookupRepository } from './lookup-repository'
+import { KyselyOrgChartRepository } from './org-chart-repository'
 
 export class KyselyWorkforceUnitOfWork extends WorkforceUnitOfWork {
-	/** Reuse the verified access transaction boundary without introducing a new trust boundary. */
-	constructor(private readonly database: HcmAccessDatabase | null) {
+	/** Reuse the verified access transaction boundary; the org chart policy comes from the API root. */
+	constructor(
+		private readonly database: HcmAccessDatabase | null,
+		private readonly orgChartPolicy: OrgChartFieldPolicyBinder | null = null,
+	) {
 		super()
 	}
 	/** Reauthorize the workforce permission and bind repositories, audit and receipts to one transaction. */
@@ -42,6 +47,12 @@ export class KyselyWorkforceUnitOfWork extends WorkforceUnitOfWork {
 					structure: new KyselyStructureRepository(scope),
 					identification: new KyselyIdentificationTypeRepository(scope),
 					lookups: new KyselyLookupRepository(scope),
+					orgChart: new KyselyOrgChartRepository(scope),
+					orgChartPolicy:
+						this.orgChartPolicy?.bind(access.transaction, {
+							tenantId: scope.tenantId,
+							accountId: scope.accountId,
+						}) ?? null,
 					facts: new KyselyWorkforceFacts(scope),
 					reads: new KyselyWorkforceReads(scope),
 					receipts: new SqlCommandReceipts(

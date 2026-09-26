@@ -204,7 +204,7 @@ it('defines custom fields, maintains options and retires without delete', /** RE
 			revision: 1,
 		},
 	})
-	const field = created.body.customField!
+	const field = created.body.customField as CustomFieldDefinitionDto
 	expect(field.options.map(/** Code. */ (option) => option.code)).toEqual(['S', 'M'])
 	for (const invalid of [
 		{ searchable: true },
@@ -272,7 +272,7 @@ it('defines custom fields, maintains options and retires without delete', /** RE
 			})
 		).status,
 	).toBe(409)
-	const small = field.options[0]!
+	const small = field.options[0] as CustomFieldOptionDto
 	const retiredOption = await api.send<ProfileFieldDetailDto>(
 		'toby',
 		'PUT',

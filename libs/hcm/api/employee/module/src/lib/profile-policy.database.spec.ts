@@ -212,6 +212,7 @@ describe('employee profile policy foundation', /** Migration 000022 and employee
 		expect([...(perWorker.chart.get(P + 'worker/jim') ?? [])].sort()).toEqual([
 			'department',
 			'designation',
+			'display-name',
 			'location',
 			'manager',
 			'organisation-unit',
