@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **8 of 18 HCM-2 apps released; step 10 is complete.** Delivery follows the approved
+Status: **9 of 18 HCM-2 apps released; step 11 is complete.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -23,6 +23,7 @@ validation record pass.
 | 10    | Team Directory app                                                                                                                              | Released    | [Validation](../testing/HCM-2-TEAM-DIRECTORY-VALIDATION.md)                        |
 | 10    | My Profile app, with grant migration `000023`                                                                                                   | Released    | [Validation](../testing/HCM-2-MY-PROFILE-VALIDATION.md)                            |
 | 11    | Job architecture catalogue foundation: migration `000024`, catalogue part of `job.architecture@1`                                               | Delivered   | [Validation](../testing/HCM-2-JOB-ARCHITECTURE-CATALOGUE-FOUNDATION-VALIDATION.md) |
+| 11    | Job Catalogue app                                                                                                                               | Released    | [Validation](../testing/HCM-2-JOB-CATALOGUE-VALIDATION.md)                         |
 | 12–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -44,6 +45,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 10   | `codex/hcm-2-team-directory`                        |
 | 10   | `codex/hcm-2-my-profile`                            |
 | 11   | `codex/hcm-2-job-architecture-catalogue-foundation` |
+| 11   | `codex/hcm-2-job-catalogue`                         |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -75,6 +77,7 @@ app approval binds.
 | DEC-HCM2-017 | The FDD names HR Operations as a reader of the organisation structure, but the reviewed seed granted Organization Structure discovery to Administration only. Should HR discover it? | Yes. `access.discovery@3` grants `hr-specialist` discovery, and the app joins the HR specialist catalogue under Workforce Operations. Discovery grants no business permission.                                                                                 |
 | DEC-HCM2-018 | Identification Types and Lookup Values have the same gap: the FDDs name HR Operations as a reader, but discovery is Administration-only. Should HR discover them?                    | Yes. `access.discovery@4` grants `hr-specialist` discovery for both, and both join the HR specialist catalogue under Workforce Operations.                                                                                                                     |
 | DEC-HCM2-019 | Employee Profile Configuration has the same gap: the FDD names tenant administrators as readers, but only HR could discover it. Should administrators discover it?                   | Yes, applied by the precedent of DEC-HCM2-017 and DEC-HCM2-018 without a separate product-owner answer. `access.discovery@5` grants `tenant-administrator` discovery, and the app joins the Tenant Administration catalogue under Reference Data and Policies. |
+| DEC-HCM2-020 | Job Catalogue has the same gap: the FDD names HR Operations as a reader, but only administrators could discover it. Should HR discover it?                                           | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-019 without a separate product-owner answer. `access.discovery@6` grants `hr-specialist` discovery, and the app joins the HR catalogue under Configuration and Service.                              |
 
 The open points found during step 5 are listed in the
 [Organization Structure validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md#open-points).
