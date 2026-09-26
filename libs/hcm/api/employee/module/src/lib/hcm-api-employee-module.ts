@@ -1,24 +1,48 @@
 import { Global, Module } from '@nestjs/common'
+import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
+import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
+import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
-import { EmployeePortBinder } from '@empflowyee/hcm-api-employee-application'
+import {
+	EmployeePortBinder,
+	EmployeeUnitOfWork,
+	ProfileConfiguration,
+} from '@empflowyee/hcm-api-employee-application'
 import {
 	OrgChartFieldPolicyBinder,
 	WorkforcePortBinder,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
 	KyselyEmployeePortBinder,
+	KyselyEmployeeUnitOfWork,
 	KyselyOrgChartFieldPolicyBinder,
 } from '@empflowyee/hcm-api-employee-infrastructure'
+import { ProfileConfigurationController } from '@empflowyee/hcm-api-employee-transport'
 
 /**
- * Employee profile policy composition. Global so the workforce org chart can inject the
+ * Employee composition. Global so the workforce org chart can inject the
  * `OrgChartFieldPolicyBinder` it declares without a workforce-to-employee library dependency;
  * the HCM API root imports this module once.
  */
 @Global()
 @Module({
-	imports: [HcmWorkforceFoundationModule],
+	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
+	controllers: [ProfileConfigurationController],
 	providers: [
+		{
+			provide: EmployeeUnitOfWork,
+			inject: [HcmAccessDatabase, WorkforcePortBinder],
+			useFactory: /** Bind employee adapters to the existing authorized transaction boundary. */ (
+				database: HcmAccessDatabase | null,
+				workforce: WorkforcePortBinder,
+			) => new KyselyEmployeeUnitOfWork(database, workforce),
+		},
+		{
+			provide: ProfileConfiguration,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the profile configuration use cases. */ (unit: EmployeeUnitOfWork) =>
+				new ProfileConfiguration(unit),
+		},
 		{
 			provide: EmployeePortBinder,
 			inject: [WorkforcePortBinder],
@@ -32,6 +56,11 @@ import {
 				new KyselyOrgChartFieldPolicyBinder(),
 		},
 	],
-	exports: [EmployeePortBinder, OrgChartFieldPolicyBinder],
+	exports: [
+		EmployeeUnitOfWork,
+		ProfileConfiguration,
+		EmployeePortBinder,
+		OrgChartFieldPolicyBinder,
+	],
 })
 export class HcmEmployeeModule {}
