@@ -395,6 +395,19 @@ export class KyselyStructureRepository implements StructureRepository {
 		if (!row) invalidField(field, 'unknown')
 	}
 
+	/** Code and name of the given ids on a date; unknown ids are absent. */
+	async labels(
+		kind: StructureOptionKind,
+		ids: readonly string[],
+		asOf: string,
+	): Promise<Map<string, StructureOption>> {
+		if (!ids.length) return new Map()
+		const rows = await this.run(
+			sql<StructureOption>`SELECT * FROM (${this.optionSource(kind, asOf)}) o WHERE id = ANY(${[...new Set(ids)]}::text[])`,
+		)
+		return new Map(rows.map(/** Key by id. */ (row) => [row.id, row]))
+	}
+
 	/** Lock one item row and return its revision. */
 	async lockRevision(area: StructureArea, id: string): Promise<number> {
 		const table = area === 'units' ? 'hcm.organisation' : areas[area].table
