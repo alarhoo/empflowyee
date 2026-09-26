@@ -135,7 +135,7 @@ if (launchpad.appCatalogue !== './hcm-app-catalogue.json')
 	errors.push('launchpad must reference the canonical app catalogue')
 if (launchpad.runtimeId !== 'hcm') errors.push('launchpad must use the hcm runtime')
 
-if (catalogue.apps.length !== 170) errors.push(`expected 170 apps, found ${catalogue.apps.length}`)
+if (catalogue.apps.length !== 171) errors.push(`expected 171 apps, found ${catalogue.apps.length}`)
 if ((launchpad.spaces ?? []).length !== 5)
 	errors.push(`expected 5 Spaces, found ${(launchpad.spaces ?? []).length}`)
 if ((launchpad.pages ?? []).length !== 20)

@@ -3631,6 +3631,38 @@
 			}
 		},
 		{
+			"appCode": "ORGANIZATION_STRUCTURE",
+			"title": "Organization Structure",
+			"titleStatus": "provisional",
+			"product": "hcm",
+			"runtime": "web",
+			"domain": "workforce-foundation",
+			"deliveryWave": "HCM-2",
+			"catalogueIds": ["tenant-administration"],
+			"placements": [
+				{
+					"spaceId": "tenant-administration",
+					"pageId": "admin-reference-data",
+					"sectionId": "admin-people-documents",
+					"display": "tiles"
+				}
+			],
+			"featurePath": "libs/hcm/web/workforce-foundation/feature-organization-structure",
+			"route": "/workforce-foundation/organization-structure",
+			"floorplan": "UX-FP-FCL",
+			"fddStatus": "approved",
+			"tddStatus": "approved",
+			"blockingDecisionStatus": "clear",
+			"implementationStatus": "planned",
+			"dataPolicy": "real-api-only",
+			"themeContract": "theme-agnostic",
+			"customCssPolicy": "forbidden-by-default",
+			"discoveryPolicy": {
+				"permission": "hcm.catalogue.ORGANIZATION_STRUCTURE.discover",
+				"entitlement": "hcm.workforce-foundation"
+			}
+		},
+		{
 			"appCode": "OUTBOUND_WEBHOOKS",
 			"title": "Outbound Webhooks",
 			"titleStatus": "provisional",

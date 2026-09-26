@@ -82,6 +82,15 @@
 			"requiresMigrations": ["000016_document_requests.sql"],
 			"apply": "access.documents.3.apply.sql",
 			"reset": "access.documents.3.reset.sql"
+		},
+		{
+			"id": "access.discovery",
+			"domain": "access-control",
+			"version": 2,
+			"dependsOn": ["access.discovery@1"],
+			"requiresMigrations": ["000005_identity_access_spine.sql"],
+			"apply": "access.discovery.2.apply.sql",
+			"reset": "access.discovery.2.reset.sql"
 		}
 	]
 }

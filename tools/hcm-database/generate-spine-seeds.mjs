@@ -43,7 +43,14 @@ const people = [
 		site: 'new-york',
 	},
 ]
-const apps = JSON.parse(readFileSync('docs/hcm/catalogue/hcm-app-catalogue.json', 'utf8')).apps
+// Apps admitted after the immutable foundation seed receive discovery through forward modules.
+const laterCatalogueApps = new Set(['ORGANIZATION_STRUCTURE'])
+const apps = JSON.parse(
+	readFileSync('docs/hcm/catalogue/hcm-app-catalogue.json', 'utf8'),
+).apps.filter(
+	/** Keep the applied foundation projection limited to its original app inventory. */ (app) =>
+		!laterCatalogueApps.has(app.appCode),
+)
 const roles = JSON.parse(
 	readFileSync('docs/hcm/catalogue/hcm-launchpad.json', 'utf8'),
 ).businessRoles
