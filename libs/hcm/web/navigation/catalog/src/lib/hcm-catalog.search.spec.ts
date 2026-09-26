@@ -23,8 +23,11 @@ it('exposes every app in inspection without granting route access', /** Cover al
 	const spaces = getVisibleHcmSpaces(employee, undefined, undefined, true)
 	expect(spaces).toHaveLength(5)
 	expect(spaces.flatMap(/** Count all canonical pages. */ (space) => space.pages)).toHaveLength(20)
-	expect(searchHcmApplications('', spaces)).toHaveLength(170)
-	for (const feature of HCM_FEATURES) expect(canAccessHcmFeature(feature, employee)).toBe(false)
+	expect(searchHcmApplications('', spaces)).toHaveLength(171)
+	for (const feature of HCM_FEATURES.filter(
+		/** Inspect only apps not yet released. */ (item) => !item.available,
+	))
+		expect(canAccessHcmFeature(feature, employee)).toBe(false)
 })
 
 it('filters persona discovery through roles, permissions and entitlements independently', /** A role or inspection cannot turn a planned app into an authorized route. */ () => {
