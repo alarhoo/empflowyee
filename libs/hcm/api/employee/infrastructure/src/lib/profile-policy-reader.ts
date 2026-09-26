@@ -42,7 +42,7 @@ const tenantPolicy = (where: ReturnType<typeof sql>) =>
 /** Reads the product catalogue, tenant narrowing and worker preferences in the caller's transaction. */
 export class KyselyProfilePolicyReader implements ProfilePolicyReader {
 	/** Bind to the authorized transaction. */
-	constructor(private readonly scope: EmployeeScope) {}
+	constructor(protected readonly scope: EmployeeScope) {}
 
 	/** Standard fields, then custom fields, each in section order. */
 	async catalogue(): Promise<ProfileFieldDto[]> {

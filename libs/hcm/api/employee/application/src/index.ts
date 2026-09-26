@@ -1,3 +1,5 @@
 export * from './lib/profile-visibility-port'
 export * from './lib/team-scope'
 export * from './lib/employee-ports'
+export * from './lib/employee-unit'
+export * from './lib/profile-configuration'
