@@ -1,0 +1,104 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	initialFocus="my-profile-contact-value"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-message-strip
+		design="Information"
+		[hideCloseButton]="true">
+		Personal contacts are saved as not verified.
+	</ui5-message-strip>
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (!editing()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="my-profile-contact-type"
+					[required]="true">
+					Type
+				</ui5-label>
+				<ui5-select
+					id="my-profile-contact-type"
+					accessibleName="Type"
+					[formField]="fields.type"
+					[disabled]="draft.saving()">
+					@for (type of request().types; track type) {
+						<ui5-option [value]="type">{{ labels[type] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="my-profile-contact-value"
+				[required]="true">
+				{{ email() ? 'Email' : 'Phone number' }}
+			</ui5-label>
+			<ui5-input
+				id="my-profile-contact-value"
+				[type]="email() ? 'Email' : 'Tel'"
+				[accessibleName]="email() ? 'Email' : 'Phone number'"
+				[formField]="fields.value"
+				[disabled]="draft.saving()"
+				[valueState]="
+					fields.value().touched() && (fields.value().invalid() || shapeInvalid())
+						? 'Negative'
+						: 'None'
+				">
+				<ui5-text slot="valueStateMessage">
+					{{
+						email()
+							? 'Enter an email address such as name@example.com.'
+							: 'Enter a phone number of digits, spaces, brackets or dashes, optionally starting with +.'
+					}}
+				</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		@if (editing()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="my-profile-contact-primary">
+					Primary
+				</ui5-label>
+				<ui5-checkbox
+					id="my-profile-contact-primary"
+					accessibleName="Primary"
+					text="Use as my primary contact of this type"
+					[checked]="primary()"
+					[disabled]="draft.saving() || (request().contact?.primary ?? false)"
+					(ui5Change)="setPrimary($event.target)"></ui5-checkbox>
+			</ui5-form-item>
+		}
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : editing() ? 'Save' : 'Add' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

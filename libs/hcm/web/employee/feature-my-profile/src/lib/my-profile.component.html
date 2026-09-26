@@ -1,0 +1,623 @@
+<ef-hcm-object-page
+	[title]="profile()?.displayName ?? 'My profile'"
+	[summary]="primary()?.designation ?? ''"
+	[state]="state()"
+	[errorMessage]="message()"
+	(retry)="load()">
+	@if (profile()?.linked) {
+		<ui5-avatar
+			hcmHeader
+			size="S"
+			[initials]="avatar()"
+			[accessibleName]="profile()?.displayName ?? ''"></ui5-avatar>
+	}
+	@if (profile(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			@if (!current.linked) {
+				<ui5-message-strip
+					design="Information"
+					[hideCloseButton]="true">
+					Your account is not linked to a worker record, so there is no profile to show. HR links
+					accounts to worker records; contact HR if you expected to see your profile here.
+				</ui5-message-strip>
+			} @else {
+				<ui5-form
+					accessibleName="Overview"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					@if (current.workerNumber) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Worker number</ui5-label>
+							<ui5-text>{{ current.workerNumber }}</ui5-text>
+						</ui5-form-item>
+					}
+					@if (primary(); as placement) {
+						@if (placement.designation) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Designation</ui5-label>
+								<ui5-text>{{ placement.designation }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (placement.department) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Department</ui5-label>
+								<ui5-text>{{ placement.department }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (placement.location) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Location</ui5-label>
+								<ui5-text>{{ placement.location }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (placement.manager) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Manager</ui5-label>
+								<ui5-text>{{ placement.manager.displayName }}</ui5-text>
+							</ui5-form-item>
+						}
+					}
+					@if (current.employments[0]?.workEmail; as email) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Work email</ui5-label>
+							<ui5-link [href]="'mailto:' + email">{{ email }}</ui5-link>
+						</ui5-form-item>
+					}
+				</ui5-form>
+			}
+		</ng-template>
+	}
+	@if (profile()?.linked && profile(); as current) {
+		<ng-template
+			efHcmObjectSection="personal"
+			label="Personal">
+			@if (personalEditable()) {
+				<ui5-toolbar
+					design="Transparent"
+					accessibleName="Personal actions">
+					<ui5-toolbar-button
+						text="Edit"
+						accessibleName="Edit personal details"
+						(ui5Click)="editPersonal()"></ui5-toolbar-button>
+				</ui5-toolbar>
+			}
+			<ui5-form
+				accessibleName="Personal details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				@for (item of personal(); track item.ref) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">{{ item.name }}</ui5-label>
+						@if (item.code === 'birth-date' && item.value) {
+							<ui5-text>{{ item.value | hcmDate: 'date' }}</ui5-text>
+						} @else {
+							<ui5-text>{{ item.value || 'Not recorded' }}</ui5-text>
+						}
+						@if (item.editMode !== 'Direct') {
+							<ui5-text>{{ editModeLabels[item.editMode] }}</ui5-text>
+						}
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		@if (current.contactPoints) {
+			<ng-template
+				efHcmObjectSection="contact"
+				label="Contact">
+				@if (contactTypes().length) {
+					<ui5-toolbar
+						design="Transparent"
+						accessibleName="Contact actions">
+						<ui5-toolbar-button
+							text="Add contact"
+							(ui5Click)="editContact(null)"></ui5-toolbar-button>
+					</ui5-toolbar>
+				}
+				<ui5-table
+					accessibleName="Personal contacts"
+					overflowMode="Popin"
+					noDataText="No personal contacts are recorded."
+					[rowActionCount]="2">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="14rem">
+							Contact
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="60"
+							minWidth="8rem"
+							popinText="Type">
+							Type
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="50"
+							minWidth="8rem"
+							popinText="Verification">
+							Verification
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="40"
+							minWidth="6rem"
+							popinText="Primary">
+							Primary
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (contact of current.contactPoints; track contact.id) {
+						@if (contactVisible(contact.type)) {
+							<ui5-table-row [rowKey]="contact.id">
+								<ui5-table-cell>
+									<ui5-link
+										[href]="
+											(contact.type === 'PersonalEmail' ? 'mailto:' : 'tel:') + contact.value
+										">
+										{{ contact.value }}
+									</ui5-link>
+								</ui5-table-cell>
+								<ui5-table-cell>{{ contactLabels[contact.type] }}</ui5-table-cell>
+								<ui5-table-cell>
+									<span
+										fd-object-status
+										[inverted]="true"
+										[status]="contact.verified ? 'positive' : 'informative'"
+										[label]="contact.verified ? 'Verified' : 'Not verified'"></span>
+								</ui5-table-cell>
+								<ui5-table-cell>{{ contact.primary ? 'Primary' : '' }}</ui5-table-cell>
+								@if (contactEditable(contact)) {
+									<ui5-table-row-action
+										slot="actions"
+										icon="edit"
+										text="Edit"
+										(ui5Click)="editContact(contact)"></ui5-table-row-action>
+									<ui5-table-row-action
+										slot="actions"
+										icon="delete"
+										text="Remove"
+										(ui5Click)="
+											remove('contact', contact.id, contact.value, contact.revision)
+										"></ui5-table-row-action>
+								}
+							</ui5-table-row>
+						}
+					}
+				</ui5-table>
+			</ng-template>
+		}
+		@if (current.addresses) {
+			<ng-template
+				efHcmObjectSection="addresses"
+				label="Addresses">
+				@for (address of current.addresses; track address.id) {
+					<ui5-form
+						[accessibleName]="(addressTypes[address.type] ?? address.type) + ' address'"
+						accessibleMode="Display"
+						layout="S1 M1 L2 XL2">
+						<ui5-form-group
+							headerLevel="H2"
+							[headerText]="
+								(addressTypes[address.type] ?? address.type) +
+								' address' +
+								(address.primary ? ' (primary)' : '')
+							">
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Street</ui5-label>
+								<ui5-text>{{ address.line1 }} {{ address.line2 }}</ui5-text>
+							</ui5-form-item>
+							@if (address.locality) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Locality</ui5-label>
+									<ui5-text>{{ address.locality }}</ui5-text>
+								</ui5-form-item>
+							}
+							<ui5-form-item>
+								<ui5-label slot="labelContent">City</ui5-label>
+								<ui5-text>{{ address.city }} {{ address.postalCode }}</ui5-text>
+							</ui5-form-item>
+							@if (address.stateOrProvince) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">State or province</ui5-label>
+									<ui5-text>{{ address.stateOrProvince }}</ui5-text>
+								</ui5-form-item>
+							}
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Country</ui5-label>
+								<ui5-text>{{ address.countryName }}</ui5-text>
+							</ui5-form-item>
+						</ui5-form-group>
+					</ui5-form>
+				} @empty {
+					<ui5-text>No address is recorded. HR maintains addresses.</ui5-text>
+				}
+			</ng-template>
+		}
+		@if (current.relationships) {
+			<ng-template
+				efHcmObjectSection="family"
+				label="Emergency contacts and family">
+				@if (emergencyEditable() || familyEditable()) {
+					<ui5-toolbar
+						design="Transparent"
+						accessibleName="Emergency contacts and family actions">
+						<ui5-toolbar-button
+							text="Add person"
+							[disabled]="current.relationships.length >= maxRelationships"
+							(ui5Click)="editRelationship(null)"></ui5-toolbar-button>
+					</ui5-toolbar>
+				}
+				<ui5-table
+					accessibleName="Emergency contacts and family"
+					overflowMode="Popin"
+					noDataText="No emergency contacts or family members are recorded."
+					[rowActionCount]="2">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="12rem">
+							Name
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="80"
+							minWidth="8rem"
+							popinText="Relationship">
+							Relationship
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="70"
+							minWidth="8rem"
+							popinText="Emergency priority">
+							Emergency priority
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="50"
+							minWidth="6rem"
+							popinText="Dependant">
+							Dependant
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="40"
+							minWidth="10rem"
+							popinText="Contact number">
+							Contact number
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (person of current.relationships; track person.id) {
+						<ui5-table-row [rowKey]="person.id">
+							<ui5-table-cell>{{ person.fullName }}</ui5-table-cell>
+							<ui5-table-cell>{{ person.relationshipName }}</ui5-table-cell>
+							<ui5-table-cell>{{ person.emergencyPriority ?? '' }}</ui5-table-cell>
+							<ui5-table-cell>{{ person.dependent ? 'Yes' : 'No' }}</ui5-table-cell>
+							<ui5-table-cell>
+								@if (person.contactNumber) {
+									<ui5-link [href]="'tel:' + person.contactNumber">
+										{{ person.contactNumber }}
+									</ui5-link>
+								}
+							</ui5-table-cell>
+							@if (relationshipEditable(person)) {
+								<ui5-table-row-action
+									slot="actions"
+									icon="edit"
+									text="Edit"
+									(ui5Click)="editRelationship(person)"></ui5-table-row-action>
+								<ui5-table-row-action
+									slot="actions"
+									icon="delete"
+									text="Remove"
+									(ui5Click)="
+										remove('relationship', person.id, person.fullName, person.revision)
+									"></ui5-table-row-action>
+							}
+						</ui5-table-row>
+					}
+				</ui5-table>
+			</ng-template>
+		}
+		<ng-template
+			efHcmObjectSection="employment"
+			label="Employment">
+			@for (job of current.employments; track job.employmentId) {
+				<ui5-form
+					[accessibleName]="job.primary ? 'Primary employment' : 'Concurrent employment'"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-group
+						headerLevel="H2"
+						[headerText]="
+							(job.primary ? 'Primary employment' : 'Concurrent employment') +
+							(job.legalEntity ? ' — ' + job.legalEntity : '')
+						">
+						@if (job.employmentStatus; as status) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Employment status</ui5-label>
+								<span
+									fd-object-status
+									[inverted]="true"
+									[status]="employment(status).status"
+									[label]="employment(status).label"></span>
+							</ui5-form-item>
+						}
+						@if (job.employmentType) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Employment type</ui5-label>
+								<ui5-text>{{ employmentTypes[job.employmentType] ?? job.employmentType }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (job.workerType) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Worker type</ui5-label>
+								<ui5-text>{{ job.workerType }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (job.hireDate) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Hire date</ui5-label>
+								<ui5-text>{{ job.hireDate | hcmDate: 'date' }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (job.continuousServiceStartDate) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Continuous service since</ui5-label>
+								<ui5-text>{{ job.continuousServiceStartDate | hcmDate: 'date' }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (job.probationStatus; as status) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Probation</ui5-label>
+								<span
+									fd-object-status
+									[inverted]="true"
+									[status]="probation(status).status"
+									[label]="probation(status).label"></span>
+							</ui5-form-item>
+						}
+						@if (job.probationEndDate) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Probation ends</ui5-label>
+								<ui5-text>{{ job.probationEndDate | hcmDate: 'date' }}</ui5-text>
+							</ui5-form-item>
+						}
+						@if (job.noticePeriodDays !== undefined && job.noticePeriodDays !== null) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Notice period</ui5-label>
+								<ui5-text>{{ job.noticePeriodDays }} days</ui5-text>
+							</ui5-form-item>
+						}
+						@if (job.workEmail) {
+							<ui5-form-item>
+								<ui5-label slot="labelContent">Work email</ui5-label>
+								<ui5-link [href]="'mailto:' + job.workEmail">{{ job.workEmail }}</ui5-link>
+							</ui5-form-item>
+						}
+					</ui5-form-group>
+					@for (placement of job.assignments; track placement.assignmentId) {
+						<ui5-form-group
+							headerLevel="H2"
+							[headerText]="placement.primary ? 'Primary assignment' : 'Additional assignment'">
+							@if (placement.designation) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Designation</ui5-label>
+									<ui5-text>{{ placement.designation }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (placement.organisationUnit) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Organisation unit</ui5-label>
+									<ui5-text>{{ placement.organisationUnit }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (placement.department) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Department</ui5-label>
+									<ui5-text>{{ placement.department }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (placement.location) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Location</ui5-label>
+									<ui5-text>{{ placement.location }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (placement.manager) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Manager</ui5-label>
+									<ui5-text>{{ placement.manager.displayName }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (placement.workMode) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Work mode</ui5-label>
+									<ui5-text>{{ workModes[placement.workMode] ?? placement.workMode }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (
+								placement.fullTimeEquivalent !== undefined && placement.fullTimeEquivalent !== null
+							) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Full-time equivalent</ui5-label>
+									<ui5-text>{{ placement.fullTimeEquivalent }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (
+								placement.standardHoursPerWeek !== undefined &&
+								placement.standardHoursPerWeek !== null
+							) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Standard weekly hours</ui5-label>
+									<ui5-text>{{ placement.standardHoursPerWeek }}</ui5-text>
+								</ui5-form-item>
+							}
+							@if (placement.costCentre) {
+								<ui5-form-item>
+									<ui5-label slot="labelContent">Cost centre</ui5-label>
+									<ui5-text>{{ placement.costCentre }}</ui5-text>
+								</ui5-form-item>
+							}
+						</ui5-form-group>
+					}
+				</ui5-form>
+			} @empty {
+				<ui5-text>No current employment is recorded.</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="additional"
+			label="Additional information">
+			<ui5-table
+				accessibleName="Additional information"
+				overflowMode="Popin"
+				noDataText="Your organisation has not defined additional information."
+				[rowActionCount]="1">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Field
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="12rem"
+						popinText="Value">
+						Value
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="8rem"
+						popinText="Maintained by">
+						Maintained by
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of customFields(); track item.ref) {
+					<ui5-table-row [rowKey]="item.ref">
+						<ui5-table-cell>{{ item.name }}</ui5-table-cell>
+						<ui5-table-cell>
+							@if (item.custom?.dataType === 'Date' && item.custom.value) {
+								{{ $any(item.custom.value) | hcmDate: 'date' }}
+							} @else {
+								{{ customText(item) }}
+							}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{
+								item.custom?.storable === false
+									? 'Protected; maintained by HR'
+									: editModeLabels[item.editMode]
+							}}
+						</ui5-table-cell>
+						@if (item.editMode === 'Direct') {
+							<ui5-table-row-action
+								slot="actions"
+								icon="edit"
+								text="Edit"
+								(ui5Click)="editCustom(item)"></ui5-table-row-action>
+						}
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="privacy"
+			label="Privacy">
+			<ui5-table
+				accessibleName="Visibility preferences"
+				overflowMode="Popin"
+				noDataText="Your organisation does not offer visibility choices."
+				[rowActionCount]="1">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Field
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="12rem"
+						popinText="Visible to">
+						Visible to
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Your choice">
+						Your choice
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of preferences(); track item.ref) {
+					<ui5-table-row [rowKey]="item.ref">
+						<ui5-table-cell>{{ item.name }}</ui5-table-cell>
+						<ui5-table-cell>{{ visibilityLabels[item.visibility] }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ item.preference?.visibility ? 'Narrowed by you' : 'Company setting' }}
+						</ui5-table-cell>
+						<ui5-table-row-action
+							slot="actions"
+							icon="edit"
+							text="Change"
+							(ui5Click)="editVisibility(item)"></ui5-table-row-action>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>
+@switch (dialog()?.kind) {
+	@case ('personal') {
+		@if (profile(); as current) {
+			<ef-hcm-my-profile-personal-dialog
+				[profile]="current"
+				(saved)="saved($event)"
+				(closed)="closed()"></ef-hcm-my-profile-personal-dialog>
+		}
+	}
+	@case ('contact') {
+		@if (dialog(); as open) {
+			@if (open.kind === 'contact') {
+				<ef-hcm-my-profile-contact-dialog
+					[request]="open.request"
+					(saved)="saved($event)"
+					(closed)="closed()"></ef-hcm-my-profile-contact-dialog>
+			}
+		}
+	}
+	@case ('relationship') {
+		@if (dialog(); as open) {
+			@if (open.kind === 'relationship') {
+				<ef-hcm-my-profile-relationship-dialog
+					[request]="open.request"
+					(saved)="saved($event)"
+					(closed)="closed()"></ef-hcm-my-profile-relationship-dialog>
+			}
+		}
+	}
+	@case ('custom') {
+		@if (dialog(); as open) {
+			@if (open.kind === 'custom') {
+				<ef-hcm-my-profile-custom-value-dialog
+					[field]="open.field"
+					(saved)="saved($event)"
+					(closed)="closed()"></ef-hcm-my-profile-custom-value-dialog>
+			}
+		}
+	}
+	@case ('visibility') {
+		@if (dialog(); as open) {
+			@if (open.kind === 'visibility') {
+				<ef-hcm-my-profile-visibility-dialog
+					[field]="open.field"
+					(saved)="saved($event)"
+					(closed)="closed()"></ef-hcm-my-profile-visibility-dialog>
+			}
+		}
+	}
+	@case ('remove') {
+		@if (dialog(); as open) {
+			@if (open.kind === 'remove') {
+				<ef-hcm-my-profile-remove-dialog
+					[request]="open.request"
+					(saved)="saved($event)"
+					(closed)="closed()"></ef-hcm-my-profile-remove-dialog>
+			}
+		}
+	}
+}

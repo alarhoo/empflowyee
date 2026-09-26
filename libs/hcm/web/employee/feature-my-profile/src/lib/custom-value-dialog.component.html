@@ -1,0 +1,135 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	initialFocus="my-profile-custom-value"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="my-profile-custom-value">
+				{{ field().name }}
+			</ui5-label>
+			@switch (type()) {
+				@case ('LongText') {
+					<ui5-textarea
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						[rows]="4"
+						[maxlength]="4000"
+						[value]="text()"
+						[disabled]="draft.saving()"
+						(ui5Input)="setText($event.target)"></ui5-textarea>
+				}
+				@case ('Integer') {
+					<ui5-step-input
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						[value]="text() === '' ? 0 : +text()"
+						[valueState]="invalid() ? 'Negative' : 'None'"
+						[disabled]="draft.saving()"
+						(ui5Change)="setText($event.target)">
+						<ui5-text slot="valueStateMessage">Enter a whole number.</ui5-text>
+					</ui5-step-input>
+				}
+				@case ('Decimal') {
+					<ui5-input
+						id="my-profile-custom-value"
+						type="Number"
+						[accessibleName]="field().name"
+						[value]="text()"
+						[valueState]="invalid() ? 'Negative' : 'None'"
+						[disabled]="draft.saving()"
+						(ui5Input)="setText($event.target)">
+						<ui5-text slot="valueStateMessage">Enter a number.</ui5-text>
+					</ui5-input>
+				}
+				@case ('Date') {
+					<ui5-date-picker
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						valueFormat="yyyy-MM-dd"
+						displayFormat="medium"
+						[showClearIcon]="true"
+						[value]="text()"
+						[disabled]="draft.saving()"
+						(ui5Change)="setDate($event.detail.value)"></ui5-date-picker>
+				}
+				@case ('Boolean') {
+					<ui5-checkbox
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						[text]="field().name"
+						[checked]="flag()"
+						[disabled]="draft.saving()"
+						(ui5Change)="setFlag($event.target)"></ui5-checkbox>
+				}
+				@case ('SingleSelect') {
+					<ui5-select
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						[value]="text() || 'none'"
+						[disabled]="draft.saving()"
+						(ui5Change)="setText($event.target)">
+						<ui5-option value="none">Not recorded</ui5-option>
+						@for (option of field().custom?.options ?? []; track option.id) {
+							<ui5-option [value]="option.id">{{ option.name }}</ui5-option>
+						}
+					</ui5-select>
+				}
+				@case ('MultiSelect') {
+					<ui5-multi-combobox
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						[selectedValues]="chosen()"
+						[disabled]="draft.saving()"
+						(ui5SelectionChange)="setChosen($event.target)">
+						@for (option of field().custom?.options ?? []; track option.id) {
+							<ui5-mcb-item
+								[value]="option.id"
+								[text]="option.name"></ui5-mcb-item>
+						}
+					</ui5-multi-combobox>
+				}
+				@default {
+					<ui5-input
+						id="my-profile-custom-value"
+						[accessibleName]="field().name"
+						[maxlength]="200"
+						[value]="text()"
+						[disabled]="draft.saving()"
+						(ui5Input)="setText($event.target)"></ui5-input>
+				}
+			}
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Save' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
