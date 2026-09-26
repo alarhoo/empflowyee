@@ -10,7 +10,7 @@ import {
 	signal,
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs'
+import { Subject, catchError, debounceTime, map, of, switchMap } from 'rxjs'
 import { ComboBox } from '@fundamental-ngx/ui5-webcomponents/combo-box'
 import { ComboBoxItem } from '@fundamental-ngx/ui5-webcomponents/combo-box-item'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
@@ -102,24 +102,24 @@ export class StructureOptionBox {
 						q,
 					) => {
 						this.loading.set(true)
-						return this.api
-							.options(this.kind(), q)
-							.pipe(
-								catchError(
-									/** Treat a failed search as no suggestions. */ () =>
-										of({ items: [] as StructureOption[], nextCursor: null }),
-								),
-							)
+						return this.api.options(this.kind(), q).pipe(
+							catchError(
+								/** Treat a failed search as no suggestions. */ () =>
+									of({ items: [] as StructureOption[], nextCursor: null }),
+							),
+							map(/** Keep the query that produced this page. */ (page) => ({ q, page })),
+						)
 					},
 				),
 				takeUntilDestroyed(inject(DestroyRef)),
 			)
 			.subscribe(
-				/** Publish the latest server suggestions. */ (page) => {
+				/** Publish the latest server suggestions. */ ({ q, page }) => {
 					this.found.set(page.items)
 					this.loading.set(false)
 					// Suggestions arrive after typing began; show them while the user is still in the field.
-					if (this.typed && this.host.nativeElement.contains(document.activeElement))
+					// Open only for the text still being typed; a completed selection clears it.
+					if (q && q === this.typed && this.host.nativeElement.contains(document.activeElement))
 						this.expanded.set(true)
 				},
 			)
@@ -147,7 +147,10 @@ export class StructureOptionBox {
 
 	/** Emit the chosen identity; the display text alone never identifies a record. */
 	choose(item: { value?: string; text?: string } | null): void {
-		if (item?.value) this.selectedChange.emit({ id: item.value, name: item.text ?? '' })
+		if (!item?.value) return
+		this.typed = ''
+		this.expanded.set(false)
+		this.selectedChange.emit({ id: item.value, name: item.text ?? '' })
 	}
 
 	/** Clearing the text clears the selection. */
