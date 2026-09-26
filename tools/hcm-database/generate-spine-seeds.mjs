@@ -262,7 +262,12 @@ for (const person of people) {
 		if (
 			!(
 				(person.role === 'hr-specialist' &&
-					['DOCUMENT_TYPES', 'DOCUMENT_TEMPLATES'].includes(app.appCode)) ||
+					[
+						'DOCUMENT_TYPES',
+						'DOCUMENT_TEMPLATES',
+						'IDENTIFICATION_TYPES',
+						'LOOKUP_VALUES',
+					].includes(app.appCode)) ||
 				(app.appCode === 'DOCUMENT_REQUESTS' && person.role !== 'hr-specialist')
 			) &&
 			app.catalogueIds.some(
