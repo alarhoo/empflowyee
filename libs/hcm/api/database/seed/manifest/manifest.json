@@ -154,6 +154,15 @@
 			"requiresMigrations": ["000022_employee_profile_policy.sql"],
 			"apply": "employee.profile.1.apply.sql",
 			"reset": "employee.profile.1.reset.sql"
+		},
+		{
+			"id": "job.architecture",
+			"domain": "job-architecture",
+			"version": 1,
+			"dependsOn": ["workforce.foundation@3"],
+			"requiresMigrations": ["000024_job_architecture_catalogue.sql"],
+			"apply": "job.architecture.1.apply.sql",
+			"reset": "job.architecture.1.reset.sql"
 		}
 	]
 }
