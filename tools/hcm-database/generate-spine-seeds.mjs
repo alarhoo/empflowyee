@@ -268,6 +268,8 @@ for (const person of people) {
 						'IDENTIFICATION_TYPES',
 						'LOOKUP_VALUES',
 					].includes(app.appCode)) ||
+				(person.role === 'tenant-administrator' &&
+					app.appCode === 'EMPLOYEE_PROFILE_CONFIGURATION') ||
 				(app.appCode === 'DOCUMENT_REQUESTS' && person.role !== 'hr-specialist')
 			) &&
 			app.catalogueIds.some(

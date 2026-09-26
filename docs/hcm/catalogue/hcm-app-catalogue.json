@@ -1514,8 +1514,14 @@
 			"runtime": "web",
 			"domain": "employee",
 			"deliveryWave": "HCM-2",
-			"catalogueIds": ["hr-specialist-operations"],
+			"catalogueIds": ["tenant-administration", "hr-specialist-operations"],
 			"placements": [
+				{
+					"spaceId": "tenant-administration",
+					"pageId": "admin-reference-data",
+					"sectionId": "admin-people-documents",
+					"display": "tiles"
+				},
 				{
 					"spaceId": "hr-operations",
 					"pageId": "hr-workforce",
