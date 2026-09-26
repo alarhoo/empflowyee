@@ -1,0 +1,129 @@
+<ef-hcm-object-page
+	[title]="person() ? name(person()!) : 'Person'"
+	[summary]="person() ? subtitle(person()!) : ''"
+	[state]="state()"
+	[actions]="actions"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (person(); as current) {
+		<ui5-avatar
+			hcmHeader
+			size="S"
+			[initials]="avatar()"
+			[accessibleName]="name(current)"></ui5-avatar>
+	}
+	@if (person(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			<ui5-form
+				accessibleName="Organisation-visible details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				@if (current.workerNumber) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Worker number</ui5-label>
+						<ui5-text>{{ current.workerNumber }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.designation) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Designation</ui5-label>
+						<ui5-text>{{ current.designation }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.organisationUnit) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Organisation unit</ui5-label>
+						<ui5-text>{{ current.organisationUnit }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.department) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Department</ui5-label>
+						<ui5-text>{{ current.department }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.location) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Location</ui5-label>
+						<ui5-text>{{ current.location }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.workEmail) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Work email</ui5-label>
+						<ui5-link [href]="'mailto:' + current.workEmail">{{ current.workEmail }}</ui5-link>
+					</ui5-form-item>
+				}
+				@if (current.manager !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Manager</ui5-label>
+						@if (current.manager; as manager) {
+							<ui5-link
+								[href]="href(manager.assignmentId)"
+								[accessibleName]="'Open manager ' + name(manager)"
+								(click)="open(manager.assignmentId, $event)">
+								{{ name(manager) }}
+							</ui5-link>
+						} @else {
+							<ui5-text>No manager in the structure</ui5-text>
+						}
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="reports"
+			label="Direct reports">
+			<ui5-table
+				accessibleName="Direct reports"
+				overflowMode="Popin"
+				noDataText="No direct reports"
+				[rowActionCount]="1"
+				[loading]="loadingReports()"
+				(ui5RowClick)="open($event.detail.row.rowKey)">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Name
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Designation">
+						Designation
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="20"
+						minWidth="6rem"
+						popinText="Direct reports">
+						Direct reports
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (report of reports(); track report.assignmentId) {
+					<ui5-table-row
+						[rowKey]="report.assignmentId"
+						[interactive]="true">
+						<ui5-table-cell>{{ name(report) }}</ui5-table-cell>
+						<ui5-table-cell>{{ report.designation ?? '—' }}</ui5-table-cell>
+						<ui5-table-cell>{{ report.directReportCount }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open(report.assignmentId)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more direct reports"
+						(ui5LoadMore)="more()"></ui5-table-growing>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

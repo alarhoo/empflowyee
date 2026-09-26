@@ -257,6 +257,9 @@
 			"@empflowyee/hcm-web-workforce-foundation-feature-organization-structure": [
 				"./libs/hcm/web/workforce-foundation/feature-organization-structure/src/index.ts"
 			],
+			"@empflowyee/hcm-web-workforce-foundation-feature-org-chart": [
+				"./libs/hcm/web/workforce-foundation/feature-org-chart/src/index.ts"
+			],
 			"@empflowyee/hcm-web-workforce-foundation-feature-lookup-values": [
 				"./libs/hcm/web/workforce-foundation/feature-lookup-values/src/index.ts"
 			],

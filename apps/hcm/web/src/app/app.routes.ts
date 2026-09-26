@@ -203,6 +203,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'workforce-foundation/org-chart',
+		data: { catalogId: 'ORG_CHART' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the read-only reporting tree and person detail. */ () =>
+			import('@empflowyee/hcm-web-workforce-foundation-feature-org-chart').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.ORG_CHART_ROUTES,
+			),
+	},
+	{
 		path: 'workforce-foundation/lookup-values',
 		data: { catalogId: 'LOOKUP_VALUES' },
 		canMatch: [hcmRouteAccess],
