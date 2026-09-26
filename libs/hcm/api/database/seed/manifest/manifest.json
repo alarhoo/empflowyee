@@ -91,6 +91,24 @@
 			"requiresMigrations": ["000005_identity_access_spine.sql"],
 			"apply": "access.discovery.2.apply.sql",
 			"reset": "access.discovery.2.reset.sql"
+		},
+		{
+			"id": "workforce.foundation",
+			"domain": "workforce-foundation",
+			"version": 2,
+			"dependsOn": ["workforce.foundation@1", "access.discovery@2"],
+			"requiresMigrations": ["000018_workforce_structure.sql"],
+			"apply": "workforce.foundation.2.apply.sql",
+			"reset": "workforce.foundation.2.reset.sql"
+		},
+		{
+			"id": "access.hcm2",
+			"domain": "access-control",
+			"version": 1,
+			"dependsOn": ["access.discovery@2", "access.business@1"],
+			"requiresMigrations": ["000006_access_audit_foundation.sql"],
+			"apply": "access.hcm2.1.apply.sql",
+			"reset": "access.hcm2.1.reset.sql"
 		}
 	]
 }

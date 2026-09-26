@@ -38,6 +38,7 @@ export class TransactionalAudit implements AppendAudit {
 		validateAccessAudit(event)
 		const id = randomUUID()
 		const download = 'relatedEventId' in event ? event : null
+		const hcm2 = 'category' in event ? event : null
 		let targetType = download?.targetType ?? 'access-role'
 		if (event.action.startsWith('document.request-')) targetType = 'document-request'
 		if (event.action === 'document.worker-version-added') targetType = 'employee-document'
@@ -57,6 +58,7 @@ export class TransactionalAudit implements AppendAudit {
 		if (['review.started', 'review.closed'].includes(event.action)) targetType = 'access-review'
 		if (['review.decided', 'review.refreshed'].includes(event.action))
 			targetType = 'access-review-item'
+		if (hcm2) targetType = hcm2.targetType
 		let outcome = 'Succeeded'
 		if (download) {
 			outcome = 'Authorized'
@@ -74,7 +76,7 @@ export class TransactionalAudit implements AppendAudit {
 				target_id: event.targetId,
 				outcome,
 				request_id: event.requestId,
-				category: download ? 'sensitive-access' : 'business',
+				category: hcm2?.category ?? (download ? 'sensitive-access' : 'business'),
 				safe_summary: event.summary,
 				related_event_id: download?.relatedEventId ?? null,
 			})

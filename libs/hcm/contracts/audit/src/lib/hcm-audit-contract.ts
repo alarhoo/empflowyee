@@ -25,7 +25,18 @@ export const AUDIT_ACTIONS = [
 	'review.decided',
 	'review.refreshed',
 	'review.closed',
+	'workforce.profile-updated',
+	'workforce.structure-created',
+	'workforce.structure-updated',
+	'workforce.structure-activated',
+	'workforce.structure-retired',
+	'workforce.unit-versioned',
 ] as const
+/** HCM-2 workforce, job architecture and employee actions recorded with explicit target types. */
+export const HCM2_AUDIT_ACTIONS: readonly string[] = AUDIT_ACTIONS.filter(
+	/** Select the HCM-2 domain prefixes. */ (action) =>
+		/^(workforce|job-architecture|employee)./.test(action),
+)
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 export interface AuditQuery {
 	from?: string

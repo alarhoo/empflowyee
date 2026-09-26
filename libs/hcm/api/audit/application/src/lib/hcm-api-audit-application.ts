@@ -1,3 +1,4 @@
+import { HCM2_AUDIT_ACTIONS } from '@empflowyee/hcm-audit-contract'
 export interface RoleAuditEvent {
 	action: 'role.created' | 'role.updated' | 'role.deleted'
 	targetId: string
@@ -70,7 +71,22 @@ export interface DocumentDownloadAuditEvent {
 	relatedEventId: string | null
 	summary: Record<string, never>
 }
+/** HCM-2 evidence: explicit target type and category, safe field names and states only. */
+export interface Hcm2AuditEvent {
+	action: string
+	category: 'business' | 'sensitive-access' | 'export'
+	targetType: string
+	targetId: string
+	requestId: string
+	summary: {
+		reason: string | null
+		changedFields: string[]
+		fromState: string | null
+		toState: string | null
+	}
+}
 export type AccessAuditEvent =
+	| Hcm2AuditEvent
 	| DocumentRequestAuditEvent
 	| TemplateVersionAuditEvent
 	| DocumentDownloadAuditEvent
@@ -87,6 +103,10 @@ export interface AppendAudit {
 }
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
+	if (event && 'category' in event) {
+		validateHcm2Audit(event)
+		return
+	}
 	if (
 		event.action === 'document.request-created' ||
 		event.action === 'document.request-submitted' ||
@@ -385,4 +405,39 @@ export function validateDocumentRequestAudit(event: DocumentRequestAuditEvent): 
 				event.summary.reason.length > 500)
 	)
 		throw new Error('Invalid document request audit envelope')
+}
+
+/** Reject HCM-2 evidence that could carry personal values instead of identifiers and field names. */
+export function validateHcm2Audit(event: Hcm2AuditEvent): void {
+	/** Accept only null or a short state code. */
+	const state = (value: unknown) =>
+		value === null || (typeof value === 'string' && /^[A-Za-z][A-Za-z0-9-]{0,39}$/.test(value))
+	if (
+		Object.keys(event).sort().join(',') !==
+			'action,category,requestId,summary,targetId,targetType' ||
+		!HCM2_AUDIT_ACTIONS.includes(event.action) ||
+		!['business', 'sensitive-access', 'export'].includes(event.category) ||
+		typeof event.targetType !== 'string' ||
+		!/^[a-z][a-z0-9-]{2,60}$/.test(event.targetType) ||
+		typeof event.targetId !== 'string' ||
+		!event.targetId ||
+		event.targetId.length > 200 ||
+		typeof event.requestId !== 'string' ||
+		!/^[A-Za-z0-9._-]{1,100}$/.test(event.requestId) ||
+		!event.summary ||
+		Object.keys(event.summary).sort().join(',') !== 'changedFields,fromState,reason,toState' ||
+		(event.summary.reason !== null &&
+			(typeof event.summary.reason !== 'string' ||
+				!event.summary.reason.trim() ||
+				event.summary.reason.length > 500)) ||
+		!Array.isArray(event.summary.changedFields) ||
+		event.summary.changedFields.length > 40 ||
+		event.summary.changedFields.some(
+			/** Field identifiers only, never values. */ (field) =>
+				typeof field !== 'string' || !/^[a-zA-Z][A-Za-z0-9]{0,63}$/.test(field),
+		) ||
+		!state(event.summary.fromState) ||
+		!state(event.summary.toState)
+	)
+		throw new Error('Invalid HCM-2 audit envelope')
 }

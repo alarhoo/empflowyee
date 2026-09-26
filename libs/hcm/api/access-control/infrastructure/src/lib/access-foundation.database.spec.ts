@@ -86,8 +86,17 @@ beforeAll(
 		const source = resolve('libs/hcm/api/database/seed/manifest')
 		const manifest = JSON.parse(await readFile(join(source, 'manifest.json'), 'utf8'))
 		manifest.modules = manifest.modules.filter(
-			/** Reconstruct the immutable pre-business seed inventory. */ (entry: { id: string }) =>
-				!['access.business', 'notifications.configuration', 'access.documents'].includes(entry.id),
+			/** Reconstruct the immutable pre-business seed inventory: the four foundation modules at version 1. */ (entry: {
+				id: string
+				version: number
+			}) =>
+				entry.version === 1 &&
+				[
+					'runtime.tenant',
+					'workforce.foundation',
+					'identity.accounts',
+					'access.discovery',
+				].includes(entry.id),
 		)
 		const seedDirectory = await mkdtemp(join(tmpdir(), 'hcm-access-seed-'))
 		try {
@@ -105,19 +114,14 @@ beforeAll(
 		}
 		await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
 		original = await snapshot()
-		expect(await migrateHcmDatabase(connection('MIGRATOR'), inventory)).toEqual([
-			'000006_access_audit_foundation.sql',
-			'000007_assignment_account_revision.sql',
-			'000008_identity_administration.sql',
-			'000009_access_reviews.sql',
-			'000010_notification_self_service.sql',
-			'000011_notification_configuration.sql',
-			'000012_notification_rendered_text.sql',
-			'000013_document_types.sql',
-			'000014_document_template_files.sql',
-			'000015_employee_documents.sql',
-			'000016_document_requests.sql',
-		])
+		expect(await migrateHcmDatabase(connection('MIGRATOR'), inventory)).toEqual(
+			migrations
+				.slice(5)
+				.map(
+					/** Every forward migration after the populated foundation. */ (migration) =>
+						migration.name,
+				),
+		)
 		await runDevelopmentSeeds({
 			env: { ...env, HCM_SEED_TARGET: tenant, HCM_SEED_DATABASE_URL: connection('MIGRATOR') },
 			manifestDirectory: source,

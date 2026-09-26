@@ -156,7 +156,7 @@ it('TEST-ROLE-MANAGEMENT-001 reads persisted roles and permissions through real 
 	).toBe(true)
 	const permissions = await send<{ items: PermissionOption[] }>('GET', 'permissions')
 	expect(permissions.status).toBe(200)
-	expect(permissions.body.items).toHaveLength(209)
+	expect(permissions.body.items).toHaveLength(246)
 	expect(
 		permissions.body.items.find(
 			/** Verify explicit commercial policy. */ (item) =>

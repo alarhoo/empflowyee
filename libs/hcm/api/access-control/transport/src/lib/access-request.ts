@@ -6,6 +6,21 @@ import {
 } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessError } from '@empflowyee/hcm-api-access-control-application'
 import { AssignmentError, RoleError, ReviewError } from '@empflowyee/hcm-access-control-contract'
+import { HcmDomainError } from '@empflowyee/hcm-runtime-contract'
+
+const domainStatuses: Record<string, number> = {
+	'invalid-request': 400,
+	'effective-date-out-of-range': 400,
+	'field-not-editable': 400,
+	'visibility-ceiling-exceeded': 400,
+	'set-not-editable': 400,
+	forbidden: 403,
+	'self-approval-forbidden': 403,
+	'not-found': 404,
+	'file-too-large': 413,
+	'unsupported-file': 415,
+	'storage-unavailable': 503,
+}
 export const HCM_ROLE_WRITE_ORIGIN = Symbol('HCM_ROLE_WRITE_ORIGIN')
 export interface RoleRequest {
 	originalUrl: string
@@ -64,6 +79,15 @@ export async function runAccessRequest<T>(
 		return await work(await context.authenticated())
 	} catch (error) {
 		if (error instanceof HttpException) throw error
+		if (error instanceof HcmDomainError)
+			throw new HttpException(
+				{
+					code: error.code,
+					requestId: context.requestId,
+					...(error.fieldErrors.length ? { fieldErrors: error.fieldErrors } : {}),
+				},
+				domainStatuses[error.code] ?? 409,
+			)
 		const code =
 			error instanceof ReviewError ||
 			error instanceof AssignmentError ||

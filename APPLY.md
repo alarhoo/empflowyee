@@ -1,20 +1,8 @@
-# CI/CD setup status
+# Apply
 
-The CI/CD foundation has been integrated into this repository. Git/release rules
-are in [AGENTS.md](AGENTS.md), and credential/state exclusions are in
-[.gitignore](.gitignore) and [.dockerignore](.dockerignore).
+1. Extract this overlay over the current empFLOWyee repository root.
+2. Run `node tools/hcm-factory/validate-hcm2-domain-authority.mjs`.
+3. Review `docs/hcm/roadmap/HCM-2-DECISIONS.md` so you know what Claude may ask.
+4. Run Claude with `claude-prompts/02-HCM2-STEP1-PREPARE.md`.
 
-## Remaining activation steps
-
-1. Review the [accepted delivery ADR](docs/platform/adr/ADR-CICD-001-single-main-build-once-promote-many.md).
-2. Configure the [GitHub ruleset, Environments and variables](docs/platform/engineering/github-setup.md).
-3. Review and execute the [GCP bootstrap plan](docs/platform/engineering/gcp-bootstrap.md), including remote Terraform state and WIF. Source is present; live provisioning remains a separate step.
-4. Provision central Artifact Registry with immutable tags and the existing Cloud Run services through reviewed IaC.
-5. Add and validate production Dockerfiles for all seven deployables.
-6. Enable `RELEASE_PIPELINE_ENABLED=true` only after these prerequisites are verified.
-
-Release builds never deploy automatically. Manual deploy and infrastructure
-workflows run from `main` and validate prerequisites before GCP authentication.
-No GCP resources or GitHub settings are provisioned by adding these files.
-
-See [VALIDATION.md](VALIDATION.md) for local checks and their limits.
+This overlay does not delete or modify implementation code. It replaces the HCM-2 preparation prompt and fills the previously empty current domain-authority folders.

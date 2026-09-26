@@ -216,6 +216,24 @@
 			],
 			"@empflowyee/hcm-web-documents-feature-document-requests": [
 				"./libs/hcm/web/documents/feature-document-requests/src/index.ts"
+			],
+			"@empflowyee/hcm-api-workforce-foundation-domain": [
+				"./libs/hcm/api/workforce-foundation/domain/src/index.ts"
+			],
+			"@empflowyee/hcm-api-workforce-foundation-application": [
+				"./libs/hcm/api/workforce-foundation/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-workforce-foundation-infrastructure": [
+				"./libs/hcm/api/workforce-foundation/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-workforce-foundation-transport": [
+				"./libs/hcm/api/workforce-foundation/transport/src/index.ts"
+			],
+			"@empflowyee/hcm-api-workforce-foundation-module": [
+				"./libs/hcm/api/workforce-foundation/module/src/index.ts"
+			],
+			"@empflowyee/hcm-workforce-foundation-contract": [
+				"./libs/hcm/contracts/workforce-foundation/src/index.ts"
 			]
 		}
 	},
