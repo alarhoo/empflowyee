@@ -172,6 +172,15 @@
 			"requiresMigrations": ["000005_identity_access_spine.sql"],
 			"apply": "access.discovery.6.apply.sql",
 			"reset": "access.discovery.6.reset.sql"
+		},
+		{
+			"id": "job.architecture",
+			"domain": "job-architecture",
+			"version": 2,
+			"dependsOn": ["job.architecture@1"],
+			"requiresMigrations": ["000027_workforce_assignment_position.sql"],
+			"apply": "job.architecture.2.apply.sql",
+			"reset": "job.architecture.2.reset.sql"
 		}
 	]
 }
