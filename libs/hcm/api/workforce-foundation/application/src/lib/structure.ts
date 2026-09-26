@@ -47,6 +47,7 @@ import {
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { IdentificationTypeRepository } from './identification-types'
 import type { WorkforceFactsPort, WorkforceReadPort } from './workforce-ports'
+import type { LookupRepository } from './lookups'
 
 export interface UnitVersionRow {
 	id: string
@@ -111,6 +112,7 @@ export interface StructureRepository {
 export interface WorkforceWork {
 	structure: StructureRepository
 	identification: IdentificationTypeRepository
+	lookups: LookupRepository
 	/** Workforce commands bound to this transaction. */
 	facts: WorkforceFactsPort
 	/** Workforce as-of projections bound to this transaction. */
