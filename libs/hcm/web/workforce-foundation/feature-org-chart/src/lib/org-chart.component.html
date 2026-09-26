@@ -1,0 +1,132 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Reporting structure' },
+		midColumn: { role: 'region', name: 'Selected person' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Org Chart"
+		summary="Current reporting structure, organisation-visible information only"
+		[state]="state()"
+		[errorMessage]="message()"
+		(retry)="load()">
+		<ui5-form
+			hcmHeader
+			accessibleName="Find a person"
+			accessibleMode="Edit"
+			layout="S1 M2 L2 XL2"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="org-chart-query">
+					Name or worker number
+				</ui5-label>
+				<ui5-input
+					id="org-chart-query"
+					accessibleName="Search name or worker number"
+					type="Search"
+					[value]="query()"
+					(input)="setQuery($event.target)"
+					(keydown.enter)="search()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button
+					[disabled]="searching()"
+					(click)="search()">
+					Search
+				</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (searchMessage()) {
+			<ui5-message-strip
+				design="Critical"
+				(ui5Close)="searchMessage.set('')">
+				{{ searchMessage() }}
+			</ui5-message-strip>
+		}
+		@if (results(); as found) {
+			<ui5-list
+				accessibleName="Search results"
+				noDataText="No one matches this search"
+				[loading]="searching()"
+				(ui5ItemClick)="chooseResult($any($event.detail.item))">
+				@for (node of found; track node.assignmentId) {
+					<ui5-li
+						type="Active"
+						[text]="name(node)"
+						[description]="subtitle(node)"
+						[attr.data-id]="node.assignmentId"></ui5-li>
+				}
+			</ui5-list>
+			@if (resultCursor()) {
+				<ui5-button
+					[disabled]="searching()"
+					(click)="search(true)">
+					More results
+				</ui5-button>
+			}
+		} @else {
+			<ui5-tree
+				accessibleName="Reporting structure"
+				noDataText="No one is currently placed in the reporting structure"
+				(ui5ItemToggle)="toggle($any($event.detail.item))"
+				(ui5ItemClick)="treeClick($any($event.detail.item))">
+				<ng-container
+					[ngTemplateOutlet]="nodes"
+					[ngTemplateOutletContext]="{ $implicit: roots() }"></ng-container>
+				@if (rootCursor()) {
+					<ui5-tree-item
+						type="Active"
+						text="Load more people"
+						data-more="roots"></ui5-tree-item>
+				}
+			</ui5-tree>
+		}
+	</ef-hcm-dynamic-page>
+	@for (id of selectedId() ? [selectedId()!] : []; track id) {
+		<ef-hcm-org-chart-person
+			slot="midColumn"
+			[assignmentId]="id"
+			(opened)="select($event)"
+			(closed)="close()"></ef-hcm-org-chart-person>
+	}
+</ui5-flexible-column-layout>
+<ng-template
+	#nodes
+	let-list>
+	@for (node of list; track node.assignmentId) {
+		<ui5-tree-item
+			type="Active"
+			[text]="name(node)"
+			[additionalText]="subtitle(node)"
+			[attr.data-id]="node.assignmentId"
+			[hasChildren]="node.directReportCount > 0"
+			[expanded]="expanded().has(node.assignmentId)"
+			[navigated]="node.assignmentId === selectedId()">
+			@if (expanded().has(node.assignmentId)) {
+				@let branch = branches()[node.assignmentId];
+				@if (branch) {
+					<ng-container
+						[ngTemplateOutlet]="nodes"
+						[ngTemplateOutletContext]="{ $implicit: branch.items }"></ng-container>
+					@if (branch.state === 'loading') {
+						<ui5-tree-item text="Loading direct reports…"></ui5-tree-item>
+					} @else if (branch.state === 'error') {
+						<ui5-tree-item
+							type="Active"
+							text="Direct reports could not be loaded. Select to retry."
+							[attr.data-more]="node.assignmentId"></ui5-tree-item>
+					} @else if (branch.cursor) {
+						<ui5-tree-item
+							type="Active"
+							text="Load more direct reports"
+							[attr.data-more]="node.assignmentId"></ui5-tree-item>
+					}
+				}
+			}
+		</ui5-tree-item>
+	}
+</ng-template>
