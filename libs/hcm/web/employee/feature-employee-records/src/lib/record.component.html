@@ -1,0 +1,529 @@
+<ef-hcm-object-page
+	[title]="record()?.displayName ?? 'Worker record'"
+	[summary]="record() ? record()!.workerNumber + ' · ' + (record()!.workerType?.name ?? '—') : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[readOnly]="!editable()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (record(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="state(current.recordState).status"
+			[label]="state(current.recordState).label"></span>
+	}
+	@if (record(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			@if (current.mergedFromWorkerId) {
+				<ui5-message-strip
+					design="Information"
+					[hideCloseButton]="true">
+					The requested record was merged into this record, which is shown instead.
+				</ui5-message-strip>
+			}
+			@if (message()) {
+				<ui5-message-strip
+					design="Negative"
+					(ui5Close)="message.set('')">
+					{{ message() }}
+				</ui5-message-strip>
+			}
+			<ui5-form
+				accessibleName="Record overview"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Worker number</ui5-label>
+					<ui5-text>{{ current.workerNumber }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Worker type</ui5-label>
+					<ui5-text>{{ current.workerType?.name ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Record state</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="state(current.recordState).status"
+						[label]="state(current.recordState).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Direct reports</ui5-label>
+					<ui5-text>{{ current.directReportCount }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="personal"
+			label="Personal">
+			<ui5-form
+				accessibleName="Personal details"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				@if (current.givenName !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Given name</ui5-label>
+						<ui5-text>{{ current.givenName || '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.middleName !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Middle name</ui5-label>
+						<ui5-text>{{ current.middleName || '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.familyName !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Family name</ui5-label>
+						<ui5-text>{{ current.familyName || '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.preferredName !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Preferred name</ui5-label>
+						<ui5-text>{{ current.preferredName || '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.formerName !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Former name</ui5-label>
+						<ui5-text>{{ current.formerName || '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.birthDate !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Birth date</ui5-label>
+						<ui5-text>
+							{{ current.birthDate ? (current.birthDate | hcmDate: 'date') : '—' }}
+						</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.gender !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Gender</ui5-label>
+						<ui5-text>{{ current.gender ?? '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.maritalStatus !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Marital status</ui5-label>
+						<ui5-text>{{ current.maritalStatus ?? '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.nationality !== undefined) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Nationality</ui5-label>
+						<ui5-text>{{ current.nationality ?? '—' }}</ui5-text>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		@if (current.contactPoints) {
+			<ng-template
+				efHcmObjectSection="contact"
+				label="Contact">
+				@if (editable()) {
+					<ui5-button
+						icon="add"
+						(click)="ask({ mode: 'contact', contact: null })">
+						Add contact point
+					</ui5-button>
+				}
+				<ui5-table
+					accessibleName="Contact points"
+					overflowMode="Popin"
+					[rowActionCount]="editable() ? 2 : 0"
+					noDataText="No personal contact points are recorded.">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell minWidth="9rem">Type</ui5-table-header-cell>
+						<ui5-table-header-cell minWidth="14rem">Value</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="6rem"
+							popinText="Primary">
+							Primary
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (point of current.contactPoints; track point.id) {
+						<ui5-table-row [rowKey]="point.id">
+							<ui5-table-cell>{{ contactTypes[point.type] ?? point.type }}</ui5-table-cell>
+							<ui5-table-cell>
+								<ui5-link
+									[href]="(point.type === 'PersonalEmail' ? 'mailto:' : 'tel:') + point.value">
+									{{ point.value }}
+								</ui5-link>
+							</ui5-table-cell>
+							<ui5-table-cell>
+								<ui5-checkbox
+									accessibleName="Primary"
+									[checked]="point.primary"
+									[readonly]="true"></ui5-checkbox>
+							</ui5-table-cell>
+							@if (editable()) {
+								<ui5-table-row-action
+									slot="actions"
+									icon="edit"
+									[text]="'Correct ' + point.value"
+									(ui5Click)="ask({ mode: 'contact', contact: point })"></ui5-table-row-action>
+								<ui5-table-row-action
+									slot="actions"
+									icon="decline"
+									[text]="'Deactivate ' + point.value"
+									(ui5Click)="
+										ask({
+											mode: 'deactivate',
+											collection: 'contact-points',
+											item: { id: point.id, revision: point.revision, label: point.value },
+										})
+									"></ui5-table-row-action>
+							}
+						</ui5-table-row>
+					}
+				</ui5-table>
+			</ng-template>
+		}
+		@if (current.addresses) {
+			<ng-template
+				efHcmObjectSection="addresses"
+				label="Addresses">
+				@if (editable()) {
+					<ui5-button
+						icon="add"
+						(click)="ask({ mode: 'address', address: null })">
+						Add address
+					</ui5-button>
+				}
+				<ui5-table
+					accessibleName="Addresses"
+					overflowMode="Popin"
+					[rowActionCount]="editable() ? 2 : 0"
+					noDataText="No addresses are recorded.">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell minWidth="8rem">Type</ui5-table-header-cell>
+						<ui5-table-header-cell minWidth="16rem">Address</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="6rem"
+							popinText="Primary">
+							Primary
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="10rem"
+							popinText="Effective">
+							Effective
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (address of current.addresses; track address.id) {
+						<ui5-table-row [rowKey]="address.id">
+							<ui5-table-cell>{{ addressTypes[address.type] }}</ui5-table-cell>
+							<ui5-table-cell>{{ addressText(address) }}</ui5-table-cell>
+							<ui5-table-cell>
+								<ui5-checkbox
+									accessibleName="Primary"
+									[checked]="address.primary"
+									[readonly]="true"></ui5-checkbox>
+							</ui5-table-cell>
+							<ui5-table-cell>
+								{{ address.effectiveFrom | hcmDate: 'date' }} –
+								{{ address.effectiveTo ? (address.effectiveTo | hcmDate: 'date') : 'open-ended' }}
+							</ui5-table-cell>
+							@if (editable() && inEffect(address)) {
+								<ui5-table-row-action
+									slot="actions"
+									icon="edit"
+									[text]="'Correct ' + addressTypes[address.type] + ' address'"
+									(ui5Click)="ask({ mode: 'address', address })"></ui5-table-row-action>
+								<ui5-table-row-action
+									slot="actions"
+									icon="date-time"
+									[text]="'End ' + addressTypes[address.type] + ' address'"
+									(ui5Click)="ask({ mode: 'end-address', address })"></ui5-table-row-action>
+							}
+						</ui5-table-row>
+					}
+				</ui5-table>
+			</ng-template>
+		}
+		@if (current.relationships) {
+			<ng-template
+				efHcmObjectSection="family"
+				label="Family and emergency">
+				@if (editable()) {
+					<ui5-button
+						icon="add"
+						(click)="ask({ mode: 'relationship', relationship: null })">
+						Add person
+					</ui5-button>
+				}
+				<ui5-table
+					accessibleName="Family members and emergency contacts"
+					overflowMode="Popin"
+					[rowActionCount]="editable() ? 2 : 0"
+					noDataText="No family members or emergency contacts are recorded.">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell minWidth="12rem">Name</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="8rem"
+							popinText="Relationship">
+							Relationship
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="10rem"
+							popinText="Contact number">
+							Contact number
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="7rem"
+							popinText="Dependant">
+							Dependant
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							minWidth="9rem"
+							popinText="Emergency priority">
+							Emergency priority
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (person of current.relationships; track person.id) {
+						<ui5-table-row [rowKey]="person.id">
+							<ui5-table-cell>{{ person.fullName }}</ui5-table-cell>
+							<ui5-table-cell>{{ person.relationshipName }}</ui5-table-cell>
+							<ui5-table-cell>
+								@if (person.contactNumber) {
+									<ui5-link [href]="'tel:' + person.contactNumber">
+										{{ person.contactNumber }}
+									</ui5-link>
+								} @else if (person.emergencyContact) {
+									Hidden until revealed
+								} @else {
+									—
+								}
+							</ui5-table-cell>
+							<ui5-table-cell>
+								<ui5-checkbox
+									accessibleName="Dependant"
+									[checked]="person.dependent"
+									[readonly]="true"></ui5-checkbox>
+							</ui5-table-cell>
+							<ui5-table-cell>
+								{{ person.emergencyContact ? person.emergencyPriority : '—' }}
+							</ui5-table-cell>
+							@if (editable()) {
+								<ui5-table-row-action
+									slot="actions"
+									icon="edit"
+									[text]="'Correct ' + person.fullName"
+									(ui5Click)="
+										ask({ mode: 'relationship', relationship: person })
+									"></ui5-table-row-action>
+								<ui5-table-row-action
+									slot="actions"
+									icon="decline"
+									[text]="'Deactivate ' + person.fullName"
+									(ui5Click)="
+										ask({
+											mode: 'deactivate',
+											collection: 'relationships',
+											item: { id: person.id, revision: person.revision, label: person.fullName },
+										})
+									"></ui5-table-row-action>
+							}
+						</ui5-table-row>
+					}
+				</ui5-table>
+			</ng-template>
+		}
+		<ng-template
+			efHcmObjectSection="employment"
+			label="Employment">
+			<ui5-text>
+				Employment, assignment and reporting facts are read-only here; they change through
+				Employment Changes.
+			</ui5-text>
+			@for (item of current.employments; track item.employmentId) {
+				<ui5-title
+					level="H4"
+					size="H5">
+					{{ item.legalEntity?.name ?? 'Employment' }}{{ item.primary ? ' (primary)' : '' }}
+				</ui5-title>
+				<ui5-form
+					[accessibleName]="'Employment at ' + (item.legalEntity?.name ?? 'unknown legal entity')"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Status</ui5-label>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="employment(item.employmentStatus).status"
+							[label]="employment(item.employmentStatus).label"></span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employment type</ui5-label>
+						<ui5-text>
+							{{
+								item.employmentType
+									? (employmentTypes[item.employmentType] ?? item.employmentType)
+									: '—'
+							}}
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Hire date</ui5-label>
+						<ui5-text>{{ item.hireDate ? (item.hireDate | hcmDate: 'date') : '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">End date</ui5-label>
+						<ui5-text>
+							{{ item.endDate ? (item.endDate | hcmDate: 'date') : 'Open-ended' }}
+						</ui5-text>
+					</ui5-form-item>
+					@if (item.workEmail !== undefined) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Work email</ui5-label>
+							@if (item.workEmail) {
+								<ui5-link [href]="'mailto:' + item.workEmail">{{ item.workEmail }}</ui5-link>
+							} @else {
+								<ui5-text>—</ui5-text>
+							}
+						</ui5-form-item>
+					}
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Probation end</ui5-label>
+						<ui5-text>
+							{{ item.probationEndDate ? (item.probationEndDate | hcmDate: 'date') : '—' }}
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Notice period</ui5-label>
+						<ui5-text>
+							{{ item.noticePeriodDays !== null ? item.noticePeriodDays + ' days' : '—' }}
+						</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			} @empty {
+				<ui5-text>No employment is established for this worker.</ui5-text>
+			}
+			<ui5-table
+				accessibleName="Assignments"
+				overflowMode="Popin"
+				noDataText="No assignment is established for this worker.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="12rem">Job title</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Placement">
+						Placement
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="9rem"
+						popinText="Position">
+						Position
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Work mode and FTE">
+						Work mode and FTE
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Effective">
+						Effective
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (assignment of current.assignments; track assignment.assignmentId) {
+					<ui5-table-row [rowKey]="assignment.assignmentId">
+						<ui5-table-cell>
+							{{ assignment.jobTitle || '—' }}{{ assignment.primary ? ' (primary)' : '' }}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{ placement(assignment) }}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{
+								assignment.position
+									? assignment.position.name + ' (' + assignment.position.code + ')'
+									: 'None'
+							}}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{
+								assignment.workMode ? (workModes[assignment.workMode] ?? assignment.workMode) : '—'
+							}}, {{ decimal(assignment.fullTimeEquivalent) }} FTE
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (assignment.effectiveFrom) {
+								{{ assignment.effectiveFrom | hcmDate: 'date' }} –
+								{{
+									assignment.effectiveTo ? (assignment.effectiveTo | hcmDate: 'date') : 'open-ended'
+								}}
+							} @else {
+								<span
+									fd-object-status
+									[inverted]="true"
+									status="critical"
+									label="Not established"></span>
+							}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-table
+				accessibleName="Reporting lines"
+				overflowMode="Popin"
+				noDataText="No reporting line is recorded.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="12rem">Manager</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Line">
+						Line
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Effective">
+						Effective
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (line of current.reporting; track line.reportingLineId) {
+					<ui5-table-row [rowKey]="line.reportingLineId">
+						<ui5-table-cell>
+							<ui5-link
+								[accessibleName]="'Open record of ' + line.managerName"
+								(click)="opened.emit(line.managerWorkerId)">
+								{{ line.managerName }}
+							</ui5-link>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ line.type }}{{ line.primary ? ' (primary)' : '' }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ line.effectiveFrom | hcmDate: 'date' }} –
+							{{ line.effectiveTo ? (line.effectiveTo | hcmDate: 'date') : 'open-ended' }}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="history"
+			label="History">
+			@if (events().length) {
+				<ui5-timeline accessibleName="Worker events">
+					@for (event of events(); track event.id) {
+						<ui5-timeline-item
+							[titleText]="event.eventType + ' on ' + (event.effectiveDate | hcmDate: 'date')"
+							[subtitleText]="eventSubtitle(event)"
+							icon="history"></ui5-timeline-item>
+					}
+				</ui5-timeline>
+				@if (eventCursor()) {
+					<ui5-button (click)="moreEvents()">Load more events</ui5-button>
+				}
+			} @else {
+				<ui5-text>No events are recorded for this worker.</ui5-text>
+			}
+		</ng-template>
+	}
+</ef-hcm-object-page>

@@ -1,0 +1,682 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (revealed(); as info) {
+		<ui5-form
+			accessibleName="Revealed emergency information"
+			accessibleMode="Display"
+			layout="S1 M1 L1 XL1">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Blood group</ui5-label>
+				<ui5-text>{{ info.bloodGroup ?? 'Not recorded' }}</ui5-text>
+			</ui5-form-item>
+			@for (contact of info.emergencyContacts; track contact.id) {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">
+						Priority {{ contact.emergencyPriority }}: {{ contact.fullName }} ({{
+							contact.relationshipName
+						}})
+					</ui5-label>
+					@if (contact.contactNumber) {
+						<ui5-link [href]="'tel:' + contact.contactNumber">{{ contact.contactNumber }}</ui5-link>
+					} @else {
+						<ui5-text>No number recorded</ui5-text>
+					}
+				</ui5-form-item>
+			} @empty {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Emergency contacts</ui5-label>
+					<ui5-text>None recorded</ui5-text>
+				</ui5-form-item>
+			}
+		</ui5-form>
+		<ui5-text>This reveal and its purpose were recorded in the audit trail.</ui5-text>
+	} @else if (optionsState() === 'loading') {
+		<ui5-busy-indicator
+			[active]="true"
+			[delay]="0"
+			text="Loading options"></ui5-busy-indicator>
+	} @else if (optionsState() === 'error') {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ optionsError() }}
+			<ui5-button
+				design="Transparent"
+				(click)="loadOptions()">
+				Retry
+			</ui5-button>
+		</ui5-message-strip>
+	} @else {
+		<ui5-form
+			[accessibleName]="title() + ' fields'"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1">
+			@switch (mode()) {
+				@case ('person') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-given-name"
+							[required]="true">
+							Given name
+						</ui5-label>
+						<ui5-input
+							id="record-given-name"
+							accessibleName="Given name"
+							[formField]="fields.givenName"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.givenName().touched() && fields.givenName().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">
+								Enter a given name of up to 100 characters.
+							</ui5-text>
+						</ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-middle-name">
+							Middle name
+						</ui5-label>
+						<ui5-input
+							id="record-middle-name"
+							accessibleName="Middle name"
+							[formField]="fields.middleName"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-family-name"
+							[required]="true">
+							Family name
+						</ui5-label>
+						<ui5-input
+							id="record-family-name"
+							accessibleName="Family name"
+							[formField]="fields.familyName"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.familyName().touched() && fields.familyName().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">
+								Enter a family name of up to 100 characters.
+							</ui5-text>
+						</ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-preferred-name">
+							Preferred name
+						</ui5-label>
+						<ui5-input
+							id="record-preferred-name"
+							accessibleName="Preferred name"
+							[formField]="fields.preferredName"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-former-name">
+							Former name
+						</ui5-label>
+						<ui5-input
+							id="record-former-name"
+							accessibleName="Former name"
+							[formField]="fields.formerName"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-birth-date">
+							Birth date
+						</ui5-label>
+						<ui5-date-picker
+							id="record-birth-date"
+							accessibleName="Birth date"
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
+							[showClearIcon]="true"
+							[value]="model().birthDate"
+							[disabled]="draft.saving()"
+							(ui5Change)="setDate('birthDate', $event.detail.value)"></ui5-date-picker>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-gender">
+							Gender
+						</ui5-label>
+						<ui5-select
+							id="record-gender"
+							accessibleName="Gender"
+							[formField]="fields.gender"
+							[disabled]="draft.saving()">
+							<ui5-option value="none">Not recorded</ui5-option>
+							@for (item of genders(); track item.id) {
+								<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-marital-status">
+							Marital status
+						</ui5-label>
+						<ui5-select
+							id="record-marital-status"
+							accessibleName="Marital status"
+							[formField]="fields.maritalStatus"
+							[disabled]="draft.saving()">
+							<ui5-option value="none">Not recorded</ui5-option>
+							@for (item of maritalStatuses(); track item.id) {
+								<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-nationality">
+							Nationality
+						</ui5-label>
+						<ef-hcm-record-option-box
+							kind="countries"
+							label="Nationality"
+							controlId="record-nationality"
+							[disabled]="draft.saving()"
+							[selected]="nationality()"
+							(selectedChange)="nationality.set($event)"></ef-hcm-record-option-box>
+					</ui5-form-item>
+				}
+				@case ('address') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-address-type"
+							[required]="true">
+							Address type
+						</ui5-label>
+						<ui5-select
+							id="record-address-type"
+							accessibleName="Address type"
+							[formField]="fields.addressType"
+							[disabled]="draft.saving()">
+							@for (type of addressTypes; track type) {
+								<ui5-option [value]="type">{{ addressLabels[type] }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-line1">
+							Address line 1
+						</ui5-label>
+						<ui5-input
+							id="record-line1"
+							accessibleName="Address line 1"
+							[formField]="fields.line1"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-line2">
+							Address line 2
+						</ui5-label>
+						<ui5-input
+							id="record-line2"
+							accessibleName="Address line 2"
+							[formField]="fields.line2"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-locality">
+							Locality
+						</ui5-label>
+						<ui5-input
+							id="record-locality"
+							accessibleName="Locality"
+							[formField]="fields.locality"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-city"
+							[required]="true">
+							City
+						</ui5-label>
+						<ui5-input
+							id="record-city"
+							accessibleName="City"
+							[formField]="fields.city"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.city().touched() && fields.city().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">Enter a city.</ui5-text>
+						</ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-state">
+							State or province
+						</ui5-label>
+						<ui5-input
+							id="record-state"
+							accessibleName="State or province"
+							[formField]="fields.stateOrProvince"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-postal-code">
+							Postal code
+						</ui5-label>
+						<ui5-input
+							id="record-postal-code"
+							accessibleName="Postal code"
+							[formField]="fields.postalCode"
+							[disabled]="draft.saving()"></ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-country"
+							[required]="true">
+							Country
+						</ui5-label>
+						<ef-hcm-record-option-box
+							kind="countries"
+							label="Country"
+							controlId="record-country"
+							[required]="true"
+							[disabled]="draft.saving()"
+							[invalid]="touched() && !country()"
+							message="Choose a country."
+							[selected]="country()"
+							(selectedChange)="country.set($event)"></ef-hcm-record-option-box>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-address-from"
+							[required]="true">
+							Effective from
+						</ui5-label>
+						<ui5-date-picker
+							id="record-address-from"
+							accessibleName="Effective from"
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
+							[required]="true"
+							[value]="model().effectiveFrom"
+							[disabled]="draft.saving()"
+							(ui5Change)="setDate('effectiveFrom', $event.detail.value)"></ui5-date-picker>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-address-primary">
+							Primary
+						</ui5-label>
+						<ui5-checkbox
+							id="record-address-primary"
+							accessibleName="Primary"
+							text="Primary address of this type"
+							[checked]="primary()"
+							[disabled]="draft.saving()"
+							(ui5Change)="setFlag('primary', $event.target)"></ui5-checkbox>
+					</ui5-form-item>
+				}
+				@case ('end-address') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-address-to"
+							[required]="true">
+							Last day at this address
+						</ui5-label>
+						<ui5-date-picker
+							id="record-address-to"
+							accessibleName="Last day at this address"
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
+							[required]="true"
+							[value]="model().effectiveTo"
+							[disabled]="draft.saving()"
+							(ui5Change)="setDate('effectiveTo', $event.detail.value)"></ui5-date-picker>
+					</ui5-form-item>
+				}
+				@case ('contact') {
+					@if (!correcting()) {
+						<ui5-form-item>
+							<ui5-label
+								slot="labelContent"
+								for="record-contact-type"
+								[required]="true">
+								Type
+							</ui5-label>
+							<ui5-select
+								id="record-contact-type"
+								accessibleName="Type"
+								[formField]="fields.contactType"
+								[disabled]="draft.saving()">
+								<ui5-option value="PersonalEmail">{{ contactLabels['PersonalEmail'] }}</ui5-option>
+								<ui5-option value="MobilePhone">{{ contactLabels['MobilePhone'] }}</ui5-option>
+							</ui5-select>
+						</ui5-form-item>
+					}
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-contact-value"
+							[required]="true">
+							{{ contactLabels[model().contactType] }}
+						</ui5-label>
+						<ui5-input
+							id="record-contact-value"
+							[type]="model().contactType === 'PersonalEmail' ? 'Email' : 'Tel'"
+							[accessibleName]="contactLabels[model().contactType]"
+							[formField]="fields.value"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.value().touched() && (fields.value().invalid() || valueInvalid())
+									? 'Negative'
+									: 'None'
+							">
+							<ui5-text slot="valueStateMessage">
+								{{
+									model().contactType === 'PersonalEmail'
+										? 'Enter an email address such as name@example.com.'
+										: 'Enter a phone number of digits, spaces, brackets or dashes.'
+								}}
+							</ui5-text>
+						</ui5-input>
+					</ui5-form-item>
+					@if (correcting()) {
+						<ui5-form-item>
+							<ui5-label
+								slot="labelContent"
+								for="record-contact-primary">
+								Primary
+							</ui5-label>
+							<ui5-checkbox
+								id="record-contact-primary"
+								accessibleName="Primary"
+								text="Primary contact point of this type"
+								[checked]="primary()"
+								[disabled]="draft.saving()"
+								(ui5Change)="setFlag('primary', $event.target)"></ui5-checkbox>
+						</ui5-form-item>
+					}
+				}
+				@case ('relationship') {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-type"
+							[required]="true">
+							Relationship
+						</ui5-label>
+						<ui5-select
+							id="record-relationship-type"
+							accessibleName="Relationship"
+							[formField]="fields.relationshipType"
+							[disabled]="draft.saving()">
+							@for (item of relationshipTypes(); track item.id) {
+								<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-name"
+							[required]="true">
+							Full name
+						</ui5-label>
+						<ui5-input
+							id="record-relationship-name"
+							accessibleName="Full name"
+							[formField]="fields.fullName"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.fullName().touched() && fields.fullName().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">Enter a name of 1–150 characters.</ui5-text>
+						</ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-birth">
+							Birth date
+						</ui5-label>
+						<ui5-date-picker
+							id="record-relationship-birth"
+							accessibleName="Birth date"
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
+							[showClearIcon]="true"
+							[value]="model().birthDate"
+							[disabled]="draft.saving()"
+							(ui5Change)="setDate('birthDate', $event.detail.value)"></ui5-date-picker>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-gender">
+							Gender
+						</ui5-label>
+						<ui5-select
+							id="record-relationship-gender"
+							accessibleName="Gender"
+							[formField]="fields.gender"
+							[disabled]="draft.saving()">
+							<ui5-option value="none">Not recorded</ui5-option>
+							@for (item of genders(); track item.id) {
+								<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-phone"
+							[required]="emergency()">
+							Contact number
+						</ui5-label>
+						<ui5-input
+							id="record-relationship-phone"
+							type="Tel"
+							accessibleName="Contact number"
+							[formField]="fields.contactNumber"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.contactNumber().touched() && fields.contactNumber().invalid()
+									? 'Negative'
+									: 'None'
+							">
+							<ui5-text slot="valueStateMessage">
+								Emergency contacts need a phone number of digits, spaces, brackets or dashes.
+							</ui5-text>
+						</ui5-input>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-dependent">
+							Dependant
+						</ui5-label>
+						<ui5-checkbox
+							id="record-relationship-dependent"
+							accessibleName="Dependant"
+							text="This person is a dependant"
+							[checked]="dependent()"
+							[disabled]="draft.saving()"
+							(ui5Change)="setFlag('dependent', $event.target)"></ui5-checkbox>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-relationship-emergency">
+							Emergency contact
+						</ui5-label>
+						<ui5-checkbox
+							id="record-relationship-emergency"
+							accessibleName="Emergency contact"
+							text="Contact this person in an emergency"
+							[checked]="emergency()"
+							[disabled]="draft.saving()"
+							(ui5Change)="setFlag('emergency', $event.target)"></ui5-checkbox>
+					</ui5-form-item>
+					@if (emergency()) {
+						<ui5-form-item>
+							<ui5-label
+								slot="labelContent"
+								for="record-relationship-priority"
+								[required]="true">
+								Emergency priority
+							</ui5-label>
+							<ui5-step-input
+								id="record-relationship-priority"
+								accessibleName="Emergency priority"
+								[min]="1"
+								[max]="99"
+								[value]="priority()"
+								[disabled]="draft.saving()"
+								(ui5Change)="setPriority($event.target)"></ui5-step-input>
+						</ui5-form-item>
+					}
+				}
+				@case ('deactivate') {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Effect</ui5-label>
+						<ui5-text>The entry stops being used; its history is kept.</ui5-text>
+					</ui5-form-item>
+				}
+				@case ('reveal') {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Recorded access</ui5-label>
+						<ui5-text>
+							Blood group and emergency contact numbers are shown only here. The purpose is recorded
+							in the audit trail; the values are not.
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-purpose"
+							[required]="true">
+							Purpose
+						</ui5-label>
+						<ui5-textarea
+							id="record-purpose"
+							accessibleName="Purpose"
+							[maxlength]="500"
+							[showExceededText]="true"
+							[formField]="fields.purpose"
+							[disabled]="draft.saving()"
+							[valueState]="
+								fields.purpose().touched() && fields.purpose().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">State why the information is needed.</ui5-text>
+						</ui5-textarea>
+					</ui5-form-item>
+				}
+				@case ('merge') {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Effect</ui5-label>
+						<ui5-text>
+							{{ input().record.displayName }} ({{ input().record.workerNumber }}) is merged into
+							the record you keep. Only a record without an established employment can be merged.
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="record-survivor"
+							[required]="true">
+							Record to keep
+						</ui5-label>
+						<ef-hcm-record-option-box
+							kind="managers"
+							label="Record to keep"
+							controlId="record-survivor"
+							[required]="true"
+							[disabled]="draft.saving()"
+							[exclude]="[input().record.workerId]"
+							[invalid]="touched() && !survivor()"
+							message="Choose the record to keep."
+							[selected]="survivor()"
+							(selectedChange)="survivor.set($event)"></ef-hcm-record-option-box>
+					</ui5-form-item>
+				}
+			}
+			@if (usesReason()) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="record-reason"
+						[required]="true">
+						Reason for change
+					</ui5-label>
+					<ui5-textarea
+						id="record-reason"
+						accessibleName="Reason for change"
+						[maxlength]="500"
+						[showExceededText]="true"
+						[formField]="fields.reason"
+						[disabled]="draft.saving()"
+						[valueState]="
+							fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'
+						">
+						<ui5-text slot="valueStateMessage">State the reason for this change.</ui5-text>
+					</ui5-textarea>
+				</ui5-form-item>
+			}
+		</ui5-form>
+	}
+	<ui5-bar slot="footer">
+		@if (!revealed()) {
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				[disabled]="draft.saving() || optionsState() !== 'ready'"
+				(click)="save()">
+				{{ draft.saving() ? 'Saving…' : confirmLabel() }}
+			</ui5-button>
+		}
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			{{ revealed() ? 'Close' : 'Cancel' }}
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

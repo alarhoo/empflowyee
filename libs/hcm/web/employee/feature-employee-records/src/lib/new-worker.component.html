@@ -1,0 +1,649 @@
+<ef-hcm-wizard-page
+	title="New worker"
+	summary="Create a person with a worker number, a primary employment, a primary assignment and a manager"
+	[state]="state()"
+	[errorMessage]="message()"
+	[current]="current()"
+	[reachable]="reachable()"
+	[busy]="draft.saving()"
+	finishLabel="Create worker"
+	(next)="next($event)"
+	(stepChange)="stepChange($event)"
+	(finish)="finish()"
+	(cancel)="cancel()"
+	(retry)="load()">
+	<ng-template
+		efHcmWizardStep="person"
+		title="Person">
+		<ui5-form
+			accessibleName="Person"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-given-name"
+					[required]="true">
+					Given name
+				</ui5-label>
+				<ui5-input
+					id="new-given-name"
+					accessibleName="Given name"
+					[formField]="fields.givenName"
+					[valueState]="
+						fields.givenName().touched() && fields.givenName().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a given name of up to 100 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-middle-name">
+					Middle name
+				</ui5-label>
+				<ui5-input
+					id="new-middle-name"
+					accessibleName="Middle name"
+					[formField]="fields.middleName"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-family-name"
+					[required]="true">
+					Family name
+				</ui5-label>
+				<ui5-input
+					id="new-family-name"
+					accessibleName="Family name"
+					[formField]="fields.familyName"
+					[valueState]="
+						fields.familyName().touched() && fields.familyName().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a family name of up to 100 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-preferred-name">
+					Preferred name
+				</ui5-label>
+				<ui5-input
+					id="new-preferred-name"
+					accessibleName="Preferred name"
+					[formField]="fields.preferredName"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-birth-date">
+					Birth date
+				</ui5-label>
+				<ui5-date-picker
+					id="new-birth-date"
+					accessibleName="Birth date"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[showClearIcon]="true"
+					[value]="model().birthDate"
+					(ui5Change)="setDate('birthDate', $event.detail.value)"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-gender">
+					Gender
+				</ui5-label>
+				<ui5-select
+					id="new-gender"
+					accessibleName="Gender"
+					[formField]="fields.gender">
+					<ui5-option value="none">Not recorded</ui5-option>
+					@for (item of genders(); track item.id) {
+						<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-marital-status">
+					Marital status
+				</ui5-label>
+				<ui5-select
+					id="new-marital-status"
+					accessibleName="Marital status"
+					[formField]="fields.maritalStatus">
+					<ui5-option value="none">Not recorded</ui5-option>
+					@for (item of maritalStatuses(); track item.id) {
+						<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-nationality">
+					Nationality
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="countries"
+					label="Nationality"
+					controlId="new-nationality"
+					[selected]="refs().nationality"
+					(selectedChange)="setRef('nationality', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-worker-number"
+					[required]="true">
+					Worker number
+				</ui5-label>
+				<ui5-input
+					id="new-worker-number"
+					accessibleName="Worker number"
+					[formField]="fields.workerNumber"
+					[valueState]="
+						fields.workerNumber().touched() && fields.workerNumber().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">
+						Use 2–40 upper-case letters, digits, dashes or underscores.
+					</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-worker-type"
+					[required]="true">
+					Worker type
+				</ui5-label>
+				<ui5-select
+					id="new-worker-type"
+					accessibleName="Worker type"
+					[formField]="fields.workerType">
+					@for (item of workerTypes(); track item.id) {
+						<ui5-option [value]="item.id">{{ item.name }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		</ui5-form>
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="employment"
+		title="Employment">
+		<ui5-form
+			accessibleName="Employment"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-legal-entity"
+					[required]="true">
+					Legal entity
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="legal-entities"
+					label="Legal entity"
+					controlId="new-legal-entity"
+					[required]="true"
+					[invalid]="touched().employment && !refs().legalEntity"
+					message="Choose a legal entity."
+					[selected]="refs().legalEntity"
+					(selectedChange)="setRef('legalEntity', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-employment-type"
+					[required]="true">
+					Employment type
+				</ui5-label>
+				<ui5-select
+					id="new-employment-type"
+					accessibleName="Employment type"
+					[formField]="fields.employmentType">
+					@for (type of employmentTypes; track type) {
+						<ui5-option [value]="type">{{ employmentLabels[type] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-hire-date"
+					[required]="true">
+					Hire date
+				</ui5-label>
+				<ui5-date-picker
+					id="new-hire-date"
+					accessibleName="Hire date"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[required]="true"
+					[value]="model().hireDate"
+					[valueState]="touched().employment && !model().hireDate ? 'Negative' : 'None'"
+					(ui5Change)="setDate('hireDate', $event.detail.value)"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-work-email">
+					Work email
+				</ui5-label>
+				<ui5-input
+					id="new-work-email"
+					type="Email"
+					accessibleName="Work email"
+					[formField]="fields.workEmail"
+					[valueState]="
+						fields.workEmail().touched() && fields.workEmail().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">
+						Enter an email address such as name@example.com.
+					</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-probation-end">
+					Probation end
+				</ui5-label>
+				<ui5-date-picker
+					id="new-probation-end"
+					accessibleName="Probation end"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[showClearIcon]="true"
+					[value]="model().probationEndDate"
+					(ui5Change)="setDate('probationEndDate', $event.detail.value)"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-notice-days">
+					Notice period in days
+				</ui5-label>
+				<ui5-step-input
+					id="new-notice-days"
+					accessibleName="Notice period in days"
+					[min]="0"
+					[max]="365"
+					[step]="1"
+					[value]="noticeDays() ?? 0"
+					(ui5Change)="setNumber('notice', $event.target)"></ui5-step-input>
+			</ui5-form-item>
+		</ui5-form>
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="assignment"
+		title="Assignment and manager">
+		<ui5-form
+			accessibleName="Assignment and manager"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-job-title"
+					[required]="true">
+					Job title
+				</ui5-label>
+				<ui5-input
+					id="new-job-title"
+					accessibleName="Job title"
+					[formField]="fields.jobTitle"
+					[valueState]="
+						fields.jobTitle().touched() && fields.jobTitle().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a job title of up to 150 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-unit"
+					[required]="true">
+					Unit
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="units"
+					label="Unit"
+					controlId="new-unit"
+					[required]="true"
+					[invalid]="touched().assignment && !refs().unit"
+					message="Choose a unit."
+					[selected]="refs().unit"
+					(selectedChange)="setRef('unit', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-department">
+					Department
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="departments"
+					label="Department"
+					controlId="new-department"
+					[selected]="refs().department"
+					(selectedChange)="setRef('department', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-designation">
+					Designation
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="designations"
+					label="Designation"
+					controlId="new-designation"
+					[selected]="refs().designation"
+					(selectedChange)="setRef('designation', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-location"
+					[required]="true">
+					Location
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="locations"
+					label="Location"
+					controlId="new-location"
+					[required]="true"
+					[invalid]="touched().assignment && !refs().location"
+					message="Choose a location."
+					[selected]="refs().location"
+					(selectedChange)="setRef('location', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-work-mode"
+					[required]="true">
+					Work mode
+				</ui5-label>
+				<ui5-select
+					id="new-work-mode"
+					accessibleName="Work mode"
+					[formField]="fields.workMode">
+					@for (mode of workModes; track mode) {
+						<ui5-option [value]="mode">{{ workModeLabels[mode] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-fte"
+					[required]="true">
+					FTE
+				</ui5-label>
+				<ui5-step-input
+					id="new-fte"
+					accessibleName="FTE"
+					[min]="0.01"
+					[max]="1"
+					[step]="0.05"
+					[valuePrecision]="2"
+					[value]="fte()"
+					[valueState]="fteInvalid() ? 'Negative' : 'None'"
+					(ui5Change)="setNumber('fte', $event.target)">
+					<ui5-text slot="valueStateMessage">Enter an FTE between 0.01 and 1.</ui5-text>
+				</ui5-step-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-hours">
+					Weekly hours
+				</ui5-label>
+				<ui5-step-input
+					id="new-hours"
+					accessibleName="Weekly hours"
+					[min]="0.25"
+					[max]="168"
+					[step]="0.5"
+					[valuePrecision]="2"
+					[value]="hours() ?? 0"
+					[valueState]="hoursInvalid() ? 'Negative' : 'None'"
+					(ui5Change)="setNumber('hours', $event.target)">
+					<ui5-text slot="valueStateMessage">Enter weekly hours between 0.25 and 168.</ui5-text>
+				</ui5-step-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-cost-centre">
+					Cost centre
+				</ui5-label>
+				<ui5-input
+					id="new-cost-centre"
+					accessibleName="Cost centre"
+					[formField]="fields.costCenterCode"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-manager">
+					Manager
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="managers"
+					label="Manager"
+					controlId="new-manager"
+					[selected]="refs().manager"
+					(selectedChange)="setRef('manager', $event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+		</ui5-form>
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="duplicates"
+		title="Duplicate check">
+		@if (message()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ message() }}
+			</ui5-message-strip>
+		}
+		@if (checking()) {
+			<ui5-busy-indicator
+				[active]="true"
+				[delay]="0"
+				text="Checking for existing people"></ui5-busy-indicator>
+		} @else if (candidates().length) {
+			<ui5-message-strip
+				design="Critical"
+				[hideCloseButton]="true">
+				{{ candidates().length }} existing
+				{{ candidates().length === 1 ? 'person matches' : 'people match' }} these facts. Open a
+				record to correct it instead, or confirm that this is a different person.
+			</ui5-message-strip>
+			<ui5-table
+				accessibleName="Possible duplicates"
+				overflowMode="Popin">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="14rem">Person</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Match">
+						Match
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (candidate of candidates(); track candidate.personId) {
+					<ui5-table-row [rowKey]="candidate.personId">
+						<ui5-table-cell>
+							@if (candidate.workerId) {
+								<ui5-link
+									[accessibleName]="'Open record of ' + candidate.displayName"
+									(click)="openCandidate(candidate.workerId)">
+									{{ candidate.displayName }}
+								</ui5-link>
+							} @else {
+								{{ candidate.displayName }}
+							}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ matchReason(candidate) }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-form
+				accessibleName="Duplicate resolution"
+				accessibleMode="Edit"
+				layout="S1 M1 L1 XL1">
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="new-create-anyway">
+						Resolution
+					</ui5-label>
+					<ui5-checkbox
+						id="new-create-anyway"
+						accessibleName="Create a new person"
+						text="None of these is the same person; create a new person"
+						[checked]="createNew()"
+						[valueState]="touched().duplicates && !createNew() ? 'Negative' : 'None'"
+						(ui5Change)="setCreateNew($event.target)"></ui5-checkbox>
+				</ui5-form-item>
+				@if (createNew()) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="new-duplicate-reason"
+							[required]="true">
+							Why these are different people
+						</ui5-label>
+						<ui5-textarea
+							id="new-duplicate-reason"
+							accessibleName="Why these are different people"
+							[maxlength]="500"
+							[formField]="fields.duplicateReason"
+							[valueState]="
+								fields.duplicateReason().touched() && fields.duplicateReason().invalid()
+									? 'Negative'
+									: 'None'
+							">
+							<ui5-text slot="valueStateMessage">State why this is a different person.</ui5-text>
+						</ui5-textarea>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		} @else {
+			<ui5-message-strip
+				design="Positive"
+				[hideCloseButton]="true">
+				No existing person matches the name, birth date or work email.
+			</ui5-message-strip>
+		}
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="review"
+		title="Review">
+		@if (draft.error()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Review"
+			accessibleMode="Display"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Name</ui5-label>
+				<ui5-text>
+					{{ fullName() }}
+				</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Birth date</ui5-label>
+				<ui5-text>{{ model().birthDate ? (model().birthDate | hcmDate: 'date') : '—' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Gender and marital status</ui5-label>
+				<ui5-text>{{ genderName() }}, {{ maritalName() }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Nationality</ui5-label>
+				<ui5-text>{{ refs().nationality?.name ?? '—' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Worker</ui5-label>
+				<ui5-text>{{ model().workerNumber }} · {{ workerTypeName() }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Employment</ui5-label>
+				<ui5-text>
+					{{ employmentLabel() }} at {{ refs().legalEntity?.name ?? '—' }} from
+					{{ model().hireDate | hcmDate: 'date' }}
+				</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Work email</ui5-label>
+				<ui5-text>{{ model().workEmail || '—' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Assignment</ui5-label>
+				<ui5-text>
+					{{ model().jobTitle }} · {{ refs().unit?.name ?? '—' }} ·
+					{{ refs().location?.name ?? '—' }}
+				</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Work mode and FTE</ui5-label>
+				<ui5-text>{{ workModeLabel() }}, {{ decimal(fte()) }} FTE</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Manager</ui5-label>
+				<ui5-text>{{ refs().manager?.name ?? 'None' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Duplicates</ui5-label>
+				<ui5-text>
+					{{
+						candidates().length
+							? candidates().length + ' found; confirmed as a different person'
+							: 'None found'
+					}}
+				</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-form
+			accessibleName="Reason"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="new-reason"
+					[required]="true">
+					Reason for creation
+				</ui5-label>
+				<ui5-textarea
+					id="new-reason"
+					accessibleName="Reason for creation"
+					[maxlength]="500"
+					[formField]="fields.reason"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">State the reason for creating this worker.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+		</ui5-form>
+	</ng-template>
+</ef-hcm-wizard-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
