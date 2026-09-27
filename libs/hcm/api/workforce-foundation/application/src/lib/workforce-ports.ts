@@ -1,3 +1,4 @@
+import type { WorkforceChangeContextPort } from './workforce-change-context'
 import type { WorkforceDirectoryPort } from './workforce-directory'
 import type { WorkforceProfilePort } from './workforce-profile'
 import type { PositionOccupancyPort } from './position-occupancy'
@@ -70,6 +71,8 @@ export interface AssignmentFacts {
 	costCenterCode: string
 	effectiveFrom: string
 	changeNote: string
+	/** The position the assignment occupies; capacity is decided by the calling command. */
+	positionId?: string | null
 }
 
 export interface SetReportingLine {
@@ -85,6 +88,8 @@ export interface SetReportingLine {
 export interface EmploymentFactsChange {
 	expectedRevision: number
 	employmentStatus?: EmploymentStatus
+	employmentType?: EmploymentType
+	continuousServiceStartDate?: string | null
 	workEmail?: string | null
 	probationEndDate?: string | null
 	probationStatus?: ProbationStatus
@@ -140,8 +145,21 @@ export interface WorkforceFactsPort {
 		expectedRevision: number,
 		facts: AssignmentFacts,
 	): Promise<{ closed: Revisioned; opened: Revisioned }>
+	/**
+	 * Establish an incomplete assignment: close it the day before and open an established successor,
+	 * keeping the incomplete row in history.
+	 */
+	establishAssignment(
+		assignmentId: string,
+		expectedRevision: number,
+		facts: AssignmentFacts,
+	): Promise<{ closed: Revisioned; opened: Revisioned }>
 	/** Start a reporting line; a primary line closes the current primary line the day before. */
 	setReportingLine(input: SetReportingLine): Promise<Revisioned>
+	/** Close an assignment's primary line the day before a date, leaving it without a manager. */
+	endPrimaryReportingLine(assignmentId: string, effectiveFrom: string): Promise<Revisioned | null>
+	/** Change a worker's type, for example on rehire. */
+	setWorkerType(workerId: string, workerTypeId: string): Promise<Revisioned>
 	/** Change employment facts such as probation, notice and exit, keeping worker engagement current. */
 	applyEmploymentFacts(employmentId: string, change: EmploymentFactsChange): Promise<Revisioned>
 	/** Append one worker lifecycle event. */
@@ -258,5 +276,6 @@ export abstract class WorkforcePortBinder {
 		occupancy: PositionOccupancyPort
 		structure: StructureReferencePort
 		records: WorkforceRecordsPort
+		changes: WorkforceChangeContextPort
 	}
 }

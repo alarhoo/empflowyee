@@ -7,6 +7,7 @@ import { KyselyWorkforceDirectory } from './workforce-directory'
 import { KyselyWorkforceProfile } from './workforce-profile'
 import { KyselyPositionOccupancy } from './position-occupancy'
 import { KyselyWorkforceRecords } from './workforce-records'
+import { KyselyWorkforceChangeContext } from './workforce-change-context'
 import {
 	WorkforcePortBinder,
 	type AssignmentFact,
@@ -26,6 +27,7 @@ import {
 	type PositionOccupancyPort,
 	type StructureReferencePort,
 	type WorkforceRecordsPort,
+	type WorkforceChangeContextPort,
 	type WorkforceProfilePort,
 	type WorkforceReadPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
@@ -241,13 +243,21 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 			await this.requireActive(sql`hcm.department`, facts.departmentId, 'departmentId')
 		if (facts.designationId)
 			await this.requireActive(sql`hcm.designation`, facts.designationId, 'designationId')
+		if (facts.positionId) {
+			const position = await this.one(
+				sql<{
+					ok: boolean
+				}>`SELECT true AS ok FROM hcm.position WHERE tenant_id=${this.scope.tenantId} AND id=${facts.positionId}`,
+			)
+			if (!position) invalidField('positionId', 'unknown')
+		}
 	}
 
 	/** Insert one established assignment row. */
 	private async insertAssignment(employmentId: string, facts: AssignmentFacts): Promise<string> {
 		const id = randomUUID()
 		await this.run(
-			sql`INSERT INTO hcm.assignment(tenant_id,id,employment_id,organisation_id,location_id,job_title,department_id,designation_id,work_mode,full_time_equivalent,standard_hours_per_week,is_primary_assignment,is_billable,cost_center_code,effective_from,change_note,created_by_account_id,updated_by_account_id) VALUES(${this.scope.tenantId},${id},${employmentId},${facts.organisationId},${facts.locationId},${facts.jobTitle.trim()},${facts.departmentId},${facts.designationId},${facts.workMode},${facts.fullTimeEquivalent},${facts.standardHoursPerWeek},${facts.isPrimary},${facts.isBillable},${facts.costCenterCode.trim()},${facts.effectiveFrom}::date,${facts.changeNote.trim()},${this.actor},${this.actor})`,
+			sql`INSERT INTO hcm.assignment(tenant_id,id,employment_id,organisation_id,location_id,job_title,department_id,designation_id,work_mode,full_time_equivalent,standard_hours_per_week,is_primary_assignment,is_billable,cost_center_code,effective_from,change_note,position_id,created_by_account_id,updated_by_account_id) VALUES(${this.scope.tenantId},${id},${employmentId},${facts.organisationId},${facts.locationId},${facts.jobTitle.trim()},${facts.departmentId},${facts.designationId},${facts.workMode},${facts.fullTimeEquivalent},${facts.standardHoursPerWeek},${facts.isPrimary},${facts.isBillable},${facts.costCenterCode.trim()},${facts.effectiveFrom}::date,${facts.changeNote.trim()},${facts.positionId ?? null},${this.actor},${this.actor})`,
 		)
 		return id
 	}
@@ -287,6 +297,33 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 			sql`UPDATE hcm.assignment SET superseded_by_id=${openedId},updated_at=now(),updated_by_account_id=${this.actor} WHERE tenant_id=${this.scope.tenantId} AND id=${assignmentId}`,
 		)
 		await this.carryLines(assignmentId, openedId, facts.effectiveFrom, closeOn)
+		return {
+			closed: { id: assignmentId, revision: current.revision + 1 },
+			opened: { id: openedId, revision: 1 },
+		}
+	}
+
+	/** Establish an incomplete assignment, keeping the incomplete row in history. */
+	async establishAssignment(
+		assignmentId: string,
+		expectedRevision: number,
+		facts: AssignmentFacts,
+	): Promise<{ closed: Revisioned; opened: Revisioned }> {
+		const current = await this.one(
+			sql<AssignmentRow>`SELECT id,employment_id AS "employmentId",to_char(effective_from,'YYYY-MM-DD') AS "effectiveFrom",to_char(effective_to,'YYYY-MM-DD') AS "effectiveTo",superseded_by_id AS "supersededById",revision FROM hcm.assignment WHERE tenant_id=${this.scope.tenantId} AND id=${assignmentId} FOR UPDATE`,
+		)
+		if (!current) throw new HcmDomainError('not-found')
+		requireRevision(current.revision, expectedRevision)
+		if (current.effectiveFrom !== null || current.supersededById !== null)
+			throw new HcmDomainError('invalid-state')
+		const employment = await this.employment(current.employmentId)
+		requireWithinEmployment(employment.hireDate, employment.endDate, facts.effectiveFrom)
+		await this.assignmentReferences(facts)
+		const openedId = await this.insertAssignment(current.employmentId, facts)
+		// An incomplete row has no period; closing it only records where its history ends.
+		await this.run(
+			sql`UPDATE hcm.assignment SET effective_to=${dayBefore(facts.effectiveFrom)}::date,superseded_by_id=${openedId},revision=revision+1,updated_at=now(),updated_by_account_id=${this.actor} WHERE tenant_id=${this.scope.tenantId} AND id=${assignmentId}`,
+		)
 		return {
 			closed: { id: assignmentId, revision: current.revision + 1 },
 			opened: { id: openedId, revision: 1 },
@@ -384,6 +421,41 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 		return { id, revision: 1 }
 	}
 
+	/** Close an assignment's primary line the day before a date, leaving it without a manager. */
+	async endPrimaryReportingLine(
+		assignmentId: string,
+		effectiveFrom: string,
+	): Promise<Revisioned | null> {
+		const open = await this.one(
+			sql<{
+				id: string
+				from: string
+				revision: number
+			}>`SELECT id,to_char(effective_from,'YYYY-MM-DD') AS "from",revision FROM hcm.reporting_line WHERE tenant_id=${this.scope.tenantId} AND assignment_id=${assignmentId} AND is_primary AND effective_period @> ${effectiveFrom}::date FOR UPDATE`,
+		)
+		if (!open) return null
+		requireAfter(open.from, effectiveFrom)
+		await this.run(
+			sql`UPDATE hcm.reporting_line SET effective_to=${dayBefore(effectiveFrom)}::date,revision=revision+1,updated_at=now(),updated_by_account_id=${this.actor} WHERE tenant_id=${this.scope.tenantId} AND id=${open.id}`,
+		)
+		return { id: open.id, revision: open.revision + 1 }
+	}
+
+	/** Change a worker's type, for example on rehire. */
+	async setWorkerType(workerId: string, workerTypeId: string): Promise<Revisioned> {
+		const worker = await this.one(
+			sql<{
+				revision: number
+			}>`SELECT revision FROM hcm.worker WHERE tenant_id=${this.scope.tenantId} AND id=${workerId} FOR UPDATE`,
+		)
+		if (!worker) throw new HcmDomainError('not-found')
+		await this.requireActive(sql`hcm.worker_type`, workerTypeId, 'workerTypeId')
+		await this.run(
+			sql`UPDATE hcm.worker SET worker_type_id=${workerTypeId},revision=revision+1,updated_at=now(),updated_by_account_id=${this.actor} WHERE tenant_id=${this.scope.tenantId} AND id=${workerId}`,
+		)
+		return { id: workerId, revision: worker.revision + 1 }
+	}
+
 	/** Change employment facts, keeping worker engagement current. */
 	async applyEmploymentFacts(
 		employmentId: string,
@@ -399,6 +471,8 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 			)
 		const columns: [keyof EmploymentFactsChange, string, string][] = [
 			['employmentStatus', 'employment_status', 'text'],
+			['employmentType', 'employment_type', 'text'],
+			['continuousServiceStartDate', 'continuous_service_start_date', 'date'],
 			['workEmail', 'work_email', 'text'],
 			['probationEndDate', 'probation_end_date', 'date'],
 			['probationStatus', 'probation_status', 'text'],
@@ -568,6 +642,7 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 		occupancy: PositionOccupancyPort
 		structure: StructureReferencePort
 		records: WorkforceRecordsPort
+		changes: WorkforceChangeContextPort
 	} {
 		const scope: WorkforceScope = {
 			executor: transaction as Kysely<unknown>,
@@ -582,6 +657,7 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 			occupancy: new KyselyPositionOccupancy(scope),
 			structure: new KyselyStructureRepository(scope),
 			records: new KyselyWorkforceRecords(scope),
+			changes: new KyselyWorkforceChangeContext(scope),
 		}
 	}
 }
