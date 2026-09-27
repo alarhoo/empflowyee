@@ -118,6 +118,7 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 		admin,
 		/** Encode one multipart body and send it through `send`'s transport. */
 		upload<T>(
+			this: HcmTestApi,
 			persona: string,
 			path: string,
 			metadata: unknown,
