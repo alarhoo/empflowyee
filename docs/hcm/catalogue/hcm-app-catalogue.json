@@ -4052,12 +4052,18 @@
 			"runtime": "web",
 			"domain": "job-architecture",
 			"deliveryWave": "HCM-2",
-			"catalogueIds": ["hr-specialist-operations"],
+			"catalogueIds": ["hr-specialist-operations", "tenant-administration"],
 			"placements": [
 				{
 					"spaceId": "hr-operations",
 					"pageId": "hr-time-projects",
 					"sectionId": "hr-projects",
+					"display": "tiles"
+				},
+				{
+					"spaceId": "tenant-administration",
+					"pageId": "admin-reference-data",
+					"sectionId": "admin-people-documents",
 					"display": "tiles"
 				}
 			],
