@@ -2,6 +2,7 @@
 	[showFooter]="state() === 'content'"
 	[accessibilityAttributes]="{
 		root: { role: 'region', name: title() },
+		header: { role: 'region', name: title() + ' header' },
 		content: { role: 'region', name: title() + ' content' },
 		footer: { role: 'region', name: title() + ' footer' },
 	}">
@@ -104,7 +105,7 @@
 		<ui5-button
 			slot="endContent"
 			[disabled]="busy()"
-			(click)="cancel.emit()">
+			(click)="cancelled.emit()">
 			Cancel
 		</ui5-button>
 	</ui5-bar>
