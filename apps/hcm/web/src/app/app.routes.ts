@@ -281,6 +281,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/my-hr-requests',
+		data: { catalogId: 'MY_HR_REQUESTS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the worker's own HR requests and conversations. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-my-hr-requests').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.MY_HR_REQUESTS_ROUTES,
+			),
+	},
+	{
 		path: 'employee/my-profile',
 		data: { catalogId: 'MY_PROFILE' },
 		canMatch: [hcmRouteAccess],

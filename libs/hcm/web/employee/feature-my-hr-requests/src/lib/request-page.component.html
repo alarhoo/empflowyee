@@ -1,0 +1,212 @@
+<ef-hcm-object-page
+	[title]="request() ? request()!.requestNumber + ': ' + request()!.subject : 'HR request'"
+	[summary]="request() ? request()!.typeName : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (request(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label"></span>
+	}
+	@if (request(); as current) {
+		<ng-template
+			efHcmObjectSection="conversation"
+			label="Conversation">
+			@if (notice()) {
+				<ui5-message-strip
+					design="Positive"
+					(ui5Close)="notice.set('')">
+					{{ notice() }}
+				</ui5-message-strip>
+			}
+			@if (messages().length) {
+				<ui5-timeline accessibleName="Conversation">
+					@for (entry of messages(); track entry.id) {
+						<ui5-timeline-item
+							[titleText]="
+								(entry.kind === 'StatusUpdate' ? 'Status update' : entry.author) +
+								' on ' +
+								(entry.createdAt | hcmDate)
+							"
+							[icon]="entry.kind === 'StatusUpdate' ? 'history' : 'discussion'">
+							<ui5-text>{{ entry.body }}</ui5-text>
+							@for (attachment of entry.attachments; track attachment.id) {
+								<ui5-button
+									design="Transparent"
+									icon="attachment"
+									[accessibleName]="'Download ' + attachment.fileName"
+									(click)="download(attachment)">
+									{{ attachment.fileName }} ({{ size(attachment.sizeBytes) }})
+								</ui5-button>
+							}
+						</ui5-timeline-item>
+					}
+				</ui5-timeline>
+				@if (messageCursor()) {
+					<ui5-button (click)="loadMessages(true)">Load more messages</ui5-button>
+				}
+			} @else {
+				<ui5-text>No messages yet.</ui5-text>
+			}
+			@if (current.actions.reply) {
+				@if (draft.error()) {
+					<ui5-message-strip
+						design="Negative"
+						[hideCloseButton]="true">
+						{{ draft.error() }}
+					</ui5-message-strip>
+				}
+				<ui5-form
+					accessibleName="Reply to HR"
+					accessibleMode="Edit"
+					layout="S1 M1 L1 XL1">
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="my-hr-reply"
+							[required]="true">
+							Reply
+						</ui5-label>
+						<ui5-textarea
+							id="my-hr-reply"
+							accessibleName="Reply"
+							[maxlength]="5000"
+							[growing]="true"
+							[formField]="composerForm.body"
+							[disabled]="draft.saving()"
+							[valueState]="
+								composerForm.body().touched() && composerForm.body().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">Write a reply.</ui5-text>
+						</ui5-textarea>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="my-hr-reply-file">
+							Attachment
+						</ui5-label>
+						@for (n of [round()]; track n) {
+							<ui5-file-uploader
+								id="my-hr-reply-file"
+								accessibleName="Attachment"
+								accept=".pdf,.png,.jpg,.jpeg"
+								[maxFileSize]="10"
+								[multiple]="false"
+								[disabled]="draft.saving()"
+								(ui5Change)="chooseFile($event)"
+								(ui5FileSizeExceed)="rejectFile()"></ui5-file-uploader>
+						}
+						<ui5-text>Optional PDF, PNG or JPEG up to 10 MiB.</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Send</ui5-label>
+						<ui5-button
+							design="Emphasized"
+							[disabled]="draft.saving()"
+							(click)="send()">
+							{{ draft.saving() ? 'Sending…' : 'Send reply' }}
+						</ui5-button>
+					</ui5-form-item>
+				</ui5-form>
+			} @else {
+				<ui5-text>
+					This request is {{ status(current.status).label.toLowerCase() }}; it no longer takes
+					replies.
+				</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="details"
+			label="Details">
+			<ui5-form
+				accessibleName="Request details"
+				accessibleMode="Display"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Type</ui5-label>
+					<ui5-text>{{ current.typeName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status(current.status).status"
+						[label]="status(current.status).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Submitted</ui5-label>
+					<ui5-text>{{ current.createdAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Last update</ui5-label>
+					<ui5-text>{{ current.updatedAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+				@if (current.resolutionSummary) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Resolution</ui5-label>
+						<ui5-text>{{ current.resolutionSummary }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.reopenUntil) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">You can reopen until</ui5-label>
+						<ui5-text>{{ current.reopenUntil | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.cancelReason) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Cancel reason</ui5-label>
+						<ui5-text>{{ current.cancelReason }}</ui5-text>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="attachments"
+			label="Attachments">
+			<ui5-table
+				accessibleName="Attachments"
+				overflowMode="Popin"
+				noDataText="No attachments.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="12rem">File</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="6rem"
+						popinText="Size">
+						Size
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Added">
+						Added
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (attachment of attachments(); track attachment.id) {
+					<ui5-table-row [rowKey]="attachment.id">
+						<ui5-table-cell>
+							<ui5-button
+								design="Transparent"
+								icon="download"
+								[accessibleName]="'Download ' + attachment.fileName"
+								(click)="download(attachment)">
+								{{ attachment.fileName }}
+							</ui5-button>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ size(attachment.sizeBytes) }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ attachment.createdAt | hcmDate }} by {{ attachment.author }}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

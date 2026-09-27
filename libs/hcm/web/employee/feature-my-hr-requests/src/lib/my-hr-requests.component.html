@@ -1,0 +1,127 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Request list' },
+		midColumn: { role: 'region', name: 'Selected HR request' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="My HR Requests"
+		summary="Questions and corrections you raised with HR, and HR's replies"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Request view"
+			accessibleMode="Edit"
+			layout="S1 M2 L2 XL2"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Request view"
+					(ui5SelectionChange)="chooseView($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-view="open"
+						[selected]="view() === 'open'">
+						Open
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-view="closed"
+						[selected]="view() === 'closed'">
+						Closed
+					</ui5-segmented-button-item>
+				</ui5-segmented-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[loading]="listState() === 'loading'"
+			accessibleName="My HR requests"
+			overflowMode="Popin"
+			[noDataText]="noData()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="14rem">
+					Request
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="50"
+					minWidth="10rem"
+					popinText="Type">
+					Type
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="9rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="10rem"
+					popinText="Last update">
+					Last update
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of requests(); track row.id) {
+				<ui5-table-row
+					[rowKey]="row.id"
+					[interactive]="true"
+					[navigated]="selected() === row.id">
+					<ui5-table-cell>{{ row.requestNumber }}: {{ row.subject }}</ui5-table-cell>
+					<ui5-table-cell>{{ row.typeName }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="status(row.status).status"
+							[label]="status(row.status).label"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>{{ row.updatedAt | hcmDate }}</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more requests"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (requestId of [id]; track requestId) {
+			<ef-hcm-my-hr-request-page
+				slot="midColumn"
+				[requestId]="requestId"
+				[refresh]="refresh()"
+				(dialogRequested)="dialog.set($event)"
+				(changed)="load(false)"
+				(closed)="close()"></ef-hcm-my-hr-request-page>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-my-hr-request-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialogClosed()"></ef-hcm-my-hr-request-dialog>
+}
