@@ -1878,7 +1878,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			appCode: 'POSITION_REQUIREMENTS',
 			title: 'Position Requirements',
 			domain: 'job-architecture',
-			catalogueIds: ['tenant-administration'],
+			catalogueIds: ['tenant-administration', 'hr-specialist-operations'],
 			route: '/job-architecture/position-requirements',
 			floorplan: 'UX-FP-FCL',
 			implementationStatus: 'planned',
@@ -2891,6 +2891,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 					display: 'tiles',
 					appCodes: [
 						'POSITIONS',
+						'POSITION_REQUIREMENTS',
 						'CLIENT_MANAGEMENT',
 						'PROJECT_MANAGEMENT',
 						'UTILIZATION_POLICIES',
