@@ -226,6 +226,24 @@
 			"requiresMigrations": ["000031_employee_import.sql"],
 			"apply": "employee.operations.1.apply.sql",
 			"reset": "employee.operations.1.reset.sql"
+		},
+		{
+			"id": "workforce.foundation",
+			"domain": "workforce-foundation",
+			"version": 5,
+			"dependsOn": ["workforce.foundation@4"],
+			"requiresMigrations": ["000029_employee_workforce_changes.sql"],
+			"apply": "workforce.foundation.5.apply.sql",
+			"reset": "workforce.foundation.5.reset.sql"
+		},
+		{
+			"id": "employee.operations",
+			"domain": "employee",
+			"version": 2,
+			"dependsOn": ["employee.operations@1", "workforce.foundation@5"],
+			"requiresMigrations": ["000032_employee_probation.sql"],
+			"apply": "employee.operations.2.apply.sql",
+			"reset": "employee.operations.2.reset.sql"
 		}
 	]
 }

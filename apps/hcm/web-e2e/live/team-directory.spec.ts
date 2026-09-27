@@ -70,14 +70,16 @@ test('lists the direct reports with employment and probation status', /** REQ-00
 	page,
 }) => {
 	await open(page)
-	await expect(rows(page)).toHaveCount(3)
-	await expect(rows(page).nth(0)).toContainText('Dwight Schrute')
+	await expect(rows(page)).toHaveCount(4)
+	await expect(rows(page).nth(0)).toContainText('Andy Bernard')
 	await expect(rows(page).filter({ hasText: 'Jim Halpert' })).toContainText('Confirmed')
 	await expect(rows(page).filter({ hasText: 'Jim Halpert' })).toContainText('Active')
 	await page.getByRole('combobox', { name: 'Probation' }).click()
 	await page.getByRole('option', { name: 'In probation' }).click()
 	await page.getByRole('button', { name: 'Apply filters' }).click()
-	await expect(page.getByText('No team members match these filters')).toBeVisible()
+	await expect(rows(page)).toHaveCount(1)
+	await expect(rows(page).first()).toContainText('Andy Bernard')
+	await expect(rows(page).first()).toContainText('In probation')
 	expect(await violations(page)).toEqual([])
 })
 

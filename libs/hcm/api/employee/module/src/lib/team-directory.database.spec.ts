@@ -27,7 +27,7 @@ it('lists exactly the direct reports on current primary solid lines', /** REQ-00
 	const team = await api.send<TeamPage>('michael', 'GET', base)
 	expect(team.status).toBe(200)
 	expect(team.cache).toBe('no-store')
-	expect(names(team.body)).toEqual(['Dwight Schrute', 'Jim Halpert', 'Pam Beesly'])
+	expect(names(team.body)).toEqual(['Andy Bernard', 'Dwight Schrute', 'Jim Halpert', 'Pam Beesly'])
 	expect(team.body.items.find(/** Jim. */ (entry) => entry.workerId === P + 'worker/jim')).toEqual({
 		workerId: P + 'worker/jim',
 		displayName: 'Jim Halpert',
@@ -53,6 +53,7 @@ it('lists exactly the direct reports on current primary solid lines', /** REQ-00
 	])
 	try {
 		expect(names((await api.send<TeamPage>('michael', 'GET', base)).body)).toEqual([
+			'Andy Bernard',
 			'Dwight Schrute',
 			'Pam Beesly',
 		])
@@ -70,7 +71,7 @@ it('lists exactly the direct reports on current primary solid lines', /** REQ-00
 	])
 	expect(
 		names((await api.send<TeamPage>('michael', 'GET', `${base}?probationStatus=InProgress`)).body),
-	).toEqual([])
+	).toEqual(['Andy Bernard'])
 	expect((await api.send('michael', 'GET', `${base}?probationStatus=Unknown`)).status).toBe(400)
 })
 

@@ -52,13 +52,13 @@ it('builds the hierarchy from current primary solid lines for every persona', /*
 		'GET',
 		`${base}/nodes/${encodeURIComponent(P + 'assignment/michael')}/reports?limit=2`,
 	)
-	expect(names(michael.body)).toEqual(['Dwight Schrute', 'Jim Halpert'])
+	expect(names(michael.body)).toEqual(['Andy Bernard', 'Dwight Schrute'])
 	const rest = await api.send<OrgChartPage>(
 		'jim',
 		'GET',
 		`${base}/nodes/${encodeURIComponent(P + 'assignment/michael')}/reports?limit=2&cursor=${encodeURIComponent(michael.body.nextCursor ?? '')}`,
 	)
-	expect(names(rest.body)).toEqual(['Pam Beesly'])
+	expect(names(rest.body)).toEqual(['Jim Halpert', 'Pam Beesly'])
 	expect(rest.body.nextCursor).toBeNull()
 	expect((await api.send('jim', 'GET', `${base}/roots?q=x`)).status).toBe(400)
 	expect((await api.send('jim', 'GET', `${base}/roots?limit=500`)).status).toBe(400)
@@ -149,7 +149,7 @@ it('excludes pending and ended employments and grants nothing', /** REQ-004. */ 
 			'GET',
 			`${base}/nodes/${encodeURIComponent(P + 'assignment/michael')}/reports`,
 		)
-		expect(names(reports.body)).toEqual(['Jim Halpert', 'Pam Beesly'])
+		expect(names(reports.body)).toEqual(['Andy Bernard', 'Jim Halpert', 'Pam Beesly'])
 		expect(
 			(await api.send('jim', 'GET', `${base}/nodes/${encodeURIComponent(P + 'assignment/dwight')}`))
 				.status,

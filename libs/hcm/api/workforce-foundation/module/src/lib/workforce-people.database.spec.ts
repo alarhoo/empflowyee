@@ -128,6 +128,7 @@ it('establishes the seeded workforce and its primary reporting lines', /** workf
 			])
 			const michael = await reads.directReports([P + 'assignment/michael'], '2026-09-26')
 			expect(michael.map(/** Report names. */ (edge) => edge.displayName)).toEqual([
+				'Andy Bernard',
 				'Dwight Schrute',
 				'Jim Halpert',
 				'Pam Beesly',
@@ -148,7 +149,7 @@ it('establishes the seeded workforce and its primary reporting lines', /** workf
 	const established = await api.admin.query(
 		'SELECT count(*)::int AS count FROM hcm.employment WHERE hire_date IS NOT NULL',
 	)
-	expect(established.rows[0].count).toBe(8)
+	expect(established.rows[0].count).toBe(9)
 })
 
 it('keeps version-1 minimal rows valid while enforcing all-or-none established facts', /** Established-record rule and exclusion constraints. */ async () => {

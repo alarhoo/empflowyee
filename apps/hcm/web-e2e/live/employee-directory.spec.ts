@@ -66,7 +66,7 @@ test('searches colleagues by name, email and worker number and filters by depart
 	page,
 }) => {
 	await open(page)
-	await expect(rows(page)).toHaveCount(8)
+	await expect(rows(page)).toHaveCount(9)
 	const search = page.getByRole('searchbox', { name: 'Search name, work email or worker number' })
 	await search.fill('schrute')
 	await search.press('Enter')
@@ -152,5 +152,5 @@ test('reports a failed load truthfully and recovers with Retry', /** REQ-006. */
 	await expect(view.getByRole('button', { name: 'Retry', exact: true })).toBeVisible()
 	await page.unroute('**/api/v1/employee/directory?**')
 	await view.getByRole('button', { name: 'Retry', exact: true }).click()
-	await expect(rows(page)).toHaveCount(8)
+	await expect(rows(page)).toHaveCount(9)
 })

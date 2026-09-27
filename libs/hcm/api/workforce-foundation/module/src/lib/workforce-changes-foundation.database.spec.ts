@@ -363,7 +363,7 @@ it('records the event types of the new change types', /** workforce.foundation@4
 			(
 				await sql<{
 					code: string
-				}>`SELECT code FROM hcm.worker_event_type WHERE tenant_id=${HCM_TEST_TENANT} AND sort_order >= 10 ORDER BY sort_order`.execute(
+				}>`SELECT code FROM hcm.worker_event_type WHERE tenant_id=${HCM_TEST_TENANT} AND sort_order BETWEEN 10 AND 15 ORDER BY sort_order`.execute(
 					trx,
 				)
 			).rows.map(/** Code. */ (row) => row.code),

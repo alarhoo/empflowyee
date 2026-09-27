@@ -53,6 +53,7 @@ it('lists the current workforce with Organization fields, stable paging and name
 		expect(all.status).toBe(200)
 		expect(all.cache).toBe('no-store')
 		expect(names(all.body)).toEqual([
+			'Andy Bernard',
 			'Angela Martin',
 			'David Wallace',
 			'Dwight Schrute',
@@ -121,6 +122,7 @@ it('filters by placement only while the field is Organization-visible', /** REQ-
 	expect(options.body.items.map(/** Name. */ (option) => option.name)).toEqual(['Sales'])
 	const sales = options.body.items[0]?.id ?? ''
 	expect(names((await find('jim', `departmentId=${encodeURIComponent(sales)}`)).body)).toEqual([
+		'Andy Bernard',
 		'Dwight Schrute',
 		'Jim Halpert',
 	])
@@ -165,13 +167,18 @@ it('shows a colleague with reporting context and concurrent assignments', /** RE
 		'GET',
 		`${base}/${encodeURIComponent(P + 'worker/michael')}/reports`,
 	)
-	expect(names(reports.body)).toEqual(['Dwight Schrute', 'Jim Halpert', 'Pam Beesly'])
+	expect(names(reports.body)).toEqual([
+		'Andy Bernard',
+		'Dwight Schrute',
+		'Jim Halpert',
+		'Pam Beesly',
+	])
 	const michael = await api.send<DirectoryPersonDto>(
 		'jim',
 		'GET',
 		`${base}/${encodeURIComponent(P + 'worker/michael')}`,
 	)
-	expect(michael.body.directReportCount).toBe(3)
+	expect(michael.body.directReportCount).toBe(4)
 })
 
 it('includes the current workforce only, without employment status', /** REQ-004. */ async () => {
