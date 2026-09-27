@@ -1,0 +1,334 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (frozen()) {
+		<ui5-message-strip
+			design="Information"
+			[hideCloseButton]="true">
+			This version is published and cannot change. Create a new version with the same code to change
+			targets for new requests.
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (kind() !== 'memberships') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-code"
+					[required]="creating()">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="hr-config-code"
+					accessibleName="Code"
+					[maxlength]="40"
+					[readonly]="!creating()"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use lowercase letters, digits and hyphens, starting with a letter.
+					</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-name"
+					[required]="true">
+					Name
+				</ui5-label>
+				<ui5-input
+					id="hr-config-name"
+					accessibleName="Name"
+					[maxlength]="100"
+					[readonly]="frozen()"
+					[formField]="fields.name"
+					[disabled]="draft.saving()"
+					[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">Enter a name.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+		}
+		@if (kind() === 'teams' || kind() === 'request-types') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-description">
+					Description
+				</ui5-label>
+				<ui5-textarea
+					id="hr-config-description"
+					accessibleName="Description"
+					[maxlength]="500"
+					[formField]="fields.description"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+		}
+		@if (kind() === 'memberships' || kind() === 'request-types') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-team"
+					[required]="true">
+					{{ kind() === 'memberships' ? 'Team' : 'Default team' }}
+				</ui5-label>
+				<ef-hcm-hr-option-box
+					kind="teams"
+					[label]="kind() === 'memberships' ? 'Team' : 'Default team'"
+					controlId="hr-config-team"
+					[required]="true"
+					[disabled]="kind() === 'memberships' && !creating()"
+					[invalid]="touched() && !team()"
+					message="Choose a team."
+					[selected]="team()"
+					(selectedChange)="team.set($event)"></ef-hcm-hr-option-box>
+			</ui5-form-item>
+		}
+		@if (kind() === 'memberships') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-person"
+					[required]="true">
+					Person
+				</ui5-label>
+				<ef-hcm-hr-option-box
+					kind="agents"
+					label="Person"
+					controlId="hr-config-person"
+					[required]="true"
+					[disabled]="!creating()"
+					[invalid]="touched() && !person()"
+					message="Choose a person who can handle HR requests."
+					[selected]="person()"
+					(selectedChange)="person.set($event)"></ef-hcm-hr-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-role"
+					[required]="true">
+					Role
+				</ui5-label>
+				<ui5-select
+					id="hr-config-role"
+					accessibleName="Role"
+					[formField]="fields.memberRole"
+					[disabled]="draft.saving()">
+					<ui5-option value="Agent">Agent</ui5-option>
+					<ui5-option value="Lead">Lead</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+		}
+		@if (kind() === 'request-types') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-category"
+					[required]="true">
+					Category
+				</ui5-label>
+				<ui5-select
+					id="hr-config-category"
+					accessibleName="Category"
+					[formField]="fields.category"
+					[disabled]="draft.saving()">
+					@for (category of categories; track category) {
+						<ui5-option [value]="category">{{ categoryLabels[category] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-audience"
+					[required]="true">
+					Audience
+				</ui5-label>
+				<ui5-select
+					id="hr-config-audience"
+					accessibleName="Audience"
+					[formField]="fields.audience"
+					[disabled]="draft.saving()">
+					<ui5-option value="Employee">Employees and HR</ui5-option>
+					<ui5-option value="HrOnly">HR only</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-level"
+					[required]="true">
+					Service level code
+				</ui5-label>
+				<ui5-input
+					id="hr-config-level"
+					accessibleName="Service level code"
+					[maxlength]="40"
+					[formField]="fields.serviceLevelCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-priority"
+					[required]="true">
+					Default priority
+				</ui5-label>
+				<ui5-select
+					id="hr-config-priority"
+					accessibleName="Default priority"
+					[formField]="fields.defaultPriority"
+					[disabled]="draft.saving()">
+					@for (priority of priorities; track priority) {
+						<ui5-option [value]="priority">{{ priorityLabels[priority] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-sort">
+					Sort order
+				</ui5-label>
+				<ui5-step-input
+					id="hr-config-sort"
+					accessibleName="Sort order"
+					[min]="0"
+					[max]="999"
+					[value]="model().sortOrder"
+					[disabled]="draft.saving()"
+					(ui5Change)="step('sortOrder', $any($event.target).value)"></ui5-step-input>
+			</ui5-form-item>
+		}
+		@if (kind() === 'service-levels') {
+			@for (priority of priorities; track priority) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						[for]="'hr-first-' + priority">
+						{{ priorityLabels[priority] }}: first response and resolution (minutes)
+					</ui5-label>
+					<ui5-step-input
+						[id]="'hr-first-' + priority"
+						[accessibleName]="priority + ' first response minutes'"
+						[min]="1"
+						[max]="525600"
+						[step]="60"
+						[value]="targets()[priority].firstResponse"
+						[readonly]="frozen()"
+						[disabled]="draft.saving()"
+						(ui5Change)="
+							setTarget(priority, 'firstResponse', $any($event.target).value)
+						"></ui5-step-input>
+					<ui5-step-input
+						[accessibleName]="priority + ' resolution minutes'"
+						[min]="1"
+						[max]="525600"
+						[step]="60"
+						[value]="targets()[priority].resolution"
+						[readonly]="frozen()"
+						[disabled]="draft.saving()"
+						(ui5Change)="
+							setTarget(priority, 'resolution', $any($event.target).value)
+						"></ui5-step-input>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-config-reopen">
+					Reopen window (days)
+				</ui5-label>
+				<ui5-step-input
+					id="hr-config-reopen"
+					accessibleName="Reopen window in days"
+					[min]="0"
+					[max]="90"
+					[value]="model().reopenWindowDays"
+					[readonly]="frozen()"
+					[disabled]="draft.saving()"
+					(ui5Change)="step('reopenWindowDays', $any($event.target).value)"></ui5-step-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Clock</ui5-label>
+				<ui5-checkbox
+					text="Pause targets while waiting for the employee"
+					[checked]="model().pauseWhileWaiting"
+					[readonly]="frozen()"
+					[disabled]="draft.saving()"
+					(ui5Change)="check('pauseWhileWaiting', $any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+			@if (!creating() && !frozen()) {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Publish</ui5-label>
+					<ui5-checkbox
+						text="Publish this version; it then applies to new requests and can no longer change"
+						[checked]="model().publish"
+						[disabled]="draft.saving()"
+						(ui5Change)="check('publish', $any($event.target).checked)"></ui5-checkbox>
+				</ui5-form-item>
+			}
+		}
+		@if (kind() !== 'service-levels') {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Active</ui5-label>
+				<ui5-checkbox
+					text="Active"
+					[checked]="model().isActive"
+					[disabled]="draft.saving()"
+					(ui5Change)="check('isActive', $any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="hr-config-reason"
+				[required]="true">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="hr-config-reason"
+				accessibleName="Reason"
+				[maxlength]="500"
+				[formField]="fields.reason"
+				[disabled]="draft.saving() || frozen()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">State the reason.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		@if (!frozen()) {
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				[disabled]="draft.saving()"
+				(click)="save()">
+				{{ draft.saving() ? 'Saving…' : 'Save' }}
+			</ui5-button>
+		}
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Close
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

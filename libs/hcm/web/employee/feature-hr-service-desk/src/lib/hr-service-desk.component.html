@@ -1,0 +1,311 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'HR requests' },
+		midColumn: { role: 'region', name: 'Selected HR request' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="HR Service Desk"
+		summary="Employee requests with service level targets, conversations and routing"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canHandle()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Queue view and filters"
+			accessibleMode="Edit"
+			layout="S1 M3 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Queue view"
+					(ui5SelectionChange)="chooseView($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-view="assigned"
+						[selected]="view() === 'assigned'">
+						Assigned to me
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-view="teams"
+						[selected]="view() === 'teams'">
+						My teams
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-view="all"
+						[selected]="view() === 'all'">
+						All
+					</ui5-segmented-button-item>
+					@if (canConfigure()) {
+						<ui5-segmented-button-item
+							data-view="configuration"
+							[selected]="view() === 'configuration'">
+							Configuration
+						</ui5-segmented-button-item>
+					}
+				</ui5-segmented-button>
+			</ui5-form-item>
+			@if (configuring()) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-config-kind">
+						Configure
+					</ui5-label>
+					<ui5-select
+						id="hr-config-kind"
+						accessibleName="Configuration kind"
+						(ui5Change)="chooseKind($any($event.detail.selectedOption).value)">
+						@for (kind of configKinds; track kind) {
+							<ui5-option
+								[value]="kind"
+								[selected]="kind === configKind()">
+								{{ configLabels[kind].plural }}
+							</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+			} @else {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-queue-query">
+						Search
+					</ui5-label>
+					<ui5-input
+						id="hr-queue-query"
+						accessibleName="Search request number or subject"
+						type="Search"
+						[formField]="filterForm.q"
+						(keyup.enter)="load(false)"></ui5-input>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-queue-status">
+						Status
+					</ui5-label>
+					<ui5-select
+						id="hr-queue-status"
+						accessibleName="Status"
+						[formField]="filterForm.status">
+						<ui5-option value="">Any status</ui5-option>
+						@for (item of statuses; track item) {
+							<ui5-option [value]="item">{{ statusLabels[item] }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-queue-priority">
+						Priority
+					</ui5-label>
+					<ui5-select
+						id="hr-queue-priority"
+						accessibleName="Priority"
+						[formField]="filterForm.priority">
+						<ui5-option value="">Any priority</ui5-option>
+						@for (item of priorities; track item) {
+							<ui5-option [value]="item">{{ priorityLabels[item] }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-queue-sla">
+						SLA
+					</ui5-label>
+					<ui5-select
+						id="hr-queue-sla"
+						accessibleName="SLA state"
+						[formField]="filterForm.slaState">
+						<ui5-option value="">Any SLA state</ui5-option>
+						@for (item of slaStates; track item) {
+							<ui5-option [value]="item">{{ sla(item).label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Actions</ui5-label>
+					<ui5-button (click)="load(false)">Apply filters</ui5-button>
+				</ui5-form-item>
+			}
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		@if (configuring()) {
+			<ui5-table
+				(ui5RowClick)="open($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="listState() === 'loading'"
+				[accessibleName]="configLabels[configKind()].plural"
+				overflowMode="Popin"
+				[noDataText]="noData()">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Name
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="14rem"
+						popinText="Details">
+						Details
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="7rem"
+						popinText="State">
+						State
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of configRows(); track row.id) {
+					<ui5-table-row
+						[rowKey]="row.id"
+						[interactive]="true">
+						<ui5-table-cell>{{ row.name }}</ui5-table-cell>
+						<ui5-table-cell>{{ row.detail }}</ui5-table-cell>
+						<ui5-table-cell>{{ row.state }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more"
+						(ui5LoadMore)="load(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		} @else {
+			<ui5-table
+				(ui5RowClick)="open($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="listState() === 'loading'"
+				accessibleName="HR requests"
+				overflowMode="Popin"
+				[noDataText]="noData()">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="14rem">
+						Request
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="10rem"
+						popinText="Requester">
+						Requester
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="7rem"
+						popinText="Priority">
+						Priority
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="9rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="9rem"
+						popinText="Agent">
+						Agent
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="12rem"
+						popinText="Next due">
+						Next due
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of requests(); track row.id) {
+					<ui5-table-row
+						[rowKey]="row.id"
+						[interactive]="true"
+						[navigated]="selected() === row.id">
+						<ui5-table-cell>
+							{{ row.requestNumber }}: {{ row.subject }} ({{ row.type.name }})
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.requester.name }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="priority(row.priority).status"
+								[label]="priority(row.priority).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="status(row.status).status"
+								[label]="status(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.assignee?.name ?? row.team.name }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ row.nextDueAt ? (row.nextDueAt | hcmDate) : '—' }}
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="sla(row.slaState).status"
+								[label]="sla(row.slaState).label"></span>
+						</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more requests"
+						(ui5LoadMore)="load(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (requestId of [id]; track requestId) {
+			<ef-hcm-hr-request-page
+				slot="midColumn"
+				[requestId]="requestId"
+				[refresh]="refresh()"
+				(dialogRequested)="dialog.set($event)"
+				(changed)="load(false)"
+				(closed)="close()"></ef-hcm-hr-request-page>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-hr-request-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialog.set(null)"></ef-hcm-hr-request-dialog>
+}
+@if (configDialog(); as input) {
+	<ef-hcm-hr-config-dialog
+		[input]="input"
+		(saved)="configSaved($event)"
+		(closed)="configDialog.set(null)"></ef-hcm-hr-config-dialog>
+}
