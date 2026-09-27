@@ -17,15 +17,23 @@ The catalogue title remains provisional; no rename is made here.
 ## JOURNEY
 
 1. Open My Profile; the server resolves the worker from the verified account.
-2. Read personal, contact, address, family, employment and additional sections.
-3. Edit directly editable items in focused dialogs; each save is immediate and audited.
+2. Open Personal by default; read grouped basic details, office information, contacts,
+   emergency contacts, addresses, family and additional information. Employment and
+   Privacy have separate tabs.
+3. Select Edit profile to reveal directly editable items, then use focused dialogs;
+   each save is immediate and audited. Done editing restores the read view.
 4. For fields that need HR, use Request correction once My HR Requests is available.
 
 <a id="req-my-profile-001"></a>
 
 ## REQ-MY-PROFILE-001 — Read my profile
 
-Show every field whose effective visibility includes Self, grouped by section, with each field’s edit mode. Concurrent employments are shown separately.
+Show every field whose effective visibility includes Self, grouped by section. The
+read view shows values without maintenance-mode labels or personal mutation controls.
+Edit profile reveals supported controls and maintenance-mode explanations. Concurrent
+employments are shown separately in Employment. The identity header shows initials,
+display name, designation and department, with employee ID, status, manager, location
+and legal entity where visible. Header facts use the primary employment and assignment.
 
 Acceptance: The DTO equals the Self allowlist; an account without a linked worker sees an explanatory empty state, not an error.
 
@@ -36,6 +44,12 @@ Acceptance: The DTO equals the Self allowlist; an account without a linked worke
 Edit preferred name, blood group, personal email and mobile (saved as not verified), emergency contacts and dependants, and Direct custom fields.
 
 Acceptance: Emergency priority is unique per person; dependants are allowed only for relationship types eligible as dependants; fields in other modes reject edits with `field-not-editable`.
+
+Email and phone editors enforce the type, length and format bounds in
+[Contact input validation](TDD.md#contact-input-validation). Invalid input shows
+field-level feedback on blur or attempted save and sends no command. Correcting
+the value clears the error; changing contact type revalidates it. The API applies
+the same rules. A relationship phone is optional unless it is an emergency contact.
 
 <a id="req-my-profile-003"></a>
 
@@ -87,7 +101,17 @@ Acceptance: PostgreSQL constraints and RLS hold under failure injection at each 
 
 ## BUSINESS-DATA
 
-Display: Sections: Overview; Personal; Contact; Addresses; Emergency contacts and family; Employment; Additional information; Privacy.
+Display: Tabs: Personal; Employment; Privacy (when visibility choices are available).
+Personal groups: Basic details (Personal information and Office); Contact (Contact
+details and Emergency contacts); Addresses; Family and dependants; Additional
+information (when defined). There is no separate Overview tab. Only the active tab's
+content is mounted. Emergency-only relationships appear under Contact; relationships
+that are also dependants appear in Family and dependants too. Editing provides one
+combined Emergency contacts and family collection to maintain both categories.
+
+Editing is a set of focused, independently saved commands. It does not promise an
+atomic page-wide save or discard changes already saved in a dialog. Changing tabs
+returns Personal to read mode; open dialogs retain their existing dirty-draft guard.
 
 Query behavior: Singleton profile read. Emergency contacts and dependants are a bounded client collection (maximum 20).
 

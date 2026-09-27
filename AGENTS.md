@@ -59,6 +59,7 @@ If sources conflict, do not silently choose one. Report the conflict and identif
 - Product-specific UI frameworks must never leak across product boundaries.
 - New Angular state should prefer Signals.
 - New Angular forms should prefer Signal Forms unless the TDD documents a justified exception.
+- Every form field must have explicit requiredness, type, length/range and format restrictions where applicable, with reactive accessible feedback and matching server validation. Follow `docs/hcm/ux/forms/signal-form-standard.md` for HCM; input types alone are not validation.
 - RxJS remains valid for stream/concurrency use cases.
 
 ## HCM UX composition

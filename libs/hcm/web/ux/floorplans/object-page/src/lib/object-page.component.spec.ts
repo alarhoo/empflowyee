@@ -1,7 +1,51 @@
 import { FlexibleColumnLayout } from '@fundamental-ngx/ui5-webcomponents-fiori/flexible-column-layout'
 import { TestBed } from '@angular/core/testing'
+import { Component, signal } from '@angular/core'
+import { By } from '@angular/platform-browser'
 import { describe, expect, it } from 'vitest'
 import { HcmObjectPage } from './object-page.component'
+import { HcmObjectSection } from './object-section.directive'
+
+/** Exercise conditional sections through real Angular content projection. */
+@Component({
+	imports: [HcmObjectPage, HcmObjectSection],
+	template: `
+		<ef-hcm-object-page title="Record" [lazySections]="true">
+			<ng-template efHcmObjectSection="personal" label="Personal">
+				<p data-testid="personal">Personal details</p>
+			</ng-template>
+			@if (showEmployment()) {
+				<ng-template efHcmObjectSection="employment" label="Employment">
+					<p data-testid="employment">Employment details</p>
+				</ng-template>
+			}
+		</ef-hcm-object-page>
+	`,
+})
+class LazySectionsHost {
+	readonly showEmployment = signal(true)
+}
+
+it('mounts only the selected content and recovers when that section disappears', /** Lazy sections must not expose inactive fields or leave a blank page after a policy refresh. */ () => {
+	const fixture = TestBed.createComponent(LazySectionsHost)
+	fixture.detectChanges()
+	const page = fixture.debugElement.query(By.directive(HcmObjectPage))
+		.componentInstance as HcmObjectPage
+	expect(fixture.nativeElement.querySelector('[data-testid="personal"]')).not.toBeNull()
+	expect(fixture.nativeElement.querySelector('[data-testid="employment"]')).toBeNull()
+	page.selectSection('employment')
+	fixture.detectChanges()
+	expect(fixture.nativeElement.querySelector('[data-testid="personal"]')).toBeNull()
+	expect(fixture.nativeElement.querySelector('[data-testid="employment"]')).not.toBeNull()
+	fixture.componentInstance.showEmployment.set(false)
+	fixture.detectChanges()
+	expect(fixture.nativeElement.querySelector('[data-testid="personal"]')).not.toBeNull()
+	expect(page.activeSection()).toBe('personal')
+	fixture.componentInstance.showEmployment.set(true)
+	fixture.detectChanges()
+	expect(page.activeSection()).toBe('personal')
+	expect(fixture.nativeElement.querySelector('[data-testid="employment"]')).toBeNull()
+})
 
 describe('HcmObjectPage', /** Verify the product-owned action policy; browser checks cover native sections. */ () => {
 	it('keeps navigation available when the selected object fails to load', /** A failed mid-column object must not trap phone users; mutation actions remain unavailable. */ () => {

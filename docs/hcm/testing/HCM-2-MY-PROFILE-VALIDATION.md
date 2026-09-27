@@ -128,6 +128,52 @@ Recorded on 2026-09-26 against the local stack.
 Axe excludes only the shared findings recorded for
 [Organization Structure](HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md#accessibility-findings-excluded-as-shared).
 
+## Profile presentation verification — 2026-09-27
+
+The profile opens on Personal, with a native identity header and grouped Basic
+details, Contact, Addresses, Family and dependants, and conditional Additional
+information. Employment and Privacy remain separate tabs. Edit profile reveals
+focused dialog actions; Done editing returns to the value-only presentation.
+Existing APIs, field policy, revisions and independent command transactions are
+unchanged. Module summaries and aggregate tab saves are outside this implementation.
+
+- The updated six live browser tests pass against the seeded PostgreSQL/API stack.
+  They verify the default Personal layout, absence of maintenance labels/actions in
+  read mode, lazy tab content, dialog saves and dirty cancellation, contact read/edit
+  views, relationship commands, visibility preferences and the four supported widths.
+- Five shared Object Page tests pass, including removal/reappearance of a selected
+  lazy section without restoring stale selection. Existing FCL action checks pass.
+- Manual browser inspection at 1440px and 390px verifies header facts, grouped
+  native forms, mobile action overflow and the personal editor dialog.
+- Production HCM build, Angular template compilation, changed-project lint,
+  architecture verification, page structure and documentation checks pass.
+
+The accessibility exclusions documented above remain; this validation does not
+claim to resolve the shared upstream Form findings. Database behavior was not
+changed; the earlier database results remain historical evidence.
+
+## Contact validation verification — 2026-09-27
+
+Email and phone restrictions now use shared runtime-universal validators in the
+Signal Forms and API. Native input limits complement persistent field errors on
+blur or attempted save. Corrections and contact-type changes revalidate immediately.
+Relationship phones remain optional unless the relationship is an emergency contact.
+
+- 42 contract tests pass for valid boundaries, malformed addresses/numbers,
+  whitespace, raw length bounds, actual phone digit count and parser parity.
+- Nine My Profile database tests pass, including invalid create/update requests
+  and proof that rejected phone edits preserve the stored value and revision.
+- All seven live browser scenarios pass (six in the full run and the final
+  validation scenario on its targeted rerun). They cover email editing, emergency
+  phone requiredness, native paste limits, type changes, live error correction and
+  zero contact commands for invalid input. Test rows are scoped by unique values.
+- Production HCM web build, Angular template compilation, changed-project lint,
+  contract/test lint, page structure, architecture and documentation checks pass.
+
+Existing stored contacts are not rewritten by this change. The same restrictions
+apply when those values are edited. Syntactic acceptance does not verify ownership
+or reachability; saved personal contacts remain unverified.
+
 ## Reproduction
 
 ```bash

@@ -7,7 +7,7 @@ import {
 	input,
 	signal,
 } from '@angular/core'
-import { form, FormField, maxLength, required } from '@angular/forms/signals'
+import { form, FormField, validate } from '@angular/forms/signals'
 import { Dialog } from '@fundamental-ngx/ui5-webcomponents/dialog'
 import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
@@ -22,18 +22,25 @@ import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
 import { MessageStrip } from '@fundamental-ngx/ui5-webcomponents/message-strip'
 import { HcmDiscardDialog, HcmDraft } from '@empflowyee/hcm-web-ux-forms'
 import { MyProfileApi } from '@empflowyee/hcm-web-employee-data-access'
-import type { MyContactPointDto, SelfContactPointType } from '@empflowyee/hcm-employee-contract'
+import {
+	PROFILE_EMAIL_MAX_LENGTH,
+	PROFILE_PHONE_MAX_LENGTH,
+	type MyContactPointDto,
+	type SelfContactPointType,
+} from '@empflowyee/hcm-employee-contract'
 import { CONTACT_LABELS } from './labels'
 import { ProfileDialog } from './profile-dialog'
+import {
+	contactValidationError,
+	PROFILE_EMAIL_HELP,
+	PROFILE_PHONE_HELP,
+} from './contact-validation'
 
 export interface ContactDialogRequest {
 	/** Types the worker may add; an edit keeps the stored type. */
 	types: SelfContactPointType[]
 	contact: MyContactPointDto | null
 }
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PHONE = /^\+?[0-9][0-9 ()-]{4,28}[0-9]$/
 
 /** Focused Dialog to add or change a personal email or mobile number; values stay unverified. */
 @Component({
@@ -65,6 +72,14 @@ export class ContactDialog extends ProfileDialog implements OnInit {
 	readonly primary = signal(false)
 	readonly editing = computed(/** Edit mode. */ () => this.request().contact !== null)
 	readonly email = computed(/** Email type. */ () => this.model().type === 'PersonalEmail')
+	readonly valueMaxLength = computed(
+		/** Apply the selected contact type's native length limit. */ () =>
+			this.email() ? PROFILE_EMAIL_MAX_LENGTH : PROFILE_PHONE_MAX_LENGTH,
+	)
+	readonly valueHelp = computed(
+		/** Describe the selected type's accepted syntax and bounds. */ () =>
+			this.email() ? PROFILE_EMAIL_HELP : PROFILE_PHONE_HELP,
+	)
 	readonly title = computed(
 		/** Name the operation. */ () =>
 			this.editing()
@@ -74,14 +89,18 @@ export class ContactDialog extends ProfileDialog implements OnInit {
 	readonly fields = form(
 		this.model,
 		/** Synchronous constraints mirroring the contract. */ (path) => {
-			required(path.value)
-			maxLength(path.value, 254)
+			validate(
+				path.value,
+				/** Revalidate the current value whenever its content or contact type changes. */ ({
+					value,
+					valueOf,
+				}) => contactValidationError(valueOf(path.type) as SelfContactPointType, value()),
+			)
 		},
 	)
 	readonly draft = new HcmDraft(
 		/** Track the draft. */ () => ({ ...this.model(), primary: this.primary() }),
 	)
-	readonly shapeInvalid = signal(false)
 
 	/** Start from the stored contact, or the first addable type. */
 	ngOnInit(): void {
@@ -105,8 +124,7 @@ export class ContactDialog extends ProfileDialog implements OnInit {
 		this.fields().markAsTouched()
 		const v = this.model()
 		const value = v.value.trim()
-		this.shapeInvalid.set(!(this.email() ? EMAIL : PHONE).test(value))
-		if (this.fields.value().invalid() || this.shapeInvalid()) {
+		if (this.fields.value().invalid()) {
 			this.fields.value().focusBoundControl()
 			return
 		}

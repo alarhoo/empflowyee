@@ -24,6 +24,7 @@
 				</ui5-label>
 				<ui5-input
 					id="my-profile-preferred-name"
+					[maxlength]="100"
 					accessibleName="Preferred name"
 					[formField]="fields.preferredName"
 					[disabled]="draft.saving()"
