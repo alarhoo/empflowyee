@@ -95,7 +95,13 @@
 						} @else {
 							<ui5-text>{{ item.value || 'Not recorded' }}</ui5-text>
 						}
-						@if (item.editMode !== 'Direct') {
+						@if (item.editMode === 'ServiceRequest' && canRequestCorrection()) {
+							<ui5-link
+								[accessibleName]="'Request correction of ' + item.name"
+								(ui5Click)="requestCorrection(item.code)">
+								Request correction
+							</ui5-link>
+						} @else if (item.editMode !== 'Direct') {
 							<ui5-text>{{ editModeLabels[item.editMode] }}</ui5-text>
 						}
 					</ui5-form-item>
