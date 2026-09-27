@@ -199,6 +199,15 @@
 			"requiresMigrations": ["000005_identity_access_spine.sql"],
 			"apply": "access.discovery.8.apply.sql",
 			"reset": "access.discovery.8.reset.sql"
+		},
+		{
+			"id": "workforce.foundation",
+			"domain": "workforce-foundation",
+			"version": 4,
+			"dependsOn": ["workforce.foundation@3"],
+			"requiresMigrations": ["000029_employee_workforce_changes.sql"],
+			"apply": "workforce.foundation.4.apply.sql",
+			"reset": "workforce.foundation.4.reset.sql"
 		}
 	]
 }
