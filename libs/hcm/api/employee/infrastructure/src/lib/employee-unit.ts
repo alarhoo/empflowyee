@@ -49,6 +49,9 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 					reads,
 					directory: workforce.directory,
 					profile: workforce.profile,
+					facts: workforce.facts,
+					records: workforce.records,
+					structure: workforce.structure,
 					selfService: new KyselySelfServiceRepository(scope),
 					receipts: new SqlCommandReceipts(
 						executor,

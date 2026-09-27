@@ -4,9 +4,12 @@ import type {
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type {
+	StructureReferencePort,
 	WorkforceDirectoryPort,
+	WorkforceFactsPort,
 	WorkforceProfilePort,
 	WorkforceReadPort,
+	WorkforceRecordsPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import type { SelfServiceRepository } from './my-profile'
 import type { ProfilePolicyRepository } from './profile-configuration'
@@ -26,6 +29,12 @@ export interface EmployeeWork {
 	directory: WorkforceDirectoryPort
 	/** The worker's own facts and the self-service person commands. */
 	profile: WorkforceProfilePort
+	/** Typed workforce commands for creation, correction and merge. */
+	facts: WorkforceFactsPort
+	/** Tenant-wide worker records and address corrections for HR. */
+	records: WorkforceRecordsPort
+	/** Structure options and reference checks. */
+	structure: StructureReferencePort
 	/** Employee-owned custom values and visibility preferences. */
 	selfService: SelfServiceRepository
 	receipts: CommandReceiptStore

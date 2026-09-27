@@ -6,6 +6,7 @@ import { organisationToday } from './business-date'
 import { KyselyWorkforceDirectory } from './workforce-directory'
 import { KyselyWorkforceProfile } from './workforce-profile'
 import { KyselyPositionOccupancy } from './position-occupancy'
+import { KyselyWorkforceRecords } from './workforce-records'
 import {
 	WorkforcePortBinder,
 	type AssignmentFact,
@@ -24,6 +25,7 @@ import {
 	type WorkforceFactsPort,
 	type PositionOccupancyPort,
 	type StructureReferencePort,
+	type WorkforceRecordsPort,
 	type WorkforceProfilePort,
 	type WorkforceReadPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
@@ -565,6 +567,7 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 		profile: WorkforceProfilePort
 		occupancy: PositionOccupancyPort
 		structure: StructureReferencePort
+		records: WorkforceRecordsPort
 	} {
 		const scope: WorkforceScope = {
 			executor: transaction as Kysely<unknown>,
@@ -578,6 +581,7 @@ export class KyselyWorkforcePortBinder extends WorkforcePortBinder {
 			profile: new KyselyWorkforceProfile(scope),
 			occupancy: new KyselyPositionOccupancy(scope),
 			structure: new KyselyStructureRepository(scope),
+			records: new KyselyWorkforceRecords(scope),
 		}
 	}
 }

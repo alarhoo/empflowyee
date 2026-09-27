@@ -2,6 +2,7 @@ import type { WorkforceDirectoryPort } from './workforce-directory'
 import type { WorkforceProfilePort } from './workforce-profile'
 import type { PositionOccupancyPort } from './position-occupancy'
 import type { StructureReferencePort } from './structure-references'
+import type { WorkforceRecordsPort } from './workforce-records'
 
 /**
  * Cross-domain workforce ports (TDD-HCM-2-COMMON#ports). Workforce Foundation is the sole writer of
@@ -256,5 +257,6 @@ export abstract class WorkforcePortBinder {
 		profile: WorkforceProfilePort
 		occupancy: PositionOccupancyPort
 		structure: StructureReferencePort
+		records: WorkforceRecordsPort
 	}
 }

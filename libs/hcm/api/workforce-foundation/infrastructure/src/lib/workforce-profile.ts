@@ -92,7 +92,17 @@ export class KyselyWorkforceProfile implements WorkforceProfilePort {
 	}
 
 	/** Active product reference rows. */
-	async references(kind: 'relationship-types' | 'genders'): Promise<ReferenceRow[]> {
+	async references(
+		kind: 'relationship-types' | 'genders' | 'marital-statuses' | 'countries',
+	): Promise<ReferenceRow[]> {
+		if (kind === 'marital-statuses')
+			return this.run(
+				sql<ReferenceRow>`SELECT code,name FROM hcm.marital_status WHERE active ORDER BY sort_order,code`,
+			)
+		if (kind === 'countries')
+			return this.run(
+				sql<ReferenceRow>`SELECT code,name FROM hcm.country WHERE active ORDER BY sort_order,name`,
+			)
 		if (kind === 'genders')
 			return this.run(
 				sql<ReferenceRow>`SELECT code,name FROM hcm.gender WHERE active ORDER BY sort_order,code`,
