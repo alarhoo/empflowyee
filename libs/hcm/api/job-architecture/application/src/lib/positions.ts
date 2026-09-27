@@ -11,6 +11,9 @@ import {
 	parsePositionRequestUpdate,
 	parsePositionSubmit,
 	parsePreview,
+	parsePositionRequirementQuery,
+	parseRequirementChangeCreate,
+	parseRequirementChangeUpdate,
 	parseWithdraw,
 	type IncumbentPage,
 	type PositionChangeRequestDto,
@@ -24,6 +27,10 @@ import {
 	type PositionSummaryDto,
 	type PositionVersionDto,
 	type PositionVersionPage,
+	type EffectiveRequirementDto,
+	type PositionRequirementPage,
+	type RequirementDto,
+	type VarianceDraft,
 	type ImpactPreviewDto,
 	type PositionApprovalDto,
 	type VarianceDto,
@@ -41,6 +48,7 @@ import type { StructureReferenceKind } from '@empflowyee/hcm-api-workforce-found
 import {
 	capacityDecision,
 	dayBefore,
+	effectiveRequirements,
 	lifecycleTarget,
 	remainingCapacity,
 	requireCancellable,
@@ -50,6 +58,7 @@ import {
 	requireNoPositionCycle,
 	requirePreviewValid,
 	requireRequestStatus,
+	requireVariances,
 	type OccupancyFacts,
 } from '@empflowyee/hcm-api-job-architecture-domain'
 import type { JobArchitectureUnitOfWork, JobArchitectureWork } from './job-architecture-unit'
@@ -66,12 +75,21 @@ const READ = 'positions.read'
 const REQUEST = 'positions.request'
 const APPROVE = 'positions.approve'
 const WAIVE = 'position-requirements.waive'
+const REQUIREMENTS_READ = 'position-requirements.read'
+const REQUIREMENTS_REQUEST = 'position-requirements.request'
 /** The most pages a vacancy filter scans to fill one page. */
 const VACANCY_SCAN_PAGES = 10
 
 /** A stable SHA-256 digest. */
 function digest(content: unknown): string {
 	return createHash('sha256').update(JSON.stringify(content)).digest('hex')
+}
+
+/** The ISO calendar date one day after a timezone-free date. */
+function dayAfter(date: string): string {
+	const value = new Date(`${date}T00:00:00Z`)
+	value.setUTCDate(value.getUTCDate() + 1)
+	return value.toISOString().slice(0, 10)
 }
 
 /** Refuse a stale expected revision. */
@@ -273,6 +291,183 @@ export class Positions {
 		)
 	}
 
+	/** Positions with the variance count of their current version (Position Requirements). */
+	requirementPositions(
+		context: AuthenticatedHcmContext,
+		params: URLSearchParams,
+	): Promise<PositionRequirementPage> {
+		const query = parsePositionRequirementQuery(params)
+		return this.unit.execute(
+			context,
+			REQUIREMENTS_READ,
+			false,
+			/** Page positions. */ (w) => w.positions.requirementPositions(query, w.today),
+		)
+	}
+
+	/** The effective requirements of a position today: profile requirements with its variances. */
+	effectiveRequirements(
+		context: AuthenticatedHcmContext,
+		id: string,
+	): Promise<{ items: EffectiveRequirementDto[] }> {
+		idValue(id, 'id')
+		return this.unit.execute(
+			context,
+			REQUIREMENTS_READ,
+			false,
+			/** Apply the variances of the version shown today. */ async (w) => {
+				const version = (await this.requirePosition(w, id)).version
+				if (!version) return { items: [] }
+				const profile = await w.positions.profileRequirements(version.profileVersionId)
+				const variances = await w.positions.variances(version.id)
+				return {
+					items: effectiveRequirements(
+						profile,
+						variances.map(
+							/** Without sealed text. */ ({ id: _id, justification: _j, ...item }) => item,
+						),
+					),
+				}
+			},
+		)
+	}
+
+	/** The requirements of a position's job profile version. */
+	profileRequirements(
+		context: AuthenticatedHcmContext,
+		id: string,
+	): Promise<{ items: RequirementDto[] }> {
+		idValue(id, 'id')
+		return this.unit.execute(
+			context,
+			REQUIREMENTS_READ,
+			false,
+			/** Read the profile requirements of the version shown today. */ async (w) => {
+				const version = (await this.requirePosition(w, id)).version
+				if (!version) return { items: [] }
+				const items = await w.positions.profileRequirements(version.profileVersionId)
+				return { items: items.map(/** Without the row id. */ ({ id: _id, ...item }) => item) }
+			},
+		)
+	}
+
+	/**
+	 * Propose requirement variances as a draft Change request: a successor version with the current
+	 * facts, effective from the later of today and the day after the current version started.
+	 */
+	createRequirementChange(
+		context: AuthenticatedHcmContext,
+		positionId: string,
+		body: unknown,
+		key: string,
+		requestId: string,
+	): Promise<PositionChangeRequestDto> {
+		idValue(positionId, 'id')
+		const command = parseRequirementChangeCreate(body)
+		return this.command(
+			context,
+			REQUIREMENTS_REQUEST,
+			'requirements.create',
+			{ positionId, command },
+			key,
+			/** Store the successor with the proposed variances. */ async (w) => {
+				const position = await w.positions.lockPosition(positionId)
+				if (!position) throw new HcmDomainError('not-found')
+				lifecycleTarget('Change', position.lifecycleStatus)
+				if (await this.openRequest(w, position.id)) throw new HcmDomainError('invalid-state')
+				const base = position.currentVersionId
+					? await w.positions.version(position.currentVersionId)
+					: undefined
+				if (!base) throw new HcmDomainError('invalid-state')
+				const next = dayAfter(base.effectiveFrom)
+				const proposal = {
+					...this.proposalOf(base, position.name, await this.reportsTo(w, position.id)),
+					effectiveFrom: next > w.today ? next : w.today,
+				}
+				const id = randomUUID()
+				const versionId = `${position.id}/v${position.latestVersionNumber + 1}`
+				await w.positions.insertVersion({
+					id: versionId,
+					positionId: position.id,
+					versionNumber: position.latestVersionNumber + 1,
+					supersedesId: base.id,
+					proposal,
+					changeSummary: 'Requirement change.',
+				})
+				await this.storeVariances(w, versionId, base.profileVersionId, command.variances)
+				await w.positions.insertRequest({
+					id,
+					positionId: position.id,
+					requestType: 'Change',
+					baseVersionId: base.id,
+					proposedVersionId: versionId,
+					proposedName: position.name,
+					reportsToPositionId: proposal.reportsToPositionId,
+					reason: await w.cipher.encrypt(reasonTarget(id), command.reason),
+				})
+				await w.positions.replaceItems(
+					id,
+					await this.itemsFor(w, base, position.name, proposal, versionId),
+				)
+				await this.audit(w, 'job-architecture.position-change-requested', id, requestId, {
+					changedFields: ['requirements'],
+					fromState: null,
+					toState: 'Draft',
+				})
+				return this.readRequest(w, id)
+			},
+		)
+	}
+
+	/** Replace the variances of a draft Change request; an edit after preview makes it stale. */
+	updateRequirementChange(
+		context: AuthenticatedHcmContext,
+		id: string,
+		body: unknown,
+		key: string,
+		requestId: string,
+	): Promise<PositionChangeRequestDto> {
+		idValue(id, 'id')
+		const command = parseRequirementChangeUpdate(body)
+		return this.command(
+			context,
+			REQUIREMENTS_REQUEST,
+			'requirements.update',
+			{ id, command },
+			key,
+			/** Replace the variances. */ async (w) => {
+				const request = await this.lockOwnRequest(w, id, command.expectedRevision)
+				requireRequestStatus(request.status, ['Draft', 'Previewed'])
+				if (request.requestType !== 'Change' || !request.proposedVersionId)
+					throw new HcmDomainError('invalid-state')
+				const proposed = await w.positions.version(request.proposedVersionId)
+				const base = request.baseVersionId
+					? await w.positions.version(request.baseVersionId)
+					: undefined
+				if (!proposed || !base) throw new HcmDomainError('not-found')
+				await w.positions.deleteVariances(proposed.id)
+				await this.storeVariances(w, proposed.id, proposed.profileVersionId, command.variances)
+				await w.positions.stalePreviews(id)
+				await w.positions.updateRequest(id, { status: 'Draft' })
+				const proposal = this.proposalOf(
+					proposed,
+					request.proposedName ?? request.positionName,
+					request.reportsToPositionId,
+				)
+				await w.positions.replaceItems(
+					id,
+					await this.itemsFor(w, base, request.positionName, proposal, proposed.id),
+				)
+				await this.audit(w, 'job-architecture.position-change-updated', id, requestId, {
+					changedFields: ['requirements'],
+					fromState: request.status,
+					toState: 'Draft',
+				})
+				return this.readRequest(w, id)
+			},
+		)
+	}
+
 	/** Raise a Create, Change or lifecycle request as a draft. */
 	createRequest(
 		context: AuthenticatedHcmContext,
@@ -334,6 +529,8 @@ export class Positions {
 							proposal: command.proposed,
 							changeSummary: 'Position change.',
 						})
+						if (command.proposed.profileVersionId === base.profileVersionId)
+							await this.copyVariances(w, base.id, versionId)
 						await w.positions.insertRequest({
 							id,
 							positionId: position.id,
@@ -346,11 +543,7 @@ export class Positions {
 						})
 						await w.positions.replaceItems(
 							id,
-							this.diff(
-								this.proposalOf(base, position.name, await this.reportsTo(w, position.id)),
-								command.proposed,
-								null,
-							),
+							await this.itemsFor(w, base, position.name, command.proposed, versionId),
 						)
 					} else {
 						if (command.requestType === 'Cancel')
@@ -409,6 +602,9 @@ export class Positions {
 					: undefined
 				await this.validateProposal(w, request.positionId, command.proposed, base ?? null)
 				await w.positions.replaceVersion(request.proposedVersionId, command.proposed)
+				// Variances act on the base profile's requirements; another profile starts without them.
+				if (base && command.proposed.profileVersionId !== base.profileVersionId)
+					await w.positions.deleteVariances(request.proposedVersionId)
 				if (request.requestType === 'Create')
 					await w.positions.updatePosition(request.positionId, { name: command.proposed.name })
 				await w.positions.stalePreviews(id)
@@ -418,12 +614,16 @@ export class Positions {
 					proposedName: command.proposed.name,
 					reportsToPositionId: command.proposed.reportsToPositionId,
 				})
-				let before: PositionProposal | null = null
-				if (base) {
-					const line = await this.reportsTo(w, request.positionId)
-					before = this.proposalOf(base, request.positionName, line)
-				}
-				await w.positions.replaceItems(id, this.diff(before, command.proposed, null))
+				await w.positions.replaceItems(
+					id,
+					await this.itemsFor(
+						w,
+						base ?? null,
+						request.positionName,
+						command.proposed,
+						request.proposedVersionId,
+					),
+				)
 				await this.audit(w, 'job-architecture.position-change-updated', id, requestId, {
 					changedFields: ['proposed'],
 					fromState: request.status,
@@ -788,6 +988,103 @@ export class Positions {
 				await w.positions.ancestors(proposal.reportsToPositionId, proposal.effectiveFrom),
 			)
 		}
+	}
+
+	/** Change items of a proposal: changed facts, then requirement variance changes. */
+	private async itemsFor(
+		w: JobArchitectureWork,
+		base: PositionVersionRow | null,
+		name: string,
+		proposal: PositionProposal,
+		proposedVersionId: string,
+	): Promise<ChangeItemInput[]> {
+		if (!base) return this.diff(null, proposal, null)
+		const line = await this.reportsTo(w, base.positionId)
+		const items = this.diff(this.proposalOf(base, name, line), proposal, null)
+		/** Comparable content of a variance; a justification counts only as present. */
+		const content = (item: Omit<VarianceDraft, 'justification'> & { justification: unknown }) => {
+			const { justification, ...fields } = item
+			return { ...fields, id: undefined, justified: justification !== null }
+		}
+		const before = new Map(
+			(await w.positions.variances(base.id)).map(
+				/** By code. */ (item) => [item.code, content(item)],
+			),
+		)
+		const after = new Map(
+			(await w.positions.variances(proposedVersionId)).map(
+				/** By code. */ (item) => [item.code, content(item)],
+			),
+		)
+		const codes = [...new Set([...before.keys(), ...after.keys()])].sort()
+		let index = 0
+		for (const code of codes) {
+			const old = before.get(code)
+			const next = after.get(code)
+			if (old && next && digest(old) === digest(next)) continue
+			index++
+			let changeType: ChangeItemInput['changeType'] = 'ReplaceRequirement'
+			let summary = `Requirement ${code}: ${next?.varianceType ?? ''} changed`
+			if (!old) {
+				changeType = 'AddRequirement'
+				summary = `Requirement ${code}: ${next?.varianceType ?? ''} added`
+			} else if (!next) {
+				changeType = 'RemoveRequirement'
+				summary = `Requirement ${code}: ${old.varianceType} removed`
+			}
+			items.push({
+				field: `requirements.${index}`,
+				changeType,
+				summary: summary.slice(0, 200),
+				oldDigest: old ? digest(old) : null,
+				newDigest: next ? digest(next) : null,
+			})
+		}
+		return items
+	}
+
+	/** Copy a version's variances into a draft successor, sealing justifications for their new rows. */
+	private async copyVariances(w: JobArchitectureWork, fromId: string, toId: string): Promise<void> {
+		const from = await w.positions.version(fromId)
+		if (!from) return
+		const drafts: VarianceDraft[] = []
+		for (const { id, justification, ...item } of await w.positions.variances(fromId))
+			drafts.push({
+				...item,
+				justification: await this.open(
+					w,
+					{ table: 'position_requirement', column: 'encrypted_justification', rowId: id },
+					justification,
+				),
+			})
+		await this.storeVariances(w, toId, from.profileVersionId, drafts)
+	}
+
+	/** Validate variances against the profile and store them with sealed justifications. */
+	private async storeVariances(
+		w: JobArchitectureWork,
+		versionId: string,
+		profileVersionId: string,
+		drafts: readonly VarianceDraft[],
+	): Promise<void> {
+		const profile = await w.positions.profileRequirements(profileVersionId)
+		requireVariances(drafts, profile)
+		const ids = new Map(profile.map(/** By code. */ (item) => [item.code, item.id]))
+		const rows = []
+		for (const { justification, sourceCode, ...draft } of drafts) {
+			const id = `${versionId}/requirement/${draft.code}`
+			rows.push({
+				...draft,
+				id,
+				sourceRequirementId: sourceCode === null ? null : (ids.get(sourceCode) ?? null),
+				justification: await this.seal(
+					w,
+					{ table: 'position_requirement', column: 'encrypted_justification', rowId: id },
+					justification ?? '',
+				),
+			})
+		}
+		await w.positions.insertVariances(versionId, rows)
 	}
 
 	/** Change items between the current and proposed facts, or a lifecycle transition. */

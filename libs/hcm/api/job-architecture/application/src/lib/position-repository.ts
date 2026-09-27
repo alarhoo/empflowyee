@@ -8,6 +8,9 @@ import type {
 	PositionOptionDto,
 	PositionProposal,
 	PositionQuery,
+	PositionRequirementQuery,
+	PositionRequirementSummaryDto,
+	RequirementDto,
 	PositionRelationshipDto,
 	PositionRequestStatus,
 	PositionRequestType,
@@ -169,6 +172,13 @@ export interface PositionRepository {
 	): Promise<
 		(Omit<VarianceDraft, 'justification'> & { id: string; justification: SealedValue | null })[]
 	>
+	/** Requirements of a profile version in profile order, with their ids. */
+	profileRequirements(profileVersionId: string): Promise<(RequirementDto & { id: string })[]>
+	/** Positions with the variance count of their version on a date, by code then id. */
+	requirementPositions(
+		query: PositionRequirementQuery,
+		asOf: string,
+	): Promise<HcmPage<PositionRequirementSummaryDto>>
 	/** Current published profile versions with their allowed grades, by name. */
 	profileOptions(
 		q: string,
@@ -198,6 +208,17 @@ export interface PositionRepository {
 		proposal: PositionProposal
 		changeSummary: string
 	}): Promise<void>
+	/** Insert variances into a draft version in the given order. */
+	insertVariances(
+		versionId: string,
+		variances: readonly (Omit<VarianceDraft, 'justification' | 'sourceCode'> & {
+			id: string
+			sourceRequirementId: string | null
+			justification: SealedValue | null
+		})[],
+	): Promise<void>
+	/** Remove every variance of a draft version. */
+	deleteVariances(versionId: string): Promise<void>
 	/** Replace a draft version's content. */
 	replaceVersion(id: string, proposal: PositionProposal): Promise<void>
 	/** Move a version to review or cancel it. */
