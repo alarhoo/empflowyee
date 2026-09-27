@@ -24,11 +24,11 @@
 				<ui5-label
 					slot="labelContent"
 					for="records-query">
-					Name or worker number
+					Name, number or work email
 				</ui5-label>
 				<ui5-input
 					id="records-query"
-					accessibleName="Search name or worker number"
+					accessibleName="Search name, worker number or work email"
 					type="Search"
 					[formField]="filterForm.q"
 					(keyup.enter)="load(false)"></ui5-input>
@@ -65,19 +65,21 @@
 					}
 				</ui5-select>
 			</ui5-form-item>
-			<ui5-form-item>
-				<ui5-label
-					slot="labelContent"
-					for="records-unit">
-					Unit
-				</ui5-label>
-				<ef-hcm-record-option-box
-					kind="units"
-					label="Unit"
-					controlId="records-unit"
-					[selected]="unit()"
-					(selectedChange)="unit.set($event)"></ef-hcm-record-option-box>
-			</ui5-form-item>
+			@for (filter of filterRefs; track filter.name) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						[for]="filter.id">
+						{{ filter.label }}
+					</ui5-label>
+					<ef-hcm-record-option-box
+						[kind]="filter.kind"
+						[label]="filter.label"
+						[controlId]="filter.id"
+						[selected]="refs()[filter.name]"
+						(selectedChange)="setRef(filter.name, $event)"></ef-hcm-record-option-box>
+				</ui5-form-item>
+			}
 			<ui5-form-item>
 				<ui5-label
 					slot="labelContent"

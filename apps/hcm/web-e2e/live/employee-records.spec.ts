@@ -71,10 +71,11 @@ async function pick(page: Page, label: string, text: string): Promise<void> {
 	await host.getByRole('combobox', { name: label, exact: true }).fill(text)
 	await page.waitForTimeout(300)
 	await expect(host).not.toHaveAttribute('loading', /.*/)
-	await host
-		.getByRole('option', { name: new RegExp(text) })
-		.first()
-		.click()
+	const option = host.getByRole('option', { name: new RegExp(text) }).first()
+	// Suggestions normally open while typing; F4 is the native keyboard way to open them otherwise.
+	if (!(await option.isVisible({ timeout: 3000 }).catch(/** Not shown yet. */ () => false)))
+		await host.getByRole('combobox', { name: label, exact: true }).press('F4')
+	await option.click()
 	/** The ComboBox's selected identity. */
 	const selected = () =>
 		host.evaluate(
@@ -125,7 +126,7 @@ async function tab(page: Page, name: string): Promise<void> {
 
 /** Open one listed worker's record in the mid column. */
 async function openRecord(page: Page, name: string): Promise<void> {
-	await page.getByRole('searchbox', { name: 'Search name or worker number' }).fill(name)
+	await page.getByRole('searchbox', { name: 'Search name, worker number or work email' }).fill(name)
 	await page.getByRole('button', { name: 'Apply filters' }).click()
 	await expect(rows(page, 'Worker records').first()).toContainText(name)
 	await rows(page, 'Worker records').first().click()
@@ -160,11 +161,12 @@ async function fillWizard(
 	await nextStep(page)
 }
 
-test('lists worker records and shows one record with its sections', /** REQ-EMPLOYEE-RECORDS-001, -002. */ async ({
+test('lists worker records and shows one record with its sections', /** REQ-EMPLOYEE-RECORDS-001, -002, -008. */ async ({
 	page,
 }) => {
 	await open(page)
 	await expect(rows(page, 'Worker records').first()).toBeVisible()
+	await pick(page, 'Location', 'Scranton')
 	await openRecord(page, 'Jim Halpert')
 	const record = page.locator('ef-hcm-worker-record')
 	await tab(page, 'Personal')
@@ -185,7 +187,7 @@ test('lists worker records and shows one record with its sections', /** REQ-EMPL
 	}
 })
 
-test('adds a contact point with a reason and reveals emergency information for a purpose', /** REQ-EMPLOYEE-RECORDS-003, -004. */ async ({
+test('adds a contact point with a reason and reveals emergency information for a purpose', /** REQ-EMPLOYEE-RECORDS-003, -006. */ async ({
 	page,
 }) => {
 	await open(page)
@@ -225,7 +227,7 @@ test('adds a contact point with a reason and reveals emergency information for a
 	await expect(reveal).toHaveCount(0)
 })
 
-test('creates a worker through the wizard and resolves a duplicate with a reason', /** REQ-EMPLOYEE-RECORDS-005, -006. */ async ({
+test('creates a worker through the wizard and resolves a duplicate with a reason', /** REQ-EMPLOYEE-RECORDS-004, -005. */ async ({
 	page,
 }) => {
 	const suffix = randomUUID().slice(0, 6).toUpperCase()
