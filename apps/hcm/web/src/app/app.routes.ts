@@ -202,6 +202,16 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'job-architecture/position-requirements',
+		data: { catalogId: 'POSITION_REQUIREMENTS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load effective position requirements and variance proposals. */ () =>
+			import('@empflowyee/hcm-web-job-architecture-feature-position-requirements').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.POSITION_REQUIREMENTS_ROUTES,
+			),
+	},
+	{
 		path: 'job-architecture/positions',
 		data: { catalogId: 'POSITIONS' },
 		canMatch: [hcmRouteAccess],

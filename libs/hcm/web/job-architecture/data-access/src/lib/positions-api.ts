@@ -15,6 +15,10 @@ import type {
 	PositionRequestStatus,
 	PositionVersionPage,
 	LifecycleRequestType,
+	EffectiveRequirementDto,
+	PositionRequirementPage,
+	RequirementDto,
+	VarianceDraft,
 } from '@empflowyee/hcm-job-architecture-contract'
 
 export interface PositionListQuery {
@@ -176,6 +180,55 @@ export class PositionsApi {
 	) {
 		return this.http
 			.post<PositionChangeRequestDto>(`${this.request(id)}/decide`, body, this.headers(key))
+			.pipe(timeout(limit))
+	}
+
+	/** One page of positions with their variance counts. */
+	requirementPositions(query: { q?: string; hasVariances?: 'true' | 'false'; cursor?: string }) {
+		return this.http
+			.get<PositionRequirementPage>(`${this.base}/position-requirements`, {
+				params: this.params(query),
+			})
+			.pipe(timeout(limit))
+	}
+
+	/** Effective requirements of a position today. */
+	effectiveRequirements(id: string) {
+		return this.http
+			.get<{ items: EffectiveRequirementDto[] }>(`${this.position(id)}/requirements`)
+			.pipe(timeout(limit))
+	}
+
+	/** Requirements of a position's job profile version. */
+	profileRequirements(id: string) {
+		return this.http
+			.get<{ items: RequirementDto[] }>(`${this.position(id)}/profile-requirements`)
+			.pipe(timeout(limit))
+	}
+
+	/** Propose variances as a draft change request. */
+	createRequirementChange(
+		id: string,
+		body: { variances: VarianceDraft[]; reason: string },
+		key: string,
+	) {
+		return this.http
+			.post<PositionChangeRequestDto>(
+				`${this.position(id)}/requirement-changes`,
+				body,
+				this.headers(key),
+			)
+			.pipe(timeout(limit))
+	}
+
+	/** Replace the variances of a draft change request. */
+	updateRequirementChange(
+		id: string,
+		body: { variances: VarianceDraft[]; expectedRevision: number },
+		key: string,
+	) {
+		return this.http
+			.put<PositionChangeRequestDto>(`${this.request(id)}/requirements`, body, this.headers(key))
 			.pipe(timeout(limit))
 	}
 }

@@ -1,0 +1,68 @@
+<ui5-dialog
+	[open]="true"
+	headerText="Submit the proposal for approval"
+	accessibleName="Submit the proposal for approval"
+	(ui5BeforeClose)="cancel()">
+	@if (error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ error() }}
+		</ui5-message-strip>
+	}
+	<ui5-busy-indicator
+		[active]="busy()"
+		text="Calculating the impact">
+		@if (previewed()?.preview; as preview) {
+			<ui5-message-strip
+				[design]="previewed()!.variances.some(isWaive) ? 'Critical' : 'Information'"
+				[hideCloseButton]="true">
+				One independent approver decides this request{{
+					previewed()!.variances.some(isWaive)
+						? ', and must also be allowed to approve waived requirements'
+						: ''
+				}}.
+			</ui5-message-strip>
+			<ui5-form
+				accessibleName="Impact preview"
+				accessibleMode="Display"
+				layout="S1 M1 L1 XL1">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Proposed variances</ui5-label>
+					<ui5-text>{{ previewed()!.variances.length }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective from</ui5-label>
+					<ui5-text>{{ previewed()!.proposed?.effectiveFrom | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">People assigned today</ui5-label>
+					<ui5-text>
+						{{
+							preview.occupancyComplete ? preview.activeAssignmentCount : 'Occupancy unavailable'
+						}}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Preview valid until</ui5-label>
+					<ui5-text>{{ preview.expiresAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		}
+	</ui5-busy-indicator>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="busy() || !previewed()?.preview"
+			(click)="submit()">
+			Submit
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="busy()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
