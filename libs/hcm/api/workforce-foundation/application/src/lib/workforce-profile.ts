@@ -121,7 +121,9 @@ export interface WorkforceProfilePort {
 	/** The worker's own facts on a date, or undefined when the worker is unknown. */
 	selfProfile(workerId: string, asOf: string): Promise<SelfProfileRow | undefined>
 	/** Active product reference rows: relationship types or genders. */
-	references(kind: 'relationship-types' | 'genders'): Promise<ReferenceRow[]>
+	references(
+		kind: 'relationship-types' | 'genders' | 'marital-statuses' | 'countries',
+	): Promise<ReferenceRow[]>
 	/** Change the preferred name and blood group; the display name and search text follow. */
 	updateSelfFacts(
 		personId: string,
