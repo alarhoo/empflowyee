@@ -11,7 +11,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common'
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router'
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop'
-import { filter, forkJoin, map, of, type Subscription } from 'rxjs'
+import { filter, forkJoin, map, of, Subject, takeUntil, type Subscription } from 'rxjs'
 import { FlexibleColumnLayout } from '@fundamental-ngx/ui5-webcomponents-fiori/flexible-column-layout'
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
@@ -23,6 +23,9 @@ import { List } from '@fundamental-ngx/ui5-webcomponents/list'
 import { ListItemStandard } from '@fundamental-ngx/ui5-webcomponents/list-item-standard'
 import { Tree } from '@fundamental-ngx/ui5-webcomponents/tree'
 import { TreeItem } from '@fundamental-ngx/ui5-webcomponents/tree-item'
+import { SegmentedButton } from '@fundamental-ngx/ui5-webcomponents/segmented-button'
+import { SegmentedButtonItem } from '@fundamental-ngx/ui5-webcomponents/segmented-button-item'
+import { HcmHierarchyChart, type HierarchyChartNode } from '@empflowyee/hcm-web-ux-hierarchy-chart'
 import { HcmDynamicPage, type HcmPageState } from '@empflowyee/hcm-web-ux-floorplan-dynamic-page'
 import { HcmRuntimeStore } from '@empflowyee/hcm-web-runtime-context'
 import {
@@ -32,7 +35,7 @@ import {
 } from '@empflowyee/hcm-web-workforce-foundation-data-access'
 import type { OrgChartNodeDto } from '@empflowyee/hcm-workforce-foundation-contract'
 import { PersonDetailComponent } from './person-detail.component'
-import { nodeName, nodeSubtitle } from './node-label'
+import { initials, nodeName, nodeSubtitle } from './node-label'
 
 interface Branch {
 	items: OrgChartNodeDto[]
@@ -56,6 +59,9 @@ interface Branch {
 		ListItemStandard,
 		Tree,
 		TreeItem,
+		SegmentedButton,
+		SegmentedButtonItem,
+		HcmHierarchyChart,
 		HcmDynamicPage,
 		PersonDetailComponent,
 	],
@@ -70,6 +76,7 @@ export class OrgChartComponent {
 	private readonly destroy = inject(DestroyRef)
 	private request?: Subscription
 	private searchRequest?: Subscription
+	private readonly contextChanged = new Subject<void>()
 	readonly name = nodeName
 	readonly subtitle = nodeSubtitle
 	readonly selectedId = toSignal(
@@ -85,6 +92,11 @@ export class OrgChartComponent {
 	readonly rootCursor = signal<string | null>(null)
 	readonly branches = signal<Record<string, Branch>>({})
 	readonly expanded = signal<ReadonlySet<string>>(new Set())
+	readonly view = signal<'chart' | 'tree'>('chart')
+	readonly chartNodes = computed(
+		/** Map only organisation-visible loaded DTO fields to the shared chart. */ () =>
+			this.toChartNodes(this.roots()),
+	)
 	readonly query = signal('')
 	readonly results = signal<OrgChartNodeDto[] | null>(null)
 	readonly resultCursor = signal<string | null>(null)
@@ -102,6 +114,7 @@ export class OrgChartComponent {
 				const context = this.runtime.context()
 				untracked(
 					/** Clear prior-context state before loading. */ () => {
+						this.contextChanged.next()
 						this.request?.unsubscribe()
 						this.searchRequest?.unsubscribe()
 						this.roots.set([])
@@ -115,6 +128,7 @@ export class OrgChartComponent {
 		)
 		this.destroy.onDestroy(
 			/** Cancel in-flight reads. */ () => {
+				this.contextChanged.complete()
 				this.request?.unsubscribe()
 				this.searchRequest?.unsubscribe()
 			},
@@ -126,13 +140,39 @@ export class OrgChartComponent {
 		return this.route.snapshot.firstChild?.paramMap.get('assignmentId') ?? null
 	}
 
+	/** Keep the presentation choice separate from loaded data and selected assignment. */
+	setView(items: { dataset: DOMStringMap }[]): void {
+		this.view.set(items[0]?.dataset['view'] === 'tree' ? 'tree' : 'chart')
+	}
+
+	/** Project the expanded forest without fetching or exposing additional employee fields. */
+	private toChartNodes(nodes: OrgChartNodeDto[]): HierarchyChartNode[] {
+		return nodes.map(
+			/** Include descendants only when the branch is expanded. */ (node) => {
+				const branch = this.branches()[node.assignmentId]
+				const expanded = this.expanded().has(node.assignmentId)
+				return {
+					id: node.assignmentId,
+					title: nodeName(node),
+					subtitle: nodeSubtitle(node),
+					initials: initials(node.displayName),
+					count: node.directReportCount,
+					expanded,
+					state: branch?.state,
+					hasMore: Boolean(branch?.cursor),
+					children: expanded ? this.toChartNodes(branch?.items ?? []) : [],
+				}
+			},
+		)
+	}
+
 	/** Load the first page of roots, then reveal a deep-linked selection. */
 	load(): void {
 		this.state.set('loading')
 		this.message.set('')
 		this.request = this.api
 			.roots()
-			.pipe(takeUntilDestroyed(this.destroy))
+			.pipe(takeUntil(this.contextChanged), takeUntilDestroyed(this.destroy))
 			.subscribe({
 				next: /** Publish the roots. */ (page) => {
 					this.roots.set(page.items)
@@ -140,6 +180,13 @@ export class OrgChartComponent {
 					this.state.set('content')
 					const selected = this.selectedId()
 					if (selected) this.reveal(selected)
+					else {
+						const first = page.items.find(
+							/** Show one initial reporting connection. */ (node) => node.directReportCount > 0,
+						)
+						if (first && !this.expanded().has(first.assignmentId))
+							this.toggleNode(first.assignmentId)
+					}
 				},
 				error: /** Distinguish denial from temporary failure. */ (error) => {
 					this.message.set(structureErrorMessage(error))
@@ -154,10 +201,13 @@ export class OrgChartComponent {
 		if (!cursor) return
 		this.api
 			.roots(cursor)
-			.pipe(takeUntilDestroyed(this.destroy))
+			.pipe(takeUntil(this.contextChanged), takeUntilDestroyed(this.destroy))
 			.subscribe({
 				next: /** Append the page. */ (page) => {
-					this.roots.update(/** Append. */ (rows) => [...rows, ...page.items])
+					this.roots.update(
+						/** Append without duplicating revealed path roots. */ (rows) =>
+							this.mergeNodes(rows, page.items),
+					)
 					this.rootCursor.set(page.nextCursor)
 				},
 				error: /** Keep the loaded roots. */ (error) =>
@@ -169,6 +219,11 @@ export class OrgChartComponent {
 	toggle(item: HTMLElement | null): void {
 		const id = item?.dataset['id']
 		if (!id) return
+		this.toggleNode(id)
+	}
+
+	/** Share expansion and lazy loading between the visual chart and native tree. */
+	toggleNode(id: string): void {
 		const open = new Set(this.expanded())
 		if (open.has(id)) open.delete(id)
 		else {
@@ -181,6 +236,7 @@ export class OrgChartComponent {
 	/** Load one page of a node's direct reports. */
 	loadReports(id: string, append: boolean): void {
 		const existing = this.branches()[id]
+		if (existing?.state === 'loading') return
 		this.setBranch(id, {
 			items: append ? (existing?.items ?? []) : [],
 			cursor: existing?.cursor ?? null,
@@ -188,11 +244,11 @@ export class OrgChartComponent {
 		})
 		this.api
 			.reports(id, append ? existing?.cursor : null)
-			.pipe(takeUntilDestroyed(this.destroy))
+			.pipe(takeUntil(this.contextChanged), takeUntilDestroyed(this.destroy))
 			.subscribe({
 				next: /** Append the reports under their manager. */ (page) =>
 					this.setBranch(id, {
-						items: [...(append ? (existing?.items ?? []) : []), ...page.items],
+						items: this.mergeNodes(append ? (existing?.items ?? []) : [], page.items),
 						cursor: page.nextCursor,
 						state: 'content',
 					}),
@@ -205,9 +261,28 @@ export class OrgChartComponent {
 			})
 	}
 
+	/** Retry a failed branch or append its next bounded page. */
+	moreReports(id: string): void {
+		this.loadReports(id, this.branches()[id]?.state !== 'error')
+	}
+
 	/** Replace one branch immutably. */
 	private setBranch(id: string, branch: Branch): void {
 		this.branches.update(/** Replace one entry. */ (all) => ({ ...all, [id]: branch }))
+	}
+
+	/** Deduplicate path-injected nodes when their normal cursor page is loaded later. */
+	private mergeNodes(previous: OrgChartNodeDto[], next: OrgChartNodeDto[]): OrgChartNodeDto[] {
+		return [
+			...new Map(
+				[...previous, ...next].map(
+					/** Key by assignment, preserving concurrent assignments. */ (node) => [
+						node.assignmentId,
+						node,
+					],
+				),
+			).values(),
+		]
 	}
 
 	/** Select a node, or load more or retry reports from a service item. */
@@ -231,6 +306,7 @@ export class OrgChartComponent {
 			this.router.createUrlTree(['.'], { relativeTo: this.route }),
 		)
 		void this.router.navigateByUrl(`${base}/${encodeURIComponent(id)}`)
+		this.reveal(id)
 	}
 
 	/** Close the mid column. */
@@ -251,7 +327,7 @@ export class OrgChartComponent {
 		this.searchRequest?.unsubscribe()
 		this.searchRequest = this.api
 			.search(q, more ? this.resultCursor() : null)
-			.pipe(takeUntilDestroyed(this.destroy))
+			.pipe(takeUntil(this.contextChanged), takeUntilDestroyed(this.destroy))
 			.subscribe({
 				next: /** Publish the results. */ (page) => {
 					this.results.update(
@@ -280,12 +356,13 @@ export class OrgChartComponent {
 		this.results.set(null)
 		this.query.set('')
 		this.select(id)
-		this.reveal(id)
 	}
 
 	/** The first page of a node's reports, unless its branch is already loaded. */
 	private firstReports(id: string) {
-		if (this.branches()[id]) return of(null)
+		const branch = this.branches()[id]
+		if (branch?.state === 'content')
+			return of({ id, page: { items: branch.items, nextCursor: branch.cursor } })
 		return this.api.reports(id).pipe(map(/** Tag with its manager. */ (page) => ({ id, page })))
 	}
 
@@ -293,9 +370,20 @@ export class OrgChartComponent {
 	private reveal(id: string): void {
 		this.api
 			.path(id)
-			.pipe(takeUntilDestroyed(this.destroy))
+			.pipe(takeUntil(this.contextChanged), takeUntilDestroyed(this.destroy))
 			.subscribe({
 				next: /** Load each ancestor's reports and keep the path node visible. */ (path) => {
+					const root = path.items[0]
+					if (
+						root &&
+						!this.roots().some(
+							/** Avoid duplicate roots from path reveals. */ (node) =>
+								node.assignmentId === root.assignmentId,
+						)
+					)
+						this.roots.update(
+							/** Include a root outside the first root page. */ (nodes) => [...nodes, root],
+						)
 					const ancestors = path.items.slice(0, -1)
 					if (!ancestors.length) return
 					const open = new Set(this.expanded())
@@ -304,7 +392,7 @@ export class OrgChartComponent {
 					forkJoin(
 						ancestors.map(/** Each ancestor. */ (node) => this.firstReports(node.assignmentId)),
 					)
-						.pipe(takeUntilDestroyed(this.destroy))
+						.pipe(takeUntil(this.contextChanged), takeUntilDestroyed(this.destroy))
 						.subscribe({
 							next: /** Publish branches, keeping the next path node present. */ (pages) =>
 								pages.forEach(

@@ -30,7 +30,11 @@ async function violations(page: Page): Promise<string[]> {
 }
 
 /** Switch persona through the real Settings dialog and open the app from catalogue search. */
-async function open(page: Page, name = 'Jim Halpert'): Promise<void> {
+async function open(
+	page: Page,
+	name = 'Jim Halpert',
+	view: 'chart' | 'tree' = 'tree',
+): Promise<void> {
 	page.on(
 		'pageerror',
 		/** Surface component runtime errors during browser acceptance. */ (error) =>
@@ -58,7 +62,11 @@ async function open(page: Page, name = 'Jim Halpert'): Promise<void> {
 		.first()
 		.click()
 	await expect(page).toHaveURL(/\/workforce-foundation\/org-chart$/)
-	await expect(page.getByRole('treeitem', { name: /^David Wallace/ })).toBeVisible()
+	await expect(page.locator('ef-hcm-hierarchy-chart')).toBeVisible()
+	if (view === 'tree') {
+		await page.getByRole('option', { name: 'Tree', exact: true }).click()
+		await expect(page.getByRole('treeitem', { name: /^David Wallace/ })).toBeVisible()
+	}
 }
 
 test('explores the reporting tree and opens a person with organisation-visible details', /** REQ-001 and REQ-003. */ async ({
@@ -106,7 +114,68 @@ test('finds a person and reveals their path', /** REQ-002. */ async ({ page }) =
 	// Jim is the default persona, so a reload keeps him and proves the deep link.
 	await page.reload()
 	await expect(page.locator('ef-hcm-org-chart-person')).toContainText('Receptionist')
+	await page.getByRole('option', { name: 'Tree', exact: true }).click()
 	await expect(page.getByRole('treeitem', { name: /^Pam Beesly/ })).toBeVisible()
+})
+
+test('explores connected cards and keeps expanded branches when switching views', /** Chart and Tree must share real data and person selection. */ async ({
+	page,
+}) => {
+	await open(page, 'Jim Halpert', 'chart')
+	const chart = page.locator('ef-hcm-hierarchy-chart')
+	await expect(chart.locator('svg path')).not.toHaveCount(0)
+	await expect(chart.locator('ui5-card-header[title-text="Michael Scott"]')).toBeVisible()
+	const expand = chart.getByRole('button', {
+		name: 'Expand reports for Michael Scott',
+		exact: true,
+	})
+	await expand.focus()
+	await page.keyboard.press('Enter')
+	await expect(chart.locator('ui5-card-header[title-text="Jim Halpert"]')).toBeVisible()
+	await page.getByRole('option', { name: 'Tree', exact: true }).click()
+	await expect(page.getByRole('treeitem', { name: /^Jim Halpert/ })).toBeVisible()
+	await page.getByRole('option', { name: 'Chart', exact: true }).click()
+	await chart.locator('ui5-card-header[title-text="Jim Halpert"]').click()
+	await expect(page.locator('ef-hcm-org-chart-person')).toContainText('Sales Representative')
+	await expect(chart.locator('ui5-card.selected')).toContainText('Jim Halpert')
+	await page
+		.locator('ef-hcm-org-chart-person')
+		.getByRole('button', { name: 'Close detail', exact: true })
+		.click()
+	await chart.getByRole('button', { name: 'Zoom out', exact: true }).click()
+	await expect(chart).toContainText('90%')
+	await chart.getByRole('button', { name: 'Fit', exact: true }).click()
+	await chart.getByRole('button', { name: 'Reset', exact: true }).click()
+	await expect(chart).toContainText('100%')
+	await chart
+		.getByRole('button', { name: 'Collapse reports for Michael Scott', exact: true })
+		.click()
+	await expect(chart.locator('ui5-card-header[title-text="Jim Halpert"]')).toHaveCount(0)
+	expect(await violations(page)).toEqual([])
+})
+
+test('keeps chart overflow local and reveals searched people in the chart', /** Diagram navigation remains usable on phones and when opening a search result. */ async ({
+	page,
+}) => {
+	await open(page, 'Jim Halpert', 'chart')
+	const chart = page.locator('ef-hcm-hierarchy-chart')
+	for (const width of [390, 768, 1440, 2560]) {
+		await page.setViewportSize({ width, height: 1000 })
+		await expect(chart.getByRole('region', { name: 'Reporting chart', exact: true })).toBeVisible()
+		expect(
+			await page.evaluate(
+				/** The canvas must scroll inside the page. */ () =>
+					document.documentElement.scrollWidth <= innerWidth,
+			),
+		).toBe(true)
+	}
+	await page.setViewportSize({ width: 1440, height: 1000 })
+	const search = page.getByRole('searchbox', { name: 'Search name or worker number' })
+	await search.fill('beesly')
+	await search.press('Enter')
+	await page.getByRole('listitem', { name: /^Pam Beesly/ }).click()
+	await expect(chart.locator('ui5-card.selected')).toContainText('Pam Beesly')
+	await expect(page.locator('ef-hcm-org-chart-person')).toContainText('Receptionist')
 })
 
 test('stays usable at supported widths and reports failures truthfully', /** REQ-006. */ async ({

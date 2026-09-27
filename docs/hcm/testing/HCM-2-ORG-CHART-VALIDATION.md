@@ -86,6 +86,31 @@ updated to expect `display-name` among the org chart fields. The one failure is 
 pre-existing Linux-only `local-document-files.spec.ts` case. The employee suite passes 18
 tests.
 
+## Connected chart verification — 2026-09-27
+
+Chart is now the default presentation alongside the retained native Tree option.
+Both use the same roots, expanded branches, selected assignment, search and detail
+routes. D3 supplies layout coordinates in a shared UX component; native UI5 cards,
+avatars, buttons and segmented controls provide the interactions. The floorplan
+remains native FCL with page-backed columns.
+
+- Three isolated layout tests pass: independent roots and correct edges, 50 reports
+  without overlapping cards or escaping the canvas, and collapsed/empty layouts
+  without mutating caller data.
+- All five live browser scenarios pass across the full run and the two targeted
+  chart reruns after the heading-order correction. Coverage includes keyboard
+  expansion, Chart/Tree switching, selected cards and person details, search/path
+  reveal and reload, zoom/fit/reset, collapse, 390/768/1440/2560 widths, failed reads
+  and retry. Diagram overflow stays local.
+- Chart axe checks pass with the existing shared exclusions above; no additional
+  exclusion was added. A native H2 section heading precedes native H3 card headings.
+- Angular compilation, changed-library and browser-test lint, production HCM web
+  build, page structure, architecture and documentation checks pass.
+
+API contracts, authorization, field policy and database behavior are unchanged;
+the database results above remain historical evidence. The browser cancels pending
+branch/path reads on context changes and deduplicates path nodes during paging.
+
 ## Reproduction
 
 ```bash
@@ -95,5 +120,6 @@ pnpm hcm:db:test
 pnpm dev:hcm-api   # port 4402
 pnpm dev:hcm       # port 4302
 pnpm exec playwright test --config apps/hcm/web-e2e/local-launchpad.config.mts org-chart.spec.ts
+pnpm exec vitest run --config libs/hcm/web/ux/hierarchy-chart/vite.config.mts
 pnpm hcm:app:readiness --app=ORG_CHART --check
 ```

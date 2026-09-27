@@ -274,7 +274,8 @@
 			],
 			"@empflowyee/hcm-web-workforce-foundation-feature-identification-types": [
 				"./libs/hcm/web/workforce-foundation/feature-identification-types/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-web-ux-hierarchy-chart": ["./libs/hcm/web/ux/hierarchy-chart/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

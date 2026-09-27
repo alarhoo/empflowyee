@@ -1,0 +1,124 @@
+<ui5-title
+	level="H2"
+	size="H5">
+	Reporting chart
+</ui5-title>
+<ui5-toolbar accessibleName="Chart controls">
+	<ui5-toolbar-button
+		text="Zoom out"
+		[disabled]="zoom() <= 0.1"
+		(ui5Click)="changeZoom(-0.1)"></ui5-toolbar-button>
+	<ui5-toolbar-item>
+		<ui5-text>{{ percent() }}%</ui5-text>
+	</ui5-toolbar-item>
+	<ui5-toolbar-button
+		text="Zoom in"
+		[disabled]="zoom() >= 1.5"
+		(ui5Click)="changeZoom(0.1)"></ui5-toolbar-button>
+	<ui5-toolbar-button
+		text="Fit"
+		(ui5Click)="fit()"></ui5-toolbar-button>
+	<ui5-toolbar-button
+		text="Reset"
+		(ui5Click)="reset()"></ui5-toolbar-button>
+</ui5-toolbar>
+<p class="chart-help">
+	Select a person for details. Expand reports to explore; scroll to move around the chart.
+</p>
+<div
+	#viewport
+	class="viewport"
+	role="region"
+	aria-label="Reporting chart"
+	tabindex="0">
+	<div
+		class="extent"
+		[style.width.px]="layout().width * zoom()"
+		[style.height.px]="layout().height * zoom()">
+		<div
+			class="canvas"
+			[style.width.px]="layout().width"
+			[style.height.px]="layout().height"
+			[style.transform]="'scale(' + zoom() + ')'">
+			<svg
+				class="connectors"
+				[attr.width]="layout().width"
+				[attr.height]="layout().height"
+				aria-hidden="true">
+				@for (link of layout().links; track link.id) {
+					<path [attr.d]="link.path"></path>
+				}
+			</svg>
+			@for (item of layout().nodes; track item.data.id) {
+				@let node = item.data;
+				<ui5-card
+					class="node"
+					[class.selected]="selectedId() === node.id"
+					[style.left.px]="item.x"
+					[style.top.px]="item.y"
+					[style.width.px]="cardWidth"
+					[style.height.px]="cardHeight"
+					[attr.data-node-id]="node.id"
+					[accessibleName]="
+						node.title +
+						(item.manager ? ', reports to ' + item.manager : ', reporting root') +
+						(selectedId() === node.id ? ', selected' : '')
+					">
+					<ui5-card-header
+						slot="header"
+						[interactive]="true"
+						[titleText]="node.title"
+						[subtitleText]="node.subtitle"
+						[additionalText]="selectedId() === node.id ? 'Selected' : ''"
+						(ui5Click)="selected.emit(node.id)">
+						<ui5-avatar
+							slot="avatar"
+							[initials]="node.initials"
+							[accessibleName]="node.title"
+							size="XS"></ui5-avatar>
+					</ui5-card-header>
+					<div class="node-actions">
+						@if (node.count > 0) {
+							<ui5-button
+								[accessibleName]="
+									(node.expanded ? 'Collapse reports for ' : 'Expand reports for ') + node.title
+								"
+								[attr.aria-expanded]="node.expanded"
+								design="Transparent"
+								(click)="toggle(node.id)">
+								{{ node.expanded ? '−' : '+' }} {{ node.count }}
+								{{ node.count === 1 ? 'report' : 'reports' }}
+							</ui5-button>
+						} @else {
+							<ui5-text>No direct reports</ui5-text>
+						}
+						@if (node.expanded) {
+							@if (node.state === 'loading') {
+								<span role="status">Loading reports…</span>
+							} @else if (node.state === 'error') {
+								<ui5-button
+									[accessibleName]="'Retry reports for ' + node.title"
+									design="Transparent"
+									(click)="more.emit(node.id)">
+									Retry reports
+								</ui5-button>
+							} @else if (node.hasMore) {
+								<ui5-button
+									[accessibleName]="'More reports for ' + node.title"
+									design="Transparent"
+									(click)="more.emit(node.id)">
+									Load more
+								</ui5-button>
+							}
+						}
+					</div>
+				</ui5-card>
+			}
+		</div>
+	</div>
+</div>
+<div
+	class="chart-help"
+	role="status">
+	{{ layout().nodes.length }} people shown
+</div>

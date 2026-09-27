@@ -85,7 +85,39 @@ duplicate tables. Successful writes use the [shared unit of work](../../tdd/TDD-
 
 ## UX
 
-Floorplan `UX-FP-FCL`, mode **NATIVE**. Native FlexibleColumnLayout. Begin column: `HcmDynamicPage` titled Org Chart with a search Input in the header and a UI5 Tree using `hasChildren` and `ui5ItemToggle` for lazy expansion. Mid column: `HcmObjectPage` with Overview and Direct reports sections. Selection route `/workforce-foundation/org-chart/:assignmentId`.
+Floorplan `UX-FP-FCL`, mode **NATIVE**. Native FlexibleColumnLayout. Begin column: `HcmDynamicPage` titled Org Chart with a search Input in the header and a native SegmentedButton selecting Chart (default) or Tree. Both views share loaded roots, branches, expansion and selected assignment. Tree retains UI5 Tree with `hasChildren` and `ui5ItemToggle`. Mid column: `HcmObjectPage` with Overview and Direct reports sections. Selection route `/workforce-foundation/org-chart/:assignmentId`.
+
+### Connected chart composition
+
+The connected chart is owned by shared UX library `hcm-web-ux-hierarchy-chart`
+(`domain:ux`, `type:ui`), generated with the official Nx Angular library generator.
+It accepts domain-neutral nodes and emits selection, expansion and paging intents;
+only the feature performs HTTP requests or maps workforce DTOs. No new floorplan,
+API or business-data contract is introduced.
+
+Installed 0.64.3 capability inspection covers UI5 Tree/TreeItem (accessible nested
+lists with lazy expansion), Core Tree, Platform exports, and the Fiori wrappers.
+None exposes a connected node-link layout. UI5 Card/CardHeader supplies interactive
+identity surfaces and avatar slots; Button, SegmentedButton and Toolbar supply
+native actions. These controls remain native. The requested diagram capability is
+composed with ISC-licensed `d3-hierarchy` 3.1.2 for coordinates only, using
+`hierarchy` and `tree().nodeSize()`; Angular renders text bindings and SVG connectors.
+No HTML-string rendering or second UI framework is used.
+
+This specific capability gap permits shared UX CSS for chart coordinates, a bounded
+scrolling viewport, connectors and scale transforms. Shared chart styles use SAP
+semantic theme variables and public control hosts, with no raw colors, theme
+imports or Shadow DOM overrides. The feature has no CSS.
+
+Chart controls offer zoom in/out, fit and reset. Native scrolling provides touch,
+trackpad and keyboard panning without intercepting ordinary page wheel gestures.
+Cards expose native keyboard selection and expand/collapse actions, selected state,
+and loading/retry/load-more states. Screen readers receive each node's manager and
+report count; the Tree option offers the native hierarchical keyboard model.
+Chart overflow stays inside its viewport at phone and desktop widths. Choosing a
+node opens the same detail column as Tree. Search reveals the path in either view.
+One first expandable root is opened initially; subsequent requests remain explicit
+and paged. Switching views does not refetch or discard expansion.
 
 Semantic controls: Person identity uses UI5 Avatar initials plus name. Work email uses UI5 Link `mailto:`. Manager and direct reports use UI5 Link to their node route. Read-only properties use UI5 Label and Text pairs.
 
