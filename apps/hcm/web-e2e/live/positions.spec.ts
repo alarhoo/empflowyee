@@ -91,6 +91,13 @@ async function pick(page: Page, label: string, text: string): Promise<void> {
 async function act(page: Page, host: string, name: string): Promise<void> {
 	const scope = page.locator(host)
 	const button = scope.getByRole('button', { name, exact: true })
+	await expect(
+		/** Wait until the action is shown or folded into the overflow. */ async () =>
+			expect(
+				(await button.isVisible()) ||
+					(await scope.getByRole('button', { name: 'Additional Options' }).isVisible()),
+			).toBe(true),
+	).toPass({ timeout: 15000 })
 	if (!(await button.isVisible())) {
 		await scope.getByRole('button', { name: 'Additional Options' }).click()
 		await page.locator('ui5-toolbar-button, ui5-button').filter({ hasText: name }).last().click()
