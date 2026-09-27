@@ -221,6 +221,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/employee-records',
+		data: { catalogId: 'EMPLOYEE_RECORDS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load tenant-wide worker records and worker creation. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-employee-records').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.EMPLOYEE_RECORDS_ROUTES,
+			),
+	},
+	{
 		path: 'employee/my-profile',
 		data: { catalogId: 'MY_PROFILE' },
 		canMatch: [hcmRouteAccess],

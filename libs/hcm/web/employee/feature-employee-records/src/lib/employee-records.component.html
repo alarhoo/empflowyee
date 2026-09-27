@@ -1,0 +1,210 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Worker records' },
+		midColumn: { role: 'region', name: 'Selected worker record' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Employee Records"
+		summary="Tenant-wide worker records with person facts, contact details and employment history"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Record filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="records-query">
+					Name or worker number
+				</ui5-label>
+				<ui5-input
+					id="records-query"
+					accessibleName="Search name or worker number"
+					type="Search"
+					[formField]="filterForm.q"
+					(keyup.enter)="load(false)"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="records-status">
+					Employment status
+				</ui5-label>
+				<ui5-select
+					id="records-status"
+					accessibleName="Employment status"
+					[formField]="filterForm.status">
+					<ui5-option value="all">All statuses</ui5-option>
+					@for (item of statuses; track item) {
+						<ui5-option [value]="item">{{ employment(item).label }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="records-state">
+					Record state
+				</ui5-label>
+				<ui5-select
+					id="records-state"
+					accessibleName="Record state"
+					[formField]="filterForm.recordState">
+					<ui5-option value="all">All records</ui5-option>
+					@for (item of states; track item) {
+						<ui5-option [value]="item">{{ record(item).label }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="records-unit">
+					Unit
+				</ui5-label>
+				<ef-hcm-record-option-box
+					kind="units"
+					label="Unit"
+					controlId="records-unit"
+					[selected]="unit()"
+					(selectedChange)="unit.set($event)"></ef-hcm-record-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="records-sort">
+					Sort by
+				</ui5-label>
+				<ui5-select
+					id="records-sort"
+					accessibleName="Sort by"
+					[formField]="filterForm.sort">
+					<ui5-option value="name:asc">Name</ui5-option>
+					<ui5-option value="workerNumber:asc">Worker number</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[loading]="listState() === 'loading'"
+			accessibleName="Worker records"
+			overflowMode="Popin"
+			[noDataText]="
+				listState() === 'error'
+					? 'Worker records could not be loaded'
+					: 'No records match these filters'
+			">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="14rem">
+					Worker
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="9rem"
+					popinText="Designation">
+					Designation
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="50"
+					minWidth="9rem"
+					popinText="Unit">
+					Unit
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="8rem"
+					popinText="Employment">
+					Employment
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="8rem"
+					popinText="Record">
+					Record
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of records(); track row.workerId) {
+				<ui5-table-row
+					[rowKey]="row.workerId"
+					[interactive]="true"
+					[navigated]="selected() === row.workerId">
+					<ui5-table-cell>
+						<ui5-avatar
+							size="XS"
+							[initials]="initials(row.displayName)"
+							[accessibleName]="row.displayName"></ui5-avatar>
+						{{ row.displayName }} ({{ row.workerNumber }})
+					</ui5-table-cell>
+					<ui5-table-cell>{{ row.designation ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ row.unit ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="employment(row.employmentStatus).status"
+							[label]="employment(row.employmentStatus).label"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="record(row.recordState).status"
+							[label]="record(row.recordState).label"></span>
+					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(row.workerId)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more records"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (workerId of [id]; track workerId) {
+			<ef-hcm-worker-record
+				slot="midColumn"
+				[workerId]="workerId"
+				[refresh]="refresh()"
+				[canManage]="canManage()"
+				(opened)="open($event)"
+				(dialogRequested)="dialog.set($event)"
+				(closed)="close()"></ef-hcm-worker-record>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-record-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialog.set(null)"></ef-hcm-record-dialog>
+}
