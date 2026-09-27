@@ -247,6 +247,9 @@
 			"@empflowyee/hcm-web-job-architecture-feature-job-catalogue": [
 				"./libs/hcm/web/job-architecture/feature-job-catalogue/src/index.ts"
 			],
+			"@empflowyee/hcm-web-job-architecture-feature-position-requirements": [
+				"./libs/hcm/web/job-architecture/feature-position-requirements/src/index.ts"
+			],
 			"@empflowyee/hcm-web-job-architecture-feature-positions": [
 				"./libs/hcm/web/job-architecture/feature-positions/src/index.ts"
 			],

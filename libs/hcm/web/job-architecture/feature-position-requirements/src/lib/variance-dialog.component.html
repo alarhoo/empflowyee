@@ -1,0 +1,224 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	[initialFocus]="type() === 'Add' ? 'variance-code' : 'variance-source'"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-message-strip
+		[design]="type() === 'Waive' ? 'Critical' : 'Information'"
+		[hideCloseButton]="true">
+		{{ note() }}
+	</ui5-message-strip>
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		@if (type() === 'Add') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-code"
+					[required]="true">
+					Code
+				</ui5-label>
+				<ui5-input
+					id="variance-code"
+					accessibleName="Code"
+					[formField]="fields.code"
+					[disabled]="draft.saving()"
+					[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">
+						Use 2–40 capital letters, digits or underscores, starting with a letter.
+					</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+		} @else {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-source"
+					[required]="true">
+					Profile requirement
+				</ui5-label>
+				<ui5-select
+					id="variance-source"
+					accessibleName="Profile requirement"
+					[value]="model().sourceCode"
+					[disabled]="draft.saving() || !sources().length"
+					(ui5Change)="chooseSource($event.detail.selectedOption.value ?? '')">
+					@for (item of sources(); track item.code) {
+						<ui5-option [value]="item.code">{{ item.name }} ({{ item.code }})</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="variance-type">
+				Requirement type
+			</ui5-label>
+			<ui5-select
+				id="variance-type"
+				accessibleName="Requirement type"
+				[formField]="fields.type"
+				[disabled]="draft.saving() || type() === 'Waive'">
+				@for (item of types; track item) {
+					<ui5-option [value]="item">{{ item }}</ui5-option>
+				}
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="variance-name"
+				[required]="true">
+				Name
+			</ui5-label>
+			<ui5-input
+				id="variance-name"
+				accessibleName="Name"
+				[formField]="fields.name"
+				[disabled]="draft.saving() || type() === 'Waive'"
+				[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a name of 1–150 characters.</ui5-text>
+			</ui5-input>
+		</ui5-form-item>
+		@if (type() !== 'Waive') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-proficiency">
+					Proficiency
+				</ui5-label>
+				<ui5-input
+					id="variance-proficiency"
+					accessibleName="Proficiency"
+					[formField]="fields.proficiency"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-quantity">
+					Minimum quantity
+				</ui5-label>
+				<ui5-step-input
+					id="variance-quantity"
+					accessibleName="Minimum quantity"
+					[min]="0"
+					[max]="999999"
+					[step]="1"
+					[valuePrecision]="2"
+					[value]="quantity() ?? 0"
+					[disabled]="draft.saving() || model().unit === 'none'"
+					[valueState]="quantityInvalid() ? 'Negative' : 'None'"
+					(ui5Change)="quantity.set($any($event.target).value)">
+					<ui5-text slot="valueStateMessage">A minimum quantity needs a unit.</ui5-text>
+				</ui5-step-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-unit">
+					Unit
+				</ui5-label>
+				<ui5-select
+					id="variance-unit"
+					accessibleName="Unit"
+					[formField]="fields.unit"
+					[disabled]="draft.saving()"
+					(ui5Change)="
+						quantity.set($event.detail.selectedOption.value === 'none' ? null : (quantity() ?? 0))
+					">
+					<ui5-option value="none">No minimum</ui5-option>
+					@for (item of units; track item) {
+						<ui5-option [value]="item">{{ item }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-mandatory">
+					Mandatory
+				</ui5-label>
+				<ui5-checkbox
+					id="variance-mandatory"
+					accessibleName="Mandatory"
+					text="Mandatory"
+					[checked]="mandatory()"
+					[disabled]="draft.saving()"
+					(ui5Change)="mandatory.set($any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+		} @else {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-justification"
+					[required]="true">
+					Justification
+				</ui5-label>
+				<ui5-textarea
+					id="variance-justification"
+					accessibleName="Justification"
+					[rows]="4"
+					[formField]="fields.justification"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.justification().touched() && fields.justification().invalid()
+							? 'Negative'
+							: 'None'
+					">
+					<ui5-text slot="valueStateMessage">Explain the waiver in 1–2,000 characters.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+		}
+		@if (starting()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="variance-reason"
+					[required]="true">
+					Reason for change
+				</ui5-label>
+				<ui5-textarea
+					id="variance-reason"
+					accessibleName="Reason for change"
+					[rows]="2"
+					[formField]="fields.reason"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+		}
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Add to proposal' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

@@ -1,0 +1,145 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Positions and their requirements' },
+		midColumn: { role: 'region', name: 'Selected position requirements' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Position Requirements"
+		summary="Profile requirements with approved position variances; changes travel through position change approval"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canRequest()"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Position requirement filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="requirement-query">
+					Code or name
+				</ui5-label>
+				<ui5-input
+					id="requirement-query"
+					accessibleName="Search code or name"
+					type="Search"
+					[formField]="filterForm.q"
+					(keyup.enter)="load(false)"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="requirement-variances">
+					Variances
+				</ui5-label>
+				<ui5-select
+					id="requirement-variances"
+					accessibleName="Variances"
+					[formField]="filterForm.variances">
+					<ui5-option value="all">All positions</ui5-option>
+					<ui5-option value="with">With variances</ui5-option>
+					<ui5-option value="without">Profile requirements only</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[loading]="listState() === 'loading'"
+			accessibleName="Positions"
+			overflowMode="Popin"
+			[noDataText]="
+				listState() === 'error'
+					? 'Positions could not be loaded'
+					: 'No positions match these filters'
+			">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="14rem">
+					Position
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="7rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="70"
+					minWidth="10rem"
+					popinText="Job profile">
+					Job profile
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="6rem"
+					popinText="Variances">
+					Variances
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="9rem"
+					popinText="Open request">
+					Open request
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (position of positions(); track position.id) {
+				<ui5-table-row
+					[rowKey]="position.id"
+					[interactive]="true"
+					[navigated]="selected() === position.id">
+					<ui5-table-cell>{{ position.name }} ({{ position.code }})</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="lifecycle(position.lifecycleStatus).status"
+							[label]="lifecycle(position.lifecycleStatus).label"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>{{ position.profile?.name ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ position.varianceCount }}</ui5-table-cell>
+					<ui5-table-cell>{{ position.openRequest ? 'In progress' : 'None' }}</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(position.id)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more positions"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (current of [id]; track current) {
+			<ef-hcm-position-requirement-set
+				slot="midColumn"
+				[positionId]="current"
+				[refresh]="refresh()"
+				[canRequest]="canRequest()"
+				(updated)="updated($event)"
+				(closed)="close()"></ef-hcm-position-requirement-set>
+		}
+	}
+</ui5-flexible-column-layout>

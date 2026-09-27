@@ -235,6 +235,11 @@ const fieldLabels: Record<string, string> = {
 	reportsToPositionId: 'Reports to',
 	comment: 'Comment',
 	previewId: 'Preview',
+	variances: 'Requirement',
+	justification: 'Justification',
+	sourceCode: 'Profile requirement',
+	minimumQuantity: 'Minimum quantity',
+	unit: 'Unit',
 }
 
 /** Field-specific explanations of a rejected value. */
@@ -253,6 +258,10 @@ const fieldCodeMessages: Record<string, (label: string) => string> = {
 	cycle: /** Relationships. */ () =>
 		'A position cannot report to itself or to one that reports to it.',
 	required: /** Presence. */ (label) => `${label} is required.`,
+	weakened: /** Strengthen. */ (label) =>
+		`${label} cannot be weaker than the profile requirement it strengthens.`,
+	'source-mismatch': /** Variance code. */ () =>
+		'A variance keeps the code of its profile requirement.',
 }
 
 /** Translate stable server classifications; never display arbitrary provider error bodies. */
@@ -261,7 +270,10 @@ export function jobArchitectureErrorMessage(error: unknown): string {
 	const code = body?.code
 	const first = Array.isArray(body?.fieldErrors) ? body.fieldErrors[0] : undefined
 	const field = typeof first?.field === 'string' ? (first.field as string) : ''
-	const label = fieldLabels[field.split('.')[0] ?? ''] ?? field
+	const parts = field.split('.')
+	// A variance field names the variance's own field, not the collection.
+	const own = parts[0] === 'variances' ? fieldLabels[parts.at(-1) ?? ''] : undefined
+	const label = own ?? fieldLabels[parts[0] ?? ''] ?? field
 	const specific = typeof first?.code === 'string' ? fieldCodeMessages[first.code] : undefined
 	if (specific && label) return specific(label)
 	const messages: Record<string, string> = {

@@ -1,0 +1,301 @@
+<ef-hcm-object-page
+	[title]="position()?.name ?? 'Position'"
+	[summary]="
+		position()
+			? position()!.code +
+				(position()!.currentVersion ? ' · ' + position()!.currentVersion!.profile.name : '')
+			: ''
+	"
+	[state]="state()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (commandError()) {
+		<ui5-message-strip
+			design="Negative"
+			(ui5Close)="commandError.set('')">
+			{{ commandError() }}
+		</ui5-message-strip>
+	}
+	@if (position(); as current) {
+		<ng-template
+			efHcmObjectSection="effective"
+			label="Effective requirements">
+			<ui5-table
+				accessibleName="Effective requirements"
+				overflowMode="Popin"
+				noDataText="This position has no published version, so no requirements apply">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Requirement
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="7rem"
+						popinText="Type">
+						Type
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="8rem"
+						popinText="Proficiency">
+						Proficiency
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="7rem"
+						popinText="Minimum">
+						Minimum
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="6rem"
+						popinText="Mandatory">
+						Mandatory
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="7rem"
+						popinText="Source">
+						Source
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="8rem"
+						popinText="Variance">
+						Variance
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of effective(); track item.code) {
+					<ui5-table-row [rowKey]="item.code">
+						<ui5-table-cell>{{ item.name }} ({{ item.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ item.type }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.proficiency || '—' }}</ui5-table-cell>
+						<ui5-table-cell>{{ minimum(item.minimumQuantity, item.unit) }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-checkbox
+								[accessibleName]="item.name + ' mandatory'"
+								[checked]="item.mandatory"
+								[readonly]="true"></ui5-checkbox>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="source(item).status"
+								[label]="source(item).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (item.variance; as type) {
+								<span
+									fd-object-status
+									[inverted]="true"
+									[status]="variance(type).status"
+									[label]="variance(type).label"></span>
+							} @else {
+								None
+							}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="proposal"
+			label="Proposed variances">
+			@if (open(); as request) {
+				<ui5-message-strip
+					[design]="draft() ? 'Information' : 'Critical'"
+					[hideCloseButton]="true">
+					@if (draft()) {
+						Your draft proposal applies only after preview, submission and approval.
+					} @else {
+						A change request for this position is in progress; open it in Positions to follow it.
+					}
+				</ui5-message-strip>
+				<ui5-table
+					(ui5RowActionClick)="remove($any($event.detail.row).rowKey)"
+					[rowActionCount]="draft() ? 1 : 0"
+					accessibleName="Proposed variances"
+					overflowMode="Popin"
+					noDataText="The request proposes no requirement variances">
+					<ui5-table-header-row slot="headerRow">
+						<ui5-table-header-cell
+							[importance]="100"
+							minWidth="12rem">
+							Requirement
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="90"
+							minWidth="8rem"
+							popinText="Variance">
+							Variance
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="50"
+							minWidth="7rem"
+							popinText="Type">
+							Type
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="60"
+							minWidth="7rem"
+							popinText="Minimum">
+							Minimum
+						</ui5-table-header-cell>
+						<ui5-table-header-cell
+							[importance]="40"
+							minWidth="12rem"
+							popinText="Justification">
+							Justification
+						</ui5-table-header-cell>
+					</ui5-table-header-row>
+					@for (item of request.variances; track item.code) {
+						<ui5-table-row [rowKey]="item.code">
+							<ui5-table-cell>{{ item.name }} ({{ item.code }})</ui5-table-cell>
+							<ui5-table-cell>
+								<span
+									fd-object-status
+									[inverted]="true"
+									[status]="variance(item.varianceType).status"
+									[label]="variance(item.varianceType).label"></span>
+							</ui5-table-cell>
+							<ui5-table-cell>{{ item.type }}</ui5-table-cell>
+							<ui5-table-cell>{{ minimum(item.minimumQuantity, item.unit) }}</ui5-table-cell>
+							<ui5-table-cell>
+								{{
+									item.varianceType === 'Waive'
+										? (item.justification ?? 'Visible only to the requester and approvers')
+										: '—'
+								}}
+							</ui5-table-cell>
+							@if (draft()) {
+								<ui5-table-row-action
+									slot="actions"
+									icon="delete"
+									[text]="'Remove ' + item.code"
+									[invisible]="busy()"></ui5-table-row-action>
+							}
+						</ui5-table-row>
+					}
+				</ui5-table>
+			} @else {
+				<ui5-text>
+					No change is proposed. Add, replace, strengthen or waive a requirement to start a
+					proposal.
+				</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="profile"
+			label="Profile requirements">
+			<ui5-table
+				accessibleName="Profile requirements"
+				overflowMode="Popin"
+				noDataText="The job profile defines no requirements">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Requirement
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="7rem"
+						popinText="Type">
+						Type
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="8rem"
+						popinText="Proficiency">
+						Proficiency
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="7rem"
+						popinText="Minimum">
+						Minimum
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="6rem"
+						popinText="Mandatory">
+						Mandatory
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of profile(); track item.code) {
+					<ui5-table-row [rowKey]="item.code">
+						<ui5-table-cell>{{ item.name }} ({{ item.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ item.type }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.proficiency || '—' }}</ui5-table-cell>
+						<ui5-table-cell>{{ minimum(item.minimumQuantity, item.unit) }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-checkbox
+								[accessibleName]="item.name + ' mandatory'"
+								[checked]="item.mandatory"
+								[readonly]="true"></ui5-checkbox>
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="history"
+			label="Variance history">
+			<ui5-table
+				accessibleName="Change requests of this position"
+				overflowMode="Popin"
+				noDataText="No change has been requested for this position">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						Requested
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="9rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Requested by">
+						Requested by
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of history(); track row.id) {
+					<ui5-table-row [rowKey]="row.id">
+						<ui5-table-cell>{{ row.requestedAt | hcmDate }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ row.requestType }}
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="status(row.status).status"
+								[label]="status(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.requestedByMe ? 'You' : row.requestedBy }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>
+@if (varianceDialog(); as input) {
+	<ef-hcm-position-variance-dialog
+		[input]="input"
+		(saved)="changed($event)"
+		(closed)="varianceDialog.set(null)"></ef-hcm-position-variance-dialog>
+}
+@if (submitting() && draft(); as request) {
+	<ef-hcm-position-submit-dialog
+		[request]="request"
+		(saved)="changed($event)"
+		(closed)="submitting.set(false)"></ef-hcm-position-submit-dialog>
+}
