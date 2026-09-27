@@ -56,9 +56,9 @@ export function requireDraft(status: ChangeStatus): void {
 	if (status !== 'Draft') throw new HcmDomainError('invalid-state')
 }
 
-/** The requester may cancel a request until it has executed. */
+/** The requester may cancel a request until it has executed; a failed execution changed nothing. */
 export function requireCancellable(status: ChangeStatus): void {
-	if (!['Draft', 'PendingApproval', 'Approved'].includes(status))
+	if (!['Draft', 'PendingApproval', 'Approved', 'Failed'].includes(status))
 		throw new HcmDomainError('invalid-state')
 }
 

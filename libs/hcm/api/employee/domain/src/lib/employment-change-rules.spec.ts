@@ -57,9 +57,9 @@ describe('employment change rules', /** DEC-HCM2-002 and DEC-HCM2-007. */ () => 
 	})
 
 	it('cancels until execution and refuses self-approval', /** REQ-EMPLOYMENT-CHANGES-005. */ () => {
-		for (const status of ['Draft', 'PendingApproval', 'Approved'] as const)
+		for (const status of ['Draft', 'PendingApproval', 'Approved', 'Failed'] as const)
 			expect(/** Evaluate the rule. */ () => requireCancellable(status)).not.toThrow()
-		for (const status of ['Completed', 'Rejected', 'Cancelled', 'Executing', 'Failed'] as const)
+		for (const status of ['Completed', 'Rejected', 'Cancelled', 'Executing'] as const)
 			expect(/** Evaluate the rule. */ () => requireCancellable(status)).toThrow()
 		expect(/** Evaluate the rule. */ () => requireIndependentDecider('toby', 'toby')).toThrow(
 			expect.objectContaining({ code: 'self-approval-forbidden' }),
