@@ -1,0 +1,112 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Assigned probation reviews' },
+		midColumn: { role: 'region', name: 'Selected probation review' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Probation Review"
+		summary="Probation reviews assigned to you; your assessment goes to HR, who decides"
+		[state]="state()"
+		[errorMessage]="message()"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Review filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L2 XL2"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="review-status">
+					Status
+				</ui5-label>
+				<ui5-select
+					id="review-status"
+					accessibleName="Status"
+					[formField]="filterForm.status">
+					<ui5-option value="all">All statuses</ui5-option>
+					@for (item of statuses; track item) {
+						<ui5-option [value]="item">{{ state$(item).label }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[loading]="listState() === 'loading'"
+			accessibleName="Assigned reviews"
+			overflowMode="Popin"
+			[noDataText]="noData()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Employee
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="8rem"
+					popinText="Review">
+					Review
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="8rem"
+					popinText="Due">
+					Due
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="10rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of reviews(); track row.id) {
+				<ui5-table-row
+					[rowKey]="row.id"
+					[interactive]="true"
+					[navigated]="selected() === row.id">
+					<ui5-table-cell>{{ row.workerName }}</ui5-table-cell>
+					<ui5-table-cell>{{ types[row.reviewType] }}</ui5-table-cell>
+					<ui5-table-cell>{{ row.dueDate | hcmDate: 'date' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="state$(row.state).status"
+							[label]="state$(row.state).label"></span>
+					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more reviews"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (reviewId of [id]; track reviewId) {
+			<ef-hcm-reviewer-review
+				slot="midColumn"
+				[reviewId]="reviewId"
+				(assessed)="assess($event)"
+				(closed)="close()"></ef-hcm-reviewer-review>
+		}
+	}
+</ui5-flexible-column-layout>
