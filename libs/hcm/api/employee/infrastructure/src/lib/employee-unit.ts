@@ -15,6 +15,7 @@ import type { DocumentStoragePort } from '@empflowyee/hcm-api-documents-applicat
 import { KyselyEmploymentChangeRepository } from './employment-change-repository'
 import { KyselyEmployeeImportRepository } from './employee-import-repository'
 import { KyselyProbationRepository } from './probation-repository'
+import { KyselyHrServiceRepository } from './hr-service-repository'
 import { KyselyProfilePolicyRepository } from './profile-policy-repository'
 import { KyselySelfServiceRepository } from './self-service-repository'
 
@@ -66,6 +67,7 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 					imports: new KyselyEmployeeImportRepository(scope),
 					sources: this.documents.bind(executor, actor),
 					probation: new KyselyProbationRepository(scope),
+					hrService: new KyselyHrServiceRepository(scope),
 					holds: /** Check one more business grant, once per transaction. */ (permission) => {
 						const code = 'hcm.employee.' + permission
 						let result = held.get(code)
