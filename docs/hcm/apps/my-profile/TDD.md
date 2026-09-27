@@ -92,13 +92,66 @@ duplicate tables. Successful writes use the [shared unit of work](../../tdd/TDD-
 
 ## UX
 
-Floorplan `UX-FP-OBJECT-PAGE`, mode **COMPOSED**. Composed `HcmObjectPage` on its own route, titled with the display name, with Avatar initials and key info. Sections are Overview, Personal, Contact, Addresses, Emergency contacts and family, Employment, Additional information and Privacy. Each editable item uses a native Dialog. Correction actions deep-link to `/employee/my-hr-requests?new=personal-data-correction&field=<code>` when available.
+Floorplan `UX-FP-OBJECT-PAGE`, mode **COMPOSED**. `HcmObjectPage` owns the native
+DynamicPage on this route. Its optional `contextLabel` names the app; `avatarInitials`
+composes a native L Avatar beside the display name and role/department summary, with
+an S Avatar when snapped. A native Form in `hcmHeader` groups visible employment
+facts. Primary flags select the employment and assignment; collection order does not.
+
+Tabs are Personal (default), Employment and conditional Privacy. The feature opts
+into `lazySections` so only the selected tab template is mounted. Personal uses
+fixed native Panels for Basic details, Contact, Addresses, Family and dependants,
+and conditional Additional information. Native FormGroups lay out Personal
+information/Office and Contact details/Emergency contacts side by side where space
+allows. Form properties own responsive columns and label spans. Family tables use
+native pop-ins. Hidden fields and collections remain omitted by the Self projection.
+
+The feature's `editing` signal reveals Personal mutation controls and edit-mode
+explanations only after Edit profile. The header action changes to Done editing.
+Each item still uses the existing Signal Form Dialog and its independent API command;
+no aggregate save is introduced. A successful dialog response replaces the profile
+and announces confirmation. Tab changes reset editing; modal drafts keep the existing
+discard guard. Privacy retains its native Change actions. Correction actions remain
+unavailable until My HR Requests ships.
+
+Capability inspection: installed UI5 2.26 / Fundamental wrappers 0.64.3 provide
+`Panel.fixed`, `Panel.headerText`, `Panel.accessibleRole`, `Form.layout`, `Form.labelSpan`,
+`FormGroup.headerText/headerLevel`, native Tag and DynamicPageTitle heading and
+snappedHeading slots. DynamicPageTitle has no avatar slot: the shared floorplan owns
+the minimal flex alignment of its native Avatar/Title/Text controls and spacing
+between native subsection surfaces. This is domain-neutral composition, with no
+feature CSS, theme selection, custom controls or Shadow DOM styling.
 
 Semantic controls: Personal email and phone use UI5 Link `mailto:`/`tel:` with a _Not verified_ informative ObjectStatus. Birth dates in family use UI5 DatePicker. Relationship type and gender use UI5 Select. Dependant and emergency flags use UI5 CheckBox. Priority uses UI5 StepInput. Preferences use UI5 Select limited to allowed values.
 
-Table declaration: Emergency contacts and dependants: mode **client**, bounded to 20, row actions Edit and Remove.
+Table declaration: Emergency contacts and dependants: mode **client**, bounded to 20,
+row actions Edit and Remove only while editing. The read view separates emergency
+contacts from family/dependants. Personal contacts use read-only FormItems and an
+editable native table when editing. Additional information has client-owned display
+rows and reveals actions only while editing. No table owns HTTP or query state.
 
 Forms: Signal Forms per dialog; server authoritative for edit modes and uniqueness.
+
+### Contact input validation
+
+Personal contact creation and editing, and family/emergency contact numbers, share
+pure validators from `hcm-employee-contract/profile-contact-validation` (exported
+through the contract's public entry point). Signal Forms recompute validity on value
+and type changes; API commands apply the same rules. Controls bind native
+`maxlength`, Email/Tel types, accessible help and persistent errors after blur or
+submit. Correcting an error clears it without requiring another Save attempt.
+
+| Field                       | Requiredness                                        | Bounds and accepted format                                                                                                                                                                                                                                          |
+| --------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Personal email              | Required                                            | Up to 254 input characters, with local part up to 64; unquoted mailbox, one `@`, dotted domain with labels up to 63 characters; no whitespace, leading/trailing/consecutive local-part dots, or domain labels starting/ending with `-`. Plus addressing is allowed. |
+| Mobile phone                | Required                                            | Up to 40 input characters and 6–15 actual digits. Optional leading `+`, digits, single separating spaces/dashes and balanced digit groups in parentheses. Letters, extensions, misplaced `+`, empty/unmatched/nested brackets and repeated separators are rejected. |
+| Relationship contact number | Required for emergency contacts; optional otherwise | Same phone restrictions. An optional blank or whitespace-only value clears the number.                                                                                                                                                                              |
+
+Outer whitespace is trimmed when a valid value is saved; it still counts toward
+the input length limit. Internal whitespace in email is invalid. These checks cover
+supported input syntax, not ownership or reachability; contacts remain unverified.
+The phone digit limits are product input bounds, not country-specific verification.
+An invalid submission retains its draft, focuses the field and sends no command.
 
 Installed capability evidence is in the [HCM-2 inspection](../../tdd/TDD-HCM-2-COMMON.md#native):
 

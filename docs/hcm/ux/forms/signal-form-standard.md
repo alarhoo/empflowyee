@@ -30,6 +30,38 @@ Backend
 - accessible labels/descriptions/errors
 - no duplicated business rules that belong exclusively on the backend
 
+## Field restrictions and feedback
+
+Before implementing a form, record each field's requiredness, data type, length or
+numeric range, accepted format/allowed choices, whitespace normalization and
+cross-field dependencies in the owning TDD. Use existing contract rules and
+explicitly resolve missing business restrictions; sample data is not a policy.
+
+- Apply supported native limits (`maxlength`, `min`, `max`, `step`, selectable
+  options) and appropriate input types. Email/Tel types select input affordances;
+  they do not validate syntax. Inspect the installed wrapper's public properties.
+- Put shared, synchronous shape/length validators and limits in the owning
+  runtime-universal contract. Use them in Signal Forms and server create/update
+  commands. Do not copy regexes into templates or leave validation to Save-only flags.
+- Recompute validity when values, selected input types or conditional requiredness
+  change. Show errors after blur or submission and clear them immediately when
+  corrected. Keep field-level messages visible and associated with the input using
+  accessible descriptions; native popup feedback alone is insufficient.
+- Validate before constructing/sending a command, mark invalid fields touched and
+  focus the first invalid control. Preserve the draft. Server validation is mandatory
+  even when the browser supplies input restrictions.
+- Do not silently sanitize invalid values into valid ones or manually truncate
+  existing values when a field type changes. Native typing limits coexist with
+  validation of pasted/programmatic/previously stored values. Phone length counts
+  digits separately from display punctuation; numeric fields validate magnitude.
+- Test empty and whitespace values, exact and exceeded bounds, malformed formats,
+  paste, type changes, optional-to-required transitions and error correction. Assert
+  that invalid submission makes no HTTP request and direct API calls also reject it.
+  Valid syntax does not establish contact ownership or reachability.
+
+My Profile's concrete email and phone rules are recorded in its
+[TDD](../../apps/my-profile/TDD.md#contact-input-validation).
+
 Storybook must include valid, invalid, saving, server-error and read-only examples.
 
 ## Implemented library

@@ -50,6 +50,7 @@ export default defineConfig({
 		include: [
 			'libs/hcm/api/runtime/module/src/lib/hcm-api-runtime-module.spec.ts',
 			'libs/hcm/contracts/runtime/**/*.spec.ts',
+			'libs/hcm/contracts/employee/**/*.spec.ts',
 		],
 		testTimeout: 15000,
 	},

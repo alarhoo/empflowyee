@@ -46,25 +46,31 @@
 				[required]="true">
 				{{ email() ? 'Email' : 'Phone number' }}
 			</ui5-label>
-			<ui5-input
-				id="my-profile-contact-value"
-				[type]="email() ? 'Email' : 'Tel'"
-				[accessibleName]="email() ? 'Email' : 'Phone number'"
-				[formField]="fields.value"
-				[disabled]="draft.saving()"
-				[valueState]="
-					fields.value().touched() && (fields.value().invalid() || shapeInvalid())
-						? 'Negative'
-						: 'None'
-				">
-				<ui5-text slot="valueStateMessage">
-					{{
-						email()
-							? 'Enter an email address such as name@example.com.'
-							: 'Enter a phone number of digits, spaces, brackets or dashes, optionally starting with +.'
-					}}
-				</ui5-text>
-			</ui5-input>
+			<div>
+				<ui5-input
+					id="my-profile-contact-value"
+					[type]="email() ? 'Email' : 'Tel'"
+					[accessibleName]="email() ? 'Email' : 'Phone number'"
+					accessibleDescriptionRef="my-profile-contact-help my-profile-contact-error"
+					[required]="true"
+					[maxlength]="valueMaxLength()"
+					[formField]="fields.value"
+					[disabled]="draft.saving()"
+					(focusout)="fields.value().markAsTouched()"
+					[valueState]="fields.value().touched() && fields.value().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">{{ fields.value().errors()[0]?.message }}</ui5-text>
+				</ui5-input>
+				<div>
+					<ui5-text id="my-profile-contact-help">{{ valueHelp() }}</ui5-text>
+				</div>
+				<div
+					id="my-profile-contact-error"
+					aria-live="polite">
+					@if (fields.value().touched() && fields.value().invalid()) {
+						<ui5-text>{{ fields.value().errors()[0]?.message }}</ui5-text>
+					}
+				</div>
+			</div>
 		</ui5-form-item>
 		@if (editing()) {
 			<ui5-form-item>
