@@ -16,6 +16,7 @@ import {
 	EmploymentChanges,
 	MyProfile,
 	ProbationManagement,
+	ProbationReview,
 	ProfileConfiguration,
 	TeamDirectory,
 } from '@empflowyee/hcm-api-employee-application'
@@ -35,6 +36,7 @@ import {
 	EmploymentChangesController,
 	MyProfileController,
 	ProbationManagementController,
+	ProbationReviewController,
 	ProfileConfigurationController,
 	TeamController,
 } from '@empflowyee/hcm-api-employee-transport'
@@ -62,6 +64,7 @@ import {
 		EmploymentChangesController,
 		EmployeeImportController,
 		ProbationManagementController,
+		ProbationReviewController,
 	],
 	providers: [
 		{
@@ -115,6 +118,12 @@ import {
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the probation management use cases. */ (unit: EmployeeUnitOfWork) =>
 				new ProbationManagement(unit),
+		},
+		{
+			provide: ProbationReview,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the probation reviewer use cases. */ (unit: EmployeeUnitOfWork) =>
+				new ProbationReview(unit),
 		},
 		{
 			provide: EmployeeRecords,
