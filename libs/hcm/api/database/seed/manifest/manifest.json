@@ -244,6 +244,15 @@
 			"requiresMigrations": ["000032_employee_probation.sql"],
 			"apply": "employee.operations.2.apply.sql",
 			"reset": "employee.operations.2.reset.sql"
+		},
+		{
+			"id": "employee.operations",
+			"domain": "employee",
+			"version": 3,
+			"dependsOn": ["employee.operations@2"],
+			"requiresMigrations": ["000033_employee_hr_service.sql"],
+			"apply": "employee.operations.3.apply.sql",
+			"reset": "employee.operations.3.reset.sql"
 		}
 	]
 }
