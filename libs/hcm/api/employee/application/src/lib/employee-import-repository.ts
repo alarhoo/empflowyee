@@ -191,6 +191,8 @@ export interface EmployeeImportRepository {
 		outcome: { status: RowStatus; resultWorkerId?: string | null; failureCode?: string | null },
 	): Promise<void>
 	issues(runId: string, rowIds?: string[]): Promise<ImportIssueRow[]>
+	/** Issues that concern the whole file rather than one row. */
+	runIssues(runId: string): Promise<ImportIssueRow[]>
 	/** Run work in a savepoint: a failure rolls back only that work and is rethrown. */
 	savepoint<T>(work: () => Promise<T>): Promise<T>
 	/** Names and numbers of workers for candidate display. */
