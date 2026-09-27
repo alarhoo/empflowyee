@@ -28,7 +28,8 @@ validation record pass.
 | 12    | Positions app, with migration `000028` and `access.discovery@7`                                                                                 | Released    | [Validation](../testing/HCM-2-POSITIONS-VALIDATION.md)                             |
 | 12    | Position Requirements app, with `access.discovery@8`                                                                                            | Released    | [Validation](../testing/HCM-2-POSITION-REQUIREMENTS-VALIDATION.md)                 |
 | 13    | Employee Records app, including worker creation and merge                                                                                       | Released    | [Validation](../testing/HCM-2-EMPLOYEE-RECORDS-VALIDATION.md)                      |
-| 14–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
+| 14    | Workforce changes foundation: migration `000029`, facts and change-context ports, `workforce.foundation@4`                                      | Delivered   | [Validation](../testing/HCM-2-WORKFORCE-CHANGES-FOUNDATION-VALIDATION.md)          |
+| 15–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
 `codex/hcm-2-catalogue-organization-structure`. Each step now also has its own branch,
@@ -56,6 +57,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 12   | `codex/hcm-2-position-requirements`                 |
 | 2    | `codex/hcm-2-ux-wizard-floorplan`                   |
 | 13   | `codex/hcm-2-employee-records`                      |
+| 14   | `codex/hcm-2-employee-workforce-changes-foundation` |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -77,6 +79,9 @@ migrations of step 12 became `000026`–`000027`, three above their planned numb
   Every later migration the approved plan numbers now takes the number four above its planned
   one: the workforce changes, import, probation and HR service migrations become
   `000029`–`000032`.
+- The workforce changes foundation in step 14 is `000029_employee_workforce_changes.sql`. Its
+  event types arrive as the forward seed `workforce.foundation@4`, because `workforce.foundation@3`
+  is applied and immutable.
 
 Seed modules are immutable once applied. `job.architecture@1` therefore carries only the
 catalogue part delivered in step 11; the position part planned for it arrives in step 12 as
