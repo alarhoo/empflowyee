@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **9 of 18 HCM-2 apps released; step 11 is complete.** Delivery follows the approved
+Status: **10 of 18 HCM-2 apps released; step 12 is in progress.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -25,6 +25,7 @@ validation record pass.
 | 11    | Job architecture catalogue foundation: migration `000024`, catalogue part of `job.architecture@1`                                               | Delivered   | [Validation](../testing/HCM-2-JOB-ARCHITECTURE-CATALOGUE-FOUNDATION-VALIDATION.md) |
 | 11    | Job Catalogue app                                                                                                                               | Released    | [Validation](../testing/HCM-2-JOB-CATALOGUE-VALIDATION.md)                         |
 | 12    | Positions foundation: migrations `000026`–`000027`, position ports, `job.architecture@2`                                                        | Delivered   | [Validation](../testing/HCM-2-POSITIONS-FOUNDATION-VALIDATION.md)                  |
+| 12    | Positions app, with migration `000028` and `access.discovery@7`                                                                                 | Released    | [Validation](../testing/HCM-2-POSITIONS-VALIDATION.md)                             |
 | 12–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -49,6 +50,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 11   | `codex/hcm-2-job-catalogue`                         |
 | 3    | `codex/hcm-2-field-cipher`                          |
 | 12   | `codex/hcm-2-job-architecture-positions-foundation` |
+| 12   | `codex/hcm-2-positions`                             |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -62,10 +64,14 @@ Migration numbers are assigned when a migration is added:
 - Step 3 was delivered after step 11 because the positions foundation needs it. It added
   `000025_field_cipher_keys.sql`.
 
-The job architecture catalogue of step 11 therefore became `000024`. Every migration the approved
-plan numbers `000023` or later now takes the number three above its planned one: the positions
-migrations of step 12 become `000026`–`000027`, and the workforce changes, import, probation and
-HR service migrations become `000028`–`000031`.
+The job architecture catalogue of step 11 therefore became `000024`, and the positions
+migrations of step 12 became `000026`–`000027`, three above their planned numbers.
+
+- The Positions app in step 12 added `000028_position_change_request_details.sql` for the
+  proposed name and reporting line and the sealed withdrawal reason the approved API carries.
+  Every later migration the approved plan numbers now takes the number four above its planned
+  one: the workforce changes, import, probation and HR service migrations become
+  `000029`–`000032`.
 
 Seed modules are immutable once applied. `job.architecture@1` therefore carries only the
 catalogue part delivered in step 11; the position part planned for it arrives in step 12 as
@@ -83,6 +89,7 @@ app approval binds.
 | DEC-HCM2-018 | Identification Types and Lookup Values have the same gap: the FDDs name HR Operations as a reader, but discovery is Administration-only. Should HR discover them?                    | Yes. `access.discovery@4` grants `hr-specialist` discovery for both, and both join the HR specialist catalogue under Workforce Operations.                                                                                                                     |
 | DEC-HCM2-019 | Employee Profile Configuration has the same gap: the FDD names tenant administrators as readers, but only HR could discover it. Should administrators discover it?                   | Yes, applied by the precedent of DEC-HCM2-017 and DEC-HCM2-018 without a separate product-owner answer. `access.discovery@5` grants `tenant-administrator` discovery, and the app joins the Tenant Administration catalogue under Reference Data and Policies. |
 | DEC-HCM2-020 | Job Catalogue has the same gap: the FDD names HR Operations as a reader, but only administrators could discover it. Should HR discover it?                                           | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-019 without a separate product-owner answer. `access.discovery@6` grants `hr-specialist` discovery, and the app joins the HR catalogue under Configuration and Service.                              |
+| DEC-HCM2-021 | Positions has the same gap for approvers: tenant administrators decide position change requests but could not discover the app. Should they discover it?                             | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-020 without a separate product-owner answer. `access.discovery@7` grants `tenant-administrator` discovery, and the app joins the Tenant Administration catalogue next to Job Catalogue.              |
 
 The open points found during step 5 are listed in the
 [Organization Structure validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md#open-points).
