@@ -35,6 +35,7 @@ validation record pass.
 | 16   | Probation foundation: migration `000032`, `workforce.foundation@5`, `employee.operations@2`                                                     | Delivered   | [Validation](../testing/HCM-2-PROBATION-FOUNDATION-VALIDATION.md)                  |
 | 16   | Probation Management app                                                                                                                        | Released    | [Validation](../testing/HCM-2-PROBATION-MANAGEMENT-VALIDATION.md)                  |
 | 16   | Probation Review app                                                                                                                            | Released    | [Validation](../testing/HCM-2-PROBATION-REVIEW-VALIDATION.md)                      |
+| 17   | HR service foundation: migration `000033`, service attachments, `employee.operations@3`                                                         | Delivered   | [Validation](../testing/HCM-2-HR-SERVICE-FOUNDATION-VALIDATION.md)                 |
 | 17   | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -70,6 +71,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 16   | `codex/hcm-2-employee-probation-foundation`         |
 | 16   | `codex/hcm-2-probation-management`                  |
 | 16   | `codex/hcm-2-probation-review`                      |
+| 17   | `codex/hcm-2-employee-hr-service-foundation`        |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -98,7 +100,7 @@ migrations of step 12 became `000026`–`000027`, three above their planned numb
   employee import migration follows as `000031_employee_import.sql`, with its published template
   as the new seed module `employee.operations@1`.
 - The probation foundation in step 16 is `000032_employee_probation.sql`, and the HR service
-  migration follows as `000033`. Because `employee.operations@1` was applied with the import
+  foundation in step 17 is `000033_employee_hr_service.sql`. Because `employee.operations@1` was applied with the import
   template, its planned probation and HR service content arrives as the forward modules
   `employee.operations@2` and `@3`; the probation event types arrive as `workforce.foundation@5`.
 
