@@ -73,7 +73,7 @@ export class HcmWizardPage {
 	/** The user chose an earlier or reachable step; moving back never needs validation. */
 	readonly stepChange = output<string>()
 	readonly finish = output<void>()
-	readonly cancel = output<void>()
+	readonly cancelled = output<void>()
 	readonly retry = output<void>()
 	readonly steps = contentChildren(HcmWizardStep)
 	readonly index = computed(
