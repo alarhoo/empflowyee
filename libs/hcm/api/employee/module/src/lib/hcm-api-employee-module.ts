@@ -3,11 +3,14 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
+import { HcmJobArchitectureModule } from '@empflowyee/hcm-api-job-architecture-module'
+import { PositionReadPortBinder } from '@empflowyee/hcm-api-job-architecture-application'
 import {
 	EmployeeDirectory,
 	EmployeePortBinder,
 	EmployeeRecords,
 	EmployeeUnitOfWork,
+	EmploymentChanges,
 	MyProfile,
 	ProfileConfiguration,
 	TeamDirectory,
@@ -24,6 +27,7 @@ import {
 import {
 	DirectoryController,
 	EmployeeRecordsController,
+	EmploymentChangesController,
 	MyProfileController,
 	ProfileConfigurationController,
 	TeamController,
@@ -36,22 +40,29 @@ import {
  */
 @Global()
 @Module({
-	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
+	imports: [
+		HcmRuntimeModule,
+		HcmAccessControlModule,
+		HcmWorkforceFoundationModule,
+		HcmJobArchitectureModule,
+	],
 	controllers: [
 		ProfileConfigurationController,
 		DirectoryController,
 		TeamController,
 		MyProfileController,
 		EmployeeRecordsController,
+		EmploymentChangesController,
 	],
 	providers: [
 		{
 			provide: EmployeeUnitOfWork,
-			inject: [HcmAccessDatabase, WorkforcePortBinder],
+			inject: [HcmAccessDatabase, WorkforcePortBinder, PositionReadPortBinder],
 			useFactory: /** Bind employee adapters to the existing authorized transaction boundary. */ (
 				database: HcmAccessDatabase | null,
 				workforce: WorkforcePortBinder,
-			) => new KyselyEmployeeUnitOfWork(database, workforce),
+				positions: PositionReadPortBinder,
+			) => new KyselyEmployeeUnitOfWork(database, workforce, positions),
 		},
 		{
 			provide: ProfileConfiguration,
@@ -76,6 +87,12 @@ import {
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the self-service use cases. */ (unit: EmployeeUnitOfWork) =>
 				new MyProfile(unit),
+		},
+		{
+			provide: EmploymentChanges,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the employment change use cases. */ (unit: EmployeeUnitOfWork) =>
+				new EmploymentChanges(unit),
 		},
 		{
 			provide: EmployeeRecords,
