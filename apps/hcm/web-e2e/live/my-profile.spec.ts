@@ -64,8 +64,9 @@ test('reads the own profile with edit modes and read-only employment', /** REQ-0
 	await expect(profile(page)).toContainText('Michael Scott')
 	await section(page, 'Personal')
 	await expect(profile(page)).toContainText('Legal first name')
-	await expect(profile(page)).toContainText('Change through HR')
-	await expect(profile(page).getByRole('button', { name: /correction/i })).toHaveCount(0)
+	await expect(
+		profile(page).getByRole('link', { name: 'Request correction of Legal first name' }),
+	).toBeVisible()
 	expect(await violations(page)).toEqual([])
 	await section(page, 'Employment')
 	await expect(profile(page)).toContainText('Primary employment')
