@@ -1,5 +1,12 @@
 # empFLOWyee HCM-2 Domain Authority v1.0.0
 
+## Implemented screen updates
+
+Org Chart provides a connected D3 hierarchy and the native Tree view, selected
+with Chart / Tree controls. Both use the same paged API and person details.
+See the [Org Chart design](docs/hcm/apps/org-chart/TDD.md#connected-chart-composition)
+and [validation record](docs/hcm/testing/HCM-2-ORG-CHART-VALIDATION.md) for scope and checks.
+
 This overlay promotes the detailed HCM-2 business/data-model knowledge into **current repository authority** without carrying historical implementation provenance.
 
 It covers:

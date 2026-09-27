@@ -47,6 +47,21 @@
 				{{ searchMessage() }}
 			</ui5-message-strip>
 		}
+		<ui5-segmented-button
+			accessibleName="Hierarchy view"
+			[itemsFitContent]="true"
+			(ui5SelectionChange)="setView($any($event.detail.selectedItems))">
+			<ui5-segmented-button-item
+				data-view="chart"
+				[selected]="view() === 'chart'">
+				Chart
+			</ui5-segmented-button-item>
+			<ui5-segmented-button-item
+				data-view="tree"
+				[selected]="view() === 'tree'">
+				Tree
+			</ui5-segmented-button-item>
+		</ui5-segmented-button>
 		@if (results(); as found) {
 			<ui5-list
 				accessibleName="Search results"
@@ -67,6 +82,24 @@
 					(click)="search(true)">
 					More results
 				</ui5-button>
+			}
+		} @else if (view() === 'chart') {
+			@if (roots().length) {
+				<ef-hcm-hierarchy-chart
+					[nodes]="chartNodes()"
+					[selectedId]="selectedId()"
+					(selected)="select($event)"
+					(toggled)="toggleNode($event)"
+					(more)="moreReports($event)"></ef-hcm-hierarchy-chart>
+			} @else {
+				<ui5-message-strip
+					design="Information"
+					[hideCloseButton]="true">
+					No one is currently placed in the reporting structure.
+				</ui5-message-strip>
+			}
+			@if (rootCursor()) {
+				<ui5-button (click)="moreRoots()">Load more people</ui5-button>
 			}
 		} @else {
 			<ui5-tree
