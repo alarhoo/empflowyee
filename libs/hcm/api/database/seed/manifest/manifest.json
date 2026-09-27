@@ -217,6 +217,15 @@
 			"requiresMigrations": ["000005_identity_access_spine.sql"],
 			"apply": "access.discovery.9.apply.sql",
 			"reset": "access.discovery.9.reset.sql"
+		},
+		{
+			"id": "employee.operations",
+			"domain": "employee",
+			"version": 1,
+			"dependsOn": ["employee.profile@1", "identity.accounts@1"],
+			"requiresMigrations": ["000031_employee_import.sql"],
+			"apply": "employee.operations.1.apply.sql",
+			"reset": "employee.operations.1.reset.sql"
 		}
 	]
 }
