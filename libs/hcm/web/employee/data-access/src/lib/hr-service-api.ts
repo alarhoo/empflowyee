@@ -8,7 +8,11 @@ import type {
 	HrServiceConfigPage,
 	HrServiceMessagePage,
 	HrServiceRequestDto,
+	HrServiceMessageSelfPage,
 	HrServiceRequestPage,
+	HrServiceRequestSelfDto,
+	HrServiceRequestSelfPage,
+	RequestTypeOptionDto,
 } from '@empflowyee/hcm-employee-contract'
 
 const limit = 15000
@@ -138,6 +142,90 @@ export class HrServiceDeskApi {
 			? this.http.put<HrServiceConfigDto>(url, body, this.headers(key))
 			: this.http.post<HrServiceConfigDto>(url, body, this.headers(key))
 		return call.pipe(timeout(limit))
+	}
+}
+
+/** My HR Requests API for the requester's own requests. */
+@Injectable({ providedIn: 'root' })
+export class MyHrRequestsApi {
+	private readonly http = inject(HttpClient)
+	private readonly base = '/api/v1/employee/me/hr-requests'
+
+	/** An encoded own request path. */
+	private request(id: string): string {
+		return `${this.base}/${encodeURIComponent(id)}`
+	}
+
+	/** Idempotency headers of a command. */
+	private headers(key: string) {
+		return { headers: { 'Idempotency-Key': key } }
+	}
+
+	/** One page of own requests for a view. */
+	list(query: { view?: string; cursor?: string }) {
+		return this.http
+			.get<HrServiceRequestSelfPage>(this.base, { params: params(query) })
+			.pipe(timeout(limit))
+	}
+
+	/** One own request. */
+	read(id: string) {
+		return this.http.get<HrServiceRequestSelfDto>(this.request(id)).pipe(timeout(limit))
+	}
+
+	/** One page of the employee-visible conversation, oldest first. */
+	messages(id: string, cursor?: string) {
+		return this.http
+			.get<HrServiceMessageSelfPage>(`${this.request(id)}/messages`, {
+				params: params({ cursor }, '50'),
+			})
+			.pipe(timeout(limit))
+	}
+
+	/** Request types the caller may raise. */
+	types() {
+		return this.http
+			.get<{ items: RequestTypeOptionDto[] }>('/api/v1/employee/me/hr-request-types')
+			.pipe(timeout(limit))
+	}
+
+	/** Raise a request with an optional attachment. */
+	create(metadata: Record<string, unknown>, file: File | null, key: string) {
+		return this.http
+			.post<HrServiceRequestSelfDto>(this.base, multipart(metadata, file), this.headers(key))
+			.pipe(timeout(60000))
+	}
+
+	/** Reply to HR with an optional attachment. */
+	message(id: string, metadata: Record<string, unknown>, file: File | null, key: string) {
+		return this.http
+			.post<HrServiceRequestSelfDto>(
+				`${this.request(id)}/messages`,
+				multipart(metadata, file),
+				this.headers(key),
+			)
+			.pipe(timeout(60000))
+	}
+
+	/** Cancel or reopen an own request. */
+	transition(
+		id: string,
+		operation: 'cancel' | 'reopen',
+		body: Record<string, unknown>,
+		key: string,
+	) {
+		return this.http
+			.post<HrServiceRequestSelfDto>(`${this.request(id)}/${operation}`, body, this.headers(key))
+			.pipe(timeout(limit))
+	}
+
+	/** Download an employee-visible attachment through authenticated HTTP. */
+	attachment(id: string, attachmentId: string) {
+		return this.http
+			.get(`${this.request(id)}/attachments/${encodeURIComponent(attachmentId)}/download`, {
+				responseType: 'blob',
+			})
+			.pipe(timeout(60000))
 	}
 }
 
