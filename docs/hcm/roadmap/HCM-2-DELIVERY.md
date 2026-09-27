@@ -32,6 +32,7 @@ validation record pass.
 | 14    | Employment Changes app, with `access.discovery@9`                                                                                               | Released    | [Validation](../testing/HCM-2-EMPLOYMENT-CHANGES-VALIDATION.md)                    |
 | 15    | Documents import-source extension: migration `000030`, `DocumentStoragePort`                                                                    | Delivered   | [Validation](../testing/HCM-2-DOCUMENTS-IMPORT-SOURCE-VALIDATION.md)               |
 | 15    | Employee Import app, with migration `000031` and `employee.operations@1`                                                                        | Released    | [Validation](../testing/HCM-2-EMPLOYEE-IMPORT-VALIDATION.md)                       |
+| 16    | Probation foundation: migration `000032`, `workforce.foundation@5`, `employee.operations@2`                                                     | Delivered   | [Validation](../testing/HCM-2-PROBATION-FOUNDATION-VALIDATION.md)                  |
 | 16–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -64,6 +65,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 14   | `codex/hcm-2-employment-changes`                    |
 | 15   | `codex/hcm-2-documents-import-source`               |
 | 15   | `codex/hcm-2-employee-import`                       |
+| 16   | `codex/hcm-2-employee-probation-foundation`         |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -91,6 +93,10 @@ migrations of step 12 became `000026`–`000027`, three above their planned numb
 - The documents import-source extension in step 15 is `000030_document_import_sources.sql`; the
   employee import migration follows as `000031_employee_import.sql`, with its published template
   as the new seed module `employee.operations@1`.
+- The probation foundation in step 16 is `000032_employee_probation.sql`, and the HR service
+  migration follows as `000033`. Because `employee.operations@1` was applied with the import
+  template, its planned probation and HR service content arrives as the forward modules
+  `employee.operations@2` and `@3`; the probation event types arrive as `workforce.foundation@5`.
 
 Seed modules are immutable once applied. `job.architecture@1` therefore carries only the
 catalogue part delivered in step 11; the position part planned for it arrives in step 12 as
