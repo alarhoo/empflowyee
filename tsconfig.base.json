@@ -259,6 +259,9 @@
 			"@empflowyee/hcm-web-employee-data-access": [
 				"./libs/hcm/web/employee/data-access/src/index.ts"
 			],
+			"@empflowyee/hcm-web-employee-feature-my-hr-requests": [
+				"./libs/hcm/web/employee/feature-my-hr-requests/src/index.ts"
+			],
 			"@empflowyee/hcm-web-employee-feature-my-profile": [
 				"./libs/hcm/web/employee/feature-my-profile/src/index.ts"
 			],
