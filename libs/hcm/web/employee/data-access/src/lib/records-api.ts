@@ -190,6 +190,8 @@ const recordFieldMessages: Record<string, (label: string) => string> = {
 	overlap: /** Primary. */ () => 'Another primary address already starts on or after that date.',
 	'no-assignment': /** Manager. */ () => 'The manager has no assignment on the hire date.',
 	same: /** Merge. */ () => 'Choose a different record to keep.',
+	'too-many': /** Limits. */ () =>
+		'No more entries of this type can be added. Deactivate one that is no longer used first.',
 }
 
 /** Translate stable server classifications for Employee Records. */
