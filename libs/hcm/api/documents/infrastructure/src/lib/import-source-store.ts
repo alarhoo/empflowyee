@@ -8,7 +8,10 @@ import {
 	ImportSourceError,
 	type ImportSourceFile,
 	type ImportSourceMediaType,
+	type DocumentFile,
 	type ImportSourceStore,
+	type OpenedAttachment,
+	type StagedAttachment,
 	type StagedImportSource,
 } from '@empflowyee/hcm-api-documents-application'
 
@@ -22,6 +25,11 @@ async function collect(bytes: AsyncIterable<Uint8Array>): Promise<Buffer> {
 		chunks.push(Buffer.from(chunk))
 	}
 	return Buffer.concat(chunks)
+}
+
+/** Yield one buffer as a byte stream. */
+async function* stream(bytes: Buffer): AsyncGenerator<Uint8Array> {
+	yield bytes
 }
 
 /** Import sources in one authorized transaction. */
@@ -66,6 +74,44 @@ class KyselyImportSourceStore implements ImportSourceStore {
 			return { contentType: file.mediaType, bytes: await collect(opened.bytes) }
 		} finally {
 			await opened.close()
+		}
+	}
+
+	/** Verify, stage and publish an attachment, then record its Ready service-attachment blob. */
+	async stageAttachment(input: {
+		fileName: string
+		mediaType: string
+		bytes: Buffer
+	}): Promise<StagedAttachment> {
+		const file = await this.files.stage(stream(input.bytes), input.fileName, input.mediaType)
+		await this.files.publish(file)
+		const blobId = randomUUID()
+		const insert = sql`INSERT INTO hcm.document_blob(tenant_id,id,storage_key,sha256,byte_length,media_type,safe_filename,state,created_by_account_id,purpose)
+			VALUES(${this.actor.tenantId},${blobId}::uuid,${file.key}::uuid,${file.sha256},${file.byteLength},${file.mediaType},${file.filename},'Ready',${this.actor.accountId},'service-attachment')`
+		await insert.execute(this.executor)
+		return {
+			blobId,
+			fileName: file.filename,
+			mediaType: file.mediaType,
+			sizeBytes: file.byteLength,
+		}
+	}
+
+	/** Open a Ready service attachment of the caller's tenant. */
+	async openAttachment(blobId: string): Promise<OpenedAttachment> {
+		const file = (
+			await sql<DocumentFile>`SELECT storage_key AS key,sha256,byte_length AS "byteLength",media_type AS "mediaType",safe_filename AS filename
+				FROM hcm.document_blob WHERE tenant_id=${this.actor.tenantId} AND id=${blobId}::uuid AND purpose='service-attachment' AND state='Ready'`.execute(
+				this.executor,
+			)
+		).rows[0]
+		if (!file) throw new DocumentError('not-found')
+		const opened = await this.files.open(file)
+		return {
+			...opened,
+			fileName: file.filename,
+			mediaType: file.mediaType,
+			sizeBytes: file.byteLength,
 		}
 	}
 }
