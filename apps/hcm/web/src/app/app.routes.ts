@@ -248,6 +248,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/probation-management',
+		data: { catalogId: 'PROBATION_MANAGEMENT' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load probation cases, reviews and HR decisions. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-probation-management').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.PROBATION_MANAGEMENT_ROUTES,
+			),
+	},
+	{
 		path: 'employee/my-profile',
 		data: { catalogId: 'MY_PROFILE' },
 		canMatch: [hcmRouteAccess],

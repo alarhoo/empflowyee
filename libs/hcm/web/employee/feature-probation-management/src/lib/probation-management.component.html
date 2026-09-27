@@ -1,0 +1,176 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Probation cases' },
+		midColumn: { role: 'region', name: 'Selected probation review' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Probation Management"
+		summary="Employees in probation, their reviews and the HR decision on each"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Case view and filters"
+			accessibleMode="Edit"
+			layout="S1 M3 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Case view"
+					(ui5SelectionChange)="chooseView($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-view="due-soon"
+						[selected]="view() === 'due-soon'">
+						Due soon
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-view="overdue"
+						[selected]="view() === 'overdue'">
+						Overdue
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-view="all"
+						[selected]="view() === 'all'">
+						All
+					</ui5-segmented-button-item>
+				</ui5-segmented-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-query">
+					Employee
+				</ui5-label>
+				<ui5-input
+					id="probation-query"
+					accessibleName="Search employee name or number"
+					type="Search"
+					[formField]="filterForm.q"
+					(keyup.enter)="load(false)"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[loading]="listState() === 'loading'"
+			accessibleName="Probation cases"
+			overflowMode="Popin"
+			[noDataText]="noData()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Employee
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="50"
+					minWidth="10rem"
+					popinText="Designation">
+					Designation
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="8rem"
+					popinText="Hired">
+					Hired
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="8rem"
+					popinText="Probation ends">
+					Probation ends
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="70"
+					minWidth="8rem"
+					popinText="Probation">
+					Probation
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="12rem"
+					popinText="Next review">
+					Next review
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of cases(); track row.employmentId) {
+				<ui5-table-row
+					[rowKey]="row.employmentId"
+					[interactive]="true"
+					[navigated]="!!row.nextReview && selected() === row.nextReview.id">
+					<ui5-table-cell>{{ row.workerName }} ({{ row.workerNumber }})</ui5-table-cell>
+					<ui5-table-cell>{{ row.designation ?? '—' }}</ui5-table-cell>
+					<ui5-table-cell>{{ row.hireDate | hcmDate: 'date' }}</ui5-table-cell>
+					<ui5-table-cell>
+						{{ row.probationEndDate ? (row.probationEndDate | hcmDate: 'date') : '—' }}
+					</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="probation(row.probationStatus).status"
+							[label]="probation(row.probationStatus).label"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						@if (row.nextReview; as next) {
+							{{ types[next.reviewType] }}, due {{ next.dueDate | hcmDate: 'date' }}
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="state$(next.state).status"
+								[label]="state$(next.state).label"></span>
+						} @else {
+							No open review
+						}
+					</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(row.employmentId)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more cases"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (reviewId of [id]; track reviewId) {
+			<ef-hcm-probation-case-review
+				slot="midColumn"
+				[reviewId]="reviewId"
+				[refresh]="refresh()"
+				(dialogRequested)="dialog.set($event)"
+				(opened)="openReview($event)"
+				(closed)="close()"></ef-hcm-probation-case-review>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-probation-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialog.set(null)"></ef-hcm-probation-dialog>
+}

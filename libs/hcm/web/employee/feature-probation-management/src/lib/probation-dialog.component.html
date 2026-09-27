@@ -1,0 +1,248 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="copy().title"
+	[accessibleName]="copy().title"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="copy().title + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Effect</ui5-label>
+			<ui5-text>{{ copy().text }}</ui5-text>
+		</ui5-form-item>
+		@if (mode() === 'schedule') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-employment"
+					[required]="true">
+					Employee
+				</ui5-label>
+				<ef-hcm-probation-option-box
+					kind="employments"
+					label="Employee"
+					controlId="probation-employment"
+					[required]="true"
+					[invalid]="touched() && !employment()"
+					message="Choose an employee in probation."
+					[selected]="employment()"
+					(selectedChange)="employment.set($event)"></ef-hcm-probation-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-type"
+					[required]="true">
+					Review type
+				</ui5-label>
+				<ui5-select
+					id="probation-type"
+					accessibleName="Review type"
+					[formField]="fields.reviewType"
+					[disabled]="draft.saving()">
+					@for (type of reviewTypes; track type) {
+						<ui5-option [value]="type">{{ typeLabels[type] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-period-start"
+					[required]="true">
+					Period start
+				</ui5-label>
+				<ui5-date-picker
+					id="probation-period-start"
+					accessibleName="Period start"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[formField]="fields.periodStart"
+					[disabled]="draft.saving()"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-period-end"
+					[required]="true">
+					Period end
+				</ui5-label>
+				<ui5-date-picker
+					id="probation-period-end"
+					accessibleName="Period end"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[minDate]="model().periodStart"
+					[formField]="fields.periodEnd"
+					[disabled]="draft.saving()"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-due"
+					[required]="true">
+					Due date
+				</ui5-label>
+				<ui5-date-picker
+					id="probation-due"
+					accessibleName="Due date"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[minDate]="model().periodStart"
+					[formField]="fields.dueDate"
+					[disabled]="draft.saving()"></ui5-date-picker>
+			</ui5-form-item>
+		}
+		@if (mode() === 'schedule' || mode() === 'reviewer') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-reviewer"
+					[required]="mode() === 'reviewer'">
+					Reviewer
+				</ui5-label>
+				<ef-hcm-probation-option-box
+					kind="reviewers"
+					label="Reviewer"
+					controlId="probation-reviewer"
+					[required]="mode() === 'reviewer'"
+					[invalid]="touched() && mode() === 'reviewer' && !reviewer()"
+					message="Choose a reviewer."
+					[selected]="reviewer()"
+					(selectedChange)="reviewer.set($event)"></ef-hcm-probation-option-box>
+			</ui5-form-item>
+		}
+		@if (mode() === 'decision') {
+			@if (review(); as current) {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Probation ends</ui5-label>
+					<ui5-text>{{ current.context.probationEndDate | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-outcome"
+					[required]="true">
+					Outcome
+				</ui5-label>
+				<ui5-select
+					id="probation-outcome"
+					accessibleName="Outcome"
+					[formField]="fields.outcome"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.outcome().touched() && fields.outcome().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-option value="">Choose an outcome</ui5-option>
+					@for (outcome of outcomes(); track outcome) {
+						<ui5-option [value]="outcome">{{ outcomeLabels[outcome] }}</ui5-option>
+					}
+					<ui5-text slot="valueStateMessage">Choose an outcome.</ui5-text>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-effective"
+					[required]="true">
+					Effective date
+				</ui5-label>
+				<ui5-date-picker
+					id="probation-effective"
+					accessibleName="Effective date"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[minDate]="review()?.context?.hireDate ?? ''"
+					[formField]="fields.effectiveDate"
+					[disabled]="draft.saving()"></ui5-date-picker>
+			</ui5-form-item>
+			@if (model().outcome === 'Extend') {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="probation-extended"
+						[required]="true">
+						Extended end date
+					</ui5-label>
+					<ui5-date-picker
+						id="probation-extended"
+						accessibleName="Extended end date"
+						valueFormat="yyyy-MM-dd"
+						displayFormat="medium"
+						[minDate]="review()?.context?.probationEndDate ?? ''"
+						[maxDate]="review()?.maxExtendedEndDate ?? ''"
+						[formField]="fields.extendedProbationEndDate"
+						[disabled]="draft.saving()"
+						[valueState]="
+							fields.extendedProbationEndDate().touched() &&
+							fields.extendedProbationEndDate().invalid()
+								? 'Negative'
+								: 'None'
+						">
+						<ui5-text slot="valueStateMessage">
+							Choose a date up to {{ review()?.maxExtendedEndDate | hcmDate: 'date' }}.
+						</ui5-text>
+					</ui5-date-picker>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="probation-evidence">
+					Evidence reference
+				</ui5-label>
+				<ui5-input
+					id="probation-evidence"
+					accessibleName="Evidence reference"
+					[maxlength]="200"
+					[formField]="fields.evidenceReference"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="probation-reason"
+				[required]="true">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="probation-reason"
+				accessibleName="Reason"
+				[maxlength]="mode() === 'decision' ? 1000 : 500"
+				[showExceededText]="true"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">State the reason.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			[design]="mode() === 'cancel' ? 'Negative' : 'Emphasized'"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : copy().confirm }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Close
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
