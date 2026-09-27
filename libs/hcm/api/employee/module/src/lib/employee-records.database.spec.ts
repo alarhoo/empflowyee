@@ -91,8 +91,8 @@ describe('Employee Records', /** Employee Records FDD. */ () => {
 			`${base}?sort=workerNumber:asc&limit=2`,
 		)
 		expect(byNumber.body.items.map(/** Number. */ (item) => item.workerNumber)).toEqual([
+			'DM-ANDY',
 			'DM-ANGELA',
-			'DM-DAVID',
 		])
 		const accounting = await api.send<WorkerRecordPage>(
 			'toby',

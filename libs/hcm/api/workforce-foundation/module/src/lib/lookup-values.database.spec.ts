@@ -46,7 +46,7 @@ it('lists the eight sets and pages values from PostgreSQL for HR and administrat
 		).toEqual([
 			['worker-types', 'Tenant', 3],
 			['employment-end-reasons', 'Tenant', 7],
-			['worker-event-types', 'Tenant', 15],
+			['worker-event-types', 'Tenant', 17],
 			['genders', 'Product', 4],
 			['marital-statuses', 'Product', 4],
 			['relationship-types', 'Product', expect.any(Number)],

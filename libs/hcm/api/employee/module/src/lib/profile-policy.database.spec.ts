@@ -345,7 +345,12 @@ describe('employee profile policy foundation', /** Migration 000022 and employee
 				includes: await team.includes(P + 'account/michael', P + 'worker/jim', TODAY),
 			}),
 		)
-		expect(teams.michael).toEqual([P + 'worker/dwight', P + 'worker/jim', P + 'worker/pam'])
+		expect(teams.michael).toEqual([
+			P + 'worker/andy',
+			P + 'worker/dwight',
+			P + 'worker/jim',
+			P + 'worker/pam',
+		])
 		expect(teams.david).toEqual([P + 'worker/michael', P + 'worker/toby'])
 		expect(teams.jim).toEqual([])
 		expect(teams.before).toEqual([])
