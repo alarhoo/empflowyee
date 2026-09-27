@@ -271,6 +271,7 @@ for (const person of people) {
 				(person.role === 'tenant-administrator' &&
 					app.appCode === 'EMPLOYEE_PROFILE_CONFIGURATION') ||
 				(person.role === 'hr-specialist' && app.appCode === 'JOB_CATALOGUE') ||
+				(person.role === 'tenant-administrator' && app.appCode === 'POSITIONS') ||
 				(app.appCode === 'DOCUMENT_REQUESTS' && person.role !== 'hr-specialist')
 			) &&
 			app.catalogueIds.some(
