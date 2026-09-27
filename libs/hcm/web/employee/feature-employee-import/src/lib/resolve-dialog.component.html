@@ -1,0 +1,118 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Proposed action</ui5-label>
+			<ui5-text>{{ proposedLabels[input().row.proposedAction] }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Why</ui5-label>
+			<ui5-text>
+				{{
+					input().row.proposedAction === 'Update'
+						? 'The match key names an existing worker. Confirm the worker to update.'
+						: 'An existing worker has the same name and birth date or work email.'
+				}}
+			</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="resolve-resolution"
+				[required]="true">
+				Resolution
+			</ui5-label>
+			<ui5-select
+				id="resolve-resolution"
+				accessibleName="Resolution"
+				[formField]="fields.resolution"
+				[disabled]="draft.saving()"
+				[valueState]="
+					fields.resolution().touched() && fields.resolution().invalid() ? 'Negative' : 'None'
+				">
+				<ui5-option value="">Choose a resolution</ui5-option>
+				@for (option of options(); track option) {
+					<ui5-option [value]="option">{{ resolutionLabels[option] }}</ui5-option>
+				}
+				<ui5-text slot="valueStateMessage">Choose a resolution.</ui5-text>
+			</ui5-select>
+		</ui5-form-item>
+		@if (model().resolution === 'UseExisting') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="resolve-candidate"
+					[required]="true">
+					Existing worker
+				</ui5-label>
+				<ui5-select
+					id="resolve-candidate"
+					accessibleName="Existing worker"
+					[formField]="fields.candidateWorkerId"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.candidateWorkerId().touched() && fields.candidateWorkerId().invalid()
+							? 'Negative'
+							: 'None'
+					">
+					<ui5-option value="">Choose a worker</ui5-option>
+					@for (candidate of input().row.candidates; track candidate.workerId) {
+						<ui5-option [value]="candidate.workerId">
+							{{ candidate.name }} ({{ candidate.workerNumber }})
+						</ui5-option>
+					}
+					<ui5-text slot="valueStateMessage">Choose the matching worker.</ui5-text>
+				</ui5-select>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="resolve-reason"
+				[required]="model().resolution === 'CreateNew'">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="resolve-reason"
+				accessibleName="Reason"
+				[maxlength]="500"
+				[showExceededText]="true"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">State why this is a different person.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : 'Resolve' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Close
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

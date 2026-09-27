@@ -1,0 +1,307 @@
+<ef-hcm-wizard-page
+	title="New import run"
+	summary="Upload a file for a published template, validate it, resolve matches and commit"
+	[state]="state()"
+	[errorMessage]="message()"
+	[current]="current()"
+	[reachable]="reachable()"
+	[busy]="draft.saving() || matchesLoading()"
+	finishLabel="Commit rows"
+	(next)="next($event)"
+	(stepChange)="stepChange($event)"
+	(finish)="finish()"
+	(cancelled)="cancel()"
+	(retry)="ngOnInit()">
+	<ng-template
+		efHcmWizardStep="source"
+		title="Template and action">
+		@if (draft.error() && current() === 'source') {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Template and action"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="run-template"
+					[required]="true">
+					Template
+				</ui5-label>
+				<ui5-select
+					id="run-template"
+					accessibleName="Template"
+					[formField]="fields.templateId"
+					[disabled]="locked()"
+					[valueState]="
+						fields.templateId().touched() && fields.templateId().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-option value="">Choose a published template</ui5-option>
+					@for (item of templates(); track item.id) {
+						<ui5-option [value]="item.id">
+							{{ item.name }} ({{ item.code }}), version {{ item.versionNumber }}
+						</ui5-option>
+					}
+					<ui5-text slot="valueStateMessage">Choose a template.</ui5-text>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="run-action"
+					[required]="true">
+					Action
+				</ui5-label>
+				<ui5-select
+					id="run-action"
+					accessibleName="Action"
+					[formField]="fields.intendedAction"
+					[disabled]="locked()">
+					@for (item of actions; track item) {
+						<ui5-option [value]="item">{{ actionLabels[item] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		</ui5-form>
+		@if (!templates().length) {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				No template is published yet. Publish one under Templates first.
+			</ui5-message-strip>
+		}
+		<ui5-text>
+			Update and Upsert need a template with a match key. Updates correct person facts only;
+			employment facts change through Employment Changes.
+		</ui5-text>
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="upload"
+		title="Upload">
+		@if (draft.error() && current() === 'upload') {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Source file"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="run-file"
+					[required]="true">
+					File
+				</ui5-label>
+				@if (run(); as uploaded) {
+					<ui5-text>{{ uploaded.fileName }} was uploaded.</ui5-text>
+				} @else {
+					<ui5-file-uploader
+						id="run-file"
+						accessibleName="Source file"
+						[accept]="accept()"
+						[maxFileSize]="5"
+						[multiple]="false"
+						[required]="true"
+						[disabled]="draft.saving()"
+						[valueState]="fileTouched() && !file() ? 'Negative' : 'None'"
+						(ui5Change)="chooseFile($event)"
+						(ui5FileSizeExceed)="rejectFile()">
+						<ui5-text slot="valueStateMessage">Choose a file.</ui5-text>
+					</ui5-file-uploader>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Limits</ui5-label>
+				<ui5-text>
+					{{
+						template()?.fileFormat === 'Xlsx'
+							? 'XLSX, first sheet only, no macros or encryption'
+							: 'CSV, UTF-8'
+					}}; at most 5 MiB and 2,000 data rows.
+				</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="validate"
+		title="Validate">
+		@if (draft.error() && current() === 'validate') {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		@if (run(); as current) {
+			@if (current.status === 'Failed') {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					{{ failure(current.failureCode) }} Fix the file and start a new run.
+				</ui5-message-strip>
+				@for (issue of current.issues; track $index) {
+					<ui5-message-strip
+						[design]="issue.severity === 'Error' ? 'Negative' : 'Critical'"
+						[hideCloseButton]="true">
+						{{ issue.sourceColumnName ? issue.sourceColumnName + ': ' : '' }}{{ issue.message }}
+					</ui5-message-strip>
+				}
+			}
+			<ui5-form
+				accessibleName="Validation"
+				accessibleMode="Display"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status(current.status).status"
+						[label]="status(current.status).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Rows</ui5-label>
+					<ui5-text>
+						{{ current.totalRowCount }} total, {{ current.validRowCount }} valid,
+						{{ current.invalidRowCount }} invalid
+					</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
+				{{
+					current.status === 'Uploaded'
+						? 'Next validates every row. Nothing changes in workforce records.'
+						: 'Invalid rows are skipped at commit; see them on the run afterwards.'
+				}}
+			</ui5-text>
+		}
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="matches"
+		title="Review matches">
+		@if (draft.error() && current() === 'matches') {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			accessibleName="Matched rows"
+			overflowMode="Popin"
+			noDataText="No row matches an existing worker. Continue to commit.">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell minWidth="4rem">Row</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="8rem"
+					popinText="Match">
+					Match
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="6rem"
+					popinText="Action">
+					Action
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="12rem"
+					popinText="Candidates">
+					Candidates
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="10rem"
+					popinText="Resolution">
+					Resolution
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="7rem"
+					popinText="Decision">
+					Decision
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of matches(); track row.id) {
+				<ui5-table-row [rowKey]="row.id">
+					<ui5-table-cell>{{ row.rowNumber }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="matchStatus(row.matchStatus).status"
+							[label]="matchStatus(row.matchStatus).label"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>{{ proposedLabels[row.proposedAction] }}</ui5-table-cell>
+					<ui5-table-cell>
+						@for (candidate of row.candidates; track candidate.workerId; let last = $last) {
+							{{ candidate.name }} ({{ candidate.workerNumber }}){{ last ? '' : ', ' }}
+						}
+					</ui5-table-cell>
+					<ui5-table-cell>{{ resolutionText(row) }}</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-button
+							[accessibleName]="'Resolve row ' + row.rowNumber"
+							[disabled]="draft.saving()"
+							(click)="resolve(row)">
+							{{ row.resolution ? 'Change' : 'Resolve' }}
+						</ui5-button>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+		@if (run(); as current) {
+			@if (current.unresolvedRowCount > 0) {
+				<ui5-text>{{ current.unresolvedRowCount }} rows still need a resolution.</ui5-text>
+			}
+		}
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="commit"
+		title="Commit">
+		@if (draft.error() && current() === 'commit') {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		@if (run(); as current) {
+			<ui5-form
+				accessibleName="Commit summary"
+				accessibleMode="Display"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">File</ui5-label>
+					<ui5-text>{{ current.fileName }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Action</ui5-label>
+					<ui5-text>{{ actionLabels[current.intendedAction] }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Valid rows</ui5-label>
+					<ui5-text>{{ current.validRowCount }} of {{ current.totalRowCount }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-text>
+				Each valid row is applied on its own: a row the workforce rules refuse is recorded as failed
+				and the others still commit. Skipped and invalid rows change nothing.
+			</ui5-text>
+		}
+	</ng-template>
+</ef-hcm-wizard-page>
+@if (resolving(); as input) {
+	<ef-hcm-import-resolve-dialog
+		[input]="input"
+		(saved)="resolved($event)"
+		(closed)="resolving.set(null)"></ef-hcm-import-resolve-dialog>
+}
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

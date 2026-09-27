@@ -1,0 +1,269 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Import runs and templates' },
+		midColumn: { role: 'region', name: 'Selected import item' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Employee Import"
+		summary="Create or correct workers from a CSV or XLSX file through a published template"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canManage()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Scope and filters"
+			accessibleMode="Edit"
+			layout="S1 M3 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Scope"
+					(ui5SelectionChange)="chooseScope($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-scope="runs"
+						[selected]="scope() === 'runs'">
+						Runs
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-scope="templates"
+						[selected]="scope() === 'templates'">
+						Templates
+					</ui5-segmented-button-item>
+				</ui5-segmented-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="import-status">
+					Status
+				</ui5-label>
+				<ui5-select
+					id="import-status"
+					accessibleName="Status"
+					[formField]="filterForm.status">
+					<ui5-option value="all">All statuses</ui5-option>
+					@if (scope() === 'runs') {
+						@for (item of runStatuses; track item) {
+							<ui5-option [value]="item">{{ runStatus(item).label }}</ui5-option>
+						}
+					} @else {
+						@for (item of templateStatuses; track item) {
+							<ui5-option [value]="item">{{ templateStatus(item).label }}</ui5-option>
+						}
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		@if (scope() === 'runs') {
+			<ui5-table
+				(ui5RowClick)="open($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="listState() === 'loading'"
+				accessibleName="Import runs"
+				overflowMode="Popin"
+				[noDataText]="noData()">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="10rem">
+						File
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="10rem"
+						popinText="Template">
+						Template
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="8rem"
+						popinText="Action">
+						Action
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="95"
+						minWidth="10rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="12rem"
+						popinText="Rows">
+						Rows
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="9rem"
+						popinText="Uploaded">
+						Uploaded
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of runs(); track row.id) {
+					<ui5-table-row
+						[rowKey]="row.id"
+						[interactive]="true"
+						[navigated]="selected()?.id === row.id">
+						<ui5-table-cell>{{ row.fileName }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ row.template.name }}, v{{ row.template.versionNumber }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ actionLabels[row.intendedAction] }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="runStatus(row.status).status"
+								[label]="runStatus(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{ row.totalRowCount }} total, {{ row.validRowCount }} valid,
+							{{ row.invalidRowCount }} invalid, {{ row.committedRowCount }} committed,
+							{{ row.failedRowCount }} failed, {{ row.skippedRowCount }} skipped
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.requestedAt | hcmDate }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more runs"
+						(ui5LoadMore)="load(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		} @else {
+			<ui5-table
+				(ui5RowClick)="open($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="listState() === 'loading'"
+				accessibleName="Import templates"
+				overflowMode="Popin"
+				[noDataText]="noData()">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Template
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="6rem"
+						popinText="Version">
+						Version
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="95"
+						minWidth="8rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="6rem"
+						popinText="Format">
+						Format
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="6rem"
+						popinText="Columns">
+						Columns
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="9rem"
+						popinText="Changed">
+						Changed
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of templates(); track row.id) {
+					<ui5-table-row
+						[rowKey]="row.id"
+						[interactive]="true"
+						[navigated]="selected()?.id === row.id">
+						<ui5-table-cell>{{ row.name }} ({{ row.code }})</ui5-table-cell>
+						<ui5-table-cell>{{ row.versionNumber }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="templateStatus(row.status).status"
+								[label]="templateStatus(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.fileFormat === 'Csv' ? 'CSV' : 'XLSX' }}</ui5-table-cell>
+						<ui5-table-cell>{{ row.columnCount }}</ui5-table-cell>
+						<ui5-table-cell>{{ row.updatedAt | hcmDate }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more templates"
+						(ui5LoadMore)="load(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selected(); as item) {
+		@if (item.kind === 'runs') {
+			@for (runId of [item.id]; track runId) {
+				<ef-hcm-import-run
+					slot="midColumn"
+					[runId]="runId"
+					[refresh]="refresh()"
+					(dialogRequested)="dialog.set($event)"
+					(resolveRequested)="resolving.set($event)"
+					(closed)="close()"></ef-hcm-import-run>
+			}
+		} @else {
+			@for (templateId of [item.id]; track templateId) {
+				<ef-hcm-import-template
+					slot="midColumn"
+					[templateId]="templateId"
+					[refresh]="refresh()"
+					(edited)="edit($event)"
+					(dialogRequested)="dialog.set($event)"
+					(closed)="close()"></ef-hcm-import-template>
+			}
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-import-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialog.set(null)"></ef-hcm-import-dialog>
+}
+@if (resolving(); as input) {
+	<ef-hcm-import-resolve-dialog
+		[input]="input"
+		(saved)="resolved($event)"
+		(closed)="resolving.set(null)"></ef-hcm-import-resolve-dialog>
+}

@@ -1,0 +1,282 @@
+<ef-hcm-object-page
+	[title]="run() ? run()!.fileName : 'Import run'"
+	[summary]="run() ? run()!.template.name + ', version ' + run()!.template.versionNumber : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (run(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label"></span>
+	}
+	@if (run(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			@if (notice()) {
+				<ui5-message-strip
+					design="Positive"
+					(ui5Close)="notice.set('')">
+					{{ notice() }}
+				</ui5-message-strip>
+			}
+			@if (current.failureCode) {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					{{ failure(current.failureCode) }}
+				</ui5-message-strip>
+			}
+			@if (current.status === 'ReadyToCommit' && current.unresolvedRowCount > 0) {
+				<ui5-message-strip
+					design="Critical"
+					[hideCloseButton]="true">
+					{{ current.unresolvedRowCount }} matched rows need a resolution before the run can be
+					committed. Filter the rows by match status to find them.
+				</ui5-message-strip>
+			}
+			<ui5-form
+				accessibleName="Run overview"
+				accessibleMode="Display"
+				layout="S1 M2 L3 XL3">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status(current.status).status"
+						[label]="status(current.status).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Template</ui5-label>
+					<ui5-text>
+						{{ current.template.name }} ({{ current.template.code }}), version
+						{{ current.template.versionNumber }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Action</ui5-label>
+					<ui5-text>{{ actionLabels[current.intendedAction] }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Uploaded by</ui5-label>
+					<ui5-text>
+						{{ current.requestedByMe ? 'You' : current.requestedBy }},
+						{{ current.requestedAt | hcmDate }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Validated</ui5-label>
+					<ui5-text>
+						{{ current.validationCompletedAt ? (current.validationCompletedAt | hcmDate) : '—' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Completed</ui5-label>
+					<ui5-text>{{ current.completedAt ? (current.completedAt | hcmDate) : '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Rows</ui5-label>
+					<ui5-text>
+						{{ current.totalRowCount }} total, {{ current.validRowCount }} valid,
+						{{ current.invalidRowCount }} invalid
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Outcome</ui5-label>
+					<ui5-text>
+						{{ current.committedRowCount }} committed, {{ current.failedRowCount }} failed,
+						{{ current.skippedRowCount }} skipped
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Parser version</ui5-label>
+					<ui5-text>{{ current.parserVersion ?? 'Set when validation starts' }}</ui5-text>
+				</ui5-form-item>
+				@if (current.cancelReason) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Cancel reason</ui5-label>
+						<ui5-text>{{ current.cancelReason }}</ui5-text>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="rows"
+			label="Rows">
+			<ui5-form
+				accessibleName="Row filters"
+				accessibleMode="Edit"
+				layout="S1 M3 L3 XL3"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="import-row-status">
+						Row status
+					</ui5-label>
+					<ui5-select
+						id="import-row-status"
+						accessibleName="Row status"
+						[formField]="rowForm.status">
+						<ui5-option value="all">All statuses</ui5-option>
+						@for (item of rowStatuses; track item) {
+							<ui5-option [value]="item">{{ rowStatus(item).label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="import-row-match">
+						Match status
+					</ui5-label>
+					<ui5-select
+						id="import-row-match"
+						accessibleName="Match status"
+						[formField]="rowForm.matchStatus">
+						<ui5-option value="all">All match statuses</ui5-option>
+						@for (item of matchStatuses; track item) {
+							<ui5-option [value]="item">{{ matchStatus(item).label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Actions</ui5-label>
+					<ui5-button (click)="loadRows(false)">Apply filters</ui5-button>
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-table
+				accessibleName="Import rows"
+				overflowMode="Popin"
+				[loading]="rowState() === 'loading'"
+				[noDataText]="rowsEmpty()">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="4rem">
+						Row
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="95"
+						minWidth="8rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="8rem"
+						popinText="Match">
+						Match
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="6rem"
+						popinText="Action">
+						Action
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="10rem"
+						popinText="Resolution">
+						Resolution
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="14rem"
+						popinText="Issues">
+						Issues
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="7rem"
+						popinText="Decision">
+						Decision
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of rows(); track row.id) {
+					<ui5-table-row [rowKey]="row.id">
+						<ui5-table-cell>{{ row.rowNumber }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="rowStatus(row.status).status"
+								[label]="rowStatus(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="matchStatus(row.matchStatus).status"
+								[label]="matchStatus(row.matchStatus).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ proposedLabels[row.proposedAction] }}</ui5-table-cell>
+						<ui5-table-cell>{{ resolutionText(row) }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-text>{{ issueText(row) || '—' }}</ui5-text>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (canResolve(row)) {
+								<ui5-button
+									[accessibleName]="'Resolve row ' + row.rowNumber"
+									(click)="resolve(row)">
+									{{ row.resolution ? 'Change' : 'Resolve' }}
+								</ui5-button>
+							}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more rows"
+						(ui5LoadMore)="loadRows(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="issues"
+			label="File issues">
+			<ui5-table
+				accessibleName="File issues"
+				overflowMode="Popin"
+				noDataText="The file itself has no issues; row issues are listed with each row.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="8rem">Severity</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Column">
+						Column
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="16rem"
+						popinText="Issue">
+						Issue
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (issue of current.issues; track $index) {
+					<ui5-table-row>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="issue.severity === 'Error' ? 'negative' : 'critical'"
+								[label]="issue.severity"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ issue.sourceColumnName ?? issue.fieldName ?? '—' }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-text>{{ issue.message }}</ui5-text>
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>
