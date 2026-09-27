@@ -9,6 +9,7 @@ import {
 	untracked,
 	viewChild,
 } from '@angular/core'
+import { Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import type { Subscription } from 'rxjs'
 import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
@@ -30,12 +31,14 @@ import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 import { TableRowAction } from '@fundamental-ngx/ui5-webcomponents/table-row-action'
 import { HcmObjectPage, HcmObjectSection } from '@empflowyee/hcm-web-ux-floorplan-object-page'
 import { HcmDatePipe, HcmRuntimeStore } from '@empflowyee/hcm-web-runtime-context'
+import { canAccessHcmFeature, findHcmFeature } from '@empflowyee/hcm-web-navigation-catalog'
 import {
 	MyProfileApi,
 	employeeDenied,
 	employeeErrorMessage,
 } from '@empflowyee/hcm-web-employee-data-access'
 import {
+	CORRECTION_TYPE_CODE,
 	MAX_RELATIONSHIPS,
 	SELF_CONTACT_TYPES,
 	type MyContactPointDto,
@@ -121,10 +124,18 @@ const PERSONAL_FIELDS = [
 export class MyProfileComponent {
 	private readonly api = inject(MyProfileApi)
 	private readonly runtime = inject(HcmRuntimeStore)
+	private readonly router = inject(Router)
 	private readonly destroy = inject(DestroyRef)
 	private request?: Subscription
 	readonly visibilityLabels = VISIBILITY_LABELS
 	readonly editModeLabels = EDIT_MODE_LABELS
+	/** Corrections through HR are offered only once My HR Requests is released and discoverable. */
+	readonly canRequestCorrection = computed(
+		/** Presentation only; My HR Requests re-authorizes every request. */ () => {
+			const context = this.runtime.context()
+			return !!context && canAccessHcmFeature(findHcmFeature('MY_HR_REQUESTS'), context.access)
+		},
+	)
 	readonly contactLabels = CONTACT_LABELS
 	readonly addressTypes = ADDRESS_TYPES
 	readonly employmentTypes = EMPLOYMENT_TYPES
@@ -322,5 +333,12 @@ export class MyProfileComponent {
 			this.customEditor() ??
 			this.visibilityEditor()
 		return editor?.canLeave() ?? Promise.resolve(true)
+	}
+
+	/** Open My HR Requests with a correction request prefilled for the field; nothing is submitted. */
+	requestCorrection(code: string): void {
+		void this.router.navigate(['/employee/my-hr-requests'], {
+			queryParams: { new: CORRECTION_TYPE_CODE, field: code },
+		})
 	}
 }
