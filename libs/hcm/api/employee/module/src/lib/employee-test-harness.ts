@@ -125,7 +125,7 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 			file?: { name: string; type: string; bytes: Buffer },
 		) {
 			const boundary = `hcm-${randomUUID()}`
-			const parts = [
+			const parts: Buffer[] = [
 				Buffer.from(
 					`--${boundary}\r\nContent-Disposition: form-data; name="metadata"\r\n\r\n${JSON.stringify(metadata)}\r\n`,
 				),
