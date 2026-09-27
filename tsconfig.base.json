@@ -274,6 +274,9 @@
 			"@empflowyee/hcm-web-employee-feature-probation-management": [
 				"./libs/hcm/web/employee/feature-probation-management/src/index.ts"
 			],
+			"@empflowyee/hcm-web-employee-feature-probation-review": [
+				"./libs/hcm/web/employee/feature-probation-review/src/index.ts"
+			],
 			"@empflowyee/hcm-web-employee-feature-team-directory": [
 				"./libs/hcm/web/employee/feature-team-directory/src/index.ts"
 			],

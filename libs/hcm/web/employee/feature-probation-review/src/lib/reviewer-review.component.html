@@ -1,0 +1,163 @@
+<ef-hcm-object-page
+	[title]="
+		review()
+			? review()!.context.workerName + ': ' + types[review()!.reviewType]
+			: 'Probation review'
+	"
+	[summary]="review() ? 'Due ' + (review()!.dueDate | hcmDate: 'date') : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (review(); as r) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="state(r.state).status"
+			[label]="state(r.state).label"></span>
+	}
+	@if (review(); as r) {
+		<ng-template
+			efHcmObjectSection="employee"
+			label="Employee">
+			<ui5-form
+				accessibleName="Employee context"
+				accessibleMode="Display"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Name</ui5-label>
+					<ui5-text>{{ r.context.workerName }} ({{ r.context.workerNumber }})</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Designation</ui5-label>
+					<ui5-text>{{ r.context.designation ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Unit</ui5-label>
+					<ui5-text>{{ r.context.unit ?? '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Hire date</ui5-label>
+					<ui5-text>{{ r.context.hireDate | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Review period</ui5-label>
+					<ui5-text>
+						{{ r.periodStart | hcmDate: 'date' }} to {{ r.periodEnd | hcmDate: 'date' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Probation ends</ui5-label>
+					<ui5-text>
+						{{ r.context.probationEndDate ? (r.context.probationEndDate | hcmDate: 'date') : '—' }}
+					</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="assessment"
+			label="Assessment">
+			@if (current(); as a) {
+				<ui5-form
+					accessibleName="Current assessment"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Recommendation</ui5-label>
+						<ui5-text>{{ recommendations[a.recommendation] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Overall rating</ui5-label>
+						<ui5-rating-indicator
+							accessibleName="Overall rating"
+							[max]="5"
+							[value]="a.overallRating"
+							[readonly]="true"></ui5-rating-indicator>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Strengths</ui5-label>
+						<ui5-text>{{ a.strengths || '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Concerns</ui5-label>
+						<ui5-text>{{ a.concerns || '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Reason</ui5-label>
+						<ui5-text>{{ a.recommendationReason }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Submitted</ui5-label>
+						<ui5-text>{{ a.submittedAt | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			} @else {
+				<ui5-text>
+					{{
+						r.actions.assess
+							? 'You have not assessed this review yet.'
+							: 'No assessment was submitted.'
+					}}
+				</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="history"
+			label="History">
+			<ui5-table
+				accessibleName="Assessment history"
+				overflowMode="Popin"
+				noDataText="No assessment yet">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="4rem">Version</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Recommendation">
+						Recommendation
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="5rem"
+						popinText="Rating">
+						Rating
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="9rem"
+						popinText="Submitted">
+						Submitted
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of r.assessments; track item.id) {
+					<ui5-table-row [rowKey]="item.id">
+						<ui5-table-cell>
+							{{ item.versionNumber }}{{ item.current ? '' : ' (superseded)' }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ recommendations[item.recommendation] }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.overallRating }} of 5</ui5-table-cell>
+						<ui5-table-cell>{{ item.submittedAt | hcmDate }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-table
+				accessibleName="Previous decisions"
+				overflowMode="Popin"
+				noDataText="HR has not decided on this probation yet">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="8rem">Outcome</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Effective">
+						Effective
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of r.previousDecisions; track item.decidedAt) {
+					<ui5-table-row>
+						<ui5-table-cell>{{ recommendations[item.outcome] }}</ui5-table-cell>
+						<ui5-table-cell>{{ item.effectiveDate | hcmDate: 'date' }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

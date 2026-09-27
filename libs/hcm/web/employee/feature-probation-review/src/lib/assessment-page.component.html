@@ -1,0 +1,131 @@
+<ef-hcm-dynamic-page
+	[title]="title()"
+	summary="Your assessment goes to HR, who records the decision; you may resubmit until then"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Assessment"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assessment-recommendation"
+				[required]="true">
+				Recommendation
+			</ui5-label>
+			<ui5-select
+				id="assessment-recommendation"
+				accessibleName="Recommendation"
+				[formField]="fields.recommendation"
+				[disabled]="draft.saving()"
+				[valueState]="
+					fields.recommendation().touched() && fields.recommendation().invalid()
+						? 'Negative'
+						: 'None'
+				">
+				<ui5-option value="">Choose a recommendation</ui5-option>
+				@for (item of recommendations; track item) {
+					<ui5-option [value]="item">{{ labels[item] }}</ui5-option>
+				}
+				<ui5-text slot="valueStateMessage">Choose a recommendation.</ui5-text>
+			</ui5-select>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assessment-rating"
+				[required]="true">
+				Overall rating
+			</ui5-label>
+			<ui5-rating-indicator
+				id="assessment-rating"
+				accessibleName="Overall rating from 1 to 5"
+				[max]="5"
+				[value]="rating()"
+				[required]="true"
+				[disabled]="draft.saving()"
+				(ui5Change)="rate($any($event.target).value)"></ui5-rating-indicator>
+			@if (ratingTouched() && rating() < 1) {
+				<ui5-text>Choose a rating from 1 to 5.</ui5-text>
+			}
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assessment-strengths">
+				Strengths
+			</ui5-label>
+			<ui5-textarea
+				id="assessment-strengths"
+				accessibleName="Strengths"
+				[maxlength]="2000"
+				[showExceededText]="true"
+				[formField]="fields.strengths"
+				[disabled]="draft.saving()"></ui5-textarea>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assessment-concerns">
+				Concerns
+			</ui5-label>
+			<ui5-textarea
+				id="assessment-concerns"
+				accessibleName="Concerns"
+				[maxlength]="2000"
+				[showExceededText]="true"
+				[formField]="fields.concerns"
+				[disabled]="draft.saving()"></ui5-textarea>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="assessment-reason"
+				[required]="true">
+				Recommendation reason
+			</ui5-label>
+			<ui5-textarea
+				id="assessment-reason"
+				accessibleName="Recommendation reason"
+				[maxlength]="2000"
+				[showExceededText]="true"
+				[formField]="fields.recommendationReason"
+				[disabled]="draft.saving()"
+				[valueState]="
+					fields.recommendationReason().touched() && fields.recommendationReason().invalid()
+						? 'Negative'
+						: 'None'
+				">
+				<ui5-text slot="valueStateMessage">State the reason for your recommendation.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar hcmFooter>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Submitting…' : 'Submit assessment' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
