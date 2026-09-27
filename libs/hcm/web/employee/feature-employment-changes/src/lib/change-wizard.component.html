@@ -1,0 +1,685 @@
+<ef-hcm-wizard-page
+	[title]="title()"
+	summary="Raise an effective-dated change to employment or assignment facts for an independent approval"
+	[state]="state()"
+	[errorMessage]="message()"
+	[current]="current()"
+	[reachable]="reachable()"
+	[busy]="draft.saving()"
+	finishLabel="Submit request"
+	(next)="next($event)"
+	(stepChange)="stepChange($event)"
+	(finish)="finish()"
+	(cancelled)="cancel()"
+	(retry)="ngOnInit()">
+	<ng-template
+		efHcmWizardStep="worker"
+		title="Worker and context">
+		<ui5-form
+			accessibleName="Worker"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-worker"
+					[required]="true">
+					Worker
+				</ui5-label>
+				<ef-hcm-change-option-box
+					kind="workers"
+					label="Worker"
+					controlId="change-worker"
+					[required]="true"
+					[disabled]="editing() !== null"
+					[invalid]="touched().worker && !worker()"
+					message="Choose a worker."
+					[selected]="worker()"
+					(selectedChange)="chooseWorker($event)"></ef-hcm-change-option-box>
+			</ui5-form-item>
+		</ui5-form>
+		@switch (contextState()) {
+			@case ('loading') {
+				<ui5-busy-indicator
+					[active]="true"
+					[delay]="0"
+					text="Loading current facts"></ui5-busy-indicator>
+			}
+			@case ('error') {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					{{ message() }}
+				</ui5-message-strip>
+			}
+			@case ('ready') {
+				@if (context(); as facts) {
+					<ui5-table
+						accessibleName="Employments"
+						overflowMode="Popin"
+						noDataText="This worker has no employment yet.">
+						<ui5-table-header-row slot="headerRow">
+							<ui5-table-header-cell minWidth="10rem">Legal entity</ui5-table-header-cell>
+							<ui5-table-header-cell
+								minWidth="8rem"
+								popinText="Status">
+								Status
+							</ui5-table-header-cell>
+							<ui5-table-header-cell
+								minWidth="8rem"
+								popinText="Hired">
+								Hired
+							</ui5-table-header-cell>
+							<ui5-table-header-cell
+								minWidth="8rem"
+								popinText="Ended">
+								Ended
+							</ui5-table-header-cell>
+							<ui5-table-header-cell
+								minWidth="8rem"
+								popinText="Rehire">
+								Rehire
+							</ui5-table-header-cell>
+						</ui5-table-header-row>
+						@for (item of facts.employments; track item.employmentId) {
+							<ui5-table-row [rowKey]="item.employmentId">
+								<ui5-table-cell>
+									{{ item.legalEntity?.name ?? '—' }}{{ item.primary ? ' (primary)' : '' }}
+								</ui5-table-cell>
+								<ui5-table-cell>
+									<span
+										fd-object-status
+										[inverted]="true"
+										[status]="item.employmentStatus === 'Ended' ? 'neutral' : 'positive'"
+										[label]="statusLabels[item.employmentStatus ?? ''] ?? 'Not established'"></span>
+								</ui5-table-cell>
+								<ui5-table-cell>
+									{{ item.hireDate ? (item.hireDate | hcmDate: 'date') : '—' }}
+								</ui5-table-cell>
+								<ui5-table-cell>
+									{{ item.endDate ? (item.endDate | hcmDate: 'date') : '—' }}
+								</ui5-table-cell>
+								<ui5-table-cell>
+									@if (item.eligibleForRehire === null) {
+										Not recorded
+									} @else {
+										{{ item.eligibleForRehire ? 'Eligible' : 'Not eligible' }}
+									}
+								</ui5-table-cell>
+							</ui5-table-row>
+						}
+					</ui5-table>
+					@if (facts.rehireAllowed) {
+						<ui5-message-strip
+							design="Information"
+							[hideCloseButton]="true">
+							No employment is engaged, so this worker can be rehired.
+						</ui5-message-strip>
+					}
+				}
+			}
+		}
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="type"
+		title="Change type">
+		<ui5-form
+			accessibleName="Change type"
+			accessibleMode="Edit"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-type"
+					[required]="true">
+					Change type
+				</ui5-label>
+				<ui5-select
+					id="change-type"
+					accessibleName="Change type"
+					[disabled]="editing() !== null"
+					[valueState]="touched().type && !model().changeType ? 'Negative' : 'None'"
+					(ui5Change)="chooseType($any($event.detail.selectedOption).value)">
+					<ui5-option
+						value=""
+						[selected]="!model().changeType">
+						Choose a type
+					</ui5-option>
+					@for (type of types(); track type) {
+						<ui5-option
+							[value]="type"
+							[selected]="model().changeType === type">
+							{{ typeLabels[type] }}
+						</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			@if (type() !== 'Rehire' && (context()?.employments?.length ?? 0) > 1) {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="change-employment"
+						[required]="true">
+						Employment
+					</ui5-label>
+					<ui5-select
+						id="change-employment"
+						accessibleName="Employment"
+						[formField]="fields.employmentId">
+						@for (item of context()?.employments ?? []; track item.employmentId) {
+							<ui5-option [value]="item.employmentId">
+								{{ item.legalEntity?.name ?? 'Employment' }},
+								{{ statusLabels[item.employmentStatus ?? ''] ?? 'not established' }}
+							</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-effective"
+					[required]="true">
+					Effective date
+				</ui5-label>
+				<ui5-date-picker
+					id="change-effective"
+					accessibleName="Effective date"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[required]="true"
+					[minDate]="minDate()"
+					[value]="model().effectiveDate"
+					[valueState]="touched().type && model().effectiveDate < minDate() ? 'Negative' : 'None'"
+					(ui5Change)="setDate('effectiveDate', $event.detail.value)">
+					<ui5-text slot="valueStateMessage">
+						The effective date may lie at most 30 days in the past, or 90 for a correction.
+					</ui5-text>
+				</ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-reason"
+					[required]="true">
+					Reason
+				</ui5-label>
+				<ui5-select
+					id="change-reason"
+					accessibleName="Reason"
+					[formField]="fields.reasonCode"
+					[valueState]="touched().type && !model().reasonCode ? 'Negative' : 'None'">
+					<ui5-option value="">Choose a reason</ui5-option>
+					@for (code of reasons(); track code) {
+						<ui5-option [value]="code">{{ reasonLabels[code] ?? code }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-reason-detail"
+					[required]="true">
+					Reason details
+				</ui5-label>
+				<ui5-textarea
+					id="change-reason-detail"
+					accessibleName="Reason details"
+					[maxlength]="1000"
+					[formField]="fields.reasonDetail"
+					[valueState]="
+						fields.reasonDetail().touched() && fields.reasonDetail().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Explain the change.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-evidence">
+					Evidence reference
+				</ui5-label>
+				<ui5-input
+					id="change-evidence"
+					accessibleName="Evidence reference"
+					[disabled]="editing() !== null"
+					[formField]="fields.evidenceReference"></ui5-input>
+			</ui5-form-item>
+		</ui5-form>
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="details"
+		title="Details">
+		@if (rule()?.status; as status) {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				This change sets the employment status to {{ statusLabels[status] }} on its effective date.
+			</ui5-message-strip>
+		}
+		@if (touched().details && unchanged()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				Change at least one fact.
+			</ui5-message-strip>
+		}
+		@if (allowed().size) {
+			<ui5-form
+				accessibleName="Proposed facts"
+				accessibleMode="Edit"
+				layout="S1 M1 L2 XL2">
+				@if (allowed().has('legalEntityId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-legalEntityId"
+							[required]="rule()?.required?.includes('legalEntityId') === true">
+							Legal entity
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="legal-entities"
+							label="Legal entity"
+							controlId="change-legalEntityId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('legalEntityId') === true"
+							[invalid]="touched().details && missing().includes('legalEntityId')"
+							message="Choose a value."
+							[selected]="refs().legalEntityId"
+							(selectedChange)="setRef('legalEntityId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('workerTypeId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-workerTypeId"
+							[required]="rule()?.required?.includes('workerTypeId') === true">
+							Worker type
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="worker-types"
+							label="Worker type"
+							controlId="change-workerTypeId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('workerTypeId') === true"
+							[invalid]="touched().details && missing().includes('workerTypeId')"
+							message="Choose a value."
+							[selected]="refs().workerTypeId"
+							(selectedChange)="setRef('workerTypeId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('employmentType')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-employmentType"
+							[required]="rule()?.required?.includes('employmentType') === true">
+							Employment type
+						</ui5-label>
+						<ui5-select
+							id="change-employmentType"
+							accessibleName="Employment type"
+							[formField]="fields.employmentType"
+							[valueState]="
+								touched().details && missing().includes('employmentType') ? 'Negative' : 'None'
+							">
+							<ui5-option value="">Not set</ui5-option>
+							@for (item of employmentTypes; track item) {
+								<ui5-option [value]="item">{{ employmentLabels[item] }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+				}
+				@if (allowed().has('continuousServiceStartDate')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-continuousServiceStartDate">
+							Continuous service start
+						</ui5-label>
+						<ui5-date-picker
+							id="change-continuousServiceStartDate"
+							accessibleName="Continuous service start"
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
+							[showClearIcon]="true"
+							[value]="model().continuousServiceStartDate"
+							(ui5Change)="
+								setDate('continuousServiceStartDate', $event.detail.value)
+							"></ui5-date-picker>
+					</ui5-form-item>
+				}
+				@if (allowed().has('probationEndDate')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-probationEndDate">
+							Probation end
+						</ui5-label>
+						<ui5-date-picker
+							id="change-probationEndDate"
+							accessibleName="Probation end"
+							valueFormat="yyyy-MM-dd"
+							displayFormat="medium"
+							[showClearIcon]="true"
+							[value]="model().probationEndDate"
+							(ui5Change)="setDate('probationEndDate', $event.detail.value)"></ui5-date-picker>
+					</ui5-form-item>
+				}
+				@if (allowed().has('noticePeriodDays')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-noticePeriodDays"
+							[required]="rule()?.required?.includes('noticePeriodDays') === true">
+							Notice period in days
+						</ui5-label>
+						<ui5-step-input
+							id="change-noticePeriodDays"
+							accessibleName="Notice period in days"
+							[min]="0"
+							[max]="365"
+							[step]="1"
+							[valuePrecision]="0"
+							[value]="numbers().noticePeriodDays ?? 0"
+							[valueState]="
+								touched().details && missing().includes('noticePeriodDays') ? 'Negative' : 'None'
+							"
+							(ui5Change)="setNumber('noticePeriodDays', $event.target)"></ui5-step-input>
+					</ui5-form-item>
+				}
+				@if (allowed().has('unitId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-unitId"
+							[required]="rule()?.required?.includes('unitId') === true">
+							Unit
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="units"
+							label="Unit"
+							controlId="change-unitId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('unitId') === true"
+							[invalid]="touched().details && missing().includes('unitId')"
+							message="Choose a value."
+							[selected]="refs().unitId"
+							(selectedChange)="setRef('unitId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('departmentId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-departmentId"
+							[required]="rule()?.required?.includes('departmentId') === true">
+							Department
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="departments"
+							label="Department"
+							controlId="change-departmentId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('departmentId') === true"
+							[invalid]="touched().details && missing().includes('departmentId')"
+							message="Choose a value."
+							[selected]="refs().departmentId"
+							(selectedChange)="setRef('departmentId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('designationId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-designationId"
+							[required]="rule()?.required?.includes('designationId') === true">
+							Designation
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="designations"
+							label="Designation"
+							controlId="change-designationId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('designationId') === true"
+							[invalid]="touched().details && missing().includes('designationId')"
+							message="Choose a value."
+							[selected]="refs().designationId"
+							(selectedChange)="setRef('designationId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('locationId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-locationId"
+							[required]="rule()?.required?.includes('locationId') === true">
+							Location
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="locations"
+							label="Location"
+							controlId="change-locationId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('locationId') === true"
+							[invalid]="touched().details && missing().includes('locationId')"
+							message="Choose a value."
+							[selected]="refs().locationId"
+							(selectedChange)="setRef('locationId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('positionId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-positionId"
+							[required]="rule()?.required?.includes('positionId') === true">
+							Position
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="positions"
+							label="Position"
+							controlId="change-positionId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('positionId') === true"
+							[invalid]="touched().details && missing().includes('positionId')"
+							message="Choose a value."
+							[selected]="refs().positionId"
+							(selectedChange)="setRef('positionId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+				@if (allowed().has('jobTitle')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-jobTitle"
+							[required]="rule()?.required?.includes('jobTitle') === true">
+							Job title
+						</ui5-label>
+						<ui5-input
+							id="change-jobTitle"
+							accessibleName="Job title"
+							[formField]="fields.jobTitle"
+							[valueState]="
+								touched().details && missing().includes('jobTitle') ? 'Negative' : 'None'
+							"></ui5-input>
+					</ui5-form-item>
+				}
+				@if (allowed().has('workMode')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-workMode"
+							[required]="rule()?.required?.includes('workMode') === true">
+							Work mode
+						</ui5-label>
+						<ui5-select
+							id="change-workMode"
+							accessibleName="Work mode"
+							[formField]="fields.workMode"
+							[valueState]="
+								touched().details && missing().includes('workMode') ? 'Negative' : 'None'
+							">
+							<ui5-option value="">Not set</ui5-option>
+							@for (item of workModes; track item) {
+								<ui5-option [value]="item">{{ workModeLabels[item] }}</ui5-option>
+							}
+						</ui5-select>
+					</ui5-form-item>
+				}
+				@if (allowed().has('fullTimeEquivalent')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-fullTimeEquivalent"
+							[required]="rule()?.required?.includes('fullTimeEquivalent') === true">
+							FTE
+						</ui5-label>
+						<ui5-step-input
+							id="change-fullTimeEquivalent"
+							accessibleName="FTE"
+							[min]="0.01"
+							[max]="1"
+							[step]="0.05"
+							[valuePrecision]="2"
+							[value]="numbers().fullTimeEquivalent ?? 0"
+							[valueState]="
+								touched().details && missing().includes('fullTimeEquivalent') ? 'Negative' : 'None'
+							"
+							(ui5Change)="setNumber('fullTimeEquivalent', $event.target)"></ui5-step-input>
+					</ui5-form-item>
+				}
+				@if (allowed().has('standardHoursPerWeek')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-standardHoursPerWeek"
+							[required]="rule()?.required?.includes('standardHoursPerWeek') === true">
+							Weekly hours
+						</ui5-label>
+						<ui5-step-input
+							id="change-standardHoursPerWeek"
+							accessibleName="Weekly hours"
+							[min]="0.25"
+							[max]="168"
+							[step]="0.5"
+							[valuePrecision]="2"
+							[value]="numbers().standardHoursPerWeek ?? 0"
+							[valueState]="
+								touched().details && missing().includes('standardHoursPerWeek')
+									? 'Negative'
+									: 'None'
+							"
+							(ui5Change)="setNumber('standardHoursPerWeek', $event.target)"></ui5-step-input>
+					</ui5-form-item>
+				}
+				@if (allowed().has('costCenterCode')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-costCenterCode"
+							[required]="rule()?.required?.includes('costCenterCode') === true">
+							Cost centre
+						</ui5-label>
+						<ui5-input
+							id="change-costCenterCode"
+							accessibleName="Cost centre"
+							[formField]="fields.costCenterCode"
+							[valueState]="
+								touched().details && missing().includes('costCenterCode') ? 'Negative' : 'None'
+							"></ui5-input>
+					</ui5-form-item>
+				}
+				@if (allowed().has('managerWorkerId')) {
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="change-managerWorkerId"
+							[required]="rule()?.required?.includes('managerWorkerId') === true">
+							Manager
+						</ui5-label>
+						<ef-hcm-change-option-box
+							kind="managers"
+							label="Manager"
+							controlId="change-managerWorkerId"
+							[asOf]="model().effectiveDate"
+							[required]="rule()?.required?.includes('managerWorkerId') === true"
+							[invalid]="touched().details && missing().includes('managerWorkerId')"
+							message="Choose a value."
+							[selected]="refs().managerWorkerId"
+							(selectedChange)="setRef('managerWorkerId', $event)"></ef-hcm-change-option-box>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		}
+	</ng-template>
+	<ng-template
+		efHcmWizardStep="review"
+		title="Review and submit">
+		@if (draft.error()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ draft.error() }}
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Request summary"
+			accessibleMode="Display"
+			layout="S1 M1 L2 XL2">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Worker</ui5-label>
+				<ui5-text>{{ worker()?.name ?? '—' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Change</ui5-label>
+				<ui5-text>{{ type() ? typeLabels[type()!] : '—' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Effective date</ui5-label>
+				<ui5-text>{{ model().effectiveDate | hcmDate: 'date' }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Reason</ui5-label>
+				<ui5-text>
+					{{ reasonLabels[model().reasonCode] ?? model().reasonCode }}: {{ model().reasonDetail }}
+				</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-table
+			accessibleName="Current and proposed facts"
+			overflowMode="Popin"
+			noDataText="This change sets no facts beyond its type.">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell minWidth="10rem">Fact</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="10rem"
+					popinText="Current">
+					Current
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					minWidth="10rem"
+					popinText="Proposed">
+					Proposed
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of review(); track row.field) {
+				<ui5-table-row [rowKey]="row.field">
+					<ui5-table-cell>
+						<ui5-label>{{ fieldLabels[row.field] ?? row.field }}</ui5-label>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-text>{{ row.current }}</ui5-text>
+					</ui5-table-cell>
+					<ui5-table-cell>
+						<ui5-text>{{ row.proposed }}</ui5-text>
+					</ui5-table-cell>
+				</ui5-table-row>
+			}
+		</ui5-table>
+	</ng-template>
+</ef-hcm-wizard-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

@@ -1,0 +1,236 @@
+<ef-hcm-object-page
+	[title]="
+		request() ? types[request()!.changeType] + ': ' + request()!.workerName : 'Change request'
+	"
+	[summary]="request() ? request()!.workerNumber : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (request(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label"></span>
+	}
+	@if (request(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			@if (failure()) {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					Execution failed: {{ failure() }} No workforce fact changed.
+				</ui5-message-strip>
+			}
+			<ui5-form
+				accessibleName="Request overview"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Worker</ui5-label>
+					<ui5-text>{{ current.workerName }} ({{ current.workerNumber }})</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Change type</ui5-label>
+					<ui5-text>{{ types[current.changeType] }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Effective date</ui5-label>
+					<ui5-text>{{ current.effectiveDate | hcmDate: 'date' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status(current.status).status"
+						[label]="status(current.status).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Reason</ui5-label>
+					<ui5-text>{{ reasons[current.reasonCode] ?? current.reasonCode }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Reason details</ui5-label>
+					<ui5-text>{{ current.reasonDetail }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Evidence reference</ui5-label>
+					<ui5-text>{{ current.evidenceReference || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Requested by</ui5-label>
+					<ui5-text>
+						{{ current.requestedByMe ? 'You' : current.requestedBy }},
+						{{ current.requestedAt | hcmDate }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Approval policy</ui5-label>
+					<ui5-text>
+						{{
+							current.approvalPolicy
+								? current.approvalPolicy.code + ', version ' + current.approvalPolicy.version
+								: 'Set when the request is submitted'
+						}}
+					</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="proposed"
+			label="Proposed changes">
+			<ui5-table
+				accessibleName="Current and proposed facts"
+				overflowMode="Popin"
+				noDataText="This change sets no facts beyond its type.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="10rem">Fact</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Current">
+						Current
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Proposed">
+						Proposed
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of current.comparison; track row.field) {
+					<ui5-table-row [rowKey]="row.field">
+						<ui5-table-cell>
+							<ui5-label>{{ fields[row.field] ?? row.field }}</ui5-label>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-text>{{ text(row.field, row.current) }}</ui5-text>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-text>{{ text(row.field, row.proposed) }}</ui5-text>
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			<ui5-text>
+				Current facts are read now, so a completed change shows its result as current.
+			</ui5-text>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="approvals"
+			label="Approvals">
+			<ui5-table
+				accessibleName="Approval slots"
+				overflowMode="Popin"
+				noDataText="Approval slots open when the request is submitted.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="10rem">Slot</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Decided by">
+						Decided by
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="12rem"
+						popinText="Reason">
+						Reason
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (slot of current.slots; track slot.code) {
+					<ui5-table-row [rowKey]="slot.code">
+						<ui5-table-cell>{{ slot.name }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="outcome(slot.status).status"
+								[label]="outcome(slot.status).label"></span>
+						</ui5-table-cell>
+						@for (decision of current.approvals; track decision.slotCode) {
+							@if (decision.slotCode === slot.code) {
+								<ui5-table-cell>
+									{{ decision.decidedByMe ? 'You' : decision.decidedBy }},
+									{{ decision.decidedAt | hcmDate }}
+								</ui5-table-cell>
+								<ui5-table-cell>{{ decision.reason }}</ui5-table-cell>
+							}
+						} @empty {
+							<ui5-table-cell>—</ui5-table-cell>
+							<ui5-table-cell>—</ui5-table-cell>
+						}
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="execution"
+			label="Execution">
+			<ui5-table
+				accessibleName="Execution steps"
+				overflowMode="Popin"
+				noDataText="The request has not been executed.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="12rem">Step</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="6rem"
+						popinText="Attempt">
+						Attempt
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="12rem"
+						popinText="Outcome">
+						Outcome
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (step of current.execution; track step.attempt + '-' + step.sequence) {
+					<ui5-table-row [rowKey]="step.attempt + '-' + step.sequence">
+						<ui5-table-cell>{{ steps[step.stepCode] ?? step.stepCode }}</ui5-table-cell>
+						<ui5-table-cell>{{ step.attempt }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="outcome(step.status).status"
+								[label]="outcome(step.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (step.failureCode) {
+								{{ failure() || step.failureCode }}
+							} @else if (step.completedAt) {
+								{{ step.completedAt | hcmDate }}
+							} @else {
+								—
+							}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="history"
+			label="History">
+			<ui5-timeline accessibleName="Request history">
+				@for (entry of history(); track entry.title + entry.at) {
+					<ui5-timeline-item
+						[titleText]="entry.title + ' on ' + (entry.at | hcmDate)"
+						[subtitleText]="entry.detail"
+						icon="history"></ui5-timeline-item>
+				}
+			</ui5-timeline>
+		</ng-template>
+	}
+</ef-hcm-object-page>

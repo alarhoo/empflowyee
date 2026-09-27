@@ -1,0 +1,241 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Employment change requests' },
+		midColumn: { role: 'region', name: 'Selected change request' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Employment Changes"
+		summary="Effective-dated changes to employment and assignment facts, decided by an independent approver"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canRequest()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Request view and filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Request view"
+					(ui5SelectionChange)="chooseView($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-view="all"
+						[selected]="view() === 'all'">
+						All
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-view="mine"
+						[selected]="view() === 'mine'">
+						Mine
+					</ui5-segmented-button-item>
+					@if (canApprove()) {
+						<ui5-segmented-button-item
+							data-view="awaiting-my-decision"
+							[selected]="view() === 'awaiting-my-decision'">
+							Awaiting my decision
+						</ui5-segmented-button-item>
+					}
+				</ui5-segmented-button>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="changes-query">
+					Worker
+				</ui5-label>
+				<ui5-input
+					id="changes-query"
+					accessibleName="Search worker name or number"
+					type="Search"
+					[formField]="filterForm.q"
+					(keyup.enter)="load(false)"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="changes-type">
+					Change type
+				</ui5-label>
+				<ui5-select
+					id="changes-type"
+					accessibleName="Change type"
+					[formField]="filterForm.changeType">
+					<ui5-option value="all">All types</ui5-option>
+					@for (type of types; track type) {
+						<ui5-option [value]="type">{{ typeLabels[type] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="changes-status">
+					Status
+				</ui5-label>
+				<ui5-select
+					id="changes-status"
+					accessibleName="Status"
+					[formField]="filterForm.status">
+					<ui5-option value="all">All statuses</ui5-option>
+					@for (item of statuses; track item) {
+						<ui5-option [value]="item">{{ status(item).label }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="changes-from">
+					Effective from
+				</ui5-label>
+				<ui5-date-picker
+					id="changes-from"
+					accessibleName="Effective from"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[showClearIcon]="true"
+					[value]="from()"
+					(ui5Change)="from.set($event.detail.value)"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="changes-to">
+					Effective to
+				</ui5-label>
+				<ui5-date-picker
+					id="changes-to"
+					accessibleName="Effective to"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[showClearIcon]="true"
+					[value]="to()"
+					(ui5Change)="to.set($event.detail.value)"></ui5-date-picker>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="changes-sort">
+					Sort by
+				</ui5-label>
+				<ui5-select
+					id="changes-sort"
+					accessibleName="Sort by"
+					[formField]="filterForm.sort">
+					<ui5-option value="effectiveDate:desc">Effective date</ui5-option>
+					<ui5-option value="createdAt:desc">Created</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ui5-table
+			(ui5RowClick)="open($event.detail.row.rowKey)"
+			[rowActionCount]="1"
+			[loading]="listState() === 'loading'"
+			accessibleName="Change requests"
+			overflowMode="Popin"
+			[noDataText]="noData()">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="12rem">
+					Worker
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="9rem"
+					popinText="Change">
+					Change
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="80"
+					minWidth="8rem"
+					popinText="Effective">
+					Effective
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="95"
+					minWidth="10rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="50"
+					minWidth="9rem"
+					popinText="Requested by">
+					Requested by
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="9rem"
+					popinText="Created">
+					Created
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (row of requests(); track row.id) {
+				<ui5-table-row
+					[rowKey]="row.id"
+					[interactive]="true"
+					[navigated]="selected() === row.id">
+					<ui5-table-cell>{{ row.workerName }} ({{ row.workerNumber }})</ui5-table-cell>
+					<ui5-table-cell>{{ typeLabels[row.changeType] }}</ui5-table-cell>
+					<ui5-table-cell>{{ row.effectiveDate | hcmDate: 'date' }}</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="status(row.status).status"
+							[label]="status(row.status).label"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>{{ row.requestedByMe ? 'You' : row.requestedBy }}</ui5-table-cell>
+					<ui5-table-cell>{{ row.requestedAt | hcmDate }}</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(row.id)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more requests"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected(); as id) {
+		@for (requestId of [id]; track requestId) {
+			<ef-hcm-change-request
+				slot="midColumn"
+				[requestId]="requestId"
+				[refresh]="refresh()"
+				(edited)="edit($event)"
+				(dialogRequested)="dialog.set($event)"
+				(closed)="close()"></ef-hcm-change-request>
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-change-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialog.set(null)"></ef-hcm-change-dialog>
+}
