@@ -275,12 +275,14 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 		assignmentId: string,
 		expectedRevision: number,
 		facts: AssignmentFacts,
+		options?: { primaryManager?: { assignmentId: string | null; reason: string } },
 	): Promise<{ closed: Revisioned; opened: Revisioned }> {
 		const current = await this.one(
 			sql<AssignmentRow>`SELECT id,employment_id AS "employmentId",to_char(effective_from,'YYYY-MM-DD') AS "effectiveFrom",to_char(effective_to,'YYYY-MM-DD') AS "effectiveTo",superseded_by_id AS "supersededById",revision FROM hcm.assignment WHERE tenant_id=${this.scope.tenantId} AND id=${assignmentId} FOR UPDATE`,
 		)
 		if (!current) throw new HcmDomainError('not-found')
 		if (current.effectiveFrom === null) throw new HcmDomainError('record-incomplete')
+		const manager = options?.primaryManager
 		requireRevision(current.revision, expectedRevision)
 		if (current.effectiveTo !== null || current.supersededById !== null)
 			throw new HcmDomainError('invalid-state')
@@ -296,7 +298,22 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 		await this.run(
 			sql`UPDATE hcm.assignment SET superseded_by_id=${openedId},updated_at=now(),updated_by_account_id=${this.actor} WHERE tenant_id=${this.scope.tenantId} AND id=${assignmentId}`,
 		)
-		await this.carryLines(assignmentId, openedId, facts.effectiveFrom, closeOn)
+		await this.carryLines(
+			assignmentId,
+			openedId,
+			facts.effectiveFrom,
+			closeOn,
+			manager !== undefined,
+		)
+		if (manager?.assignmentId)
+			await this.setReportingLine({
+				assignmentId: openedId,
+				managerAssignmentId: manager.assignmentId,
+				type: 'Solid',
+				isPrimary: true,
+				effectiveFrom: facts.effectiveFrom,
+				reason: manager.reason,
+			})
 		return {
 			closed: { id: assignmentId, revision: current.revision + 1 },
 			opened: { id: openedId, revision: 1 },
@@ -336,6 +353,7 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 		toId: string,
 		startOn: string,
 		closeOn: string,
+		replacePrimary = false,
 	): Promise<void> {
 		const lines = await this.run(
 			sql<{
@@ -351,6 +369,8 @@ export class KyselyWorkforceFacts extends WorkforceSql implements WorkforceFacts
 			await this.run(
 				sql`UPDATE hcm.reporting_line SET effective_to=${closeOn}::date,revision=revision+1,updated_at=now(),updated_by_account_id=${this.actor} WHERE tenant_id=${this.scope.tenantId} AND id=${line.id}`,
 			)
+			// A replaced primary line of the assignment itself ends here instead of moving.
+			if (replacePrimary && line.primary && line.assignmentId === fromId) continue
 			const assignment = line.assignmentId === fromId ? toId : line.assignmentId
 			const manager = line.managerAssignmentId === fromId ? toId : line.managerAssignmentId
 			await this.run(

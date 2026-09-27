@@ -139,11 +139,16 @@ export interface WorkforceFactsPort {
 	createEmployment(input: CreateEmployment): Promise<Revisioned>
 	/** Open the first dated assignment of an established employment. */
 	openAssignment(employmentId: string, facts: AssignmentFacts): Promise<Revisioned>
-	/** Close an open assignment the day before and open its successor, carrying reporting lines. */
+	/**
+	 * Close an open assignment the day before and open its successor, carrying reporting lines.
+	 * With `primaryManager`, the assignment's own primary line is not carried: the successor
+	 * starts with a primary solid line to that manager assignment, or with none for null.
+	 */
 	supersedeAssignment(
 		assignmentId: string,
 		expectedRevision: number,
 		facts: AssignmentFacts,
+		options?: { primaryManager?: { assignmentId: string | null; reason: string } },
 	): Promise<{ closed: Revisioned; opened: Revisioned }>
 	/**
 	 * Establish an incomplete assignment: close it the day before and open an established successor,
