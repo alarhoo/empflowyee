@@ -202,6 +202,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'job-architecture/positions',
+		data: { catalogId: 'POSITIONS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load positions and their change requests. */ () =>
+			import('@empflowyee/hcm-web-job-architecture-feature-positions').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.POSITIONS_ROUTES,
+			),
+	},
+	{
 		path: 'employee/my-profile',
 		data: { catalogId: 'MY_PROFILE' },
 		canMatch: [hcmRouteAccess],
