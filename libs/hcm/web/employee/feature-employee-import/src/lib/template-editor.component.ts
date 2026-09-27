@@ -63,10 +63,16 @@ interface ColumnDraft {
 	isMatchKey: boolean
 }
 
-/** IANA time zones the browser knows. */
+/** IANA time zones the browser knows, with UTC, which some browsers leave out of the list. */
 function timeZones(): string[] {
 	const intl = Intl as unknown as { supportedValuesOf?: (key: string) => string[] }
-	return intl.supportedValuesOf?.('timeZone') ?? ['UTC']
+	const zones = intl.supportedValuesOf?.('timeZone') ?? []
+	return zones.includes('UTC') ? zones : ['UTC', ...zones]
+}
+
+/** The browser's own time zone, as a default. */
+function localZone(): string {
+	return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 }
 
 /**
@@ -136,7 +142,7 @@ export class TemplateEditorComponent implements OnInit, OnDestroy {
 		description: '',
 		fileFormat: 'Csv',
 		dateFormat: 'yyyy-MM-dd',
-		timeZone: 'UTC',
+		timeZone: localZone(),
 		reason: '',
 	})
 	readonly hasHeaderRow = signal(true)
