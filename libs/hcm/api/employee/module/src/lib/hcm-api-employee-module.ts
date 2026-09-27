@@ -15,6 +15,7 @@ import {
 	EmployeeUnitOfWork,
 	EmploymentChanges,
 	HrServiceDesk,
+	MyHrRequests,
 	MyProfile,
 	ProbationManagement,
 	ProbationReview,
@@ -36,6 +37,7 @@ import {
 	EmployeeRecordsController,
 	EmploymentChangesController,
 	HrServiceDeskController,
+	MyHrRequestsController,
 	MyProfileController,
 	ProbationManagementController,
 	ProbationReviewController,
@@ -68,6 +70,7 @@ import {
 		ProbationManagementController,
 		ProbationReviewController,
 		HrServiceDeskController,
+		MyHrRequestsController,
 	],
 	providers: [
 		{
@@ -133,6 +136,12 @@ import {
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the HR service desk use cases. */ (unit: EmployeeUnitOfWork) =>
 				new HrServiceDesk(unit),
+		},
+		{
+			provide: MyHrRequests,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the requester's HR service use cases. */ (unit: EmployeeUnitOfWork) =>
+				new MyHrRequests(unit),
 		},
 		{
 			provide: EmployeeRecords,
