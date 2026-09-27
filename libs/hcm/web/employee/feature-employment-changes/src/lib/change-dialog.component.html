@@ -1,0 +1,66 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="copy().title"
+	[accessibleName]="copy().title"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="copy().title + ' fields'"
+		[accessibleMode]="needsReason() ? 'Edit' : 'Display'"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Effective date</ui5-label>
+			<ui5-text>{{ input().request.effectiveDate | hcmDate: 'date' }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Effect</ui5-label>
+			<ui5-text>{{ copy().text }}</ui5-text>
+		</ui5-form-item>
+		@if (needsReason()) {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="change-dialog-reason"
+					[required]="true">
+					{{ copy().reasonLabel }}
+				</ui5-label>
+				<ui5-textarea
+					id="change-dialog-reason"
+					[accessibleName]="copy().reasonLabel"
+					[maxlength]="500"
+					[showExceededText]="true"
+					[formField]="fields.reason"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">State the reason.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+		}
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			[design]="input().mode === 'reject' || input().mode === 'cancel' ? 'Negative' : 'Emphasized'"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : copy().confirm }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Close
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
