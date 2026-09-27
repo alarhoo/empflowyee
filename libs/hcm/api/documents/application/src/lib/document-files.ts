@@ -1,3 +1,5 @@
+import type { ImportSourceMediaType } from './import-source-reader'
+
 /** Internal file evidence; never serialize storage keys into business DTOs. */
 export interface DocumentFile {
 	key: string
@@ -5,6 +7,10 @@ export interface DocumentFile {
 	byteLength: number
 	mediaType: 'application/pdf' | 'image/png' | 'image/jpeg'
 	filename: string
+}
+/** Internal evidence of a staged import source; it never becomes a document. */
+export interface ImportSourceFile extends Omit<DocumentFile, 'mediaType'> {
+	mediaType: ImportSourceMediaType
 }
 export interface OpenDocumentFile {
 	bytes: AsyncIterable<Uint8Array>
@@ -18,8 +24,10 @@ export abstract class DocumentFiles {
 		filename: string,
 		mediaType: string,
 	): Promise<DocumentFile>
+	/** Stage an import source after inspecting its content; see IMPORT-SOURCE-FILES#POLICY. */
+	abstract stageImportSource(bytes: Buffer, filename: string): Promise<ImportSourceFile>
 	/** Publish an existing verified staging file, or verify an already published retry. */
-	abstract publish(file: DocumentFile): Promise<void>
+	abstract publish(file: DocumentFile | ImportSourceFile): Promise<void>
 	/** Open and verify immutable bytes without disclosing their filesystem path. */
-	abstract open(file: DocumentFile): Promise<OpenDocumentFile>
+	abstract open(file: DocumentFile | ImportSourceFile): Promise<OpenDocumentFile>
 }
