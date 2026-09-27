@@ -64,7 +64,7 @@ export class KyselyWorkforceChangeContext implements WorkforceChangeContextPort 
 				${this.ref('organisation', 'a.organisation_id')} AS unit,${this.ref('department', 'a.department_id')} AS department,
 				${this.ref('designation', 'a.designation_id')} AS designation,${this.ref('location', 'a.location_id')} AS location,
 				${this.ref('position', 'a.position_id')} AS position,a.job_title AS "jobTitle",a.work_mode AS "workMode",
-				a.full_time_equivalent::float8 AS "fullTimeEquivalent",a.standard_hours_per_week::float8 AS "standardHoursPerWeek",a.cost_center_code AS "costCenterCode",
+				a.full_time_equivalent::float8 AS "fullTimeEquivalent",a.standard_hours_per_week::float8 AS "standardHoursPerWeek",a.cost_center_code AS "costCenterCode",coalesce(a.is_billable,false) AS billable,
 				(SELECT jsonb_build_object('id',mw.id,'name',mp.display_name,'assignmentId',l.manager_assignment_id)
 					FROM hcm.reporting_line l
 					JOIN hcm.assignment ma ON ma.tenant_id=l.tenant_id AND ma.id=l.manager_assignment_id

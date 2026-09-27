@@ -10,7 +10,10 @@ import type {
 	WorkforceProfilePort,
 	WorkforceReadPort,
 	WorkforceRecordsPort,
+	WorkforceChangeContextPort,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
+import type { PositionReadPort } from '@empflowyee/hcm-api-job-architecture-application'
+import type { EmploymentChangeRepository } from './employment-change-repository'
 import type { SelfServiceRepository } from './my-profile'
 import type { ProfilePolicyRepository } from './profile-configuration'
 import type { ProfileFieldVisibilityPort } from './profile-visibility-port'
@@ -35,6 +38,14 @@ export interface EmployeeWork {
 	records: WorkforceRecordsPort
 	/** Structure options and reference checks. */
 	structure: StructureReferencePort
+	/** Current facts and locks for employment change requests. */
+	changes: WorkforceChangeContextPort
+	/** Employee-owned employment change requests, approvals and execution steps. */
+	changeRequests: EmploymentChangeRepository
+	/** Published positions and capacity decisions (DEC-HCM2-007). */
+	positions: PositionReadPort
+	/** Whether the actor holds one more employee business grant, such as `changes.approve`. */
+	holds(permission: string): Promise<boolean>
 	/** Employee-owned custom values and visibility preferences. */
 	selfService: SelfServiceRepository
 	receipts: CommandReceiptStore

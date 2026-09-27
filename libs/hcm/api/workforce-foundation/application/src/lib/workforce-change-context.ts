@@ -46,6 +46,7 @@ export interface ChangeContextAssignment {
 	fullTimeEquivalent: number | null
 	standardHoursPerWeek: number | null
 	costCenterCode: string
+	billable: boolean
 	/** The primary solid manager on the date, by the manager's assignment. */
 	manager: (ChangeReference & { assignmentId: string }) | null
 }
