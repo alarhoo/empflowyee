@@ -56,7 +56,7 @@ export interface HcmTestApi {
 		persona: string,
 		path: string,
 		metadata: unknown,
-		file: { name: string; type: string; bytes: Buffer },
+		file?: { name: string; type: string; bytes: Buffer },
 	): Promise<HcmReply<T>>
 	/** Migrator connection with tenant context for arranging and inspecting rows. */
 	admin: Client
@@ -64,9 +64,9 @@ export interface HcmTestApi {
 	close(): Promise<void>
 }
 
-/** A reply body: CSV text as is, JSON parsed, or null when empty. */
-function decode(text: string, csv: boolean): never {
-	if (csv) return text as never
+/** A reply body: non-JSON text as is, JSON parsed, or null when empty. */
+function decode(text: string, raw: boolean): never {
+	if (raw) return text as never
 	return (text ? JSON.parse(text) : null) as never
 }
 
@@ -122,17 +122,24 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 			persona: string,
 			path: string,
 			metadata: unknown,
-			file: { name: string; type: string; bytes: Buffer },
+			file?: { name: string; type: string; bytes: Buffer },
 		) {
 			const boundary = `hcm-${randomUUID()}`
-			const body = Buffer.concat([
+			const parts = [
 				Buffer.from(
-					`--${boundary}\r\nContent-Disposition: form-data; name="metadata"\r\n\r\n${JSON.stringify(metadata)}\r\n` +
-						`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${file.name}"\r\nContent-Type: ${file.type}\r\n\r\n`,
+					`--${boundary}\r\nContent-Disposition: form-data; name="metadata"\r\n\r\n${JSON.stringify(metadata)}\r\n`,
 				),
-				file.bytes,
-				Buffer.from(`\r\n--${boundary}--\r\n`),
-			])
+			]
+			if (file)
+				parts.push(
+					Buffer.from(
+						`--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${file.name}"\r\nContent-Type: ${file.type}\r\n\r\n`,
+					),
+					file.bytes,
+					Buffer.from('\r\n'),
+				)
+			parts.push(Buffer.from(`--${boundary}--\r\n`))
+			const body = Buffer.concat(parts)
 			return this.send<T>(persona, 'POST', path, body, {
 				'content-type': `multipart/form-data; boundary=${boundary}`,
 			})
@@ -168,13 +175,13 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 						/** Decode JSON output. */ (response) => {
 							let text = ''
 							response.on('data', /** Collect chunks. */ (chunk) => (text += String(chunk)))
-							const csv = String(response.headers['content-type'] ?? '').startsWith('text/csv')
+							const raw = !String(response.headers['content-type'] ?? '').includes('json')
 							response.on(
 								'end',
 								/** Resolve with status and body. */ () =>
 									resolveReply({
 										status: response.statusCode ?? 0,
-										body: decode(text, csv),
+										body: decode(text, raw),
 										cache: response.headers['cache-control'],
 									}),
 							)
