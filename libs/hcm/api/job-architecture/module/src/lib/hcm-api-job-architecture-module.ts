@@ -12,6 +12,7 @@ import {
 } from '@empflowyee/hcm-api-job-architecture-application'
 import {
 	JobCatalogueController,
+	PositionRequirementsController,
 	PositionsController,
 } from '@empflowyee/hcm-api-job-architecture-transport'
 import { WorkforcePortBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
@@ -23,7 +24,7 @@ import {
 /** Job architecture composition over the shared access transaction boundary. */
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [JobCatalogueController, PositionsController],
+	controllers: [JobCatalogueController, PositionsController, PositionRequirementsController],
 	providers: [
 		{
 			provide: JobArchitectureUnitOfWork,

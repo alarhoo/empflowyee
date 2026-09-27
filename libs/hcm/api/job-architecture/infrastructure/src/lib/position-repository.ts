@@ -17,6 +17,9 @@ import {
 	type PositionOptionDto,
 	type PositionProposal,
 	type PositionQuery,
+	type PositionRequirementQuery,
+	type PositionRequirementSummaryDto,
+	type RequirementDto,
 	type PositionRelationshipDto,
 	type PositionRequestStatus,
 	type PositionRequestType,
@@ -398,6 +401,56 @@ export class KyselyPositionRepository implements PositionRepository {
 		)
 	}
 
+	/** Requirements of a profile version with their ids. */
+	profileRequirements(profileVersionId: string): Promise<(RequirementDto & { id: string })[]> {
+		return this.run(
+			sql<
+				RequirementDto & { id: string }
+			>`SELECT id,requirement_code AS code,requirement_type AS type,name,description,
+				proficiency_level AS proficiency,minimum_quantity::float8 AS "minimumQuantity",quantity_unit AS unit,is_mandatory AS mandatory,
+				sort_order AS "sortOrder" FROM hcm.job_profile_requirement
+				WHERE tenant_id=${this.scope.tenantId} AND job_profile_version_id=${profileVersionId} ORDER BY sort_order,requirement_code`,
+		)
+	}
+
+	/** Positions with the variance count of their version on a date. */
+	async requirementPositions(
+		query: PositionRequirementQuery,
+		asOf: string,
+	): Promise<HcmPage<PositionRequirementSummaryDto>> {
+		const filterSet = Object.fromEntries(
+			Object.entries(query).filter(
+				/** Not paging. */ ([name]) => name !== 'cursor' && name !== 'limit',
+			),
+		)
+		const key = cursorBinding([this.scope.tenantId, asOf, 'requirements', filterSet])
+		const after = decodeCursor(query.cursor, key, 2)
+		const filters: RawBuilder<unknown>[] = [sql`true`]
+		if (query.q) {
+			const pattern = likePattern(query.q)
+			filters.push(sql`(s.code ILIKE ${pattern} OR s.name ILIKE ${pattern})`)
+		}
+		if (query.hasVariances !== undefined)
+			filters.push(query.hasVariances ? sql`s."varianceCount" > 0` : sql`s."varianceCount" = 0`)
+		if (after)
+			filters.push(
+				sql`(s.code COLLATE "C",s.id COLLATE "C") > (${after[0]} COLLATE "C",${after[1]} COLLATE "C")`,
+			)
+		const page = await this.run(
+			sql<PositionRequirementSummaryDto>`SELECT * FROM (SELECT s.id,s.code,s.name,s."lifecycleStatus",s.version->'profile' AS profile,
+					s."openRequest",(SELECT count(*)::int FROM hcm.position_requirement r WHERE r.tenant_id=${this.scope.tenantId}
+						AND r.position_version_id=s.version->>'id') AS "varianceCount"
+				FROM (${this.positionRows(asOf)}) s) s WHERE ${sql.join(filters, sql` AND `)}
+				ORDER BY s.code COLLATE "C",s.id COLLATE "C" LIMIT ${query.limit + 1}`,
+		)
+		return keysetPage(
+			page,
+			query.limit,
+			key,
+			/** Continue after the last position. */ (row) => [row.code, row.id],
+		)
+	}
+
 	/** Current published profile versions with allowed grades. */
 	async profileOptions(
 		q: string,
@@ -510,6 +563,39 @@ export class KyselyPositionRepository implements PositionRepository {
 				VALUES (${t},${input.id},${input.positionId},${input.versionNumber},${p.profileVersionId},${p.gradeId},${p.designationId},
 				${p.legalEntityId},${p.unitId},${p.departmentId},${p.locationId},${p.positionType},${p.headcountCapacity},${p.fteCapacity},
 				${p.keyPosition},${p.costCenterCode},${p.effectiveFrom},${input.supersedesId},${input.changeSummary},${a},${a})`,
+		)
+	}
+
+	/** Insert variances into a draft version in order. */
+	async insertVariances(
+		versionId: string,
+		variances: readonly (Omit<VarianceDraft, 'justification' | 'sourceCode'> & {
+			id: string
+			sourceRequirementId: string | null
+			justification: SealedValue | null
+		})[],
+	): Promise<void> {
+		if (!variances.length) return
+		const { tenantId: t, accountId: a } = this.scope
+		await this.run(
+			sql`INSERT INTO hcm.position_requirement(tenant_id,id,position_version_id,source_job_profile_requirement_id,requirement_code,
+				variance_type,requirement_type,name,description,proficiency_level,minimum_quantity,quantity_unit,is_mandatory,
+				encrypted_justification,justification_key_version,sort_order,created_by_account_id)
+				VALUES ${sql.join(
+					variances.map(
+						/** One variance. */ (v, index) =>
+							sql`(${t},${v.id},${versionId},${v.sourceRequirementId},${v.code},${v.varianceType},${v.type},${v.name},
+								${v.description},${v.proficiency},${v.minimumQuantity},${v.unit},${v.mandatory},
+								${v.justification?.ciphertext ?? null},${v.justification?.keyVersion ?? null},${(index + 1) * 10},${a})`,
+					),
+				)}`,
+		)
+	}
+
+	/** Remove every variance of a draft version. */
+	async deleteVariances(versionId: string): Promise<void> {
+		await this.run(
+			sql`DELETE FROM hcm.position_requirement WHERE tenant_id=${this.scope.tenantId} AND position_version_id=${versionId}`,
 		)
 	}
 

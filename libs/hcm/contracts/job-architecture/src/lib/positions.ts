@@ -105,6 +105,8 @@ export const PREVIEW_TTL_MINUTES = 15
 export const MAX_HEADCOUNT_CAPACITY = 10000
 /** Bound on effective requirements of one position. */
 export const MAX_POSITION_REQUIREMENTS = 200
+/** Longest waive justification (Position Requirements TDD#UX). */
+export const MAX_JUSTIFICATION = 2000
 /** Bound on variances one request proposes. */
 export const MAX_VARIANCES = 50
 
@@ -399,6 +401,13 @@ export interface PositionRequestQuery {
 	view?: 'mine' | 'awaiting-my-decision'
 }
 
+export interface PositionRequirementQuery {
+	q: string
+	limit: number
+	cursor?: string
+	hasVariances?: boolean
+}
+
 export interface PositionOptionQuery {
 	q: string
 	limit: number
@@ -592,7 +601,7 @@ export function parseVariance(value: unknown, field: string): VarianceDraft {
 		justification:
 			justification === null
 				? null
-				: textValue(justification, `${field}.justification`, 1000).trim(),
+				: textValue(justification, `${field}.justification`, MAX_JUSTIFICATION).trim(),
 	}
 }
 
@@ -713,6 +722,20 @@ export function parsePositionRequestQuery(params: URLSearchParams): PositionRequ
 export function parsePageQuery(params: URLSearchParams): { limit: number; cursor?: string } {
 	const query = readListQuery(params, ['default'])
 	return { limit: query.limit, ...(query.cursor ? { cursor: query.cursor } : {}) }
+}
+
+/** Parse a position requirement page query. */
+export function parsePositionRequirementQuery(params: URLSearchParams): PositionRequirementQuery {
+	const query = readListQuery(params, ['code:asc'], ['hasVariances'])
+	const variances = query.filters['hasVariances']
+	if (variances !== undefined && variances !== 'true' && variances !== 'false')
+		invalidField('hasVariances')
+	return {
+		q: query.q,
+		limit: query.limit,
+		...(query.cursor ? { cursor: query.cursor } : {}),
+		...(variances !== undefined ? { hasVariances: variances === 'true' } : {}),
+	}
 }
 
 /** Parse an option query. */
