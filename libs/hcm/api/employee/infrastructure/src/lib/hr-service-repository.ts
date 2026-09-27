@@ -282,7 +282,7 @@ export class KyselyHrServiceRepository implements HrServiceRepository {
 			sql<TargetFacts>`SELECT r.target_kind AS kind,r.target_minutes AS "targetMinutes",${stamp('r.started_at')} AS "startedAt",
 				${stamp('r.due_at')} AS "dueAt",${stamp('r.paused_at')} AS "pausedAt",${stamp('r.met_at')} AS "metAt",${stamp('r.breached_at')} AS "breachedAt"
 				FROM hcm.hr_service_level_target r WHERE r.tenant_id=${this.scope.tenantId} AND r.request_id=${requestId}
-				ORDER BY r.target_kind DESC`,
+				ORDER BY r.target_kind`,
 		)
 	}
 

@@ -1,6 +1,7 @@
 import type { HrPriority, HrStatus, HrVisibility } from '@empflowyee/hcm-employee-contract'
 import { HcmDomainError, invalidField } from '@empflowyee/hcm-runtime-contract'
 import { minutesBetween, newlyBreached, resumedDue } from '@empflowyee/hcm-api-employee-domain'
+import { DocumentError } from '@empflowyee/hcm-documents-contract'
 import type { EmployeeWork } from './employee-unit'
 import type { HrRequestPatch, HrRequestRow, HrTypeRow } from './hr-service-repository'
 
@@ -109,7 +110,15 @@ export async function attach(
 	visibility: HrVisibility,
 	upload: HrUpload,
 ): Promise<void> {
-	const staged = await w.sources.stageAttachment(upload)
+	let staged
+	try {
+		staged = await w.sources.stageAttachment(upload)
+	} catch (error) {
+		if (!(error instanceof DocumentError)) throw error
+		if (error.code === 'file-too-large') throw new HcmDomainError('file-too-large')
+		if (error.code === 'storage-unavailable') throw error
+		throw new HcmDomainError('unsupported-file', [{ field: 'file', code: error.code }])
+	}
 	await w.hrService.insertAttachment(requestId, messageId, staged.blobId, visibility)
 }
 
@@ -232,12 +241,14 @@ export async function hrMessage(
 		fromRequester: false,
 	})
 	if (upload) await attach(w, request.id, messageId, visibility, upload)
-	if (visibility !== 'EmployeeVisible') return
-	if (!request.firstRespondedAt) {
+	// Every message moves the revision, so open views see the conversation changed.
+	const patch: HrRequestPatch = {}
+	if (visibility === 'EmployeeVisible' && !request.firstRespondedAt) {
 		await w.hrService.updateTarget(request.id, 'FirstResponse', { metAt: now })
-		await w.hrService.updateRequest(request.id, { firstResponded: true })
+		patch.firstResponded = true
 	}
-	if (request.status === 'New') await w.hrService.updateRequest(request.id, { status: 'Open' })
+	if (visibility === 'EmployeeVisible' && request.status === 'New') patch.status = 'Open'
+	await w.hrService.updateRequest(request.id, patch)
 }
 
 /** Require an agent account for an assignment. */
