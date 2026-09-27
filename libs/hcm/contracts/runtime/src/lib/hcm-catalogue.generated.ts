@@ -1896,7 +1896,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['hr-specialist-operations'],
 			route: '/employee/probation-management',
 			floorplan: 'UX-FP-FCL',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
