@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **11 of 18 HCM-2 apps released; step 12 is complete.** Delivery follows the approved
+Status: **12 of 18 HCM-2 apps released; step 13 is complete.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -9,7 +9,7 @@ validation record pass.
 | Step  | Delivers                                                                                                                                        | State       | Evidence                                                                           |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
 | 1     | Catalogue admission of Organization Structure                                                                                                   | Delivered   | 171-app catalogue; `access.discovery@2`                                            |
-| 2     | Shared `HcmWizardPage`                                                                                                                          | Not started | —                                                                                  |
+| 2     | Shared `HcmWizardPage`                                                                                                                          | Delivered   | [Validation](../ux/floorplans/validation.md#wizard-ux-fp-wizard-hcm-2-step-2)      |
 | 3     | `FieldCipher` port and local key, with migration `000025`                                                                                       | Delivered   | [Validation](../testing/HCM-2-FIELD-CIPHER-VALIDATION.md)                          |
 | 4     | Workforce structure foundation: migrations `000017`–`000018`, contracts, API, `workforce.foundation@2`, `access.hcm2@1`                         | Delivered   | `libs/hcm/api/workforce-foundation/**`; `pnpm hcm:db:test`                         |
 | 5     | Organization Structure app                                                                                                                      | Released    | [Validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md)                |
@@ -27,7 +27,8 @@ validation record pass.
 | 12    | Positions foundation: migrations `000026`–`000027`, position ports, `job.architecture@2`                                                        | Delivered   | [Validation](../testing/HCM-2-POSITIONS-FOUNDATION-VALIDATION.md)                  |
 | 12    | Positions app, with migration `000028` and `access.discovery@7`                                                                                 | Released    | [Validation](../testing/HCM-2-POSITIONS-VALIDATION.md)                             |
 | 12    | Position Requirements app, with `access.discovery@8`                                                                                            | Released    | [Validation](../testing/HCM-2-POSITION-REQUIREMENTS-VALIDATION.md)                 |
-| 12–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
+| 13    | Employee Records app, including worker creation and merge                                                                                       | Released    | [Validation](../testing/HCM-2-EMPLOYEE-RECORDS-VALIDATION.md)                      |
+| 14–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
 `codex/hcm-2-catalogue-organization-structure`. Each step now also has its own branch,
@@ -53,6 +54,8 @@ stacked in order, and every later step starts a new branch from the previous one
 | 12   | `codex/hcm-2-job-architecture-positions-foundation` |
 | 12   | `codex/hcm-2-positions`                             |
 | 12   | `codex/hcm-2-position-requirements`                 |
+| 2    | `codex/hcm-2-ux-wizard-floorplan`                   |
+| 13   | `codex/hcm-2-employee-records`                      |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 

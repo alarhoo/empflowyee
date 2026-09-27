@@ -43,9 +43,20 @@ until the feature makes them reachable. No private DOM patch, feature CSS or dis
 is used.
 
 Contract evidence: 2 unit tests cover forward requests, unvalidated backward moves, header
-choices limited to reachable steps, and navigation disabled while busy. Lint passes. Native
-step validation, keyboard, responsive and accessibility evidence is recorded with the first
-consumer, Employee Records, below.
+choices limited to reachable steps, and navigation disabled while busy. Lint passes.
+
+Live evidence with the first consumer, Employee Records (`/employee/employee-records/new`), on
+2026-09-27:
+
+- Step validation: Next step on an empty Person step keeps the step and focuses Given name. A
+  duplicate candidate keeps the Duplicate check step until the user resolves it with a reason.
+- Keyboard: Previous step and Next step are operated with Enter from the footer.
+- Accessibility: axe finds no violations on the first and the final step. The first run found a
+  second `banner` landmark from the DynamicPage header. The header is now a named region, as in
+  `HcmDynamicPage`.
+- The `cancel` output was renamed `cancelled`, so it does not shadow the native DOM event.
+
+See the [Employee Records validation](../../testing/HCM-2-EMPLOYEE-RECORDS-VALIDATION.md).
 
 ## Previous implementation evidence (historical)
 
