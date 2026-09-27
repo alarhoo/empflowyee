@@ -42,6 +42,7 @@ import {
 import {
 	EMPLOYMENT_STATUSES,
 	RECORD_STATES,
+	type RecordOptionKind,
 	type WorkerRecordDto,
 	type WorkerRecordSummaryDto,
 } from '@empflowyee/hcm-employee-contract'
@@ -49,6 +50,22 @@ import { BASE_ROUTE, MANAGE_PERMISSION, employmentStatus, initials, recordState 
 import { RecordOptionBox, type OptionRef } from './option-box.component'
 import { RecordComponent } from './record.component'
 import { RecordDialog, type RecordDialogInput } from './record-dialog.component'
+
+type FilterRef = 'legalEntityId' | 'unitId' | 'departmentId' | 'locationId' | 'workerTypeId'
+
+/** Reference filters with the option kind that supplies them. */
+const FILTER_REFS: { name: FilterRef; kind: RecordOptionKind; label: string; id: string }[] = [
+	{
+		name: 'legalEntityId',
+		kind: 'legal-entities',
+		label: 'Legal entity',
+		id: 'records-legal-entity',
+	},
+	{ name: 'unitId', kind: 'units', label: 'Unit', id: 'records-unit' },
+	{ name: 'departmentId', kind: 'departments', label: 'Department', id: 'records-department' },
+	{ name: 'locationId', kind: 'locations', label: 'Location', id: 'records-location' },
+	{ name: 'workerTypeId', kind: 'worker-types', label: 'Worker type', id: 'records-worker-type' },
+]
 
 /** Employee Records: native two-column FCL of worker records and the selected record. */
 @Component({
@@ -104,7 +121,14 @@ export class EmployeeRecordsComponent {
 	readonly cursor = signal<string | null>(null)
 	readonly filters = signal({ q: '', status: 'all', recordState: 'all', sort: 'name:asc' })
 	readonly filterForm = form(this.filters)
-	readonly unit = signal<OptionRef | null>(null)
+	readonly refs = signal<Record<FilterRef, OptionRef | null>>({
+		legalEntityId: null,
+		unitId: null,
+		departmentId: null,
+		locationId: null,
+		workerTypeId: null,
+	})
+	readonly filterRefs = FILTER_REFS
 	readonly state = signal<HcmPageState>('loading')
 	readonly listState = signal<'loading' | 'content' | 'error'>('loading')
 	readonly message = signal('')
@@ -180,15 +204,24 @@ export class EmployeeRecordsComponent {
 	/** The query of the applied filters. */
 	private query(cursor: string | undefined): RecordListQuery {
 		const f = this.filters()
-		const unit = this.unit()
+		const refs = Object.fromEntries(
+			Object.entries(this.refs())
+				.filter(/** Chosen references only. */ ([, ref]) => ref !== null)
+				.map(/** Filter by identity. */ ([name, ref]) => [name, ref?.id]),
+		)
 		return {
 			q: f.q.trim(),
 			sort: f.sort === 'workerNumber:asc' ? 'workerNumber:asc' : 'name:asc',
 			...(f.status !== 'all' ? { status: f.status } : {}),
 			...(f.recordState !== 'all' ? { recordState: f.recordState } : {}),
-			...(unit ? { unitId: unit.id } : {}),
+			...refs,
 			...(cursor ? { cursor } : {}),
 		}
+	}
+
+	/** Set one reference filter. */
+	setRef(name: FilterRef, ref: OptionRef | null): void {
+		this.refs.update(/** Filter. */ (refs) => ({ ...refs, [name]: ref }))
 	}
 
 	/** Open a record in the mid column. */
