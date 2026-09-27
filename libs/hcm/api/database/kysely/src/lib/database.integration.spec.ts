@@ -219,6 +219,9 @@ it('serializes concurrent runners, applies once and exposes only approved object
 			'worker_event',
 			'worker_event_type',
 			'worker_type',
+			'workforce_change_approval',
+			'workforce_change_execution_step',
+			'workforce_change_request',
 			'workforce_command_receipt',
 		].map(
 			/** Match the approved spine and bookkeeping tables without inventing business applications. */ (
