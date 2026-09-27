@@ -6,6 +6,7 @@ import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foun
 import {
 	EmployeeDirectory,
 	EmployeePortBinder,
+	EmployeeRecords,
 	EmployeeUnitOfWork,
 	MyProfile,
 	ProfileConfiguration,
@@ -22,6 +23,7 @@ import {
 } from '@empflowyee/hcm-api-employee-infrastructure'
 import {
 	DirectoryController,
+	EmployeeRecordsController,
 	MyProfileController,
 	ProfileConfigurationController,
 	TeamController,
@@ -40,6 +42,7 @@ import {
 		DirectoryController,
 		TeamController,
 		MyProfileController,
+		EmployeeRecordsController,
 	],
 	providers: [
 		{
@@ -73,6 +76,12 @@ import {
 			inject: [EmployeeUnitOfWork],
 			useFactory: /** Compose the self-service use cases. */ (unit: EmployeeUnitOfWork) =>
 				new MyProfile(unit),
+		},
+		{
+			provide: EmployeeRecords,
+			inject: [EmployeeUnitOfWork],
+			useFactory: /** Compose the HR records use cases. */ (unit: EmployeeUnitOfWork) =>
+				new EmployeeRecords(unit),
 		},
 		{
 			provide: EmployeePortBinder,
