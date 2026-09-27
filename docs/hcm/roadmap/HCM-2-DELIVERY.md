@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **13 of 18 HCM-2 apps released; step 14 is complete.** Delivery follows the approved
+Status: **14 of 18 HCM-2 apps released; step 15 is complete.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -31,7 +31,8 @@ validation record pass.
 | 14    | Workforce changes foundation: migration `000029`, facts and change-context ports, `workforce.foundation@4`                                      | Delivered   | [Validation](../testing/HCM-2-WORKFORCE-CHANGES-FOUNDATION-VALIDATION.md)          |
 | 14    | Employment Changes app, with `access.discovery@9`                                                                                               | Released    | [Validation](../testing/HCM-2-EMPLOYMENT-CHANGES-VALIDATION.md)                    |
 | 15    | Documents import-source extension: migration `000030`, `DocumentStoragePort`                                                                    | Delivered   | [Validation](../testing/HCM-2-DOCUMENTS-IMPORT-SOURCE-VALIDATION.md)               |
-| 15–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
+| 15    | Employee Import app, with migration `000031` and `employee.operations@1`                                                                        | Released    | [Validation](../testing/HCM-2-EMPLOYEE-IMPORT-VALIDATION.md)                       |
+| 16–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
 `codex/hcm-2-catalogue-organization-structure`. Each step now also has its own branch,
@@ -62,6 +63,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 14   | `codex/hcm-2-employee-workforce-changes-foundation` |
 | 14   | `codex/hcm-2-employment-changes`                    |
 | 15   | `codex/hcm-2-documents-import-source`               |
+| 15   | `codex/hcm-2-employee-import`                       |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -87,7 +89,8 @@ migrations of step 12 became `000026`–`000027`, three above their planned numb
   event types arrive as the forward seed `workforce.foundation@4`, because `workforce.foundation@3`
   is applied and immutable.
 - The documents import-source extension in step 15 is `000030_document_import_sources.sql`; the
-  employee import migration follows as `000031`.
+  employee import migration follows as `000031_employee_import.sql`, with its published template
+  as the new seed module `employee.operations@1`.
 
 Seed modules are immutable once applied. `job.architecture@1` therefore carries only the
 catalogue part delivered in step 11; the position part planned for it arrives in step 12 as
