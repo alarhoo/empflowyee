@@ -272,6 +272,7 @@ for (const person of people) {
 					app.appCode === 'EMPLOYEE_PROFILE_CONFIGURATION') ||
 				(person.role === 'hr-specialist' && app.appCode === 'JOB_CATALOGUE') ||
 				(person.role === 'tenant-administrator' && app.appCode === 'POSITIONS') ||
+				(person.role === 'hr-specialist' && app.appCode === 'POSITION_REQUIREMENTS') ||
 				(app.appCode === 'DOCUMENT_REQUESTS' && person.role !== 'hr-specialist')
 			) &&
 			app.catalogueIds.some(

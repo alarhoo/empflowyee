@@ -190,6 +190,15 @@
 			"requiresMigrations": ["000005_identity_access_spine.sql"],
 			"apply": "access.discovery.7.apply.sql",
 			"reset": "access.discovery.7.reset.sql"
+		},
+		{
+			"id": "access.discovery",
+			"domain": "access-control",
+			"version": 8,
+			"dependsOn": ["access.discovery@7"],
+			"requiresMigrations": ["000005_identity_access_spine.sql"],
+			"apply": "access.discovery.8.apply.sql",
+			"reset": "access.discovery.8.reset.sql"
 		}
 	]
 }

@@ -4090,12 +4090,18 @@
 			"runtime": "web",
 			"domain": "job-architecture",
 			"deliveryWave": "HCM-2",
-			"catalogueIds": ["tenant-administration"],
+			"catalogueIds": ["tenant-administration", "hr-specialist-operations"],
 			"placements": [
 				{
 					"spaceId": "tenant-administration",
 					"pageId": "admin-reference-data",
 					"sectionId": "admin-people-documents",
+					"display": "tiles"
+				},
+				{
+					"spaceId": "hr-operations",
+					"pageId": "hr-time-projects",
+					"sectionId": "hr-projects",
 					"display": "tiles"
 				}
 			],
