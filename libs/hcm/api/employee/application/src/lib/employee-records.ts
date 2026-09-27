@@ -25,6 +25,7 @@ import {
 	type AuthenticatedHcmContext,
 } from '@empflowyee/hcm-api-runtime-application'
 import type { RecordRow, WorkerLock } from '@empflowyee/hcm-api-workforce-foundation-application'
+import { enterProbation } from './probation-schedule'
 import type { EmployeeUnitOfWork, EmployeeWork } from './employee-unit'
 
 const READ = 'records.read'
@@ -504,6 +505,14 @@ export class EmployeeRecords {
 					approvedByAccountId: null,
 					approvedOn: null,
 				})
+				if (command.employment.probationEndDate)
+					await enterProbation(
+						w,
+						employment.id,
+						hire,
+						command.employment.probationEndDate,
+						requestId,
+					)
 				if (resolution.kind === 'create-new')
 					await this.audit(w, 'employee.duplicate-resolved', worker.id, requestId, {
 						reason: resolution.reason,

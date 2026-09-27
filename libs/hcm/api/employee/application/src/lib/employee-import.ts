@@ -44,6 +44,7 @@ import {
 	resolutionAllowed,
 	rowDigest,
 } from '@empflowyee/hcm-api-employee-domain'
+import { enterProbation } from './probation-schedule'
 import type { EmployeeUnitOfWork, EmployeeWork } from './employee-unit'
 import type {
 	ImportColumnRow,
@@ -567,7 +568,7 @@ export class EmployeeImport {
 								const existing = row.resolution === 'UseExisting' ? row.resolutionWorkerId : null
 								return existing
 									? this.updatePerson(w, existing, evaluated)
-									: this.createWorker(w, evaluated, `Import ${run.id}`)
+									: this.createWorker(w, evaluated, `Import ${run.id}`, requestId)
 							},
 						)
 						await w.imports.markRow(row.id, { status: 'Committed', resultWorkerId: workerId })
@@ -991,6 +992,7 @@ export class EmployeeImport {
 		w: EmployeeWork,
 		evaluated: Evaluated,
 		reason: string,
+		requestId: string,
 	): Promise<string> {
 		const v = evaluated.values
 		const refs = evaluated.refs
@@ -1049,6 +1051,7 @@ export class EmployeeImport {
 				reason,
 			})
 		}
+		if (probation) await enterProbation(w, employment.id, hire, probation, requestId)
 		await w.facts.recordWorkerEvent({
 			workerId: worker.id,
 			employmentId: employment.id,
