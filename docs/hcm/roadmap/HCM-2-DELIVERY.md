@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **12 of 18 HCM-2 apps released; step 13 is complete.** Delivery follows the approved
+Status: **13 of 18 HCM-2 apps released; step 14 is complete.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -29,6 +29,7 @@ validation record pass.
 | 12    | Position Requirements app, with `access.discovery@8`                                                                                            | Released    | [Validation](../testing/HCM-2-POSITION-REQUIREMENTS-VALIDATION.md)                 |
 | 13    | Employee Records app, including worker creation and merge                                                                                       | Released    | [Validation](../testing/HCM-2-EMPLOYEE-RECORDS-VALIDATION.md)                      |
 | 14    | Workforce changes foundation: migration `000029`, facts and change-context ports, `workforce.foundation@4`                                      | Delivered   | [Validation](../testing/HCM-2-WORKFORCE-CHANGES-FOUNDATION-VALIDATION.md)          |
+| 14    | Employment Changes app, with `access.discovery@9`                                                                                               | Released    | [Validation](../testing/HCM-2-EMPLOYMENT-CHANGES-VALIDATION.md)                    |
 | 15–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -58,6 +59,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 2    | `codex/hcm-2-ux-wizard-floorplan`                   |
 | 13   | `codex/hcm-2-employee-records`                      |
 | 14   | `codex/hcm-2-employee-workforce-changes-foundation` |
+| 14   | `codex/hcm-2-employment-changes`                    |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
@@ -101,6 +103,7 @@ app approval binds.
 | DEC-HCM2-020 | Job Catalogue has the same gap: the FDD names HR Operations as a reader, but only administrators could discover it. Should HR discover it?                                           | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-019 without a separate product-owner answer. `access.discovery@6` grants `hr-specialist` discovery, and the app joins the HR catalogue under Configuration and Service.                              |
 | DEC-HCM2-021 | Positions has the same gap for approvers: tenant administrators decide position change requests but could not discover the app. Should they discover it?                             | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-020 without a separate product-owner answer. `access.discovery@7` grants `tenant-administrator` discovery, and the app joins the Tenant Administration catalogue next to Job Catalogue.              |
 | DEC-HCM2-022 | Position Requirements has the same gap: HR proposes requirement variances but only administrators could discover the app. Should HR discover it?                                     | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-021 without a separate product-owner answer. `access.discovery@8` grants `hr-specialist` discovery, and the app joins the HR catalogue next to Positions.                                            |
+| DEC-HCM2-023 | Employment Changes has the same gap for approvers: tenant administrators decide change requests but could not discover the app. Should they discover it?                             | Yes, applied by the precedent of DEC-HCM2-017 to DEC-HCM2-022 without a separate product-owner answer. `access.discovery@9` grants `tenant-administrator` discovery, and the app joins the Tenant Administration catalogue next to Positions.                  |
 
 The open points found during step 5 are listed in the
 [Organization Structure validation](../testing/HCM-2-ORGANIZATION-STRUCTURE-VALIDATION.md#open-points).
