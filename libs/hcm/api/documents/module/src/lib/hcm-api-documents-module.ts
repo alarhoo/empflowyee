@@ -1,5 +1,12 @@
-import { DocumentRequests, DocumentRequestUnit } from '@empflowyee/hcm-api-documents-application'
-import { KyselyDocumentRequestUnit } from '@empflowyee/hcm-api-documents-infrastructure'
+import {
+	DocumentRequests,
+	DocumentRequestUnit,
+	DocumentStoragePort,
+} from '@empflowyee/hcm-api-documents-application'
+import {
+	KyselyDocumentRequestUnit,
+	KyselyDocumentStoragePort,
+} from '@empflowyee/hcm-api-documents-infrastructure'
 import { DocumentRequestController } from '@empflowyee/hcm-api-documents-transport'
 import { DocumentError } from '@empflowyee/hcm-documents-contract'
 import { assertLocalRuntime } from '@empflowyee/hcm-api-runtime-infrastructure'
@@ -36,6 +43,10 @@ class UnconfiguredFiles extends DocumentFiles {
 	async stage(): Promise<never> {
 		throw new DocumentError('storage-unavailable')
 	}
+	/** Keep import sources unavailable without configured private storage. */
+	async stageImportSource(): Promise<never> {
+		throw new DocumentError('storage-unavailable')
+	}
 	/** Never report a published file outside the opted-in local storage runtime. */
 	async publish(): Promise<never> {
 		throw new DocumentError('storage-unavailable')
@@ -48,6 +59,7 @@ class UnconfiguredFiles extends DocumentFiles {
 
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
+	exports: [DocumentStoragePort],
 	controllers: [
 		DocumentRequestController,
 		DocumentTypesController,
@@ -104,6 +116,12 @@ class UnconfiguredFiles extends DocumentFiles {
 			) => new WorkerFiles(unit, files),
 		},
 
+		{
+			provide: DocumentStoragePort,
+			inject: [DocumentFiles],
+			useFactory: /** Import sources share the private file store. */ (files: DocumentFiles) =>
+				new KyselyDocumentStoragePort(files),
+		},
 		{
 			provide: DocumentFiles,
 			useFactory: /** Inspect private storage without repairs. */ async () => {

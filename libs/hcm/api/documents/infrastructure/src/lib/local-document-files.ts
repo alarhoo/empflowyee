@@ -14,7 +14,11 @@ import { dirname, isAbsolute, join, parse, resolve } from 'node:path'
 import { DocumentError } from '@empflowyee/hcm-documents-contract'
 import {
 	DocumentFiles,
+	IMPORT_SOURCE_MAX_BYTES,
+	IMPORT_SOURCE_MEDIA_TYPES,
+	inspectImportSource,
 	type DocumentFile,
+	type ImportSourceFile,
 	type OpenDocumentFile,
 } from '@empflowyee/hcm-api-documents-application'
 
@@ -94,15 +98,16 @@ function media(first: Buffer, filename: string, declared: string): DocumentFile[
 	throw new DocumentError('unsupported-file')
 }
 /** Verify evidence before constructing any path or trusting a database record. */
-function evidence(file: DocumentFile): void {
+function evidence(file: DocumentFile | ImportSourceFile): void {
+	const source = (IMPORT_SOURCE_MEDIA_TYPES as readonly string[]).includes(file.mediaType)
 	if (
 		!keyPattern.test(file.key) ||
 		!/^[a-f0-9]{64}$/.test(file.sha256) ||
 		!Number.isSafeInteger(file.byteLength) ||
 		file.byteLength < 1 ||
-		file.byteLength > maximum ||
+		file.byteLength > (source ? IMPORT_SOURCE_MAX_BYTES : maximum) ||
 		safeFilename(file.filename) !== file.filename ||
-		!['application/pdf', 'image/png', 'image/jpeg'].includes(file.mediaType)
+		(!source && !['application/pdf', 'image/png', 'image/jpeg'].includes(file.mediaType))
 	)
 		throw new DocumentError('storage-unavailable')
 }
@@ -186,8 +191,36 @@ export class LocalDocumentFiles extends DocumentFiles {
 			throw new DocumentError('storage-unavailable')
 		}
 	}
+	/** Stage an inspected import source; the content, not its name or browser type, decides the type. */
+	async stageImportSource(bytes: Buffer, filename: string): Promise<ImportSourceFile> {
+		const name = safeFilename(filename)
+		const mediaType = inspectImportSource(bytes, name)
+		const key = randomUUID()
+		let handle: FileHandle | undefined
+		try {
+			handle = await open(
+				await this.path('staging', key),
+				constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY | constants.O_NOFOLLOW,
+				0o600,
+			)
+			await handle.writeFile(bytes)
+			await handle.sync()
+			await handle.close()
+			handle = undefined
+		} catch {
+			await handle?.close()
+			throw new DocumentError('storage-unavailable')
+		}
+		return {
+			key,
+			sha256: createHash('sha256').update(bytes).digest('hex'),
+			byteLength: bytes.length,
+			mediaType,
+			filename: name,
+		}
+	}
 	/** Make bytes durable before the final business transaction; retries never replace existing bytes. */
-	async publish(file: DocumentFile): Promise<void> {
+	async publish(file: DocumentFile | ImportSourceFile): Promise<void> {
 		evidence(file)
 		try {
 			const destination = await this.path('blobs', file.key)
@@ -210,7 +243,7 @@ export class LocalDocumentFiles extends DocumentFiles {
 		}
 	}
 	/** Verify the same descriptor that will provide download bytes, failing safely for missing/corrupt content. */
-	async open(file: DocumentFile): Promise<OpenDocumentFile> {
+	async open(file: DocumentFile | ImportSourceFile): Promise<OpenDocumentFile> {
 		evidence(file)
 		try {
 			const handle = await this.verified('blobs', file)
@@ -230,7 +263,10 @@ export class LocalDocumentFiles extends DocumentFiles {
 		return join(folder, key)
 	}
 	/** Reject links and hash a bounded regular descriptor before any business publication or download. */
-	private async verified(area: 'staging' | 'blobs', file: DocumentFile): Promise<FileHandle> {
+	private async verified(
+		area: 'staging' | 'blobs',
+		file: DocumentFile | ImportSourceFile,
+	): Promise<FileHandle> {
 		const path = await this.path(area, file.key),
 			before = await lstat(path)
 		if (!before.isFile() || before.isSymbolicLink() || before.nlink !== 1)

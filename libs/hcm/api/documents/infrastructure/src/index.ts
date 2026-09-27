@@ -5,3 +5,4 @@ export * from './lib/worker-files'
 export * from './lib/self-documents'
 
 export * from './lib/document-requests'
+export * from './lib/import-source-store'
