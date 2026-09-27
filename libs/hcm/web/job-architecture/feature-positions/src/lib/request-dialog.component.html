@@ -1,0 +1,61 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	initialFocus="position-request-text"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-message-strip
+		[design]="mode() === 'decide' ? 'Critical' : 'Information'"
+		[hideCloseButton]="true">
+		{{ note() }}
+	</ui5-message-strip>
+	<ui5-form
+		[accessibleName]="title() + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="position-request-text"
+				[required]="textRequired()">
+				{{ textLabel() }}
+			</ui5-label>
+			<ui5-textarea
+				id="position-request-text"
+				[accessibleName]="textLabel()"
+				[rows]="3"
+				[formField]="fields.text"
+				[disabled]="draft.saving()"
+				[valueState]="fields.text().touched() && fields.text().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">
+					{{ textRequired() ? 'Enter text of 1–500 characters.' : 'Use at most 1,000 characters.' }}
+				</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			[design]="rejecting() ? 'Negative' : 'Emphasized'"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : confirmLabel() }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

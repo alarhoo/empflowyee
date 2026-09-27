@@ -1,0 +1,248 @@
+<ef-hcm-object-page
+	column="end"
+	[title]="request() ? types[request()!.requestType] + ' request' : 'Change request'"
+	[summary]="request() ? request()!.positionName + ' (' + request()!.positionCode + ')' : ''"
+	[state]="state()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (request(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label"></span>
+	}
+	@if (commandError()) {
+		<ui5-message-strip
+			design="Negative"
+			(ui5Close)="commandError.set('')">
+			{{ commandError() }}
+		</ui5-message-strip>
+	}
+	@if (request(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Request details">
+			<ui5-form
+				accessibleName="Request overview"
+				accessibleMode="Display"
+				layout="S1 M1 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Requested by</ui5-label>
+					<ui5-text>{{ current.requestedByMe ? 'You' : current.requestedBy }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Requested</ui5-label>
+					<ui5-text>{{ current.requestedAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Submitted</ui5-label>
+					<ui5-text>{{ current.submittedAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Applied</ui5-label>
+					<ui5-text>{{ current.appliedAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Reason for change</ui5-label>
+					<ui5-text>{{ current.reason ?? 'Visible only to the requester and approvers' }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="changes"
+			label="Proposed changes">
+			<ui5-table
+				accessibleName="Proposed changes"
+				overflowMode="Popin"
+				noDataText="This request changes nothing">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="16rem">
+						Change
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (item of current.items; track item.field) {
+					<ui5-table-row [rowKey]="item.field">
+						<ui5-table-cell>{{ item.summary }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			@if (current.proposed; as proposed) {
+				<ui5-form
+					accessibleName="Proposed position"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Name</ui5-label>
+						<ui5-text>{{ proposed.name }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Job profile</ui5-label>
+						<ui5-text>{{ proposed.profile?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Grade</ui5-label>
+						<ui5-text>
+							{{ proposed.grade ? proposed.grade.name + ' (' + proposed.grade.code + ')' : '—' }}
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Designation</ui5-label>
+						<ui5-text>{{ proposed.placement.designation?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Unit</ui5-label>
+						<ui5-text>{{ proposed.placement.unit?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Department</ui5-label>
+						<ui5-text>{{ proposed.placement.department?.name ?? 'None' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Location</ui5-label>
+						<ui5-text>{{ proposed.placement.location?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Legal entity</ui5-label>
+						<ui5-text>{{ proposed.placement.legalEntity?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Position type</ui5-label>
+						<ui5-text>{{ positionTypes[proposed.positionType] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Capacity</ui5-label>
+						<ui5-text>
+							{{ proposed.headcountCapacity }} seats, {{ decimal(proposed.fteCapacity) }} FTE
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Key position</ui5-label>
+						<ui5-checkbox
+							accessibleName="Key position"
+							[checked]="proposed.keyPosition"
+							[readonly]="true"></ui5-checkbox>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Reports to</ui5-label>
+						<ui5-text>
+							{{
+								proposed.reportsTo
+									? proposed.reportsTo.name + ' (' + proposed.reportsTo.code + ')'
+									: 'None'
+							}}
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Effective from</ui5-label>
+						<ui5-text>{{ proposed.effectiveFrom | hcmDate: 'date' }}</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="preview"
+			label="Impact preview">
+			@if (current.preview; as preview) {
+				@if (!previewUsable() && (current.status === 'Draft' || current.status === 'Previewed')) {
+					<ui5-message-strip
+						design="Critical"
+						[hideCloseButton]="true">
+						This preview is out of date. Preview the impact again before submitting.
+					</ui5-message-strip>
+				}
+				<ui5-form
+					accessibleName="Impact preview"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Active assignments</ui5-label>
+						@if (preview.occupancyComplete) {
+							<ui5-text>
+								{{ preview.activeAssignmentCount }} people, {{ decimal(preview.assignedFte) }} FTE
+							</ui5-text>
+						} @else {
+							<span
+								fd-object-status
+								[inverted]="true"
+								status="critical"
+								label="Occupancy unavailable"></span>
+						}
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Positions reporting to it</ui5-label>
+						<ui5-text>{{ preview.childPositionCount }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Other relationships</ui5-label>
+						<ui5-text>{{ preview.downstreamReferenceCount }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Calculated</ui5-label>
+						<ui5-text>{{ preview.calculatedAt | hcmDate }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Valid until</ui5-label>
+						<ui5-text>{{ preview.expiresAt | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			} @else {
+				<ui5-text>No impact preview has been calculated yet.</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="decision"
+			label="Decision">
+			@if (current.approval; as approval) {
+				<ui5-form
+					accessibleName="Decision"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Approval</ui5-label>
+						<ui5-text>
+							One independent approver{{
+								approval.requiresWaiveAuthority ? ' who may also approve waived requirements' : ''
+							}}
+						</ui5-text>
+					</ui5-form-item>
+					@if (approval.decision; as decision) {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Decision</ui5-label>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="decision.decision === 'Approved' ? 'positive' : 'negative'"
+								[label]="decision.decision"></span>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Decided by</ui5-label>
+							<ui5-text>{{ decision.decidedBy }}, {{ decision.decidedAt | hcmDate }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Comment</ui5-label>
+							<ui5-text>
+								{{
+									decision.comment ??
+										(current.reason === null ? 'Visible only to the requester and approvers' : '—')
+								}}
+							</ui5-text>
+						</ui5-form-item>
+					} @else {
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Decision</ui5-label>
+							<ui5-text>Awaiting decision</ui5-text>
+						</ui5-form-item>
+					}
+				</ui5-form>
+			} @else {
+				<ui5-text>The request has not been submitted for approval.</ui5-text>
+			}
+		</ng-template>
+	}
+</ef-hcm-object-page>

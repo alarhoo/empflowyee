@@ -1,0 +1,366 @@
+<ef-hcm-dynamic-page
+	[title]="title()"
+	summary="Changes are saved as a draft request, then previewed, submitted and approved by an independent approver"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Position"
+		accessibleMode="Edit"
+		layout="S1 M1 L2 XL2"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-group
+			headerText="Position"
+			headerLevel="H2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-code"
+					[required]="creating() && !existing()">
+					Code
+				</ui5-label>
+				@if (creating() && !existing()) {
+					<ui5-input
+						id="position-code"
+						accessibleName="Code"
+						[formField]="fields.code"
+						[disabled]="draft.saving()"
+						[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+						<ui5-text slot="valueStateMessage">
+							Use 2–40 capital letters, digits, hyphens or underscores, starting with a letter.
+						</ui5-text>
+					</ui5-input>
+				} @else {
+					<ui5-text>{{ model().code }}</ui5-text>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-name"
+					[required]="true">
+					Name
+				</ui5-label>
+				<ui5-input
+					id="position-name"
+					accessibleName="Name"
+					[formField]="fields.name"
+					[disabled]="draft.saving()"
+					[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">Enter a name of 1–150 characters.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-profile"
+					[required]="true">
+					Job profile
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="profiles"
+					label="Job profile"
+					controlId="position-profile"
+					[required]="true"
+					[selected]="refs().profile"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('profile')"
+					message="Choose a job profile."
+					(selectedChange)="setRef('profile', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-grade"
+					[required]="true">
+					Grade
+				</ui5-label>
+				<ui5-select
+					id="position-grade"
+					accessibleName="Grade"
+					[formField]="fields.gradeId"
+					[disabled]="draft.saving() || !grades().length"
+					[valueState]="
+						fields.gradeId().touched() && fields.gradeId().invalid() ? 'Negative' : 'None'
+					">
+					@for (grade of grades(); track grade.id) {
+						<ui5-option [value]="grade.id">
+							{{ grade.name }} ({{ grade.code }}){{ grade.isDefault ? ', default' : '' }}
+						</ui5-option>
+					}
+					<ui5-text slot="valueStateMessage">Choose a grade the job profile allows.</ui5-text>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-designation"
+					[required]="true">
+					Designation
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="designations"
+					label="Designation"
+					controlId="position-designation"
+					[required]="true"
+					[selected]="refs().designation"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('designation')"
+					message="Choose a designation."
+					(selectedChange)="setRef('designation', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-type"
+					[required]="true">
+					Position type
+				</ui5-label>
+				<ui5-select
+					id="position-type"
+					accessibleName="Position type"
+					[formField]="fields.positionType"
+					[disabled]="draft.saving()">
+					@for (type of types; track type) {
+						<ui5-option [value]="type">{{ typeLabels[type] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-key">
+					Key position
+				</ui5-label>
+				<ui5-checkbox
+					id="position-key"
+					accessibleName="Key position"
+					text="Key position"
+					[checked]="keyPosition()"
+					[disabled]="draft.saving()"
+					(ui5Change)="keyPosition.set($any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+		</ui5-form-group>
+		<ui5-form-group
+			headerText="Placement"
+			headerLevel="H2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-legal-entity"
+					[required]="true">
+					Legal entity
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="legal-entities"
+					label="Legal entity"
+					controlId="position-legal-entity"
+					[required]="true"
+					[selected]="refs().legalEntity"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('legalEntity')"
+					message="Choose a legal entity."
+					(selectedChange)="setRef('legalEntity', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-unit"
+					[required]="true">
+					Unit
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="units"
+					label="Unit"
+					controlId="position-unit"
+					[required]="true"
+					[selected]="refs().unit"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('unit')"
+					message="Choose a unit."
+					(selectedChange)="setRef('unit', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-department"
+					[required]="false">
+					Department
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="departments"
+					label="Department"
+					controlId="position-department"
+					[required]="false"
+					[selected]="refs().department"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('department')"
+					message="Choose a department."
+					(selectedChange)="setRef('department', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-location"
+					[required]="true">
+					Location
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="locations"
+					label="Location"
+					controlId="position-location"
+					[required]="true"
+					[selected]="refs().location"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('location')"
+					message="Choose a location."
+					(selectedChange)="setRef('location', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-reports-to"
+					[required]="false">
+					Reports to
+				</ui5-label>
+				<ef-hcm-position-option-box
+					kind="positions"
+					label="Reports to"
+					controlId="position-reports-to"
+					[required]="false"
+					[selected]="refs().reportsTo"
+					[exclude]="positionId ? [positionId] : []"
+					[disabled]="draft.saving()"
+					[invalid]="missing().includes('reportsTo')"
+					message="Choose a reports to."
+					(selectedChange)="setRef('reportsTo', $event)"></ef-hcm-position-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-cost-centre">
+					Cost centre
+				</ui5-label>
+				<ui5-input
+					id="position-cost-centre"
+					accessibleName="Cost centre"
+					[formField]="fields.costCenterCode"
+					[disabled]="draft.saving()"></ui5-input>
+			</ui5-form-item>
+		</ui5-form-group>
+		<ui5-form-group
+			headerText="Capacity and timing"
+			headerLevel="H2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-headcount"
+					[required]="true">
+					Headcount capacity
+				</ui5-label>
+				<ui5-step-input
+					id="position-headcount"
+					accessibleName="Headcount capacity"
+					[min]="1"
+					[max]="10000"
+					[step]="1"
+					[value]="headcount()"
+					[disabled]="draft.saving()"
+					[valueState]="capacityInvalid() ? 'Negative' : 'None'"
+					(ui5Change)="headcount.set($any($event.target).value)"></ui5-step-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-fte"
+					[required]="true">
+					FTE capacity
+				</ui5-label>
+				<ui5-step-input
+					id="position-fte"
+					accessibleName="FTE capacity"
+					[min]="0.01"
+					[max]="10000"
+					[step]="0.01"
+					[valuePrecision]="2"
+					[value]="fte()"
+					[disabled]="draft.saving()"
+					[valueState]="capacityInvalid() ? 'Negative' : 'None'"
+					(ui5Change)="fte.set($any($event.target).value)">
+					<ui5-text slot="valueStateMessage">
+						FTE capacity must be positive and at most the headcount capacity.
+					</ui5-text>
+				</ui5-step-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="position-effective"
+					[required]="true">
+					Effective from
+				</ui5-label>
+				<ui5-date-picker
+					id="position-effective"
+					accessibleName="Effective from"
+					valueFormat="yyyy-MM-dd"
+					displayFormat="medium"
+					[value]="effectiveFrom()"
+					[valueState]="checked() && !effectiveFrom() ? 'Negative' : 'None'"
+					[disabled]="draft.saving()"
+					(ui5Change)="effectiveFrom.set($event.detail.value)">
+					<ui5-text slot="valueStateMessage">
+						Choose the date the position version takes effect.
+					</ui5-text>
+				</ui5-date-picker>
+			</ui5-form-item>
+		</ui5-form-group>
+	</ui5-form>
+	<ui5-form
+		accessibleName="Reason"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="position-reason"
+				[required]="true">
+				Reason for change
+			</ui5-label>
+			<ui5-textarea
+				id="position-reason"
+				accessibleName="Reason for change"
+				[rows]="3"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">Enter a reason of 1–500 characters.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar hcmFooter>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : existing() ? 'Save draft' : 'Save as draft request' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="back()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

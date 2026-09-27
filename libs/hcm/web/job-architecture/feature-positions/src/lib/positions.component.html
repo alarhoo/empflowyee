@@ -1,0 +1,378 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Positions and change requests' },
+		midColumn: { role: 'region', name: 'Selected position' },
+		endColumn: { role: 'region', name: 'Selected change request' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Positions"
+		summary="Budgeted positions with occupancy from assignments, changed through approved requests"
+		[state]="state()"
+		[errorMessage]="message()"
+		[readOnly]="!canRequest()"
+		[actions]="actions()"
+		(action)="action($event)"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Position scope and filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L4 XL4"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Show</ui5-label>
+				<ui5-segmented-button
+					accessibleName="Position scope"
+					(ui5SelectionChange)="chooseScope($any($event.detail.selectedItems[0]))">
+					<ui5-segmented-button-item
+						data-scope="positions"
+						[selected]="scope() === 'positions'">
+						Positions
+					</ui5-segmented-button-item>
+					<ui5-segmented-button-item
+						data-scope="requests"
+						[selected]="scope() === 'requests'">
+						Change requests
+					</ui5-segmented-button-item>
+				</ui5-segmented-button>
+			</ui5-form-item>
+			@if (scope() === 'positions') {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="position-query">
+						Code or name
+					</ui5-label>
+					<ui5-input
+						id="position-query"
+						accessibleName="Search code or name"
+						type="Search"
+						[formField]="filterForm.q"
+						(keyup.enter)="load(false)"></ui5-input>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="position-status">
+						Status
+					</ui5-label>
+					<ui5-select
+						id="position-status"
+						accessibleName="Status"
+						[formField]="filterForm.status">
+						<ui5-option value="all">All statuses</ui5-option>
+						@for (item of lifecycles; track item) {
+							<ui5-option [value]="item">{{ lifecycle(item).label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="position-vacancy">
+						Vacancy
+					</ui5-label>
+					<ui5-select
+						id="position-vacancy"
+						accessibleName="Vacancy"
+						[formField]="filterForm.vacancy">
+						<ui5-option value="all">All positions</ui5-option>
+						<ui5-option value="vacant">With vacancy</ui5-option>
+						<ui5-option value="full">Fully occupied</ui5-option>
+					</ui5-select>
+				</ui5-form-item>
+			} @else {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="request-view">
+						Requests
+					</ui5-label>
+					<ui5-select
+						id="request-view"
+						accessibleName="Requests"
+						[formField]="filterForm.view">
+						<ui5-option value="all">All requests</ui5-option>
+						<ui5-option value="mine">Raised by me</ui5-option>
+						@if (canApprove()) {
+							<ui5-option value="awaiting-my-decision">Awaiting my decision</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="request-status">
+						Status
+					</ui5-label>
+					<ui5-select
+						id="request-status"
+						accessibleName="Request status"
+						[formField]="filterForm.requestStatus">
+						<ui5-option value="all">All statuses</ui5-option>
+						@for (item of requestStatuses; track item) {
+							<ui5-option [value]="item">{{ status(item).label }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		@if (scope() === 'positions') {
+			<ui5-table
+				(ui5RowClick)="open($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="listState() === 'loading'"
+				accessibleName="Positions"
+				overflowMode="Popin"
+				[noDataText]="
+					listState() === 'error'
+						? 'Positions could not be loaded'
+						: 'No positions match these filters'
+				">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="14rem">
+						Position
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="7rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Placement">
+						Placement
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="8rem"
+						popinText="Capacity">
+						Capacity
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="8rem"
+						popinText="Occupied">
+						Occupied
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="10rem"
+						popinText="Remaining">
+						Remaining
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="9rem"
+						popinText="Open request">
+						Open request
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (position of positions(); track position.id) {
+					<ui5-table-row
+						[rowKey]="position.id"
+						[interactive]="true"
+						[navigated]="selected()?.positionId === position.id">
+						<ui5-table-cell>{{ position.name }} ({{ position.code }})</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="lifecycle(position.lifecycleStatus).status"
+								[label]="lifecycle(position.lifecycleStatus).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{ position.placement.unit?.name ?? '—' }}
+							@if (position.placement.department) {
+								· {{ position.placement.department.name }}
+							}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (position.headcountCapacity !== null) {
+								{{ position.headcountCapacity }} seats, {{ decimal(position.fteCapacity) }} FTE
+							} @else {
+								Not published
+							}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (position.occupancyComplete) {
+								{{ position.occupiedHeadcount }} people, {{ decimal(position.occupiedFte) }} FTE
+							} @else {
+								—
+							}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (remaining(position); as text) {
+								@if (position.remainingHeadcount! > 0 && position.remainingFte! > 0) {
+									{{ text }}
+								} @else {
+									<span
+										fd-object-status
+										[inverted]="true"
+										status="critical"
+										label="Full"></span>
+								}
+							} @else if (position.headcountCapacity !== null) {
+								<span
+									fd-object-status
+									[inverted]="true"
+									status="critical"
+									label="Occupancy unavailable"></span>
+							} @else {
+								—
+							}
+						</ui5-table-cell>
+						<ui5-table-cell>
+							@if (position.openRequest; as open) {
+								<span
+									fd-object-status
+									[inverted]="true"
+									[status]="status(open.status).status"
+									[label]="types[open.requestType] + ': ' + status(open.status).label"></span>
+							} @else {
+								None
+							}
+						</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="open(position.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more positions"
+						(ui5LoadMore)="load(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		} @else {
+			<ui5-table
+				(ui5RowClick)="openRequest($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				[loading]="listState() === 'loading'"
+				accessibleName="Change requests"
+				overflowMode="Popin"
+				[noDataText]="
+					listState() === 'error'
+						? 'Change requests could not be loaded'
+						: 'No change requests match these filters'
+				">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="14rem">
+						Position
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="8rem"
+						popinText="Request">
+						Request
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="9rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Requested by">
+						Requested by
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="10rem"
+						popinText="Requested">
+						Requested
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of requests(); track row.id) {
+					<ui5-table-row
+						[rowKey]="row.id"
+						[interactive]="true"
+						[navigated]="selected()?.requestId === row.id">
+						<ui5-table-cell>{{ row.positionName }} ({{ row.positionCode }})</ui5-table-cell>
+						<ui5-table-cell>{{ types[row.requestType] }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="status(row.status).status"
+								[label]="status(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.requestedByMe ? 'You' : row.requestedBy }}</ui5-table-cell>
+						<ui5-table-cell>{{ row.requestedAt | hcmDate }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="openRequest(row.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+				@if (cursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more change requests"
+						(ui5LoadMore)="load(true)"></ui5-table-growing>
+				}
+			</ui5-table>
+		}
+	</ef-hcm-dynamic-page>
+	@if (selected(); as selection) {
+		@for (id of [selection.positionId]; track id) {
+			<ef-hcm-position
+				slot="midColumn"
+				[positionId]="id"
+				[refresh]="refresh()"
+				[canRequest]="canRequest()"
+				(changed)="change($event)"
+				(lifecycleRequested)="
+					dialog.set({ mode: 'lifecycle', position: $event.position, type: $event.type })
+				"
+				(requestOpened)="openRequest($event, id)"
+				(closed)="close()"></ef-hcm-position>
+		}
+		@if (selection.requestId) {
+			@for (id of [selection.requestId]; track id) {
+				<ef-hcm-position-request
+					slot="endColumn"
+					[requestId]="id"
+					[refresh]="refresh()"
+					(edited)="edit($event)"
+					(withdrawRequested)="dialog.set({ mode: 'withdraw', request: $event })"
+					(decisionRequested)="
+						dialog.set({ mode: 'decide', request: $event.request, decision: $event.decision })
+					"
+					(updated)="updated($event)"
+					(closed)="closeRequest()"></ef-hcm-position-request>
+			}
+		}
+	}
+</ui5-flexible-column-layout>
+@if (dialog(); as input) {
+	<ef-hcm-position-request-dialog
+		[input]="input"
+		(saved)="dialogSaved($event)"
+		(closed)="dialog.set(null)"></ef-hcm-position-request-dialog>
+}

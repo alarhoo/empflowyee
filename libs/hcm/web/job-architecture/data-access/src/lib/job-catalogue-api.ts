@@ -221,6 +221,20 @@ const fieldLabels: Record<string, string> = {
 	responsibilities: 'Responsibilities',
 	requirements: 'Requirements',
 	reason: 'Reason for change',
+	gradeId: 'Grade',
+	profileVersionId: 'Job profile',
+	designationId: 'Designation',
+	legalEntityId: 'Legal entity',
+	unitId: 'Unit',
+	departmentId: 'Department',
+	locationId: 'Location',
+	positionType: 'Position type',
+	headcountCapacity: 'Headcount capacity',
+	fteCapacity: 'FTE capacity',
+	costCenterCode: 'Cost centre',
+	reportsToPositionId: 'Reports to',
+	comment: 'Comment',
+	previewId: 'Preview',
 }
 
 /** Field-specific explanations of a rejected value. */
@@ -232,7 +246,13 @@ const fieldCodeMessages: Record<string, (label: string) => string> = {
 	'not-current': /** Currency. */ (label) =>
 		`${label} must be the current published catalogue version.`,
 	'one-default': /** Default grade. */ () => 'Choose exactly one default grade.',
-	unknown: /** References. */ (label) => `${label} is not part of this catalogue version.`,
+	unknown: /** References. */ (label) => `${label} is not available.`,
+	'not-allowed': /** Allowed grades. */ (label) =>
+		`${label} is not allowed by the selected job profile.`,
+	'exceeds-headcount': /** Capacity. */ () => 'FTE capacity cannot exceed headcount capacity.',
+	cycle: /** Relationships. */ () =>
+		'A position cannot report to itself or to one that reports to it.',
+	required: /** Presence. */ (label) => `${label} is required.`,
 }
 
 /** Translate stable server classifications; never display arbitrary provider error bodies. */
@@ -256,6 +276,11 @@ export function jobArchitectureErrorMessage(error: unknown): string {
 		forbidden: 'You no longer have permission for this operation.',
 		unauthenticated: 'Your session is no longer available.',
 		'not-found': 'This item is no longer available.',
+		'preview-stale': 'The preview is out of date. Preview the impact again before submitting.',
+		'capacity-exceeded': 'The change would leave more people assigned than the capacity allows.',
+		'occupancy-unknown':
+			'Occupancy is unavailable for this position, so the change cannot be checked.',
+		'self-approval-forbidden': 'You cannot decide a request you raised.',
 	}
 	return typeof code === 'string' && messages[code]
 		? messages[code]

@@ -1,0 +1,314 @@
+<ef-hcm-object-page
+	[title]="position()?.name ?? 'Position'"
+	[summary]="position() ? position()!.code : ''"
+	[state]="state()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (position(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="lifecycle(current.lifecycleStatus).status"
+			[label]="lifecycle(current.lifecycleStatus).label"></span>
+	}
+	@if (position(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			@if (current.openRequest; as open) {
+				<ui5-text>
+					A {{ types[open.requestType] | lowercase }} request is
+					{{ status(open.status).label | lowercase }}; no other request can be raised until it
+					finishes.
+				</ui5-text>
+			}
+			@if (current.currentVersion; as version) {
+				<ui5-form
+					accessibleName="Position overview"
+					accessibleMode="Display"
+					layout="S1 M1 L2 XL2">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Job profile</ui5-label>
+						<ui5-text>
+							{{ version.profile.name }} ({{ version.profile.code }}), version
+							{{ version.profileVersionNumber }}
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Grade</ui5-label>
+						<ui5-text>{{ version.grade.name }} ({{ version.grade.code }})</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Designation</ui5-label>
+						<ui5-text>{{ version.placement.designation?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Position type</ui5-label>
+						<ui5-text>{{ positionTypes[version.positionType] }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Legal entity</ui5-label>
+						<ui5-text>{{ version.placement.legalEntity?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Unit</ui5-label>
+						<ui5-text>{{ version.placement.unit?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Department</ui5-label>
+						<ui5-text>{{ version.placement.department?.name ?? 'None' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Location</ui5-label>
+						<ui5-text>{{ version.placement.location?.name ?? '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Key position</ui5-label>
+						<ui5-checkbox
+							accessibleName="Key position"
+							[checked]="version.keyPosition"
+							[readonly]="true"></ui5-checkbox>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Cost centre</ui5-label>
+						<ui5-text>{{ version.costCenterCode || '—' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Effective from</ui5-label>
+						<ui5-text>{{ version.effectiveFrom | hcmDate: 'date' }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Effective to</ui5-label>
+						<ui5-text>
+							{{ version.effectiveTo ? (version.effectiveTo | hcmDate: 'date') : 'Open-ended' }}
+						</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			} @else {
+				<ui5-text>This position has no published version yet.</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="capacity"
+			label="Capacity and incumbents">
+			<ui5-form
+				accessibleName="Capacity"
+				accessibleMode="Display"
+				layout="S1 M1 L3 XL3">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Capacity</ui5-label>
+					<ui5-text>
+						@if (current.headcountCapacity !== null) {
+							{{ current.headcountCapacity }} seats, {{ decimal(current.fteCapacity) }} FTE
+						} @else {
+							Not published
+						}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">
+						Occupied on {{ current.asOf | hcmDate: 'date' }}
+					</ui5-label>
+					@if (current.occupancyComplete) {
+						<ui5-text>
+							{{ current.occupiedHeadcount }} people, {{ decimal(current.occupiedFte) }} FTE
+						</ui5-text>
+					} @else {
+						<span
+							fd-object-status
+							[inverted]="true"
+							status="critical"
+							label="Occupancy unavailable"></span>
+					}
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Remaining</ui5-label>
+					@if (current.remainingHeadcount !== null) {
+						<ui5-text>
+							{{ current.remainingHeadcount }} seats, {{ decimal(current.remainingFte) }} FTE
+						</ui5-text>
+					} @else {
+						<ui5-text>—</ui5-text>
+					}
+				</ui5-form-item>
+			</ui5-form>
+			<ui5-table
+				accessibleName="Incumbents"
+				overflowMode="Popin"
+				noDataText="Nobody is assigned to this position today">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Incumbent
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Designation">
+						Designation
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="70"
+						minWidth="5rem"
+						popinText="FTE">
+						FTE
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="7rem"
+						popinText="Assignment">
+						Assignment
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="30"
+						minWidth="8rem"
+						popinText="Since">
+						Since
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (person of incumbents(); track person.assignmentId) {
+					<ui5-table-row [rowKey]="person.assignmentId">
+						<ui5-table-cell>
+							<ui5-avatar
+								size="XS"
+								[initials]="initials(person.displayName)"
+								[accessibleName]="person.displayName"></ui5-avatar>
+							{{ person.displayName }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ person.designation ?? '—' }}</ui5-table-cell>
+						<ui5-table-cell>{{ decimal(person.fullTimeEquivalent) }}</ui5-table-cell>
+						<ui5-table-cell>{{ person.primary ? 'Primary' : 'Additional' }}</ui5-table-cell>
+						<ui5-table-cell>{{ person.effectiveFrom | hcmDate: 'date' }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+				@if (incumbentCursor()) {
+					<ui5-table-growing
+						slot="features"
+						mode="Button"
+						text="Load more incumbents"
+						(ui5LoadMore)="moreIncumbents()"></ui5-table-growing>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="relationships"
+			label="Relationships">
+			<ui5-table
+				accessibleName="Relationships"
+				overflowMode="Popin"
+				noDataText="This position has no relationships today">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="12rem">
+						Position
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="12rem"
+						popinText="Relationship">
+						Relationship
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="8rem"
+						popinText="Since">
+						Since
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (relationship of current.relationships; track relationship.id) {
+					<ui5-table-row [rowKey]="relationship.id">
+						<ui5-table-cell>
+							{{ relationship.position.name }} ({{ relationship.position.code }})
+						</ui5-table-cell>
+						<ui5-table-cell>{{ relation(relationship) }}</ui5-table-cell>
+						<ui5-table-cell>{{ relationship.effectiveFrom | hcmDate: 'date' }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="versions"
+			label="Versions">
+			@if (versions().length) {
+				<ui5-timeline accessibleName="Position versions">
+					@for (version of versions(); track version.id) {
+						<ui5-timeline-item
+							[titleText]="
+								'Version ' +
+								version.versionNumber +
+								' from ' +
+								(version.effectiveFrom | hcmDate: 'date')
+							"
+							[subtitleText]="subtitle(version)"
+							icon="history">
+							{{ version.changeSummary }}
+						</ui5-timeline-item>
+					}
+				</ui5-timeline>
+			} @else {
+				<ui5-text>No version has been published yet.</ui5-text>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="requests"
+			label="Change requests">
+			<ui5-table
+				(ui5RowClick)="openRequest($event.detail.row.rowKey)"
+				[rowActionCount]="1"
+				accessibleName="Change requests of this position"
+				overflowMode="Popin"
+				noDataText="No change has been requested for this position">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="8rem">
+						Request
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="9rem"
+						popinText="Status">
+						Status
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="50"
+						minWidth="10rem"
+						popinText="Requested by">
+						Requested by
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="10rem"
+						popinText="Requested">
+						Requested
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (row of requests(); track row.id) {
+					<ui5-table-row
+						[rowKey]="row.id"
+						[interactive]="true">
+						<ui5-table-cell>{{ types[row.requestType] }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="status(row.status).status"
+								[label]="status(row.status).label"></span>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ row.requestedByMe ? 'You' : row.requestedBy }}</ui5-table-cell>
+						<ui5-table-cell>{{ row.requestedAt | hcmDate }}</ui5-table-cell>
+						<ui5-table-row-action-navigation
+							slot="actions"
+							[interactive]="true"
+							(ui5Click)="requestOpened.emit(row.id)"></ui5-table-row-action-navigation>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>
