@@ -226,7 +226,8 @@ export const appRoutes: Routes = [
 		canMatch: [hcmRouteAccess],
 		loadChildren: /** Load tenant-wide worker records and worker creation. */ () =>
 			import('@empflowyee/hcm-web-employee-feature-employee-records').then(
-				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.EMPLOYEE_RECORDS_ROUTES,
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.EMPLOYEE_RECORDS_ROUTES,
 			),
 	},
 	{
@@ -235,7 +236,8 @@ export const appRoutes: Routes = [
 		canMatch: [hcmRouteAccess],
 		loadChildren: /** Load import runs, templates, the run wizard and the template editor. */ () =>
 			import('@empflowyee/hcm-web-employee-feature-employee-import').then(
-				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.EMPLOYEE_IMPORT_ROUTES,
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.EMPLOYEE_IMPORT_ROUTES,
 			),
 	},
 	{
@@ -244,7 +246,8 @@ export const appRoutes: Routes = [
 		canMatch: [hcmRouteAccess],
 		loadChildren: /** Load employment change requests and the request wizard. */ () =>
 			import('@empflowyee/hcm-web-employee-feature-employment-changes').then(
-				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.EMPLOYMENT_CHANGES_ROUTES,
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.EMPLOYMENT_CHANGES_ROUTES,
 			),
 	},
 	{
@@ -253,7 +256,8 @@ export const appRoutes: Routes = [
 		canMatch: [hcmRouteAccess],
 		loadChildren: /** Load probation cases, reviews and HR decisions. */ () =>
 			import('@empflowyee/hcm-web-employee-feature-probation-management').then(
-				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.PROBATION_MANAGEMENT_ROUTES,
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.PROBATION_MANAGEMENT_ROUTES,
 			),
 	},
 	{
@@ -262,7 +266,18 @@ export const appRoutes: Routes = [
 		canMatch: [hcmRouteAccess],
 		loadChildren: /** Load the reviewer's assigned probation reviews and assessment page. */ () =>
 			import('@empflowyee/hcm-web-employee-feature-probation-review').then(
-				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.PROBATION_REVIEW_ROUTES,
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.PROBATION_REVIEW_ROUTES,
+			),
+	},
+	{
+		path: 'employee/hr-service-desk',
+		data: { catalogId: 'HR_SERVICE_DESK' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the HR service queue, requests and configuration. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-hr-service-desk').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) =>
+					m.HR_SERVICE_DESK_ROUTES,
 			),
 	},
 	{

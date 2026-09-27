@@ -1,0 +1,369 @@
+<ef-hcm-object-page
+	[title]="request() ? request()!.requestNumber + ': ' + request()!.subject : 'HR request'"
+	[summary]="request() ? request()!.requester.name + ', ' + request()!.type.name : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (request(); as current) {
+		<ng-container ngProjectAs="[hcmHeader]">
+			<span
+				fd-object-status
+				[inverted]="true"
+				[status]="status(current.status).status"
+				[label]="status(current.status).label"></span>
+			<span
+				fd-object-status
+				[inverted]="true"
+				[status]="sla(current.slaState).status"
+				[label]="'SLA: ' + sla(current.slaState).label"></span>
+		</ng-container>
+	}
+	@if (request(); as current) {
+		<ng-template
+			efHcmObjectSection="conversation"
+			label="Conversation">
+			@if (notice()) {
+				<ui5-message-strip
+					design="Positive"
+					(ui5Close)="notice.set('')">
+					{{ notice() }}
+				</ui5-message-strip>
+			}
+			@if (messages().length) {
+				<ui5-timeline accessibleName="Conversation">
+					@for (entry of messages(); track entry.id) {
+						<ui5-timeline-item
+							[titleText]="
+								(entry.kind === 'StatusUpdate' ? 'Status update' : entry.author) +
+								' on ' +
+								(entry.createdAt | hcmDate)
+							"
+							[subtitleText]="
+								entry.visibility === 'Internal' ? 'Internal note' : 'Visible to the employee'
+							"
+							[icon]="
+								entry.visibility === 'Internal'
+									? 'hide'
+									: entry.kind === 'StatusUpdate'
+										? 'history'
+										: 'discussion'
+							">
+							@if (entry.visibility === 'Internal') {
+								<span
+									fd-object-status
+									[inverted]="true"
+									status="informative"
+									label="Internal"></span>
+							}
+							<ui5-text>{{ entry.body }}</ui5-text>
+							@for (attachment of attachmentsOf(entry); track attachment.id) {
+								<ui5-button
+									design="Transparent"
+									icon="attachment"
+									[accessibleName]="'Download ' + attachment.fileName"
+									(click)="download(attachment)">
+									{{ attachment.fileName }} ({{ size(attachment.sizeBytes) }})
+								</ui5-button>
+							}
+						</ui5-timeline-item>
+					}
+				</ui5-timeline>
+				@if (messageCursor()) {
+					<ui5-button (click)="loadMessages(true)">Load more messages</ui5-button>
+				}
+			} @else {
+				<ui5-text>No messages yet.</ui5-text>
+			}
+			@if (canWrite()) {
+				@if (draft.error()) {
+					<ui5-message-strip
+						design="Negative"
+						[hideCloseButton]="true">
+						{{ draft.error() }}
+					</ui5-message-strip>
+				}
+				<ui5-form
+					accessibleName="Reply or internal note"
+					accessibleMode="Edit"
+					layout="S1 M1 L1 XL1">
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="hr-compose-visibility">
+							Send as
+						</ui5-label>
+						<ui5-select
+							id="hr-compose-visibility"
+							accessibleName="Send as"
+							[formField]="composerForm.visibility"
+							[disabled]="draft.saving()">
+							<ui5-option value="EmployeeVisible">Reply to the employee</ui5-option>
+							<ui5-option value="Internal">Internal note</ui5-option>
+						</ui5-select>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="hr-compose-body"
+							[required]="true">
+							Message
+						</ui5-label>
+						<ui5-textarea
+							id="hr-compose-body"
+							accessibleName="Message"
+							[maxlength]="5000"
+							[growing]="true"
+							[formField]="composerForm.body"
+							[disabled]="draft.saving()"
+							[valueState]="
+								composerForm.body().touched() && composerForm.body().invalid() ? 'Negative' : 'None'
+							">
+							<ui5-text slot="valueStateMessage">Write a message.</ui5-text>
+						</ui5-textarea>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label
+							slot="labelContent"
+							for="hr-compose-file">
+							Attachment
+						</ui5-label>
+						@for (n of [round()]; track n) {
+							<ui5-file-uploader
+								id="hr-compose-file"
+								accessibleName="Attachment"
+								accept=".pdf,.png,.jpg,.jpeg"
+								[maxFileSize]="10"
+								[multiple]="false"
+								[disabled]="draft.saving()"
+								(ui5Change)="chooseFile($event)"
+								(ui5FileSizeExceed)="rejectFile()"></ui5-file-uploader>
+						}
+						<ui5-text>
+							Optional PDF, PNG or JPEG up to 10 MiB, with the same visibility as the message.
+						</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Send</ui5-label>
+						<ui5-button
+							design="Emphasized"
+							[disabled]="draft.saving()"
+							(click)="send()">
+							{{
+								draft.saving()
+									? 'Sending…'
+									: composer().visibility === 'Internal'
+										? 'Add note'
+										: 'Send reply'
+							}}
+						</ui5-button>
+					</ui5-form-item>
+				</ui5-form>
+			}
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="details"
+			label="Details">
+			<ui5-form
+				accessibleName="Request details"
+				accessibleMode="Display"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Requester</ui5-label>
+					<ui5-text>{{ current.requester.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Type</ui5-label>
+					<ui5-text>{{ current.type.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Priority</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="priority(current.priority).status"
+						[label]="priority(current.priority).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Classification</ui5-label>
+					<ui5-text>{{ current.classification }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Team</ui5-label>
+					<ui5-text>{{ current.team.name }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Agent</ui5-label>
+					<ui5-text>{{ current.assignee?.name ?? 'Not assigned' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Created</ui5-label>
+					<ui5-text>{{ current.createdAt | hcmDate }} by {{ current.createdBy }}</ui5-text>
+				</ui5-form-item>
+				@if (current.resolutionCode) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Resolution</ui5-label>
+						<ui5-text>
+							{{ resolutions[current.resolutionCode] }}: {{ current.resolutionSummary }}
+						</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.resolvedAt) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Resolved</ui5-label>
+						<ui5-text>{{ current.resolvedAt | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.reopenUntil) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Employee may reopen until</ui5-label>
+						<ui5-text>{{ current.reopenUntil | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.closedAt) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Closed</ui5-label>
+						<ui5-text>{{ current.closedAt | hcmDate }}</ui5-text>
+					</ui5-form-item>
+				}
+				@if (current.cancelReason) {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Cancel reason</ui5-label>
+						<ui5-text>{{ current.cancelReason }}</ui5-text>
+					</ui5-form-item>
+				}
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="service-levels"
+			label="Service levels">
+			<ui5-text>
+				Policy {{ current.policy.code }} version {{ current.policy.versionNumber }}; targets run on
+				a 24x7 clock.
+			</ui5-text>
+			<ui5-table
+				accessibleName="Service level targets"
+				overflowMode="Popin"
+				noDataText="This request has no service level targets.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="8rem">Target</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="6rem"
+						popinText="Duration">
+						Duration
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Due">
+						Due
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="State">
+						State
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (target of current.targets; track target.kind) {
+					<ui5-table-row [rowKey]="target.kind">
+						<ui5-table-cell>{{ targetLabels[target.kind] }}</ui5-table-cell>
+						<ui5-table-cell>{{ duration(target.targetMinutes) }}</ui5-table-cell>
+						<ui5-table-cell>{{ target.dueAt | hcmDate }}</ui5-table-cell>
+						<ui5-table-cell>
+							<span
+								fd-object-status
+								[inverted]="true"
+								[status]="sla(target.state).status"
+								[label]="sla(target.state).label"></span>
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="assignments"
+			label="Assignment history">
+			<ui5-table
+				accessibleName="Assignment history"
+				overflowMode="Popin"
+				noDataText="No assignment yet.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="8rem">Team</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Agent">
+						Agent
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="12rem"
+						popinText="Reason">
+						Reason
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Assigned">
+						Assigned
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (entry of current.assignments; track $index) {
+					<ui5-table-row>
+						<ui5-table-cell>{{ entry.team }}</ui5-table-cell>
+						<ui5-table-cell>{{ entry.assignee ?? '—' }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-text>{{ entry.reason }}</ui5-text>
+						</ui5-table-cell>
+						<ui5-table-cell>
+							{{ entry.assignedAt | hcmDate }} by {{ entry.assignedBy }}
+							{{ entry.endedAt ? '' : '(current)' }}
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="attachments"
+			label="Attachments">
+			<ui5-table
+				accessibleName="Attachments"
+				overflowMode="Popin"
+				noDataText="No attachments.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="12rem">File</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="6rem"
+						popinText="Size">
+						Size
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Visibility">
+						Visibility
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Added">
+						Added
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (attachment of current.attachments; track attachment.id) {
+					<ui5-table-row [rowKey]="attachment.id">
+						<ui5-table-cell>
+							<ui5-button
+								design="Transparent"
+								icon="download"
+								[accessibleName]="'Download ' + attachment.fileName"
+								(click)="download(attachment)">
+								{{ attachment.fileName }}
+							</ui5-button>
+						</ui5-table-cell>
+						<ui5-table-cell>{{ size(attachment.sizeBytes) }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ attachment.visibility === 'Internal' ? 'Internal' : 'Visible to the employee' }}
+						</ui5-table-cell>
+						<ui5-table-cell>{{ attachment.createdAt | hcmDate }}</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

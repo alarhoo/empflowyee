@@ -1,0 +1,247 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="copy().title"
+	[accessibleName]="copy().title"
+	(ui5BeforeClose)="beforeClose($event)">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		[accessibleName]="copy().title + ' fields'"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Effect</ui5-label>
+			<ui5-text>{{ copy().text }}</ui5-text>
+		</ui5-form-item>
+		@if (mode() === 'create') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-request-worker"
+					[required]="true">
+					Employee
+				</ui5-label>
+				<ef-hcm-hr-option-box
+					kind="workers"
+					label="Employee"
+					controlId="hr-request-worker"
+					[required]="true"
+					[invalid]="touched() && !worker()"
+					message="Choose the employee the request is for."
+					[selected]="worker()"
+					(selectedChange)="worker.set($event)"></ef-hcm-hr-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-request-type"
+					[required]="true">
+					Request type
+				</ui5-label>
+				<ef-hcm-hr-option-box
+					kind="types"
+					label="Request type"
+					controlId="hr-request-type"
+					[required]="true"
+					[invalid]="touched() && !type()"
+					message="Choose a request type."
+					[selected]="type()"
+					(selectedChange)="type.set($event)"></ef-hcm-hr-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-request-priority"
+					[required]="true">
+					Priority
+				</ui5-label>
+				<ui5-select
+					id="hr-request-priority"
+					accessibleName="Priority"
+					[formField]="fields.priority"
+					[disabled]="draft.saving()">
+					@for (priority of priorities; track priority) {
+						<ui5-option [value]="priority">{{ priorityLabels[priority] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-request-subject"
+					[required]="true">
+					Subject
+				</ui5-label>
+				<ui5-input
+					id="hr-request-subject"
+					accessibleName="Subject"
+					[maxlength]="200"
+					[formField]="fields.subject"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.subject().touched() && fields.subject().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Enter a subject.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-request-description"
+					[required]="true">
+					Description
+				</ui5-label>
+				<ui5-textarea
+					id="hr-request-description"
+					accessibleName="Description"
+					[maxlength]="5000"
+					[growing]="true"
+					[formField]="fields.description"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.description().touched() && fields.description().invalid() ? 'Negative' : 'None'
+					">
+					<ui5-text slot="valueStateMessage">Describe the request; the employee sees it.</ui5-text>
+				</ui5-textarea>
+			</ui5-form-item>
+		}
+		@if (mode() === 'assign') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-assign-team"
+					[required]="true">
+					Team
+				</ui5-label>
+				<ef-hcm-hr-option-box
+					kind="teams"
+					label="Team"
+					controlId="hr-assign-team"
+					[required]="true"
+					[invalid]="touched() && !team()"
+					message="Choose a team."
+					[selected]="team()"
+					(selectedChange)="team.set($event)"></ef-hcm-hr-option-box>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-assign-agent">
+					Agent
+				</ui5-label>
+				<ef-hcm-hr-option-box
+					kind="agents"
+					label="Agent"
+					controlId="hr-assign-agent"
+					[selected]="agent()"
+					(selectedChange)="agent.set($event)"></ef-hcm-hr-option-box>
+			</ui5-form-item>
+		}
+		@if (mode() === 'status') {
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="hr-status"
+					[required]="true">
+					New status
+				</ui5-label>
+				<ui5-select
+					id="hr-status"
+					accessibleName="New status"
+					[formField]="fields.status"
+					[disabled]="draft.saving()">
+					@for (status of transitions(); track status) {
+						<ui5-option [value]="status">{{ statusLabels[status] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			@if (model().status === 'Resolved') {
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-resolution"
+						[required]="true">
+						Resolution
+					</ui5-label>
+					<ui5-select
+						id="hr-resolution"
+						accessibleName="Resolution"
+						[formField]="fields.resolutionCode"
+						[disabled]="draft.saving()"
+						[valueState]="
+							fields.resolutionCode().touched() && fields.resolutionCode().invalid()
+								? 'Negative'
+								: 'None'
+						">
+						<ui5-option value="">Choose a resolution</ui5-option>
+						@for (code of resolutions; track code) {
+							<ui5-option [value]="code">{{ resolutionLabels[code] }}</ui5-option>
+						}
+						<ui5-text slot="valueStateMessage">Choose a resolution.</ui5-text>
+					</ui5-select>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label
+						slot="labelContent"
+						for="hr-resolution-summary"
+						[required]="true">
+						Resolution summary
+					</ui5-label>
+					<ui5-textarea
+						id="hr-resolution-summary"
+						accessibleName="Resolution summary"
+						[maxlength]="1000"
+						[formField]="fields.resolutionSummary"
+						[disabled]="draft.saving()"
+						[valueState]="
+							fields.resolutionSummary().touched() && fields.resolutionSummary().invalid()
+								? 'Negative'
+								: 'None'
+						">
+						<ui5-text slot="valueStateMessage">Summarise the resolution for the employee.</ui5-text>
+					</ui5-textarea>
+				</ui5-form-item>
+			}
+		}
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="hr-request-reason"
+				[required]="reasonRequired()">
+				{{ mode() === 'status' ? 'Note to the employee' : 'Reason' }}
+			</ui5-label>
+			<ui5-textarea
+				id="hr-request-reason"
+				[accessibleName]="mode() === 'status' ? 'Note to the employee' : 'Reason'"
+				[maxlength]="500"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">State the reason.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : copy().confirm }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Close
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>
