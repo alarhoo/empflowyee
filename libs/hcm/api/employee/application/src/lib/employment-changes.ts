@@ -48,6 +48,7 @@ import type {
 	ChangeContextAssignment,
 	WorkerChangeContext,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
+import { alignFinalReview, enterProbation } from './probation-schedule'
 import type { EmployeeUnitOfWork, EmployeeWork } from './employee-unit'
 import type {
 	ChangeRequestInput,
@@ -640,6 +641,7 @@ export class EmploymentChanges {
 				row.changeType === 'Rehire'
 					? await this.rehire(w, row, step)
 					: await this.change(w, row, step)
+			await this.syncProbation(w, row, result, requestId)
 			await w.changeRequests.insertSteps(row.id, steps)
 			await w.changeRequests.transition(row.id, {
 				status: 'Completed',
@@ -661,6 +663,20 @@ export class EmploymentChanges {
 			if (error instanceof HcmDomainError) throw new ExecutionFailure(failureCode(error))
 			throw error
 		}
+	}
+
+	/** DEC-HCM2-003: a rehire in probation gets its Final review; a moved end date moves the open one. */
+	private async syncProbation(
+		w: EmployeeWork,
+		row: ChangeRequestRow,
+		result: { resultEmploymentId?: string; resultAssignmentId?: string },
+		requestId: string,
+	): Promise<void> {
+		const end = row.targets.probationEndDate
+		if (typeof end !== 'string') return
+		if (row.changeType === 'Rehire' && result.resultEmploymentId)
+			await enterProbation(w, result.resultEmploymentId, row.effectiveDate, end, requestId)
+		else if (row.employmentId) await alignFinalReview(w, row.employmentId, end)
 	}
 
 	/** Start a new employment for a worker with no engaged employment. */

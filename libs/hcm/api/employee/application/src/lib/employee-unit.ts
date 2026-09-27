@@ -15,6 +15,7 @@ import type {
 import type { PositionReadPort } from '@empflowyee/hcm-api-job-architecture-application'
 import type { EmploymentChangeRepository } from './employment-change-repository'
 import type { EmployeeImportRepository } from './employee-import-repository'
+import type { ProbationRepository } from './probation-repository'
 import type { ImportSourceStore } from '@empflowyee/hcm-api-documents-application'
 import type { SelfServiceRepository } from './my-profile'
 import type { ProfilePolicyRepository } from './profile-configuration'
@@ -50,6 +51,8 @@ export interface EmployeeWork {
 	imports: EmployeeImportRepository
 	/** Import source files, staged and read through documents. */
 	sources: ImportSourceStore
+	/** Employee-owned probation reviews, assessments and decisions. */
+	probation: ProbationRepository
 	/** Whether the actor holds one more employee business grant, such as `changes.approve`. */
 	holds(permission: string): Promise<boolean>
 	/** Employee-owned custom values and visibility preferences. */
