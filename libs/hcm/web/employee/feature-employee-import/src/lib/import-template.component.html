@@ -1,0 +1,117 @@
+<ef-hcm-object-page
+	[title]="
+		template() ? template()!.name + ', version ' + template()!.versionNumber : 'Import template'
+	"
+	[summary]="template() ? template()!.code : ''"
+	[state]="pageState()"
+	[actions]="actions()"
+	[errorMessage]="message()"
+	(action)="action($event)"
+	(retry)="load()">
+	@if (template(); as current) {
+		<span
+			hcmHeader
+			fd-object-status
+			[inverted]="true"
+			[status]="status(current.status).status"
+			[label]="status(current.status).label"></span>
+	}
+	@if (template(); as current) {
+		<ng-template
+			efHcmObjectSection="overview"
+			label="Overview">
+			<ui5-form
+				accessibleName="Template overview"
+				accessibleMode="Display"
+				layout="S1 M2 L2 XL2">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Code</ui5-label>
+					<ui5-text>{{ current.code }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Status</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						[status]="status(current.status).status"
+						[label]="status(current.status).label"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Description</ui5-label>
+					<ui5-text>{{ current.description || '—' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">File format</ui5-label>
+					<ui5-text>{{ current.fileFormat === 'Csv' ? 'CSV' : 'XLSX' }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Header row</ui5-label>
+					<ui5-checkbox
+						accessibleName="Header row"
+						[checked]="current.hasHeaderRow"
+						[readonly]="true"></ui5-checkbox>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Date format</ui5-label>
+					<ui5-text>{{ dateFormats[current.dateFormat] }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Time zone</ui5-label>
+					<ui5-text>{{ current.timeZone }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Published</ui5-label>
+					<ui5-text>
+						{{ current.publishedAt ? (current.publishedAt | hcmDate) : 'Not yet' }}
+					</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+		</ng-template>
+		<ng-template
+			efHcmObjectSection="columns"
+			label="Columns">
+			<ui5-table
+				accessibleName="Column mapping"
+				overflowMode="Popin"
+				noDataText="This draft maps no columns yet.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell minWidth="4rem">Position</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Source column">
+						Source column
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="10rem"
+						popinText="Field">
+						Field
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="8rem"
+						popinText="Transformation">
+						Transformation
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						minWidth="6rem"
+						popinText="Match key">
+						Match key
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (column of current.columns; track column.id) {
+					<ui5-table-row [rowKey]="column.id">
+						<ui5-table-cell>{{ column.sourceColumnOrdinal }}</ui5-table-cell>
+						<ui5-table-cell>{{ column.sourceColumnName }}</ui5-table-cell>
+						<ui5-table-cell>{{ column.fieldName }}</ui5-table-cell>
+						<ui5-table-cell>{{ transformations[column.transformationCode] }}</ui5-table-cell>
+						<ui5-table-cell>
+							<ui5-checkbox
+								[accessibleName]="'Match key ' + column.sourceColumnName"
+								[checked]="column.isMatchKey"
+								[readonly]="true"></ui5-checkbox>
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+		</ng-template>
+	}
+</ef-hcm-object-page>

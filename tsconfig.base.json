@@ -265,6 +265,9 @@
 			"@empflowyee/hcm-web-employee-feature-employee-records": [
 				"./libs/hcm/web/employee/feature-employee-records/src/index.ts"
 			],
+			"@empflowyee/hcm-web-employee-feature-employee-import": [
+				"./libs/hcm/web/employee/feature-employee-import/src/index.ts"
+			],
 			"@empflowyee/hcm-web-employee-feature-employment-changes": [
 				"./libs/hcm/web/employee/feature-employment-changes/src/index.ts"
 			],

@@ -1,0 +1,301 @@
+<ef-hcm-dynamic-page
+	[title]="title()"
+	summary="Map the columns of a CSV or XLSX file to importable worker fields"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Template settings"
+		accessibleMode="Edit"
+		layout="S1 M1 L2 XL2"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-group
+			headerText="Settings"
+			headerLevel="H2">
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-code"
+					[required]="!existing()">
+					Code
+				</ui5-label>
+				@if (existing(); as current) {
+					<ui5-text>{{ current.code }}</ui5-text>
+				} @else {
+					<ui5-input
+						id="template-code"
+						accessibleName="Code"
+						[formField]="fields.code"
+						[disabled]="draft.saving()"
+						[valueState]="fields.code().touched() && fields.code().invalid() ? 'Negative' : 'None'">
+						<ui5-text slot="valueStateMessage">
+							Use 2–40 capital letters, digits or underscores, starting with a letter.
+						</ui5-text>
+					</ui5-input>
+				}
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-name"
+					[required]="true">
+					Name
+				</ui5-label>
+				<ui5-input
+					id="template-name"
+					accessibleName="Name"
+					[maxlength]="100"
+					[formField]="fields.name"
+					[disabled]="draft.saving()"
+					[valueState]="fields.name().touched() && fields.name().invalid() ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">Enter a name.</ui5-text>
+				</ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-description">
+					Description
+				</ui5-label>
+				<ui5-textarea
+					id="template-description"
+					accessibleName="Description"
+					[maxlength]="500"
+					[showExceededText]="true"
+					[formField]="fields.description"
+					[disabled]="draft.saving()"></ui5-textarea>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-format"
+					[required]="true">
+					File format
+				</ui5-label>
+				<ui5-select
+					id="template-format"
+					accessibleName="File format"
+					[formField]="fields.fileFormat"
+					[disabled]="draft.saving()">
+					<ui5-option value="Csv">CSV (UTF-8)</ui5-option>
+					<ui5-option value="Xlsx">XLSX (first sheet)</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Header row</ui5-label>
+				<ui5-checkbox
+					accessibleName="The first row names the columns"
+					text="The first row names the columns"
+					[checked]="hasHeaderRow()"
+					[disabled]="draft.saving()"
+					(ui5Change)="hasHeaderRow.set($any($event.target).checked)"></ui5-checkbox>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-date-format"
+					[required]="true">
+					Date format
+				</ui5-label>
+				<ui5-select
+					id="template-date-format"
+					accessibleName="Date format"
+					[formField]="fields.dateFormat"
+					[disabled]="draft.saving()">
+					@for (format of dateFormats; track format) {
+						<ui5-option [value]="format">{{ dateLabels[format] }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label
+					slot="labelContent"
+					for="template-time-zone"
+					[required]="true">
+					Time zone
+				</ui5-label>
+				<ui5-combobox
+					id="template-time-zone"
+					accessibleName="Time zone"
+					filter="Contains"
+					[formField]="fields.timeZone"
+					[disabled]="draft.saving()"
+					[valueState]="
+						fields.timeZone().touched() && fields.timeZone().invalid() ? 'Negative' : 'None'
+					">
+					@for (zone of zones; track zone) {
+						<ui5-cb-item [text]="zone"></ui5-cb-item>
+					}
+					<ui5-text slot="valueStateMessage">Choose a listed IANA time zone.</ui5-text>
+				</ui5-combobox>
+			</ui5-form-item>
+		</ui5-form-group>
+	</ui5-form>
+	<ui5-toolbar
+		design="Transparent"
+		accessibleName="Column actions">
+		<ui5-toolbar-button
+			text="Add column"
+			[disabled]="draft.saving() || columns().length >= 100"
+			(ui5Click)="addColumn()"></ui5-toolbar-button>
+	</ui5-toolbar>
+	@if (columnsTouched() && columnProblem()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ columnProblem() }}
+		</ui5-message-strip>
+	}
+	<ui5-table
+		accessibleName="Column mapping"
+		overflowMode="Popin"
+		noDataText="No columns mapped yet"
+		[rowActionCount]="1">
+		<ui5-table-header-row slot="headerRow">
+			<ui5-table-header-cell
+				[importance]="60"
+				minWidth="7rem">
+				Position
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="100"
+				minWidth="12rem"
+				popinText="Source column">
+				Source column
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="90"
+				minWidth="14rem"
+				popinText="Field">
+				Field
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="50"
+				minWidth="9rem"
+				popinText="Transformation">
+				Transformation
+			</ui5-table-header-cell>
+			<ui5-table-header-cell
+				[importance]="40"
+				minWidth="7rem"
+				popinText="Match key">
+				Match key
+			</ui5-table-header-cell>
+		</ui5-table-header-row>
+		@for (row of columns(); track row.key; let index = $index) {
+			<ui5-table-row [rowKey]="'c' + row.key">
+				<ui5-table-cell>
+					<ui5-step-input
+						[accessibleName]="'Column ' + (index + 1) + ' position'"
+						[min]="1"
+						[max]="100"
+						[value]="row.sourceColumnOrdinal"
+						[disabled]="draft.saving()"
+						(ui5Change)="
+							setColumn(row.key, 'sourceColumnOrdinal', $any($event.target).value)
+						"></ui5-step-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-input
+						[accessibleName]="'Column ' + (index + 1) + ' source name'"
+						[maxlength]="100"
+						[value]="row.sourceColumnName"
+						[disabled]="draft.saving()"
+						(ui5Input)="
+							setColumn(row.key, 'sourceColumnName', $any($event.target).value)
+						"></ui5-input>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-combobox
+						[accessibleName]="'Column ' + (index + 1) + ' field'"
+						filter="Contains"
+						[value]="fieldName(row.fieldCode)"
+						[disabled]="draft.saving()"
+						[valueState]="columnsTouched() && !row.fieldCode ? 'Negative' : 'None'"
+						(ui5Change)="chooseField(row.key, $any($event.target).value)">
+						@for (option of fieldOptions; track option.code) {
+							<ui5-cb-item
+								[text]="option.name"
+								[additionalText]="option.code"></ui5-cb-item>
+						}
+						<ui5-text slot="valueStateMessage">Choose a listed field.</ui5-text>
+					</ui5-combobox>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-select
+						[accessibleName]="'Column ' + (index + 1) + ' transformation'"
+						[value]="row.transformationCode"
+						[disabled]="draft.saving()"
+						(ui5Change)="setColumn(row.key, 'transformationCode', $any($event.target).value)">
+						@for (item of transformations; track item) {
+							<ui5-option [value]="item">{{ transformationLabels[item] }}</ui5-option>
+						}
+					</ui5-select>
+				</ui5-table-cell>
+				<ui5-table-cell>
+					<ui5-checkbox
+						[accessibleName]="'Column ' + (index + 1) + ' match key'"
+						[checked]="row.isMatchKey"
+						[disabled]="draft.saving() || !matchable(row.fieldCode)"
+						(ui5Change)="
+							setColumn(row.key, 'isMatchKey', $any($event.target).checked)
+						"></ui5-checkbox>
+				</ui5-table-cell>
+				<ui5-table-row-action
+					slot="actions"
+					icon="delete"
+					text="Remove"
+					(ui5Click)="removeColumn(row.key)"></ui5-table-row-action>
+			</ui5-table-row>
+		}
+	</ui5-table>
+	<ui5-form
+		accessibleName="Reason for change"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="template-reason"
+				[required]="true">
+				Reason
+			</ui5-label>
+			<ui5-textarea
+				id="template-reason"
+				accessibleName="Reason"
+				[maxlength]="500"
+				[showExceededText]="true"
+				[formField]="fields.reason"
+				[disabled]="draft.saving()"
+				[valueState]="fields.reason().touched() && fields.reason().invalid() ? 'Negative' : 'None'">
+				<ui5-text slot="valueStateMessage">State the reason.</ui5-text>
+			</ui5-textarea>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-bar hcmFooter>
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving()"
+			(click)="save()">
+			{{ draft.saving() ? 'Saving…' : existing() ? 'Save draft' : 'Create template' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

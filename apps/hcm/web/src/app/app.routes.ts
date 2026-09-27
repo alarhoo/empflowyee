@@ -230,6 +230,15 @@ export const appRoutes: Routes = [
 			),
 	},
 	{
+		path: 'employee/employee-import',
+		data: { catalogId: 'EMPLOYEE_IMPORT' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load import runs, templates, the run wizard and the template editor. */ () =>
+			import('@empflowyee/hcm-web-employee-feature-employee-import').then(
+				/** Keep feature routing outside the thin bootstrap root. */ (m) => m.EMPLOYEE_IMPORT_ROUTES,
+			),
+	},
+	{
 		path: 'employee/employment-changes',
 		data: { catalogId: 'EMPLOYMENT_CHANGES' },
 		canMatch: [hcmRouteAccess],
