@@ -36,6 +36,7 @@ validation record pass.
 | 16   | Probation Management app                                                                                                                        | Released    | [Validation](../testing/HCM-2-PROBATION-MANAGEMENT-VALIDATION.md)                  |
 | 16   | Probation Review app                                                                                                                            | Released    | [Validation](../testing/HCM-2-PROBATION-REVIEW-VALIDATION.md)                      |
 | 17   | HR service foundation: migration `000033`, service attachments, `employee.operations@3`                                                         | Delivered   | [Validation](../testing/HCM-2-HR-SERVICE-FOUNDATION-VALIDATION.md)                 |
+| 17   | HR Service Desk app                                                                                                                             | Released    | [Validation](../testing/HCM-2-HR-SERVICE-DESK-VALIDATION.md)                       |
 | 17   | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
@@ -72,6 +73,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 16   | `codex/hcm-2-probation-management`                  |
 | 16   | `codex/hcm-2-probation-review`                      |
 | 17   | `codex/hcm-2-employee-hr-service-foundation`        |
+| 17   | `codex/hcm-2-hr-service-desk`                       |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
