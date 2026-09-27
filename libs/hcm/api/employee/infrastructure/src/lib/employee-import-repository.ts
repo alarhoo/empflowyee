@@ -466,6 +466,16 @@ export class KyselyEmployeeImportRepository implements EmployeeImportRepository 
 		)
 	}
 
+	/** Issues that concern the whole file. */
+	runIssues(runId: string): Promise<ImportIssueRow[]> {
+		return this.exec(
+			sql<ImportIssueRow>`SELECT row_id AS "rowId",NULL::int AS "rowNumber",standard_field_code AS "fieldCode",
+				source_column_name AS "sourceColumnName",severity,issue_code AS code,safe_message AS message
+				FROM hcm.employee_import_issue WHERE tenant_id=${this.scope.tenantId} AND run_id=${runId} AND row_id IS NULL
+				ORDER BY created_at,id`,
+		)
+	}
+
 	/** Run work in a savepoint; a failure rolls it back and is rethrown. */
 	async savepoint<T>(work: () => Promise<T>): Promise<T> {
 		const name = sql.raw(`import_row_${randomUUID().replace(/-/g, '')}`)

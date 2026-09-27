@@ -16,6 +16,8 @@ import {
 	parseUpdateTemplate,
 	type ImportRowDto,
 	type ImportRowPage,
+	type ImportIssueDto,
+	type ImportRunDetailDto,
 	type ImportRunDto,
 	type ImportRunPage,
 	type ImportTemplateDetailDto,
@@ -316,7 +318,7 @@ export class EmployeeImport {
 	}
 
 	/** One run with its counts. */
-	run(context: AuthenticatedHcmContext, id: string): Promise<ImportRunDto> {
+	run(context: AuthenticatedHcmContext, id: string): Promise<ImportRunDetailDto> {
 		idValue(id, 'id')
 		return this.unit.execute(context, READ, false, /** Read. */ (w) => this.runDetail(w, id))
 	}
@@ -349,7 +351,7 @@ export class EmployeeImport {
 		bytes: Buffer,
 		key: string,
 		requestId: string,
-	): Promise<ImportRunDto> {
+	): Promise<ImportRunDetailDto> {
 		const command = parseRunMetadata(metadata)
 		const payload = { command, fileName, digest: rowDigest([bytes.toString('base64')]) }
 		return this.command(
@@ -402,7 +404,7 @@ export class EmployeeImport {
 		body: unknown,
 		key: string,
 		requestId: string,
-	): Promise<ImportRunDto> {
+	): Promise<ImportRunDetailDto> {
 		idValue(id, 'id')
 		const command = parseImportRevision(body)
 		return this.command(
@@ -506,7 +508,7 @@ export class EmployeeImport {
 		body: unknown,
 		key: string,
 		requestId: string,
-	): Promise<ImportRunDto> {
+	): Promise<ImportRunDetailDto> {
 		idValue(id, 'id')
 		const command = parseImportRevision(body)
 		return this.command(
@@ -609,7 +611,7 @@ export class EmployeeImport {
 		body: unknown,
 		key: string,
 		requestId: string,
-	): Promise<ImportRunDto> {
+	): Promise<ImportRunDetailDto> {
 		idValue(id, 'id')
 		const command = parseCancelRun(body)
 		return this.command(
@@ -1150,11 +1152,27 @@ export class EmployeeImport {
 		}
 	}
 
-	/** One run for display. */
-	private async runDetail(w: EmployeeWork, id: string): Promise<ImportRunDto> {
+	/** One run for display, with its file-level issues. */
+	private async runDetail(w: EmployeeWork, id: string): Promise<ImportRunDetailDto> {
 		const row = await w.imports.run(id)
 		if (!row) throw new HcmDomainError('not-found')
-		return this.runDto(w, row, await w.holds(MANAGE))
+		const issues = await w.imports.runIssues(id)
+		return {
+			...this.runDto(w, row, await w.holds(MANAGE)),
+			issues: issues.map(/** Issue. */ (item) => this.issueDto(item)),
+		}
+	}
+
+	/** An issue for display. */
+	private issueDto(item: ImportIssueRow): ImportIssueDto {
+		return {
+			fieldCode: item.fieldCode,
+			fieldName: item.fieldCode ? (IMPORT_FIELDS[item.fieldCode]?.name ?? item.fieldCode) : null,
+			sourceColumnName: item.sourceColumnName,
+			severity: item.severity,
+			code: item.code,
+			message: item.message,
+		}
 	}
 
 	/** Rows with their issues and candidate names. */
@@ -1190,18 +1208,7 @@ export class EmployeeImport {
 				needsResolution: row.status === 'Valid' && needsResolution(row.matchStatus, row.resolution),
 				issues: issues
 					.filter(/** This row. */ (item) => item.rowId === row.id)
-					.map(
-						/** Issue. */ (item) => ({
-							fieldCode: item.fieldCode,
-							fieldName: item.fieldCode
-								? (IMPORT_FIELDS[item.fieldCode]?.name ?? item.fieldCode)
-								: null,
-							sourceColumnName: item.sourceColumnName,
-							severity: item.severity,
-							code: item.code,
-							message: item.message,
-						}),
-					),
+					.map(/** Issue. */ (item) => this.issueDto(item)),
 				failureCode: row.failureCode,
 				resultWorkerId: row.resultWorkerId,
 				revision: row.revision,

@@ -357,6 +357,11 @@ export interface ImportRunDto {
 
 export type ImportRunPage = HcmPage<ImportRunDto>
 
+/** A run with the issues that concern the whole file rather than one row. */
+export interface ImportRunDetailDto extends ImportRunDto {
+	issues: ImportIssueDto[]
+}
+
 export interface ImportIssueDto {
 	fieldCode: string | null
 	fieldName: string | null
