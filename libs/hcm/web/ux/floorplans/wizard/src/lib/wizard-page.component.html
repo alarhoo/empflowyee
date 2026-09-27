@@ -1,0 +1,111 @@
+<ui5-dynamic-page
+	[showFooter]="state() === 'content'"
+	[accessibilityAttributes]="{
+		root: { role: 'region', name: title() },
+		content: { role: 'region', name: title() + ' content' },
+		footer: { role: 'region', name: title() + ' footer' },
+	}">
+	<ui5-dynamic-page-title slot="titleArea">
+		<ui5-title
+			level="H1"
+			slot="heading">
+			{{ title() }}
+		</ui5-title>
+		<ui5-title
+			level="H1"
+			slot="snappedHeading">
+			{{ title() }}
+		</ui5-title>
+		<ui5-text slot="subheading">{{ summary() }}</ui5-text>
+	</ui5-dynamic-page-title>
+	<div
+		class="content"
+		[attr.aria-busy]="state() === 'loading'">
+		@switch (state()) {
+			@case ('content') {
+				<ng-content />
+				<ui5-wizard
+					contentLayout="SingleStep"
+					[accessibleName]="title() + ' steps'"
+					(ui5StepChange)="choose($any($event.detail.step))">
+					@for (step of steps(); track step.id(); let position = $index) {
+						<ui5-wizard-step
+							[attr.data-step]="step.id()"
+							[titleText]="step.title()"
+							[selected]="step.id() === current()"
+							[disabled]="position > limit()">
+							@if (step.id() === current()) {
+								<ng-container [ngTemplateOutlet]="step.template" />
+							}
+						</ui5-wizard-step>
+					}
+				</ui5-wizard>
+			}
+			@case ('loading') {
+				<div
+					class="page-state"
+					role="status">
+					<ui5-busy-indicator
+						[active]="true"
+						[delay]="0"
+						text="Loading content" />
+				</div>
+			}
+			@case ('error') {
+				<div role="alert">
+					<ui5-illustrated-message
+						name="UnableToLoad"
+						titleText="Content could not be loaded"
+						[subtitleText]="errorMessage()">
+						<ui5-button (click)="retry.emit()">Retry</ui5-button>
+					</ui5-illustrated-message>
+				</div>
+			}
+			@case ('denied') {
+				<ui5-illustrated-message
+					name="tnt/Lock"
+					titleText="Permission required"
+					subtitleText="You do not have permission to view this content." />
+			}
+			@case ('unavailable') {
+				<ui5-illustrated-message
+					name="NoData"
+					titleText="Currently unavailable"
+					subtitleText="This capability is not available in the current context." />
+			}
+		}
+	</div>
+	<ui5-bar slot="footerArea">
+		@if (index() > 0) {
+			<ui5-button
+				slot="endContent"
+				[disabled]="busy()"
+				(click)="back()">
+				Previous step
+			</ui5-button>
+		}
+		@if (last()) {
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				[disabled]="busy()"
+				(click)="finish.emit()">
+				{{ busy() ? 'Saving…' : finishLabel() }}
+			</ui5-button>
+		} @else {
+			<ui5-button
+				slot="endContent"
+				design="Emphasized"
+				[disabled]="busy()"
+				(click)="forward()">
+				{{ nextLabel() }}
+			</ui5-button>
+		}
+		<ui5-button
+			slot="endContent"
+			[disabled]="busy()"
+			(click)="cancel.emit()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dynamic-page>

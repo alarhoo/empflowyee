@@ -32,6 +32,21 @@ patterns are not canonical acceptance evidence. Tabbed sections do not implement
 stacked anchor scrolling. Assistive-technology/product-design review remains
 additional to automated axe, keyboard, responsive and visual checks.
 
+## Wizard (`UX-FP-WIZARD`, HCM-2 step 2)
+
+`HcmWizardPage` in `libs/hcm/web/ux/floorplans/wizard` is the thin shared integration of the
+maintained UI5 Wizard inside a native UI5 DynamicPage with the shared HCM page states. Each
+step is an `efHcmWizardStep` template and only the current step renders. The page renders the
+native step header and the footer (Previous step, Next step or the finish label, and Cancel);
+the feature owns step validity and decides every forward move, and later steps stay disabled
+until the feature makes them reachable. No private DOM patch, feature CSS or disabled axe rule
+is used.
+
+Contract evidence: 2 unit tests cover forward requests, unvalidated backward moves, header
+choices limited to reachable steps, and navigation disabled while busy. Lint passes. Native
+step validation, keyboard, responsive and accessibility evidence is recorded with the first
+consumer, Employee Records, below.
+
 ## Previous implementation evidence (historical)
 
 This record covers the production UX correction on **2026-09-22**. It supersedes the earlier 114-story / 66-case materialization record. Those checks proved that examples rendered; they did not establish native floorplan fidelity or accessibility acceptance. No cloud deployment is part of this correction.
