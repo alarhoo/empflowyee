@@ -1,6 +1,6 @@
 # HCM-2 delivery progress
 
-Status: **15 of 18 HCM-2 apps released; step 16 is in progress.** Delivery follows the approved
+Status: **16 of 18 HCM-2 apps released; step 16 is complete.** Delivery follows the approved
 [implementation order](HCM-2-DESIGN-REVIEW.md#order) under the
 [implementation approval](HCM-2-IMPLEMENTATION-APPROVAL.md). An app becomes
 `complete` in the canonical catalogue only after its implementation, tests and
@@ -34,7 +34,8 @@ validation record pass.
 | 15    | Employee Import app, with migration `000031` and `employee.operations@1`                                                                        | Released    | [Validation](../testing/HCM-2-EMPLOYEE-IMPORT-VALIDATION.md)                       |
 | 16    | Probation foundation: migration `000032`, `workforce.foundation@5`, `employee.operations@2`                                                     | Delivered   | [Validation](../testing/HCM-2-PROBATION-FOUNDATION-VALIDATION.md)                  |
 | 16    | Probation Management app                                                                                                                        | Released    | [Validation](../testing/HCM-2-PROBATION-MANAGEMENT-VALIDATION.md)                  |
-| 16–17 | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
+| 16    | Probation Review app                                                                                                                            | Released    | [Validation](../testing/HCM-2-PROBATION-REVIEW-VALIDATION.md)                      |
+| 17    | Remaining foundations and apps                                                                                                                  | Not started | —                                                                                  |
 
 Steps 1 and 4–8 were first delivered together on
 `codex/hcm-2-catalogue-organization-structure`. Each step now also has its own branch,
@@ -68,6 +69,7 @@ stacked in order, and every later step starts a new branch from the previous one
 | 15   | `codex/hcm-2-employee-import`                       |
 | 16   | `codex/hcm-2-employee-probation-foundation`         |
 | 16   | `codex/hcm-2-probation-management`                  |
+| 16   | `codex/hcm-2-probation-review`                      |
 
 Steps 4 and 5 share a branch because their commits are interleaved.
 
