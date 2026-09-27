@@ -14,6 +14,8 @@ import type {
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import type { PositionReadPort } from '@empflowyee/hcm-api-job-architecture-application'
 import type { EmploymentChangeRepository } from './employment-change-repository'
+import type { EmployeeImportRepository } from './employee-import-repository'
+import type { ImportSourceStore } from '@empflowyee/hcm-api-documents-application'
 import type { SelfServiceRepository } from './my-profile'
 import type { ProfilePolicyRepository } from './profile-configuration'
 import type { ProfileFieldVisibilityPort } from './profile-visibility-port'
@@ -44,6 +46,10 @@ export interface EmployeeWork {
 	changeRequests: EmploymentChangeRepository
 	/** Published positions and capacity decisions (DEC-HCM2-007). */
 	positions: PositionReadPort
+	/** Employee-owned import templates, runs, rows and issues. */
+	imports: EmployeeImportRepository
+	/** Import source files, staged and read through documents. */
+	sources: ImportSourceStore
 	/** Whether the actor holds one more employee business grant, such as `changes.approve`. */
 	holds(permission: string): Promise<boolean>
 	/** Employee-owned custom values and visibility preferences. */

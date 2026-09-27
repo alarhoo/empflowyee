@@ -11,7 +11,9 @@ import {
 } from '@empflowyee/hcm-api-employee-application'
 import type { WorkforcePortBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
 import type { PositionReadPortBinder } from '@empflowyee/hcm-api-job-architecture-application'
+import type { DocumentStoragePort } from '@empflowyee/hcm-api-documents-application'
 import { KyselyEmploymentChangeRepository } from './employment-change-repository'
+import { KyselyEmployeeImportRepository } from './employee-import-repository'
 import { KyselyProfilePolicyRepository } from './profile-policy-repository'
 import { KyselySelfServiceRepository } from './self-service-repository'
 
@@ -21,6 +23,7 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 		private readonly database: HcmAccessDatabase | null,
 		private readonly workforce: WorkforcePortBinder,
 		private readonly positions: PositionReadPortBinder,
+		private readonly documents: DocumentStoragePort,
 	) {
 		super()
 	}
@@ -59,6 +62,8 @@ export class KyselyEmployeeUnitOfWork extends EmployeeUnitOfWork {
 					changes: workforce.changes,
 					changeRequests: new KyselyEmploymentChangeRepository(scope),
 					positions: this.positions.bind(executor, actor),
+					imports: new KyselyEmployeeImportRepository(scope),
+					sources: this.documents.bind(executor, actor),
 					holds: /** Check one more business grant, once per transaction. */ (permission) => {
 						const code = 'hcm.employee.' + permission
 						let result = held.get(code)
