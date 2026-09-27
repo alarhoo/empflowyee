@@ -2,14 +2,19 @@ import 'reflect-metadata'
 import { Test } from '@nestjs/testing'
 import type { INestApplication } from '@nestjs/common'
 import { request } from 'node:http'
-import { randomUUID } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
 import { Client } from 'pg'
 import { migrateHcmDatabase, loadSqlMigrations } from '@empflowyee/hcm-api-database-migrations'
 import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
-import { HcmSessionReader, TenantDirectory } from '@empflowyee/hcm-api-runtime-application'
+import {
+	FieldCipher,
+	HcmSessionReader,
+	TenantDirectory,
+} from '@empflowyee/hcm-api-runtime-application'
 import {
 	HcmRuntimeStore,
+	LocalFieldCipher,
 	createTenantDirectory,
 	createSessionReader,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
@@ -76,6 +81,9 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 		.useValue(new HcmAccessDatabase(runtime))
 		.overrideProvider(HCM_ROLE_WRITE_ORIGIN)
 		.useValue(HCM_TEST_ORIGIN)
+		// Job architecture reads positions for capacity; its cipher uses a disposable local key here.
+		.overrideProvider(FieldCipher)
+		.useValue(new LocalFieldCipher(randomBytes(32)))
 		.compile()
 	const app: INestApplication = compiled.createNestApplication({ logger: false })
 	app.setGlobalPrefix('api')
