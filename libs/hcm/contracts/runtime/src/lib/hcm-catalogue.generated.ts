@@ -1911,7 +1911,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			catalogueIds: ['manager-self-service'],
 			route: '/employee/probation-review',
 			floorplan: 'UX-FP-FCL',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
