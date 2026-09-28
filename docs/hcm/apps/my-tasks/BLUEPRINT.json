@@ -1,0 +1,408 @@
+{
+	"formatVersion": 1,
+	"appCode": "MY_TASKS",
+	"domain": "workflow",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/my-tasks/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/my-tasks/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/my-tasks/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/my-tasks/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workflow/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "LOGICAL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workflow/DATA-MODEL.md"
+		},
+		{
+			"id": "MODEL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workflow/DOMAIN-MODEL.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workflow/BUSINESS-RULES.md"
+		},
+		{
+			"id": "STATE",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workflow/STATE-MODEL.md"
+		},
+		{
+			"id": "ACCESS",
+			"kind": "domain",
+			"path": "docs/hcm/domains/workflow/ACCESS-MODEL.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md"
+		},
+		{
+			"id": "SQL",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md"
+		},
+		{
+			"id": "WORKER",
+			"kind": "foundation",
+			"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md"
+		},
+		{
+			"id": "BASELINE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md"
+		},
+		{
+			"id": "RESOLUTIONS",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md"
+		},
+		{
+			"id": "AUTHORITY",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		}
+	],
+	"route": "/workflow/my-tasks",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#FLOORPLAN"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"Form",
+				"FormItem",
+				"DatePicker",
+				"TimePicker",
+				"DateTimePicker",
+				"Select",
+				"ComboBox",
+				"TextArea",
+				"FileUploader"
+			],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent from @fundamental-ngx/core/object-status"],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["FlexibleColumnLayout"],
+			"ref": "TDD#NATIVE"
+		}
+	],
+	"contracts": [
+		{
+			"id": "MY_TASKS-API",
+			"owner": "workflow",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "workflow-DTO",
+			"owner": "workflow",
+			"ref": "DOMAIN#SCHEMAS"
+		},
+		{
+			"id": "HCM3-TRANSPORT",
+			"owner": "runtime",
+			"ref": "COMMON#CONTRACTS"
+		}
+	],
+	"data": [
+		{
+			"id": "MY_TASKS-PERSISTENCE",
+			"owner": "workflow",
+			"ref": "TDD#DATA"
+		},
+		{
+			"id": "HCM3-SQL",
+			"owner": "database",
+			"ref": "SQL#CONSTRAINTS"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.workflow.my-tasks.act",
+			"owner": "workflow",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.workflow.my-tasks.read",
+			"owner": "workflow",
+			"ref": "TDD#AUTHORIZATION"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-workflow-contract",
+			"root": "libs/hcm/contracts/workflow",
+			"tags": ["product:hcm", "runtime:universal", "domain:workflow", "type:contract"]
+		},
+		{
+			"name": "hcm-web-workflow-data-access",
+			"root": "libs/hcm/web/workflow/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:workflow", "type:data-access"]
+		},
+		{
+			"name": "hcm-web-workflow-feature-my-tasks",
+			"root": "libs/hcm/web/workflow/feature-my-tasks",
+			"tags": ["product:hcm", "runtime:web", "domain:workflow", "type:feature"]
+		},
+		{
+			"name": "hcm-api-workflow-domain",
+			"root": "libs/hcm/api/workflow/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:workflow", "type:domain"]
+		},
+		{
+			"name": "hcm-api-workflow-application",
+			"root": "libs/hcm/api/workflow/application",
+			"tags": ["product:hcm", "runtime:api", "domain:workflow", "type:application"]
+		},
+		{
+			"name": "hcm-api-workflow-infrastructure",
+			"root": "libs/hcm/api/workflow/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:workflow", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-workflow-transport",
+			"root": "libs/hcm/api/workflow/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:workflow", "type:transport"]
+		},
+		{
+			"name": "hcm-api-workflow-module",
+			"root": "libs/hcm/api/workflow/module",
+			"tags": ["product:hcm", "runtime:api", "domain:workflow", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "CURRENT-FOUNDATION-CONTRACTS",
+			"state": "resolved",
+			"ref": "COMMON#FOUNDATIONS"
+		},
+		{
+			"id": "CURRENT-AUTHORITY",
+			"state": "resolved",
+			"ref": "COMMON#AUTHORIZATION"
+		},
+		{
+			"id": "WORKLOAD-TRUST",
+			"state": "resolved",
+			"ref": "COMMON#WORKLOAD"
+		},
+		{
+			"id": "OWNING-DOMAIN",
+			"state": "resolved",
+			"ref": "DOMAIN#ALGORITHM"
+		},
+		{
+			"id": "EXPLICIT-SQL",
+			"state": "resolved",
+			"ref": "SQL#MIGRATIONS"
+		},
+		{
+			"id": "WORKER-ADR",
+			"state": "resolved",
+			"ref": "WORKER#Decision"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-HCM3-011",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-012",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-013",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-014",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-015",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-016",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-021",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-001",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-002",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-009",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-017",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-018",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-MY-TASKS-001",
+		"FDD#REQ-MY-TASKS-002",
+		"FDD#REQ-MY-TASKS-003",
+		"FDD#REQ-MY-TASKS-004",
+		"FDD#REQ-MY-TASKS-005",
+		"FDD#REQ-MY-TASKS-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-MY-TASKS-001",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-MY-TASKS-001"
+		},
+		{
+			"id": "TEST-MY-TASKS-002",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-MY-TASKS-002"
+		},
+		{
+			"id": "TEST-MY-TASKS-003",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-MY-TASKS-003"
+		},
+		{
+			"id": "TEST-MY-TASKS-004",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-MY-TASKS-004"
+		},
+		{
+			"id": "TEST-MY-TASKS-005",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-MY-TASKS-005"
+		},
+		{
+			"id": "TEST-MY-TASKS-006",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-MY-TASKS-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-MY-TASKS-001",
+			"design": "TDD#DESIGN-001",
+			"tests": ["TEST-MY-TASKS-001"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-TASKS-002",
+			"design": "TDD#DESIGN-002",
+			"tests": ["TEST-MY-TASKS-002"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-TASKS-003",
+			"design": "TDD#DESIGN-003",
+			"tests": ["TEST-MY-TASKS-003"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-TASKS-004",
+			"design": "TDD#DESIGN-004",
+			"tests": ["TEST-MY-TASKS-004"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-TASKS-005",
+			"design": "TDD#DESIGN-005",
+			"tests": ["TEST-MY-TASKS-005"]
+		},
+		{
+			"requirement": "FDD#REQ-MY-TASKS-006",
+			"design": "TDD#DESIGN-006",
+			"tests": ["TEST-MY-TASKS-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-3-my-tasks",
+		"commits": [
+			"feat(hcm-workflow): add my-tasks contracts and domain behavior",
+			"feat(hcm-workflow): persist my-tasks with authorization and receipts",
+			"feat(hcm-workflow): add my-tasks native application experience",
+			"test(hcm-workflow): verify my-tasks acceptance and document evidence"
+		]
+	}
+}
