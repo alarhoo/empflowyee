@@ -1956,7 +1956,7 @@
 			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
-			"blockingDecisionStatus": "clear",
+			"blockingDecisionStatus": "blocked",
 			"implementationStatus": "planned",
 			"dataPolicy": "real-api-only",
 			"themeContract": "theme-agnostic",

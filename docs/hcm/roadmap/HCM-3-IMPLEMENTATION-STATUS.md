@@ -1,7 +1,10 @@
 # HCM-3 implementation status
 
 Step-2 implementation is in progress. [Step-1 readiness](HCM-3-DESIGN-REVIEW.md)
-admits all 23 designs; readiness does not mean the applications are implemented.
+admitted all 23 designs; readiness does not mean the applications are implemented.
+Current publication work in Holiday Calendars is awaiting the newly raised
+[DEC-HCM3-024](../testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md). Other resolved
+decisions remain approved; no pending answer has been inferred.
 
 ## Foundations
 

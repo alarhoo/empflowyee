@@ -116,11 +116,11 @@
 		},
 		{
 			"document": "RESOLUTIONS",
-			"sha256": "4e82436c5533b5c201c0dee1d6a10e389197dc5d0da69e8758223f412d4be3d7",
+			"sha256": "a87339a27f60c6b3f610989b877fe39a0c099cb81073fd13c7295d753475d16e",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
 		},
 		{
 			"document": "AUTHORITY",

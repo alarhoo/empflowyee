@@ -28,11 +28,11 @@
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "e3cd2fc5367a1624dd6e82dc5a9417a1ab1ba127c79c7bfd72586148527e4931",
+			"sha256": "c1317883aa44cbd333bd7bd2b076eaab2d37ec21b85e7c7e9c50246076b563ec",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
 		},
 		{
 			"document": "DOMAIN",
@@ -116,11 +116,11 @@
 		},
 		{
 			"document": "RESOLUTIONS",
-			"sha256": "4e82436c5533b5c201c0dee1d6a10e389197dc5d0da69e8758223f412d4be3d7",
+			"sha256": "a87339a27f60c6b3f610989b877fe39a0c099cb81073fd13c7295d753475d16e",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
 		},
 		{
 			"document": "AUTHORITY",
@@ -164,11 +164,11 @@
 		},
 		{
 			"document": "BLUEPRINT",
-			"sha256": "d3ede6f3c7af1b1d29913b41b2015fa36f2ac3232a3376502ad4283bee772955",
+			"sha256": "6a09c05ec7f2b8948f785b6f9242abee30a82a87ad4ff0297ac8f10790668b6b",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
 		}
 	]
 }

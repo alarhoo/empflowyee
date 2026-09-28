@@ -330,6 +330,10 @@
 		{
 			"id": "DEC-HCM3-018",
 			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-024",
+			"classification": "BLOCKS_THIS_APP"
 		}
 	],
 	"requirements": [
