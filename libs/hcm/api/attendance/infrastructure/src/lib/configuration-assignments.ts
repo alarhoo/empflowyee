@@ -1,4 +1,5 @@
 import { sql, type Kysely } from 'kysely'
+import type { AttendanceConfigurationFamily } from '@empflowyee/hcm-api-attendance-application'
 import { dateValue, idValue } from '@empflowyee/hcm-runtime-contract'
 import type {
 	AttendanceEmploymentScope,
@@ -10,7 +11,7 @@ const families = {
 	Policy: 'attendance_policy',
 	Holiday: 'holiday_calendar',
 } as const
-export type AttendanceConfigurationFamily = keyof typeof families
+export type { AttendanceConfigurationFamily } from '@empflowyee/hcm-api-attendance-application'
 
 /** Scope-filter configuration inputs before domain selection; this reader does not grant permission or choose a conflicting winner. */
 export class KyselyAttendanceAssignmentReader {
@@ -31,7 +32,7 @@ export class KyselyAttendanceAssignmentReader {
 		scope: AttendanceEmploymentScope,
 	): Promise<DatedConfigurationAssignment[]> {
 		dateValue(workDate, 'workDate')
-		const owner = families[family]
+		const owner = Object.hasOwn(families, family) ? families[family] : undefined
 		if (!owner) throw new Error('Unsupported attendance configuration family')
 		const assignmentIds = scope.assignments.map(
 			/** Exact workforce assignment IDs are source facts, not browser filters. */ (item) =>

@@ -1,9 +1,12 @@
+import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
+import { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	AttendanceConfigurationInputBinder,
 	AttendanceScheduleUnitOfWork,
 	AttendanceHolidayUnitOfWork,
 	AttendanceHolidayDrafts,
@@ -13,6 +16,7 @@ import {
 	AttendanceTemplatePublication,
 } from '@empflowyee/hcm-api-attendance-application'
 import {
+	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
 	KyselyAttendanceHolidayUnit,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
@@ -23,9 +27,17 @@ import {
 
 /** Attendance composition owns no scheduler loop or startup migration. */
 @Module({
-	imports: [HcmRuntimeModule, HcmAccessControlModule],
+	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
 	controllers: [ScheduleTemplatesController, HolidayCalendarsController],
+	exports: [AttendanceConfigurationInputBinder],
 	providers: [
+		{
+			provide: AttendanceConfigurationInputBinder,
+			inject: [WorkforceTimeContextBinder],
+			useFactory: /** Compose owner ports without reciprocal persistence dependencies. */ (
+				workforce: WorkforceTimeContextBinder,
+			) => new KyselyAttendanceConfigurationInputBinder(workforce),
+		},
 		{
 			provide: AttendanceHolidayUnitOfWork,
 			inject: [HcmAccessDatabase, FieldCipher],
