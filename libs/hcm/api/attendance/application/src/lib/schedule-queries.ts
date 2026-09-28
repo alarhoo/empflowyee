@@ -1,14 +1,22 @@
-import { HcmDomainError, idValue, type HcmPage } from '@empflowyee/hcm-runtime-contract'
+import {
+	HcmDomainError,
+	idValue,
+	invalidField,
+	type HcmPage,
+} from '@empflowyee/hcm-runtime-contract'
 import {
 	parseScheduleListQuery,
 	parseScheduleVersionQuery,
 	type ScheduleListQuery,
 	type ScheduleVersionView,
+	type ScheduleSeedDefaults,
 } from '@empflowyee/hcm-attendance-contract'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import { AttendanceScheduleUnitOfWork, type ScheduleApplication } from './schedule-commands'
 
 export interface ScheduleQueryRepository {
+	/** Read the persisted incomplete draft proposal without treating it as a complete schedule. */
+	defaults(): Promise<ScheduleSeedDefaults | null>
 	/** Read latest versions with current source/authority-bound continuation. */
 	list(app: ScheduleApplication, query: ScheduleListQuery): Promise<HcmPage<ScheduleVersionView>>
 	/** Read a selected root's exact version, or its latest version when explicitly omitted on GET. */
@@ -23,6 +31,25 @@ export interface ScheduleQueryRepository {
 export class AttendanceScheduleQueries {
 	/** Consume the same tenant authorization boundary as configuration commands. */
 	constructor(private readonly unit: AttendanceScheduleUnitOfWork) {}
+
+	/** Expose explicit database seed defaults with no browser fallback or invented placement/zone. */
+	defaults(
+		context: AuthenticatedHcmContext,
+		params: URLSearchParams,
+	): Promise<ScheduleSeedDefaults> {
+		for (const field of params.keys()) invalidField(field, 'unknown')
+		return this.unit.execute(
+			context,
+			'Templates',
+			'read',
+			false,
+			/** Read and validate the authorized proposal's seven explicit weekdays. */ async (work) => {
+				const value = await work.queries.defaults()
+				if (!value || value.days.length !== 7) throw new HcmDomainError('record-incomplete')
+				return value
+			},
+		)
+	}
 
 	/** Parse the exact server-owned list contract and return an authorized continuation page. */
 	list(

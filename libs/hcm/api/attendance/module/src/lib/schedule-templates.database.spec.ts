@@ -1,12 +1,16 @@
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { Client } from 'pg'
+import { resolve } from 'node:path'
+import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
+import { loadSqlMigrations } from '@empflowyee/hcm-api-database-migrations'
 import type { HcmPage } from '@empflowyee/hcm-runtime-contract'
 import type {
 	ScheduleDraft,
 	ScheduleSegment,
 	ScheduleVersionView,
 	ConfigurationPreviewView,
+	ScheduleSeedDefaults,
 } from '@empflowyee/hcm-attendance-contract'
 import { HcmAttendanceModule } from './hcm-api-attendance-module'
 import { startHcmTestApi, HCM_TEST_TENANT, type HcmTestApi } from './attendance-test-harness'
@@ -43,17 +47,6 @@ function pattern(code: string, name = 'Test pattern'): ScheduleDraft {
 beforeAll(
 	/** Start real Nest routing over migrated PostgreSQL and persisted authenticated development personas. */ async () => {
 		api = await startHcmTestApi(HcmAttendanceModule)
-		for (const operation of ['read', 'draft', 'preview', 'publish', 'retire']) {
-			const permission = 'hcm.attendance.work-schedule-templates.' + operation
-			await api.admin.query(
-				"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Template API test operation','business-operation')",
-				[HCM_TEST_TENANT, permission],
-			)
-			await api.admin.query(
-				"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator',$2)",
-				[HCM_TEST_TENANT, permission],
-			)
-		}
 		await api.admin.query('BEGIN')
 		try {
 			await api.admin.query("SELECT set_config('hcm.tenant_id','foreign-query-tenant',true)")
@@ -85,6 +78,75 @@ afterAll(
 		await api?.close()
 	},
 )
+
+it('reads canonical draft defaults without manufacturing placement, zone or live configuration', /** Real database defaults and explicit seeded operation grants survive idempotent reseeding. */ async () => {
+	const result = await api.send<ScheduleSeedDefaults>('david', 'GET', base + '/defaults')
+	expect(result.status).toBe(200)
+	expect(result.body).toMatchObject({
+		state: 'DraftDefaults',
+		code: 'STANDARD_WEEK',
+		revision: 1,
+		weekStartsOn: 1,
+	})
+	expect(result.body.days).toHaveLength(7)
+	for (let index = 0; index < 7; index++) {
+		if (index < 5)
+			expect(result.body.days[index]).toEqual({
+				weekday: index + 1,
+				kind: 'Work',
+				startTime: '09:00:00',
+				endTime: '18:00:00',
+				endDayOffset: 0,
+				unpaidBreakMinutes: 60,
+			})
+		else
+			expect(result.body.days[index]).toEqual({
+				weekday: index + 1,
+				kind: 'Rest',
+				unpaidBreakMinutes: 0,
+			})
+	}
+	expect(JSON.stringify(result.body)).not.toMatch(
+		/timezone|fixedZone|effectiveFrom|elapsedMilliseconds|segments/,
+	)
+	expect((await api.send('toby', 'GET', base + '/defaults')).status).toBe(403)
+	expect((await api.send('david', 'GET', base + '/defaults?tenantId=foreign')).status).toBe(400)
+	expect((await api.send('david', 'POST', base, result.body)).status).toBe(400)
+	expect(
+		(
+			await api.send(
+				'david',
+				'POST',
+				`${base}/${encodeURIComponent(result.body.id)}/preview?version=${encodeURIComponent(result.body.id)}`,
+				{ expectedRevision: 1, effectiveFrom: '2026-01-01' },
+			)
+		).status,
+	).toBe(404)
+	const connection = process.env['HCM_TEST_MIGRATOR']
+	if (!connection) throw new Error('Disposable database required')
+	expect(
+		await runDevelopmentSeeds({
+			env: {
+				APP_ENVIRONMENT: 'local',
+				NODE_ENV: 'test',
+				HCM_SEED_TARGET: HCM_TEST_TENANT,
+				HCM_SEED_DATABASE_URL: connection,
+			},
+			manifestDirectory: resolve('libs/hcm/api/database/seed/manifest'),
+			migrations: await loadSqlMigrations(resolve('libs/hcm/api/database/migrations/sql')),
+		}),
+	).toEqual([])
+	expect((await api.send<ScheduleSeedDefaults>('david', 'GET', base + '/defaults')).body).toEqual(
+		result.body,
+	)
+	expect(
+		(
+			await api.admin.query('SELECT id FROM hcm.work_schedule WHERE tenant_id=$1', [
+				HCM_TEST_TENANT,
+			])
+		).rows,
+	).toEqual([])
+})
 
 it('serves exact versioned template lifecycle routes with safe public projections', /** Real HTTP create/edit/preview/publish/copy/version/retire commands preserve their admitted statuses and source history. */ async () => {
 	const empty = await api.send<HcmPage<ScheduleVersionView>>('david', 'GET', base)
@@ -311,6 +373,8 @@ it('protects cursor storage with RLS and never exposes or stores bearer handles 
 	await client.connect()
 	try {
 		await client.query("SELECT set_config('hcm.tenant_id','foreign-query-tenant',false)")
+		expect((await client.query('SELECT id FROM hcm.work_schedule_seed_default')).rows).toEqual([])
+		expect((await client.query('SELECT weekday FROM hcm.work_schedule_seed_day')).rows).toEqual([])
 		expect(
 			(await client.query('SELECT token_digest FROM hcm.attendance_query_cursor')).rows,
 		).toEqual([])
@@ -321,6 +385,18 @@ it('protects cursor storage with RLS and never exposes or stores bearer handles 
 			),
 		).rejects.toMatchObject({ code: '42501' })
 		await client.query("SELECT set_config('hcm.tenant_id',$1,false)", [HCM_TEST_TENANT])
+		expect((await client.query('SELECT id FROM hcm.work_schedule_seed_default')).rows).toHaveLength(
+			1,
+		)
+		expect(
+			(await client.query('SELECT weekday FROM hcm.work_schedule_seed_day')).rows,
+		).toHaveLength(7)
+		await expect(
+			client.query('UPDATE hcm.work_schedule_seed_default SET revision=revision+1'),
+		).rejects.toMatchObject({ code: '42501' })
+		await expect(
+			client.query('UPDATE hcm.work_schedule_seed_day SET unpaid_break_minutes=0'),
+		).rejects.toMatchObject({ code: '42501' })
 		expect(
 			(await client.query('SELECT token_digest FROM hcm.attendance_query_cursor')).rows.length,
 		).toBeGreaterThan(0)
@@ -383,4 +459,52 @@ it('rejects unauthorized, foreign-tenant and malformed HTTP commands without SQL
 	expect(missing.status).toBe(404)
 	expect(missing.body).toMatchObject({ code: 'not-found', requestId: expect.any(String) })
 	expect(JSON.stringify(missing.body)).not.toMatch(/SELECT|hcm\.|stack|password/)
+})
+
+it('reports incomplete defaults honestly and refuses seed reset over real Attendance evidence', /** The seed loader rolls every reset effect back instead of erasing configurations or silently reseeding them. */ async () => {
+	await api.admin.query('DELETE FROM hcm.work_schedule_seed_day WHERE tenant_id=$1 AND weekday=7', [
+		HCM_TEST_TENANT,
+	])
+	try {
+		const missing = await api.send('david', 'GET', base + '/defaults')
+		expect(missing.status).toBe(409)
+		expect(missing.body).toMatchObject({ code: 'record-incomplete' })
+	} finally {
+		await api.admin.query(
+			"INSERT INTO hcm.work_schedule_seed_day(tenant_id,default_id,weekday,kind,unpaid_break_minutes) VALUES($1,'dunder-mifflin/attendance-default/standard-week',7,'Rest',0)",
+			[HCM_TEST_TENANT],
+		)
+	}
+	const before = (
+		await api.admin.query('SELECT id FROM hcm.work_schedule WHERE tenant_id=$1 ORDER BY id', [
+			HCM_TEST_TENANT,
+		])
+	).rows
+	const connection = process.env['HCM_TEST_MIGRATOR']
+	if (!connection) throw new Error('Disposable database required')
+	await expect(
+		runDevelopmentSeeds({
+			env: {
+				APP_ENVIRONMENT: 'local',
+				NODE_ENV: 'test',
+				HCM_SEED_TARGET: HCM_TEST_TENANT,
+				HCM_SEED_DATABASE_URL: connection,
+			},
+			manifestDirectory: resolve('libs/hcm/api/database/seed/manifest'),
+			migrations: await loadSqlMigrations(resolve('libs/hcm/api/database/migrations/sql')),
+			mode: 'reset',
+			resetConfirmation: HCM_TEST_TENANT,
+		}),
+	).rejects.toThrow('Attendance evidence exists')
+	expect(
+		(
+			await api.admin.query('SELECT id FROM hcm.work_schedule WHERE tenant_id=$1 ORDER BY id', [
+				HCM_TEST_TENANT,
+			])
+		).rows,
+	).toEqual(before)
+	expect((await api.send('david', 'GET', base + '/defaults')).status).toBe(200)
+	expect(
+		(await api.admin.query('SELECT module_id FROM hcm.development_seed_history')).rowCount,
+	).toBe(30)
 })

@@ -28,9 +28,15 @@ minimumRestMinutes is non-null under its explicit minimumRestMode Warn/Block; nu
 Compute half-open intervals and exact milliseconds; subtract configured unpaid
 break/absence overlaps once. Retain planned work and break segments separately.
 
-Seed templates: Mon–Fri 09:00–18:00 with 60 unpaid minutes, Sat/Sun rest, no grace
-or rounding. They are editable drafts. Publishing requires explicit break segment
-placement and zone, so no unapproved midday break or timezone is invented.
+Seed defaults: Mon–Fri 09:00–18:00 with 60 unpaid minutes, Sat/Sun rest, no grace
+or rounding. Incomplete template defaults are persisted as draft form proposals
+in `work_schedule_seed_default/day`, not as complete ScheduleDraft versions.
+The create form lets the administrator change those defaults and requires explicit
+break segment placement, dates and timezone mode before saving a complete Draft.
+The proposal has no timezone or dated duration and cannot be assigned, copied as
+a reusable version or published. This reconciles incomplete editable seed values
+with the closed, complete ScheduleDraft contract without inventing a midday break
+or timezone. A saved Draft still requires its explicit preview/publication flow.
 Other day/holiday/rest/rounding values require published tenant configuration.
 
 Online capture derives occurredAt from server receive time, employment from own

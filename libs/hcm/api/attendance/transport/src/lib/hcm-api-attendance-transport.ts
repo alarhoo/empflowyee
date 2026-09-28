@@ -91,6 +91,18 @@ export class ScheduleTemplatesController {
 		)
 	}
 
+	/** Read an incomplete draft proposal before the parameterized root route is considered. */
+	@Get('defaults')
+	defaults(@Req() request: RoleRequest, @Res({ passthrough: true }) response: RoleResponse) {
+		return runAccessRequest(
+			this.context,
+			this.logger,
+			response,
+			/** Require the same current read authority as the template catalogue. */ (context) =>
+				this.reads.defaults(context, query(request)),
+		)
+	}
+
 	/** Read an exact version or the latest when GET omits the selector. */
 	@Get(':id')
 	detail(

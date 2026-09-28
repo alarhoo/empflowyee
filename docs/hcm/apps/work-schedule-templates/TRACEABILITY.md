@@ -6,7 +6,8 @@ The [command](../../testing/HCM-3-CONFIGURATION-COMMAND-VALIDATION.md),
 [HTTP API](../../testing/HCM-3-TEMPLATE-API-VALIDATION.md) suites verify backend
 parts of requirements 001–004 and 006. Contract/domain/storage suites cover segment
 validation and template assignment denial. Requirement 005 and native UI portions
-of every journey remain pending, as do canonical seed defaults/grants. The app
+of every journey remain pending. Canonical seed defaults/grants are now verified in
+[seed validation](../../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md). The app
 remains Planned. The scenarios below remain the full acceptance obligations;
 backend tests alone do not approve the floorplan or complete an app.
 

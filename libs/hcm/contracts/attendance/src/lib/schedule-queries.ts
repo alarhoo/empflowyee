@@ -2,6 +2,23 @@ import { idValue, invalidField } from '@empflowyee/hcm-runtime-contract'
 import type { AttendanceConfigurationState } from './hcm-attendance-contract'
 import { configurationText } from './configuration-validation'
 
+export interface ScheduleSeedDefaults {
+	id: string
+	revision: number
+	state: 'DraftDefaults'
+	code: string
+	name: string
+	weekStartsOn: number
+	days: {
+		weekday: number
+		kind: 'Work' | 'Rest'
+		startTime?: string
+		endTime?: string
+		endDayOffset?: 0 | 1
+		unpaidBreakMinutes: number
+	}[]
+}
+
 export interface ScheduleListQuery {
 	limit: number
 	sort: 'code' | 'name' | 'state' | 'id'

@@ -72,6 +72,7 @@ contains id/revision/state and async operationId/statusUrl when applicable.
 | Method | Exact route                                         | Request schema                   | Response schema | Business permission                             |
 | ------ | --------------------------------------------------- | -------------------------------- | --------------- | ----------------------------------------------- |
 | GET    | `/api/v1/attendance/schedule-templates`             | Query                            | ScheduleDraft[] | `hcm.attendance.work-schedule-templates.read`   |
+| GET    | `/api/v1/attendance/schedule-templates/defaults`    | No query                         | ScheduleSeedDefaults | `hcm.attendance.work-schedule-templates.read` |
 | GET    | `/api/v1/attendance/schedule-templates/{id}`        | Query                            | ScheduleDraft   | `hcm.attendance.work-schedule-templates.read`   |
 | POST   | `/api/v1/attendance/schedule-templates`             | ScheduleDraft                    | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
 | PATCH  | `/api/v1/attendance/schedule-templates/{id}`        | ScheduleDraft + expectedRevision | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
@@ -102,6 +103,19 @@ reports zero live assignments because the database forbids assigning templates;
 it does not claim dated workforce/DST suitability for a subsequently created
 schedule. That independent schedule requires its own scoped, dated impact preview
 and publication before use. Publication never implicitly supplies a break or zone.
+
+`ScheduleSeedDefaults` is a separate additive read DTO for an incomplete draft
+proposal: id,revision,state=DraftDefaults,code,name,weekStartsOn and seven days
+with weekday,kind,startTime?,endTime?,endDayOffset?,unpaidBreakMinutes. Rest days
+have no envelope and zero break. It deliberately has no timezone, effective dates
+or resolved duration. GET `/defaults` is declared before the `/:id` route. The
+create form loads these persisted values, presents the unpaid minutes as awaiting
+placement and requires the user to complete or explicitly change the proposal.
+It never passes this DTO to a ScheduleDraft command or claims it is reusable.
+Missing defaults return unavailable configuration; no browser fixture fallback.
+The canonical development seed grants these explicit template operations to the
+existing tenant-administrator role used for reference-data curation; title alone
+never bypasses the persisted operation checks.
 
 For a template preview, omitted effectiveTo means its explicit effectiveFrom date;
 the inclusive range stays within source coverage and the common 366-date bound.

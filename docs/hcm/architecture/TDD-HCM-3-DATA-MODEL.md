@@ -56,6 +56,13 @@ It has tenant RLS and composite actor/root FKs; no runtime UPDATE. DELETE is
 limited by the adapter to bounded expired cache cleanup. Its owning TDD defines
 authentication and source revision binding; it is never a permission credential.
 
+`work_schedule_seed_default/day` stores the incomplete, configurable draft form
+proposal separately from complete work_schedule versions: one tenant default,
+revision, suggested code/name/week start and seven typed weekday envelopes with
+unplaced unpaid-break minutes. No zone or effective date is guessed. Runtime reads
+these seed values only; user edits become a newly validated complete Draft through
+the existing command. Seed reset refuses when real Attendance evidence exists.
+
 ## CONSTRAINTS
 
 Every tenant table has tenant_id directly, ENABLE and FORCE RLS using the existing

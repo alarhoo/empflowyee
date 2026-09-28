@@ -105,8 +105,8 @@ beforeAll(
 			migrations: await loadSqlMigrations(inventory),
 		})
 		await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
-		for (const app of ['work-schedule-templates', 'work-schedules']) {
-			for (const operation of ['draft', 'read', 'preview', 'publish', 'retire']) {
+		for (const app of ['work-schedules']) {
+			for (const operation of ['draft', 'read']) {
 				const permission = `hcm.attendance.${app}.${operation}`
 				await admin.query(
 					"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Attendance test operation','business-operation')",

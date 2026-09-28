@@ -253,6 +253,24 @@
 			"requiresMigrations": ["000033_employee_hr_service.sql"],
 			"apply": "employee.operations.3.apply.sql",
 			"reset": "employee.operations.3.reset.sql"
+		},
+		{
+			"id": "access.attendance",
+			"domain": "access-control",
+			"version": 1,
+			"dependsOn": ["access.business@1"],
+			"requiresMigrations": ["000042_attendance_seed_defaults.sql"],
+			"apply": "access.attendance.1.apply.sql",
+			"reset": "access.attendance.1.reset.sql"
+		},
+		{
+			"id": "attendance.configuration",
+			"domain": "attendance",
+			"version": 1,
+			"dependsOn": ["access.attendance@1"],
+			"requiresMigrations": ["000042_attendance_seed_defaults.sql"],
+			"apply": "attendance.configuration.1.apply.sql",
+			"reset": "attendance.configuration.1.reset.sql"
 		}
 	]
 }

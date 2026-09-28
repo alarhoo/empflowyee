@@ -39,3 +39,7 @@ pending. Test setup explicitly grants the exercised template operations; these
 test grants are not claimed as a delivered development seed. All apps remain
 Planned until their full acceptance is verified. Migration/seed orchestration
 stays explicit and never runs during API startup.
+
+Subsequent [seed validation](HCM-3-SEED-DEFAULTS-VALIDATION.md) delivers canonical
+template grants and adds the tenth endpoint for incomplete draft defaults. The
+pending-seed statement above records this API slice's original boundary.

@@ -26,8 +26,10 @@ The reusable template preview/publish/retire application flow is verified in
 [publication validation](../testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md).
 The template HTTP API and authenticated pagination are verified in
 [API validation](../testing/HCM-3-TEMPLATE-API-VALIDATION.md).
-Canonical Attendance seeds, remaining configuration APIs, durable workday
-publication, domain handlers and UI remain pending.
+Canonical template grants and incomplete draft defaults are verified in
+[seed validation](../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md).
+Remaining configuration APIs/seeds, durable workday publication, domain handlers
+and UI remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |

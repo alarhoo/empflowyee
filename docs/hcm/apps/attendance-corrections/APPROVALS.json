@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DOMAIN",
-			"sha256": "2c656f86d914e3083be186daedab59af96d1d748bf3a156515df9b67e5ef244a",
+			"sha256": "5bbe647e2996f35ad4e32f371aa92d9885fb9161df3eb8956578f0803b0f5c0e",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-QUERY-REVIEW.md; reviewed authenticated cursor persistence and exact query/source binding under existing delegated technical authority; no new business decision or separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-REVIEW.md; reviewed incomplete draft proposal representation without invented break placement or zone under existing delegated technical authority; no new business policy or separate human approval claimed."
 		},
 		{
 			"document": "LOGICAL",
@@ -92,11 +92,11 @@
 		},
 		{
 			"document": "SQL",
-			"sha256": "3670cfee2bc2552500e53575ef9e43fb6424e68befe3028622eb973e4264597b",
+			"sha256": "a035650f27e4d68d1c593bb1c90a4802ddf7042571ab357942dbed96ce10ab87",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-QUERY-REVIEW.md; reviewed authenticated cursor persistence and exact query/source binding under existing delegated technical authority; no new business decision or separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-REVIEW.md; reviewed incomplete draft proposal representation without invented break placement or zone under existing delegated technical authority; no new business policy or separate human approval claimed."
 		},
 		{
 			"document": "WORKER",

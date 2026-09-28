@@ -1,7 +1,11 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { sql, type Kysely } from 'kysely'
 import { invalidField, type HcmPage } from '@empflowyee/hcm-runtime-contract'
-import type { ScheduleListQuery, ScheduleVersionView } from '@empflowyee/hcm-attendance-contract'
+import type {
+	ScheduleListQuery,
+	ScheduleVersionView,
+	ScheduleSeedDefaults,
+} from '@empflowyee/hcm-attendance-contract'
 import type {
 	ScheduleApplication,
 	ScheduleQueryRepository,
@@ -24,6 +28,18 @@ export class KyselyScheduleQueries implements ScheduleQueryRepository {
 		private readonly accountId: string,
 		private readonly grantId: string,
 	) {}
+
+	/** Read the tenant's draft defaults without dates, timezone or a fabricated resolved duration. */
+	async defaults(): Promise<ScheduleSeedDefaults | null> {
+		const result = await sql<{ view: ScheduleSeedDefaults }>`
+SELECT jsonb_strip_nulls(jsonb_build_object('id',d.id,'revision',d.revision,'state','DraftDefaults','code',d.code,'name',d.name,'weekStartsOn',d.week_starts_on,
+  'days',coalesce((SELECT jsonb_agg(jsonb_build_object('weekday',p.weekday,'kind',p.kind,'startTime',p.start_time::text,'endTime',p.end_time::text,
+    'endDayOffset',p.end_day_offset,'unpaidBreakMinutes',p.unpaid_break_minutes) ORDER BY p.weekday)
+    FROM hcm.work_schedule_seed_day p WHERE p.tenant_id=d.tenant_id AND p.default_id=d.id),'[]'::jsonb))) AS view
+FROM hcm.work_schedule_seed_default d WHERE d.tenant_id=${this.tenantId}
+`.execute(this.transaction)
+		return result.rows[0]?.view ?? null
+	}
 
 	/** Project the requested version, hiding ordinary schedules on template routes and vice versa. */
 	async detail(
