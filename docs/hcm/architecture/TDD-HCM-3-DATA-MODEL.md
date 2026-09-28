@@ -170,6 +170,25 @@ are enforced. A failed child or invariant rolls back the whole append. Persisten
 of successful workday evidence does not replace explicit unavailable/conflict run
 outcomes, which must never be stored as a fabricated zero-duration workday.
 
+## RESOLUTION-RECEIPT
+
+Attendance's `attendance_workday_resolution_receipt` has tenant/outbox_id primary
+key and same-tenant outbox FK, request_digest, positive lease_fence, workload_run_id,
+result_schema=1, state Available/Unavailable, workday_id nullable with same-tenant
+published-workday FK, result_code and evidence JSON object (at most 1 MiB). Available
+requires a workday and code Resolved; Unavailable forbids a workday. A typed workday
+reference must match the intent's employment/date and input digest. Evidence is
+safe revision/rest/period data, never raw reasons, employee names or arbitrary scripts.
+It is an immutable domain receipt, not a new runtime-owned business queue.
+
+An insert trigger verifies the exact AttendanceResolve kind/schema, request digest,
+current live lease owner/fence and matching workday basis. A deferred trigger
+requires the same outbox digest/fence to be Completed before commit. FORCE RLS and
+runtime SELECT/INSERT only preserve tenant isolation and immutable outcomes. Missing
+or foreign employment may produce a safe unavailable result, but never a workday
+FK to another tenant. The existing outbox remains the durable subject intent; the
+receipt does not duplicate an unverified employment identifier as authority.
+
 ## CROSS-DOMAIN
 
 PublishedWorkday query returns employment,date,zone,revision,digest,source version

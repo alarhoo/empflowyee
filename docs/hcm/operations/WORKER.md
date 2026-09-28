@@ -7,11 +7,15 @@ durable scheduling loops in the API and no migrations during worker startup.
 
 ## Delivery status
 
-The runtime root and mechanics build locally. Domain handlers are being delivered;
-the current root has no registered business handlers and deliberately exits with
-an unavailable diagnostic if execution is requested. Do not treat this as a
-completed Leave accrual, Attendance calculation or Workflow processing service.
-See [implementation status](../roadmap/HCM-3-IMPLEMENTATION-STATUS.md).
+The runtime root registers AttendanceResolve with the assigned-workday handler
+`attendance.workday.resolve` (schema 1). It accepts source-owned durable intents
+with employmentId, workDate and the accepted inputDigest, then publishes exact
+immutable workdays or explicit unavailable outcomes. Its receipt, workload audit
+and lease completion share the publication transaction. Other workloads fail
+startup as unavailable. Leave accrual/expiry, Attendance calculation/reconciliation,
+Workflow processing and source producer/recovery commands are still being delivered.
+See [worker validation](../testing/HCM-3-RESOLVE-WORKER-VALIDATION.md) and
+[implementation status](../roadmap/HCM-3-IMPLEMENTATION-STATUS.md).
 
 ## Prerequisites
 
@@ -49,6 +53,15 @@ the composition; an approved code alone is insufficient to enable processing.
 | HCM_WORKER_RETRY_MAX_MS     | 300000  | base–86400000 ms                                          |
 | HCM_WORKER_POLL_MS          | 5000    | 100–60000 ms; abortable idle wait                         |
 | HCM_WORKER_AFTER_TENANT     | empty   | resume from the previous finite result's nextTenantCursor |
+
+For the implemented lane set `HCM_WORKER_WORKLOADS=AttendanceResolve`. A schema-1
+resolution intent is source-owned evidence; do not manually insert or modify its
+payload in ordinary development. Assignment/publication producers are a separate
+slice. With no due intents, finite drain exits normally with zero completed work.
+Unavailable outcomes also count as completed jobs; inspect the domain receipt's
+state/result code before treating a workday as published. The handler allows 366
+historical schedule reads; exhaustion returns ResolutionBudgetExceeded, never an
+assumed minimum-rest pass. Cloud activation and production SLOs remain pending.
 
 These are operational bounds, not business policy or production SLOs. A drain
 returns aggregate claim/completion/retry/unsettled/failure counters and a tenant

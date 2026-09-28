@@ -84,10 +84,10 @@ function segments(input: PublishedWorkdayInput): SegmentInsert[] {
 }
 
 /** Append successful resolution evidence under the existing workload trust boundary; this adapter does not claim or complete durable jobs. */
-export class KyselyPublishedWorkdayWriter implements PublishedWorkdayWriter {
+export class KyselyPublishedWorkdayWriter<Database = unknown> implements PublishedWorkdayWriter {
 	/** Require a real caller-owned transaction and opaque AttendanceResolve capability, never a fabricated human actor. */
 	constructor(
-		private readonly transaction: Kysely<unknown>,
+		private readonly transaction: Kysely<Database>,
 		private readonly context: HcmWorkloadContext,
 	) {
 		if (!transaction.isTransaction)

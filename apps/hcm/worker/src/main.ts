@@ -1,4 +1,12 @@
-import { runHcmWorker } from '@empflowyee/hcm-api-runtime-infrastructure'
+import {
+	runHcmWorker,
+	HcmTransactionalWorkerLane,
+} from '@empflowyee/hcm-api-runtime-infrastructure'
+import {
+	KyselyAttendanceResolveHandler,
+	KyselyAttendanceConfigurationInputBinder,
+} from '@empflowyee/hcm-api-attendance-infrastructure'
+import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 
 const shutdown = new AbortController()
 /** Stop new claims; current fenced transactions settle before their pools close. */
@@ -11,8 +19,14 @@ process.once('SIGTERM', stop)
 void runHcmWorker(
 	process.env,
 	{
-		/** Register source-owned handlers as their domain foundations are delivered. Missing workloads fail startup explicitly. */
-		lanes: () => [],
+		/** Compose only the delivered assigned-workday handler; all other workloads remain explicitly unavailable. */
+		lanes: (_database, store) => [
+			new HcmTransactionalWorkerLane('AttendanceResolve', store, [
+				new KyselyAttendanceResolveHandler(
+					new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder()),
+				),
+			]),
+		],
 		/** Write aggregate operational counters only; source reasons, employee identifiers and payloads never enter logs. */
 		report: (result) => console.log(JSON.stringify({ event: 'hcm-worker-drain', ...result })),
 	},

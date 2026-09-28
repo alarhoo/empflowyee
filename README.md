@@ -37,4 +37,7 @@ migration 43 and the remaining publication, assignment and UI work.
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with
 `pnpm nx run hcm-worker:build`; this command does not migrate a database or start
-business processing. Only implemented, explicitly registered handlers may run.
+business processing. The registered AttendanceResolve lane publishes assigned
+workdays from current dated inputs with atomic receipts; source producer commands
+and other business lanes remain in progress. See the runbook for explicit local
+configuration and unavailable-outcome semantics.

@@ -250,6 +250,40 @@ resolution and rest evidence. Only Available may reach immutable workday publica
 This path does not yet select rosters/overrides. Their typed owning storage and
 approved priority checks must be composed before those producers become available.
 
+## RESOLVE-WORKER
+
+The first AttendanceResolve handler is `attendance.workday.resolve`, schema 1,
+with a closed payload `{employmentId, workDate, inputDigest}`. The producer's
+inputDigest is the exact Available assigned-resolver digest accepted by its
+publication/assignment operation; a changed digest yields an explicit InputChanged
+outcome, never publication against stale preview inputs. No payload tenant, zone,
+resolved intervals, policy override or actor is accepted. Producers retain their
+original durable business key and use a new governed operation after changed inputs.
+
+The source handler runs only inside Runtime's verified lease-completion transaction.
+It holds existing tenant authority, shared start-month period and exclusive
+employment/date fences, then re-resolves current inputs with a 366-read operational
+history budget. Closing/Locked/Reopened yield PeriodUnavailable; absent/Planned
+months permit schedule materialization without authorizing attendance calculation.
+Available, unchanged inputs append or recover the immutable exact workday. Missing
+or conflicted inputs append an Unavailable outcome with no workday reference. The
+handler never treats an unavailable resolution as a zero-duration workday.
+
+`attendance_workday_resolution_receipt` binds the immutable outbox ID/digest,
+lease fence/run, result schema, Available/Unavailable state, exact workday reference
+when available, and bounded safe JSON evidence (selected source IDs/revisions/digests,
+rest rule outcomes and period basis). Workday, receipt, Runtime completion audit and
+outbox completion commit atomically. SQL checks the live lease at insertion and
+requires that same intent/fence to be Completed at commit. Runtime rechecks the
+lease before completion, so expiry/failure rolls back all publication effects.
+Completed means the job's explicit outcome is durable, not that a workday was
+necessarily published. Runtime exceptions keep their existing bounded retry path.
+
+Only this real handler is registered in hcm-worker for AttendanceResolve. Leave,
+AttendanceCalculate/Reconcile and Workflow remain unavailable until their owning
+handlers are delivered. No API scheduling loop, issuer provider or fake handler
+is added. Source producer commands and their impact scope remain separate slices.
+
 ## TESTS
 
 Required boundary fixtures: DST spring gap; both fall overlap offsets; cross-

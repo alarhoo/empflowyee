@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DOMAIN",
-			"sha256": "cf6aeab46491a990107a6699740a4da5508549599860b3a0010613ac36928ce0",
+			"sha256": "2465a6fd0f57e8c932584c096904c0263de374a2f8ea7f38001ec1a908e24ce3",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-ASSIGNED-RESOLVER-REVIEW.md; Codex technical review under existing delegated authority; DEC-HCM3-022/023 integration and internal assigned resolver refinement, no separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLVE-WORKER-REVIEW.md; Codex technical review under existing delegated authority; source-owned worker/receipt refinement, no new business decision or separate human approval."
 		},
 		{
 			"document": "LOGICAL",
@@ -92,11 +92,11 @@
 		},
 		{
 			"document": "SQL",
-			"sha256": "2530a8890a90c96eda5e1731dfe71651b7b328a68e503909a680ff74edb17dc9",
+			"sha256": "4c2ba453564edf11a592301a390fe8c5b5320d0a47d910fd4a58a2aecee67e88",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORKDAY-STORAGE-REVIEW.md; Codex technical review under existing delegated authority; immutable exact workday evidence refinement, no new business decision or separate human approval."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLVE-WORKER-REVIEW.md; Codex technical review under existing delegated authority; source-owned worker/receipt refinement, no new business decision or separate human approval."
 		},
 		{
 			"document": "WORKER",

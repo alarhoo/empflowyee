@@ -40,8 +40,10 @@ Migration 45 immutable scheduled workdays and exact interval evidence are verifi
 in [workday storage validation](../testing/HCM-3-WORKDAY-STORAGE-VALIDATION.md).
 The assigned resolver applies DEC-HCM3-022/023 and retains dated source evidence;
 see [assigned resolver validation](../testing/HCM-3-ASSIGNED-RESOLVER-VALIDATION.md).
-Remaining configuration APIs/seeds, durable workday publication, domain handlers
-and the other app UIs remain pending.
+Migration 46 and the real AttendanceResolve worker atomically publish workdays or
+explicit unavailable outcomes; see [worker validation](../testing/HCM-3-RESOLVE-WORKER-VALIDATION.md).
+Remaining configuration producers/APIs/seeds, other domain handlers and the other
+app UIs remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
@@ -49,7 +51,7 @@ and the other app UIs remain pending.
 | Verified workload context and audit attribution   | Implemented                          | [Validation](../testing/HCM-3-BACKGROUND-FOUNDATION-VALIDATION.md) |
 | Evidence and notifications extensions             | Planned                              | [Foundation order](HCM-3-FOUNDATION-DESIGN.md#order)               |
 | Durable domain work mechanics                     | Implemented                          | [Validation](../testing/HCM-3-BACKGROUND-FOUNDATION-VALIDATION.md) |
-| Shared worker runtime/root                        | Implemented; domain handlers pending | [Runbook](../operations/WORKER.md)                                 |
+| Shared worker runtime/root                        | Implemented; AttendanceResolve registered | [Runbook](../operations/WORKER.md)                                 |
 | Attendance, Leave and Workflow domain foundations | Planned                              | [Ordered plan](HCM-3-FOUNDATION-DESIGN.md#order)                   |
 
 **Work Schedule Templates is Complete** under local acceptance; see its
