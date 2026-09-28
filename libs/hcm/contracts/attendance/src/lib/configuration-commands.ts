@@ -1,5 +1,6 @@
 import { idValue, invalidField, readBody, revisionValue } from '@empflowyee/hcm-runtime-contract'
 import { configurationText } from './configuration-validation'
+import { parseHolidayDraft, type HolidayDraft } from './holidays'
 import { parseScheduleDraft, type ScheduleDraft } from './hcm-attendance-contract'
 
 export interface ScheduleDraftUpdate {
@@ -64,4 +65,18 @@ export function parseAttendanceCopyCommand(value: unknown): AttendanceCopyComman
 		name: configurationText(name, 'name', 120),
 		...parseAttendanceVersionCommand(source),
 	}
+}
+
+/** Parse whole holiday-draft replacement without accepting persistence or lifecycle fields. */
+export function parseHolidayDraftUpdate(value: unknown): {
+	draft: HolidayDraft
+	expectedRevision: number
+} {
+	const input = readBody(
+		value,
+		['expectedRevision'],
+		['code', 'name', 'effectiveFrom', 'effectiveTo', 'entries'],
+	)
+	const { expectedRevision, ...draft } = input
+	return { draft: parseHolidayDraft(draft), expectedRevision: revisionValue(expectedRevision) }
 }

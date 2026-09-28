@@ -1,3 +1,4 @@
+import { parseHolidayDraftUpdate } from './configuration-commands'
 import { expect, it } from 'vitest'
 import { parseAttendancePolicyDraft, type AttendancePolicyDraft } from './attendance-policies'
 import { parseHolidayDraft, type HolidayDraft } from './holidays'
@@ -173,5 +174,24 @@ it('requires an explicit observed date and preserves jurisdiction text and exact
 		expect(
 			/** Reject impossible dates, partial pairs, precision loss and unsupported jurisdiction values. */ () =>
 				parseHolidayDraft({ ...calendar(), entries: [{ ...entry, ...patch }] }),
+		).toThrow()
+})
+
+it('validates whole holiday replacements without accepting persisted state or missing revision', /** Every update uses the same date and interval validator as create. */ () => {
+	const draft = calendar()
+	expect(parseHolidayDraftUpdate({ ...draft, expectedRevision: 2 })).toEqual({
+		draft,
+		expectedRevision: 2,
+	})
+	for (const patch of [
+		{ expectedRevision: 0 },
+		{ state: 'Published' },
+		{ tenantId: 'other' },
+		{ entries: [{ ...draft.entries[0], observedDate: undefined }] },
+		{ entries: [{ ...draft.entries[0], startTime: '13:00', endTime: '12:00' }] },
+	])
+		expect(
+			/** Reject malformed update content before persistence. */ () =>
+				parseHolidayDraftUpdate({ ...draft, expectedRevision: 2, ...patch }),
 		).toThrow()
 })

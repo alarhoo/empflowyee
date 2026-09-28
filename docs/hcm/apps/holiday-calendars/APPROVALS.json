@@ -20,11 +20,11 @@
 		},
 		{
 			"document": "TRACE",
-			"sha256": "11ee928d05ab00c02477c18ba0f2e571ce993c5103e1b6abcaac5ab64407d9da",
+			"sha256": "f39de77df2cde6c41aa02558a6170e7cd471e98edcee5db667d73556c10645aa",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md; Codex technical review of partial backend traceability under existing delegated authority; app acceptance and native UI remain pending, no separate human approval claimed."
 		},
 		{
 			"document": "DECISIONS",

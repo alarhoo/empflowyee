@@ -28,6 +28,8 @@ The template HTTP API and authenticated pagination are verified in
 [API validation](../testing/HCM-3-TEMPLATE-API-VALIDATION.md).
 Canonical template grants and incomplete draft defaults are verified in
 [seed validation](../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md).
+Holiday calendar Draft creation/replacement/successor commands are verified in
+[holiday command validation](../testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md).
 Remaining configuration APIs/seeds, durable workday publication, domain handlers
 and the other app UIs remain pending.
 

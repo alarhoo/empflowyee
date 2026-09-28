@@ -1,8 +1,17 @@
 # Holiday Calendars — requirement traceability
 
-Status: reviewed design/test plan, 2026-09-28. No business tests have run because
-implementation has not begun. Each scenario below is an implementation acceptance
-obligation linked to the approved FDD and concrete technical design.
+Status: design/test plan with partial backend evidence, 2026-09-28.
+[Holiday command validation](../../testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md)
+verifies Draft curation, exact replacement, immutable-source successor, current
+root authorization and atomic encrypted receipts/audit. Owning
+[application commands](../../../../libs/hcm/api/attendance/application/src/lib/holiday-commands.ts),
+[SQL repository](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-repository.ts),
+[transaction adapter](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-unit.ts)
+and [PostgreSQL tests](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-commands.database.spec.ts)
+cover backend portions of 001, 004 and 006. Migration 38 and the existing domain
+boundary tests cover immutable storage and exact holiday resolution. Publication
+impact, assignments, HTTP and all native UI acceptance remain pending. The app
+remains Planned; the full scenarios below are still acceptance obligations.
 
 | Requirement                                                   | Design                          | Planned test                                              |
 | ------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------- |

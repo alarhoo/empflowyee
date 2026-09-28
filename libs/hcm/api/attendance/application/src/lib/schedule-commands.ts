@@ -80,7 +80,7 @@ export function draftOf(source: ScheduleVersionView): ScheduleDraft {
 
 /** Execute an idempotent mutation, requiring fresh read authority on the replay path. */
 export async function replaySafe<T>(
-	work: AttendanceScheduleWork,
+	work: Pick<AttendanceScheduleWork, 'receipts' | 'requireRead'>,
 	operation: string,
 	key: string,
 	target: string,
