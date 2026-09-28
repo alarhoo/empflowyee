@@ -107,6 +107,66 @@ export class HcmRuntimeStore {
 		)
 	}
 
+	/** Check current tenant activation for the internal worker issuer without fabricating a user session. */
+	async isActive(tenantId: string): Promise<boolean> {
+		return this.read(
+			/** Verify activation without creating a user session or exposing tenant business data. */ async (
+				transaction,
+			) => {
+				await sql`SELECT set_config('hcm.tenant_id', ${tenantId}, true)`.execute(transaction)
+				return Boolean(
+					await transaction
+						.selectFrom('hcm.tenant')
+						.select('id')
+						.where('id', '=', tenantId)
+						.where('status', 'in', ['active', 'trial', 'grace'])
+						.executeTakeFirst(),
+				)
+			},
+		)
+	}
+
+	/** Page minimal routed tenant IDs for the worker; an empty active page can still have a continuation. */
+	async activeTenantIds(
+		after = '',
+		limit = 100,
+	): Promise<{ tenantIds: string[]; nextCursor: string | null }> {
+		if (after.length > 200 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100)
+			throw new Error('Invalid tenant enumeration window')
+		return this.read(
+			/** Enumerate only the existing global routing projection and apply activation under each tenant's RLS. */ async (
+				transaction,
+			) => {
+				const routes = await transaction
+					.selectFrom('hcm.tenant_hostname')
+					.select('tenant_id')
+					.distinct()
+					.where('tenant_id', '>', after)
+					.orderBy('tenant_id')
+					.limit(limit + 1)
+					.execute()
+				const page = routes.slice(0, limit)
+				const tenantIds: string[] = []
+				for (const route of page) {
+					await sql`SELECT set_config('hcm.tenant_id', ${route.tenant_id}, true)`.execute(
+						transaction,
+					)
+					const active = await transaction
+						.selectFrom('hcm.tenant')
+						.select('id')
+						.where('id', '=', route.tenant_id)
+						.where('status', 'in', ['active', 'trial', 'grace'])
+						.executeTakeFirst()
+					if (active) tenantIds.push(active.id)
+				}
+				return {
+					tenantIds,
+					nextCursor: routes.length > limit ? (page.at(-1)?.tenant_id ?? null) : null,
+				}
+			},
+		)
+	}
+
 	/** Resolve a persisted development selector within the application-provided tenant; every capability comes from SQL. */
 	async session(tenantId: string, persona?: string): Promise<VerifiedHcmSession | null> {
 		return this.read(

@@ -2,6 +2,10 @@ import { Kysely, PostgresDialect, sql, type Transaction } from 'kysely'
 import { Pool } from 'pg'
 import {
 	requireAuthenticatedTenant,
+	requireWorkloadScope,
+	HcmRuntimeError,
+	type HcmWorkload,
+	type HcmWorkloadContext,
 	type AuthenticatedHcmContext,
 } from '@empflowyee/hcm-api-runtime-application'
 
@@ -45,6 +49,36 @@ export class HcmTenantDatabase<Database> {
 				await assertHcmRuntimeRole<Database>(transaction)
 				await sql`SELECT set_config('hcm.tenant_id', ${tenantId}, true)`.execute(transaction)
 				return query(transaction)
+			},
+		)
+	}
+
+	/** Execute only the named workload under current activation, restricted role and transaction-local tenant RLS. */
+	async workloadTransaction<Result>(
+		context: HcmWorkloadContext,
+		workload: HcmWorkload,
+		query: (transaction: Transaction<Database>) => Promise<Result>,
+	): Promise<Result> {
+		requireWorkloadScope(context, workload)
+		return this.database.transaction().execute(
+			/** Revalidate the opaque issuer scope after connection/lock waits, then enforce active-tenant RLS. */ async (
+				transaction,
+			) => {
+				await assertHcmRuntimeRole(transaction)
+				const initial = requireWorkloadScope(context, workload)
+				await sql`SELECT pg_advisory_xact_lock_shared(hashtextextended(${initial.tenantId},0))`.execute(
+					transaction,
+				)
+				const scope = requireWorkloadScope(context, workload)
+				await sql`SELECT set_config('hcm.tenant_id', ${scope.tenantId}, true)`.execute(transaction)
+				const tenant = await sql<{
+					active: boolean
+				}>`SELECT status IN ('active','trial','grace') AS active
+					FROM hcm.tenant WHERE id=${scope.tenantId}`.execute(transaction)
+				if (!tenant.rows[0]?.active) throw new HcmRuntimeError('tenant-suspended')
+				const result = await query(transaction)
+				requireWorkloadScope(context, workload)
+				return result
 			},
 		)
 	}

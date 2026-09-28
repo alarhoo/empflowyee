@@ -149,7 +149,7 @@ export class KyselyAuditReader extends AuditReader {
 				const rows = (
 					await sql<
 						Omit<SensitiveAccessItem, 'phase' | 'summary'>
-					>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",related_event_id AS "relatedEventId" FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='sensitive-access' AND action IN (${sql.join([...SENSITIVE_ACTIONS])})
+					>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",related_event_id AS "relatedEventId" FROM hcm.audit_event WHERE actor_kind='Human' AND tenant_id=${tenantId} AND category='sensitive-access' AND action IN (${sql.join([...SENSITIVE_ACTIONS])})
    ${query.from ? sql`AND occurred_at>=${query.from}::timestamptz` : sql``}
    ${query.to ? sql`AND occurred_at<=${query.to}::timestamptz` : sql``}
    ${query.actorAccountId ? sql`AND actor_account_id=${query.actorAccountId}` : sql``}
@@ -205,7 +205,7 @@ export class KyselyAuditReader extends AuditReader {
 					order = asc ? sql`ASC` : sql`DESC`,
 					compare = asc ? sql`>` : sql`<`
 				const rows = (
-					await sql<ExportItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='export' AND action=ANY(${[...EXPORT_ACTIONS]}::text[])
+					await sql<ExportItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome FROM hcm.audit_event WHERE actor_kind='Human' AND tenant_id=${tenantId} AND category='export' AND action=ANY(${[...EXPORT_ACTIONS]}::text[])
    ${query.from ? sql`AND occurred_at>=${query.from}::timestamptz` : sql``}
    ${query.to ? sql`AND occurred_at<=${query.to}::timestamptz` : sql``}
    ${query.actorAccountId ? sql`AND actor_account_id=${query.actorAccountId}` : sql``}
@@ -275,7 +275,7 @@ async function businessPage(
 		order = asc ? sql`ASC` : sql`DESC`,
 		compare = asc ? sql`>` : sql`<`
 	const rows = (
-		await sql<AuditItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",safe_summary AS summary FROM hcm.audit_event WHERE tenant_id=${tenantId} AND category='business' AND outcome='Succeeded' AND action IN (${sql.join([...AUDIT_ACTIONS])})
+		await sql<AuditItem>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,target_type AS "targetType",target_id AS "targetId",outcome,request_id AS "requestId",safe_summary AS summary FROM hcm.audit_event WHERE actor_kind='Human' AND tenant_id=${tenantId} AND category='business' AND outcome='Succeeded' AND action IN (${sql.join([...AUDIT_ACTIONS])})
  ${query.from ? sql`AND occurred_at>=${query.from}::timestamptz` : sql``}
  ${query.to ? sql`AND occurred_at<=${query.to}::timestamptz` : sql``}
  ${query.action ? sql`AND action=${query.action}` : sql``}

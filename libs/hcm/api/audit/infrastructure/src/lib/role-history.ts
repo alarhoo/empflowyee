@@ -23,7 +23,7 @@ export async function readRoleHistory(
 	const rows = (
 		await sql<RoleHistoryProjection>`SELECT id,to_char(occurred_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "occurredAt",actor_account_id AS "actorAccountId",action,outcome,
 	 jsonb_build_object('reason',safe_summary->>'reason','changedFields',safe_summary->'changedFields') AS summary
-	 FROM hcm.audit_event WHERE tenant_id=${tenantId} AND target_type='access-role' AND target_id=${roleId}
+	 FROM hcm.audit_event WHERE actor_kind='Human' AND tenant_id=${tenantId} AND target_type='access-role' AND target_id=${roleId}
 	 AND action IN ('role.created','role.updated','role.deleted') AND ${position}
 	 ORDER BY occurred_at DESC,id DESC LIMIT ${limit}`.execute(transaction)
 	).rows

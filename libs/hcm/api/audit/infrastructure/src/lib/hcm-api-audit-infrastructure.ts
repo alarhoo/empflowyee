@@ -16,7 +16,10 @@ export interface AuditTables {
 		tenant_id: string
 		id: string
 		occurred_at: Generated<Date>
-		actor_account_id: string
+		actor_account_id: string | null
+		actor_kind: Generated<'Human' | 'Workload'>
+		workload_code: Generated<string | null>
+		workload_run_id: Generated<string | null>
 		action: string
 		target_type: string
 		target_id: string
