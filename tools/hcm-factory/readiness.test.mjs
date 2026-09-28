@@ -97,6 +97,8 @@ function fixture(t) {
 	)
 	const app = {
 		...structuredClone(getApp('EMPLOYEE_DIRECTORY')),
+		// Keep this synthetic planned app independent of the real app's delivery progress.
+		implementationStatus: 'planned',
 		fddStatus: 'approved',
 		tddStatus: 'approved',
 		blockingDecisionStatus: 'clear',

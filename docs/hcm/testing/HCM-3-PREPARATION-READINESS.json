@@ -1,0 +1,3353 @@
+{
+	"checkedAtUtc": "2026-09-27T23:44:35.578248+00:00",
+	"purpose": "Final Step-1 design readiness, not implementation acceptance",
+	"commands": [
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=APPLY_LEAVE --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=APPROVE_ATTENDANCE --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=APPROVE_LEAVES --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=ATTENDANCE_CORRECTIONS --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=ATTENDANCE_MANAGEMENT --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=COMP_OFF_ADMINISTRATION --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=COMP_OFF_ENCASHMENT --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=HOLIDAY_CALENDARS --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=LEAVE_ADMINISTRATION --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=LEAVE_BALANCE --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=LEAVE_ENCASHMENT --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=LEAVE_POLICIES --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=MY_APPROVALS --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=MY_ATTENDANCE --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=MY_SCHEDULE --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=MY_TASKS --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=SHIFT_PLANNING --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=TEAM_ATTENDANCE --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=TEAM_CALENDAR --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=WORKFLOW_DEFINITIONS --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=WORKFLOW_OPERATIONS --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=WORK_SCHEDULES --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --app=WORK_SCHEDULE_TEMPLATES --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/wave-context.mjs --wave=HCM-3 --check",
+			"exitCode": 0
+		},
+		{
+			"command": "node tools/hcm-factory/check-readiness.mjs --admitted --check",
+			"exitCode": 0
+		}
+	],
+	"checked": 23,
+	"ready": 23,
+	"blocked": 0,
+	"reports": [
+		{
+			"appCode": "APPLY_LEAVE",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/apply-leave/BLUEPRINT.json",
+					"sha256": "aee5c3b31920671b18c3d92c0c7be839b179e2dc476a4dcbd3b488536e23c648"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/apply-leave/FDD.md",
+					"sha256": "fa97bcfe3ee536d5c71941d07834c99c7b8464ce8a23a79e41690d61ada3b1fa"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/apply-leave/TDD.md",
+					"sha256": "e1793bfc28c8ffa2b120887b6cb74ce54092c9f4985c405b1f004e7519c23f6b"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/apply-leave/TRACEABILITY.md",
+					"sha256": "fa9e0b9b16950854d1e27e9bf3f1e5b7cb306b46c8778855ce01ab9aac34e9dd"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/apply-leave/DECISIONS.md",
+					"sha256": "70715246dcff6043361dffc3c1554196328c2ce76e948a532f2815f650c64c36"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "APPROVE_ATTENDANCE",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/approve-attendance/BLUEPRINT.json",
+					"sha256": "affcac10be06907b8a59896d97fc5203b6bdace8a3dbcfe703644bc9b41951ff"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/approve-attendance/FDD.md",
+					"sha256": "b8f65dce8ff97e1ddeb165b349f8828a3d11612e5e6147479ed3b69a7d76ec93"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/approve-attendance/TDD.md",
+					"sha256": "5442f0c51dfe774afae4eb461a8dc26fe3def7bde5a967395fc69321bbdc3050"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/approve-attendance/TRACEABILITY.md",
+					"sha256": "8409571500da7a7c1e2ddaa9076be14e7ce19546d8fc9696d5eef581efa86d93"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/approve-attendance/DECISIONS.md",
+					"sha256": "6df709bc1652f151e119af96ca355c88d28681fc66a759d4b245e659d2e9b50c"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "APPROVE_LEAVES",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/approve-leaves/BLUEPRINT.json",
+					"sha256": "2ca704ef605eccd67b85a7ba19a2fa3f4dc8e8f10a0d297f2cfefa2f19255881"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/approve-leaves/FDD.md",
+					"sha256": "49ed593fd49ca045c6f02293c303618a995f2c1ffddec573fbba133ecb5fd818"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/approve-leaves/TDD.md",
+					"sha256": "f789fa8f7972f55c7677a7109ab68e876d054d3b6cf58930df126e51dd56f64b"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/approve-leaves/TRACEABILITY.md",
+					"sha256": "180356ebb0302b9210f4c43c8d53344ed8f6484b9b67b7f4b790827274390c35"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/approve-leaves/DECISIONS.md",
+					"sha256": "764941a84ee779bd87c5be6cd31e443c1274f7d07e6d0f5e0b604ddfb8441568"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "ATTENDANCE_CORRECTIONS",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/attendance-corrections/BLUEPRINT.json",
+					"sha256": "9f5cababe4033108744e39af866bababc8b4b2f7cf1bb410ef0cd16985a7890b"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/attendance-corrections/FDD.md",
+					"sha256": "940b1147cf232a5a2743f66a2db95af16017a6ce60f5baadbdff009f24cfe01e"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/attendance-corrections/TDD.md",
+					"sha256": "ec88d4a0dd497598f527978cfe48d00629f0c20f090bd40297f79d2e925fdd6d"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/attendance-corrections/TRACEABILITY.md",
+					"sha256": "577fde2caf94f5bc668068b5ce836469d685f82666478d10961a9b26e142e7f1"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/attendance-corrections/DECISIONS.md",
+					"sha256": "a7df7d0eff9d8eeedaeec3d80710b7705fd6c46e0dd0f46b7af1f8bb8313a707"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "ATTENDANCE_MANAGEMENT",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/attendance-management/BLUEPRINT.json",
+					"sha256": "ef2e784877c803362668d9d437b10944b595f6667dd7b046fb76467eb00369f8"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/attendance-management/FDD.md",
+					"sha256": "ac789f55a6d34fd17f215b395c9950a8165997eaa02dd1c3d8d7c2dc2f2bd324"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/attendance-management/TDD.md",
+					"sha256": "f64f654ade4745036feb471ddbafdac4e8bb4486e85edfd53a087613db64a1f4"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/attendance-management/TRACEABILITY.md",
+					"sha256": "81a1da4f5f74679f2aaaf5737c4a70b235a02c45514362b6ac279c7ecc67fa6d"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/attendance-management/DECISIONS.md",
+					"sha256": "4169c6f7a30edc08cfc400e1923a9f8577a6005dc5fa9cb09ddd31ef8e353f4b"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "COMP_OFF_ADMINISTRATION",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/comp-off-administration/BLUEPRINT.json",
+					"sha256": "82dd5f29d6e061f5e723a885160604b394c39cbf7bbb2e34cdcb1203287bbe82"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/comp-off-administration/FDD.md",
+					"sha256": "ac825b797125560f570391010267de36411680001dac7f8ad3b32e4d01166c15"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/comp-off-administration/TDD.md",
+					"sha256": "ea908163bde06e86ba1b0755b7ebfeabb6cfb237800daa17ee90338bd4d85d6a"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/comp-off-administration/TRACEABILITY.md",
+					"sha256": "0d0066eb11484a903726f691a72722c4ed8baef2f56b6ac9c9939c9b50ff3d1e"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/comp-off-administration/DECISIONS.md",
+					"sha256": "61212ad90b050901cc1f316eba6fe4ab8366eff3da2a4edcdf378640306779c4"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "COMP_OFF_ENCASHMENT",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/comp-off-encashment/BLUEPRINT.json",
+					"sha256": "9f6e9daf7fcad725f0051e735aa6e51df156c919bf3696d17af1d0f947073b9b"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/comp-off-encashment/FDD.md",
+					"sha256": "8fbb1615cc6e1a4b5ba1fb656b503c0e1be5a4f97afbca02d43c77c6753f5add"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/comp-off-encashment/TDD.md",
+					"sha256": "3129645e960c1302d2acb461fd2088e6d4da3e9fff721e5a595491830ea6172c"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/comp-off-encashment/TRACEABILITY.md",
+					"sha256": "735e8c1e12e58144b311af96062b00a88ef1a53d30e399f9cb9695b80b9040b7"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/comp-off-encashment/DECISIONS.md",
+					"sha256": "7ea54e0afec5b37b0ee3a17692c5f8412387f1b9bc106d708fe6ec01634770b1"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "HOLIDAY_CALENDARS",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/holiday-calendars/BLUEPRINT.json",
+					"sha256": "d3ede6f3c7af1b1d29913b41b2015fa36f2ac3232a3376502ad4283bee772955"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/holiday-calendars/FDD.md",
+					"sha256": "ae8bc16691862008306898709dd5f330e413d24af86c02f170ab058e8c2b39ea"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/holiday-calendars/TDD.md",
+					"sha256": "d9450c710c04c9a1df5beef92feb97b06e4cd5653864377de07ca72d76d4910b"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/holiday-calendars/TRACEABILITY.md",
+					"sha256": "11ee928d05ab00c02477c18ba0f2e571ce993c5103e1b6abcaac5ab64407d9da"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/holiday-calendars/DECISIONS.md",
+					"sha256": "e3cd2fc5367a1624dd6e82dc5a9417a1ab1ba127c79c7bfd72586148527e4931"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "LEAVE_ADMINISTRATION",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/leave-administration/BLUEPRINT.json",
+					"sha256": "ecd2270f64a31e0d2bb98aae66263be7039a3fed0495b65549dd6b6a50b42fdb"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/leave-administration/FDD.md",
+					"sha256": "024a16472de96bbb3dd1324b0c7d8217e179b9f56077101208ea703b1f239c38"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/leave-administration/TDD.md",
+					"sha256": "56d019d54bff00fc3cd8f36c5d42346375faa33bd456067448e6eb0b79052f2f"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/leave-administration/TRACEABILITY.md",
+					"sha256": "5c67547f3b2bdf1e224b71a40fe9c6bf4285e6ad01f4c8d5a5454ba610539e69"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/leave-administration/DECISIONS.md",
+					"sha256": "d81fd9d9ec4e9d2ce1c9bdb7e507c6171ae7bc79cb36388157c4e068d4d37cc8"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "LEAVE_BALANCE",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/leave-balance/BLUEPRINT.json",
+					"sha256": "978cbf3d1828fc384851bf8ee338161e49c9cae5ae54e6662288d77b2a4dffa0"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/leave-balance/FDD.md",
+					"sha256": "da9fd21a733c78aacc603b5ebb3f29a22089134caea66d443807184d02091900"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/leave-balance/TDD.md",
+					"sha256": "7beae6781f8f17adbdbf80ce7c620d45afeb74a4b2652655ab34d71b26c6d8d0"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/leave-balance/TRACEABILITY.md",
+					"sha256": "6e7ef832438308e7ec6f3a9f21f83f2532a19f4ae41313ddfb14203991d4d5a3"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/leave-balance/DECISIONS.md",
+					"sha256": "708ce505f6a2d71d6c6175983da204aba50d7397472dbe509fdaa92e6dbf9f82"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "LEAVE_ENCASHMENT",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/leave-encashment/BLUEPRINT.json",
+					"sha256": "871c04f7053bb23c4af0e06a86d4d2cc540358abfcf09c8abd43133fbd04addf"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/leave-encashment/FDD.md",
+					"sha256": "2a35eb5f9f5bdf7ca6ead1e146cacea8dab1571cbe086cbcb3ec1ccd280da4a8"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/leave-encashment/TDD.md",
+					"sha256": "c6abdbc2efbe413b0f6e02e9c70c6abb1d7dee9a492809c41d42462b618c3ef7"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/leave-encashment/TRACEABILITY.md",
+					"sha256": "9998247e75a3553758821ea41b730e7f62dd40cf8cdcec323c5a6661c4f51e42"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/leave-encashment/DECISIONS.md",
+					"sha256": "383086459b1e35131882740c89f70d55f018955373ee874ff0680a1134e3efd3"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "LEAVE_POLICIES",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/leave-policies/BLUEPRINT.json",
+					"sha256": "0aa1b529d2de8f223485237ade39a9cd542d28f43b7ffd2a95c3603df2bd8006"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/leave-policies/FDD.md",
+					"sha256": "9172e818220762e647dc492e3eccbf25643e6f756643ec8b150e312f09b1999c"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/leave-policies/TDD.md",
+					"sha256": "1de84a02ee671ab967222faf180a26f0b7db004eae129cd70ada7b3213a0a13f"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/leave-policies/TRACEABILITY.md",
+					"sha256": "bf898d8f2b0ac8b357adc0bdb47535e4203f1c4fcf0d3d1feacba399911ca3f6"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/leave-policies/DECISIONS.md",
+					"sha256": "831d5d4f000f3a38bcdf2bb134498a1bdc55eeadc9eed94cc318a3561acc5d77"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "MY_APPROVALS",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/my-approvals/BLUEPRINT.json",
+					"sha256": "ff2e45224f8755ee5bcf8a64754b4179fa0b65f103100e9632bf61b4b2cc2fdb"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/my-approvals/FDD.md",
+					"sha256": "3991f1370f06d6146facecc6c065b0b9762e24d2bd26c4214cb6f43b5e2d5aef"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/my-approvals/TDD.md",
+					"sha256": "0cdc638e219db9b007df526c13f89d84737b558a351ec205a0e15b38e3297248"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/my-approvals/TRACEABILITY.md",
+					"sha256": "e2831dd8deeb8c7fc56b54f657817866fc5294dfdf9977cc7188b88507ab99e9"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/my-approvals/DECISIONS.md",
+					"sha256": "f44b88703e01566c68b10e6dea5dabf852e6bf613a70aad3084b90917de8a0f9"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/workflow/TECHNICAL-DESIGN.md",
+					"sha256": "8cc4a577a27718eb38838f21a4d450fb6b94e4596d7398b3f2fb8e6a67f55322"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/workflow/DATA-MODEL.md",
+					"sha256": "5bf945d2ba45a60b58cae6210672cba9f63b4cda93704add3dd0e66e0b0b1f97"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/workflow/DOMAIN-MODEL.md",
+					"sha256": "699b69c5724383933d4ee2f20dbd83d90acc7f54788101b2194cd0d0280d1e28"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/workflow/BUSINESS-RULES.md",
+					"sha256": "961635de5cbcebd32800f74849f7b237d4ab05c5a3059594469a4a539a4d15f1"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/workflow/STATE-MODEL.md",
+					"sha256": "4f88f620c71bb7aeb0e2628ad80a2cee01b6d383b61caad24d05d5b53e934333"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/workflow/ACCESS-MODEL.md",
+					"sha256": "1f2f1788550011e7c572f43781c4cab783d014fa182f59ea15c6e4797573ba9a"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "MY_ATTENDANCE",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/my-attendance/BLUEPRINT.json",
+					"sha256": "a1180e59d02033adbaefdcf8d76aee9e9c6e8c2494ec561c872950adb4e894b1"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/my-attendance/FDD.md",
+					"sha256": "8441bbd290c2e805c1017b5b8a5e5a2091a49273549d3c3a97b15e2aac609104"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/my-attendance/TDD.md",
+					"sha256": "9640dd3bb83937be771ed3ff2874c2e4930c5dee2bf2847d6dc3a7f456ba18dd"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/my-attendance/TRACEABILITY.md",
+					"sha256": "638745c9d6748bbc005a8003862ded1510515148563ec86e4e18f194ba436a18"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/my-attendance/DECISIONS.md",
+					"sha256": "c2cffda460dac69a34344017a02695afc1339d065fa522cc8bb5f5577e42a8d9"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "MY_SCHEDULE",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/my-schedule/BLUEPRINT.json",
+					"sha256": "ecc50139b34c091e10cac36c0478c2889abda092cbe7beb3981d0e2f5b05bac1"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/my-schedule/FDD.md",
+					"sha256": "8ab393c9bda2115220f188b114bd0813cc98edaf596e3f0d748862cf7b71ad3e"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/my-schedule/TDD.md",
+					"sha256": "aecf1ab8095202ee488614dcf92c712bb9a02cfe3df8bbc9f01dfc6e261194a7"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/my-schedule/TRACEABILITY.md",
+					"sha256": "42bbd358c60f4cb65a7029b94c8ac9283dddc2a3c7ca3011f502f9870da70c66"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/my-schedule/DECISIONS.md",
+					"sha256": "8b758688e5d10ce472be32161ad3c03d131adbe1118661e06c97e344ab11d309"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "MY_TASKS",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/my-tasks/BLUEPRINT.json",
+					"sha256": "b29c1c68e6b5bf576b14cc174321613c5c6a8fb6e905cfa3e5943cdfb4454da3"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/my-tasks/FDD.md",
+					"sha256": "847e616d394f63afc5773e2cc9f40fc0bdf546b4f6fab40d27c24d8f5bea4bc7"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/my-tasks/TDD.md",
+					"sha256": "71bed7054bdcb79912d65ee5db00913065123b9c97ebae389f9e892d3395c869"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/my-tasks/TRACEABILITY.md",
+					"sha256": "2342af55bed1acec96142300a86d99e7b80fe7a8728c954599f9e849a934d99a"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/my-tasks/DECISIONS.md",
+					"sha256": "448f52d79bd502bafebc550f12901a55287c83c68243290a62d6cf8909623f82"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/workflow/TECHNICAL-DESIGN.md",
+					"sha256": "8cc4a577a27718eb38838f21a4d450fb6b94e4596d7398b3f2fb8e6a67f55322"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/workflow/DATA-MODEL.md",
+					"sha256": "5bf945d2ba45a60b58cae6210672cba9f63b4cda93704add3dd0e66e0b0b1f97"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/workflow/DOMAIN-MODEL.md",
+					"sha256": "699b69c5724383933d4ee2f20dbd83d90acc7f54788101b2194cd0d0280d1e28"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/workflow/BUSINESS-RULES.md",
+					"sha256": "961635de5cbcebd32800f74849f7b237d4ab05c5a3059594469a4a539a4d15f1"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/workflow/STATE-MODEL.md",
+					"sha256": "4f88f620c71bb7aeb0e2628ad80a2cee01b6d383b61caad24d05d5b53e934333"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/workflow/ACCESS-MODEL.md",
+					"sha256": "1f2f1788550011e7c572f43781c4cab783d014fa182f59ea15c6e4797573ba9a"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "SHIFT_PLANNING",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/shift-planning/BLUEPRINT.json",
+					"sha256": "72571e213727612325a9ccd89b27fcdb345718c2cc6a6b253cc52980ffd0196a"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/shift-planning/FDD.md",
+					"sha256": "d73d4aa4ee2b061483e72103fa8bd12154e61edadf9955940cc87ffa57d37841"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/shift-planning/TDD.md",
+					"sha256": "6f5f73e528ef5edb4ba03836843674b3beeaf1e53c701a714ca21696b7e3e469"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/shift-planning/TRACEABILITY.md",
+					"sha256": "3ea269e281ac011f17d88473fbd2c299cec4d0679b4d8ea2411725c2ec9d80b0"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/shift-planning/DECISIONS.md",
+					"sha256": "fdb3cd97d0ad6c1f00bc921388e0c4b05000e908c476f9f6dba8e7bcd8af4f56"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "TEAM_ATTENDANCE",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/team-attendance/BLUEPRINT.json",
+					"sha256": "d7865d2e0906a86953c28fe84aca4c6faba271383e642947a441347052cf5e45"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/team-attendance/FDD.md",
+					"sha256": "75064c34289a1fe87d64bb1403417d8e3034cc1c25ead9997a48e24a9ce8a04e"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/team-attendance/TDD.md",
+					"sha256": "47a1862e36d7a370c6bb483ad0ffd89b86bbeb2a757d961670648346bcb08550"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/team-attendance/TRACEABILITY.md",
+					"sha256": "886adf68d41c527cac4efdc49432464e492ccb0797c499f97026c188beb051b6"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/team-attendance/DECISIONS.md",
+					"sha256": "b445cd8bb7f5499c01d61203d28f35f3ce54405dfeefb5b03b10d6292b33030b"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "TEAM_CALENDAR",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/team-calendar/BLUEPRINT.json",
+					"sha256": "533e63f4f3e0ff49f2965aef0ff7f0958e45b39aaabeb47329076024910e5d32"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/team-calendar/FDD.md",
+					"sha256": "30e28c7bc21a6f292210cc754f2a1da5a6f93f9ead25f2a1b7b417c36727e376"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/team-calendar/TDD.md",
+					"sha256": "32156d1da93df508ace1012884ce8a885a4a5812460cdb13bbeb6df1890c8c43"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/team-calendar/TRACEABILITY.md",
+					"sha256": "b72a6bd55ae3e7f0c450b50f8bd8a46bbea228cb5938aecbd0af28ce7992ff97"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/team-calendar/DECISIONS.md",
+					"sha256": "a2aed57809f6b4fd1d68b9c7da092e316616b7cafd80b4147545be29e3fe5572"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md",
+					"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/leave/DATA-MODEL.md",
+					"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md",
+					"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/leave/BUSINESS-RULES.md",
+					"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/leave/STATE-MODEL.md",
+					"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/leave/ACCESS-MODEL.md",
+					"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "SEEDPOLICY",
+					"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md",
+					"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "WORKFLOW_DEFINITIONS",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/workflow-definitions/BLUEPRINT.json",
+					"sha256": "cb2463d9a4798236a8334f0a2db0f8f7511280d722b0e09ac138a4925adcf5ef"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/workflow-definitions/FDD.md",
+					"sha256": "247c248fb4dcc76649d0241671326c3209041ae914806357375377e4c5c4a7e2"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/workflow-definitions/TDD.md",
+					"sha256": "5e0622e46e5bda60a8eb685f17b3db90fe86188d36232e4ecb000e2b966c9957"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/workflow-definitions/TRACEABILITY.md",
+					"sha256": "74b7ada5070a021e3ea976221f242ea880caf5afb6fa72c57c9f9651148b8c31"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/workflow-definitions/DECISIONS.md",
+					"sha256": "51debab527c6136e382bd7c5dee770ad33e641cf9036458e115b7625c14b9d14"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/workflow/TECHNICAL-DESIGN.md",
+					"sha256": "8cc4a577a27718eb38838f21a4d450fb6b94e4596d7398b3f2fb8e6a67f55322"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/workflow/DATA-MODEL.md",
+					"sha256": "5bf945d2ba45a60b58cae6210672cba9f63b4cda93704add3dd0e66e0b0b1f97"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/workflow/DOMAIN-MODEL.md",
+					"sha256": "699b69c5724383933d4ee2f20dbd83d90acc7f54788101b2194cd0d0280d1e28"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/workflow/BUSINESS-RULES.md",
+					"sha256": "961635de5cbcebd32800f74849f7b237d4ab05c5a3059594469a4a539a4d15f1"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/workflow/STATE-MODEL.md",
+					"sha256": "4f88f620c71bb7aeb0e2628ad80a2cee01b6d383b61caad24d05d5b53e934333"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/workflow/ACCESS-MODEL.md",
+					"sha256": "1f2f1788550011e7c572f43781c4cab783d014fa182f59ea15c6e4797573ba9a"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "WORKFLOW_OPERATIONS",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/workflow-operations/BLUEPRINT.json",
+					"sha256": "48154287f72b5a0db8350555462e6027ecd95eb66886fb1da165a79dc4ec42c1"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/workflow-operations/FDD.md",
+					"sha256": "ab6a4d2af628fc725dbd6ee40631c2257e930df91382b4175ec1edee912a8989"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/workflow-operations/TDD.md",
+					"sha256": "ff58e941bc5c4c012a78e63e416fe65a40e7af2c7e46e5677c1bc945034e1b45"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/workflow-operations/TRACEABILITY.md",
+					"sha256": "bf9fbd923bd9c29aac69c482fde64df563800029f370673b0a4d5c7732d93b9a"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/workflow-operations/DECISIONS.md",
+					"sha256": "981f70ae27790d6b0a92a0e934874e3c5da4190221a3ed9e59f07ff45c55ce37"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/workflow/TECHNICAL-DESIGN.md",
+					"sha256": "8cc4a577a27718eb38838f21a4d450fb6b94e4596d7398b3f2fb8e6a67f55322"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/workflow/DATA-MODEL.md",
+					"sha256": "5bf945d2ba45a60b58cae6210672cba9f63b4cda93704add3dd0e66e0b0b1f97"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/workflow/DOMAIN-MODEL.md",
+					"sha256": "699b69c5724383933d4ee2f20dbd83d90acc7f54788101b2194cd0d0280d1e28"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/workflow/BUSINESS-RULES.md",
+					"sha256": "961635de5cbcebd32800f74849f7b237d4ab05c5a3059594469a4a539a4d15f1"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/workflow/STATE-MODEL.md",
+					"sha256": "4f88f620c71bb7aeb0e2628ad80a2cee01b6d383b61caad24d05d5b53e934333"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/workflow/ACCESS-MODEL.md",
+					"sha256": "1f2f1788550011e7c572f43781c4cab783d014fa182f59ea15c6e4797573ba9a"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "WORK_SCHEDULES",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/work-schedules/BLUEPRINT.json",
+					"sha256": "a218d70b3e811b931aca6bec0aa7d63952e955df2592b7bfda1f6c31c4f5f6a7"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/work-schedules/FDD.md",
+					"sha256": "744412249376aff9c508770e8a5f6267d9b4ec8e364a2de70e095682a130761b"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/work-schedules/TDD.md",
+					"sha256": "f6ac057e14f32b4138ea76565e0f26c1cfa4906a9216f7114dd23c707567335a"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/work-schedules/TRACEABILITY.md",
+					"sha256": "4f2a456fc9ed34291873778a06011d0d3405aeee4fcf9b4684d1e12136f4e642"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/work-schedules/DECISIONS.md",
+					"sha256": "71f69b77403fde0eda59343870fe51029c75dc7681f1b694df4cde21536ef999"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		},
+		{
+			"appCode": "WORK_SCHEDULE_TEMPLATES",
+			"ready": true,
+			"issues": [],
+			"warnings": [
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-001",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-002",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-009",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-017",
+					"message": "Deferred capability remains outside this app scope"
+				},
+				{
+					"code": "BLOCKS_LATER_CAPABILITY",
+					"at": "DEC-HCM3-018",
+					"message": "Deferred capability remains outside this app scope"
+				}
+			],
+			"evidence": [
+				{
+					"document": "BLUEPRINT",
+					"path": "docs/hcm/apps/work-schedule-templates/BLUEPRINT.json",
+					"sha256": "e281f3777319f5feebe920d19a8497f7f01c510346dbc34dc9daba5c1a42d059"
+				},
+				{
+					"document": "FDD",
+					"path": "docs/hcm/apps/work-schedule-templates/FDD.md",
+					"sha256": "11fe14e956336a3a1e26fc8041d403ada3601d4428d31a02e4ffb2ebb8c181b9"
+				},
+				{
+					"document": "TDD",
+					"path": "docs/hcm/apps/work-schedule-templates/TDD.md",
+					"sha256": "624929ee82aa544e8dd3e96211a92d2459c1e57a96a48a0533d61835ad3818ec"
+				},
+				{
+					"document": "TRACE",
+					"path": "docs/hcm/apps/work-schedule-templates/TRACEABILITY.md",
+					"sha256": "f641d047350dea224a7f7016a4f4f00668565126ea6eb916fb16856053c194b1"
+				},
+				{
+					"document": "DECISIONS",
+					"path": "docs/hcm/apps/work-schedule-templates/DECISIONS.md",
+					"sha256": "533d6ae8985f311c983488e902805f43937ce062f1d58bac10fa8240b58899fe"
+				},
+				{
+					"document": "DOMAIN",
+					"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md",
+					"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b"
+				},
+				{
+					"document": "LOGICAL",
+					"path": "docs/hcm/domains/attendance/DATA-MODEL.md",
+					"sha256": "bfbff189658681fe33363fd1e5fa416e650e40839f0234c1935341b97fc0e1e2"
+				},
+				{
+					"document": "MODEL",
+					"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md",
+					"sha256": "7b2ce532a81ed45fc6db9631330f79b3ca58bf267281bc1b65aa39c44d3ff65a"
+				},
+				{
+					"document": "RULES",
+					"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md",
+					"sha256": "a891f62f2f97ac6e6a22d3d518df5e828cee4edbcccb0e393aa70d2078bf0ab9"
+				},
+				{
+					"document": "STATE",
+					"path": "docs/hcm/domains/attendance/STATE-MODEL.md",
+					"sha256": "d559ad6f99da5470ffc829bbea104fa27dd4e75eb230aa1804795deff56bccbe"
+				},
+				{
+					"document": "ACCESS",
+					"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md",
+					"sha256": "2a3a0b1913cfd4f440e11129a7c644a9fa58007d111d32e29e1382a6a37aa2ea"
+				},
+				{
+					"document": "COMMON",
+					"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md",
+					"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb"
+				},
+				{
+					"document": "SQL",
+					"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md",
+					"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11"
+				},
+				{
+					"document": "WORKER",
+					"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md",
+					"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f"
+				},
+				{
+					"document": "BASELINE",
+					"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md",
+					"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee"
+				},
+				{
+					"document": "RESOLUTIONS",
+					"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md",
+					"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a"
+				},
+				{
+					"document": "AUTHORITY",
+					"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md",
+					"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c"
+				},
+				{
+					"document": "FOUNDATION01",
+					"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md",
+					"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea"
+				},
+				{
+					"document": "FOUNDATION02",
+					"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md",
+					"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8"
+				},
+				{
+					"document": "FOUNDATION03",
+					"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md",
+					"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4"
+				},
+				{
+					"document": "FOUNDATION04",
+					"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md",
+					"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c"
+				}
+			]
+		}
+	]
+}
