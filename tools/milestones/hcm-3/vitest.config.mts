@@ -7,6 +7,7 @@ export default mergeConfig(
 	defineConfig({
 		test: {
 			include: [
+				'libs/hcm/api/audit/application/**/*.spec.ts',
 				'libs/hcm/contracts/attendance/**/*.spec.ts',
 				'libs/hcm/api/attendance/domain/**/*.spec.ts',
 			],

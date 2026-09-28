@@ -1,4 +1,16 @@
+export const HCM3_AUDIT_ACTIONS = [
+	'attendance.configuration-created',
+	'attendance.configuration-updated',
+	'attendance.configuration-versioned',
+	'attendance.configuration-copied',
+	'attendance.configuration-previewed',
+	'attendance.configuration-published',
+	'attendance.configuration-retired',
+	'attendance.configuration-assigned',
+] as const
+
 export const AUDIT_ACTIONS = [
+	...HCM3_AUDIT_ACTIONS,
 	'document.request-created',
 	'document.request-submitted',
 	'document.request-accepted',

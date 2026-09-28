@@ -37,6 +37,7 @@ export interface ScheduleVersionView extends ScheduleDraft {
 	versionNumber: number
 	revision: number
 	state: AttendanceConfigurationState
+	copiedFromVersionId?: string
 }
 export interface ExactInterval {
 	startMilliseconds: number

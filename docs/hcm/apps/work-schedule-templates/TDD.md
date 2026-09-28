@@ -66,12 +66,33 @@ contains id/revision/state and async operationId/statusUrl when applicable.
 | GET    | `/api/v1/attendance/schedule-templates/{id}`        | Query                            | ScheduleDraft   | `hcm.attendance.work-schedule-templates.read`   |
 | POST   | `/api/v1/attendance/schedule-templates`             | ScheduleDraft                    | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
 | PATCH  | `/api/v1/attendance/schedule-templates/{id}`        | ScheduleDraft + expectedRevision | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/versions` | VersionDraftCommand              | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/preview` | ConfigurationPreview             | Preview         | `hcm.attendance.work-schedule-templates.preview` |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/publish` | PublishCommand                   | CommandResult   | `hcm.attendance.work-schedule-templates.publish` |
 | POST   | `/api/v1/attendance/schedule-templates/{id}/copy`   | CopyCommand                      | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
 | POST   | `/api/v1/attendance/schedule-templates/{id}/retire` | ReasonCommand                    | CommandResult   | `hcm.attendance.work-schedule-templates.retire` |
 
 Every response has a purpose-built projection; private narrative/evidence requires
 additional current field permission. No persistence row serialization. Disabled
 encashment/device/pool/delegation/payment routes are absent, not successful stubs.
+
+Lifecycle reconciliation: the FDD's reusable template is a Published template
+version. The explicit versions/preview/publish endpoints above complete the
+transport mapping for that already specified lifecycle. The `version` query
+selects an exact version for detail, edit, preview, publish and retire; omission
+on GET selects the latest version. Mutations must identify their exact version,
+so another draft cannot redirect an action. CopyCommand.sourceVersionId must be
+a currently Published version of the route's template. Copy creates an ordinary
+schedule Draft; its immutable source reference never changes that template.
+Published templates are never eligible for live assignments. Retirement preserves
+existing copies. Configuration roots are tenant-level data and require one
+tenant-wide operation grant; employment-scoped grants cannot curate global roots.
+
+Template preview validates the reusable pattern and exact source revision. It
+reports zero live assignments because the database forbids assigning templates;
+it does not claim dated workforce/DST suitability for a subsequently created
+schedule. That independent schedule requires its own scoped, dated impact preview
+and publication before use. Publication never implicitly supplies a break or zone.
 
 ## AUTHORIZATION
 

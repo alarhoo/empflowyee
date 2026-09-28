@@ -185,6 +185,16 @@
 			"id": "hcm.attendance.work-schedule-templates.retire",
 			"owner": "attendance",
 			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.work-schedule-templates.preview",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.work-schedule-templates.publish",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
 		}
 	],
 	"projects": [

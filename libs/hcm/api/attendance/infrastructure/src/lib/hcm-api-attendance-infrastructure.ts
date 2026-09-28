@@ -22,6 +22,7 @@ export class KyselyScheduleReader {
 		}>`SELECT jsonb_strip_nulls(jsonb_build_object(
 			'id',s.id,'code',s.code,'isTemplate',s.is_template,'versionId',v.id,'versionNumber',v.version_number,
 			'revision',v.revision,'state',v.state,'name',v.name,'description',v.description,
+			'copiedFromVersionId',v.copied_from_id,
 			'effectiveFrom',to_char(v.effective_from,'YYYY-MM-DD'),'effectiveTo',to_char(v.effective_to,'YYYY-MM-DD'),
 			'timezoneMode',v.timezone_mode,'fixedZone',v.fixed_zone,'weekStartsOn',v.week_starts_on,
 			'minimumRestMinutes',v.minimum_rest_minutes,'minimumRestMode',v.minimum_rest_mode,

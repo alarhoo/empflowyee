@@ -1,4 +1,4 @@
-import { HCM2_AUDIT_ACTIONS } from '@empflowyee/hcm-audit-contract'
+import { HCM2_AUDIT_ACTIONS, HCM3_AUDIT_ACTIONS } from '@empflowyee/hcm-audit-contract'
 export interface RoleAuditEvent {
 	action: 'role.created' | 'role.updated' | 'role.deleted'
 	targetId: string
@@ -104,7 +104,8 @@ export interface AppendAudit {
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
 	if (event && 'category' in event) {
-		validateHcm2Audit(event)
+		if (event.action.startsWith('attendance.')) validateHcm3Audit(event)
+		else validateHcm2Audit(event)
 		return
 	}
 	if (
@@ -409,13 +410,25 @@ export function validateDocumentRequestAudit(event: DocumentRequestAuditEvent): 
 
 /** Reject HCM-2 evidence that could carry personal values instead of identifiers and field names. */
 export function validateHcm2Audit(event: Hcm2AuditEvent): void {
+	validateBusinessAudit(event, HCM2_AUDIT_ACTIONS)
+}
+
+/** Validate admitted Attendance audit metadata; private reasons remain in owner-encrypted command evidence. */
+export function validateHcm3Audit(event: Hcm2AuditEvent): void {
+	validateBusinessAudit(event, HCM3_AUDIT_ACTIONS)
+	if (event.summary.reason !== null || event.category !== 'business')
+		throw new Error('Invalid HCM-3 audit envelope')
+}
+
+/** Check the established business audit envelope against an explicit owner action allowlist. */
+function validateBusinessAudit(event: Hcm2AuditEvent, actions: readonly string[]): void {
 	/** Accept only null or a short state code. */
 	const state = (value: unknown) =>
 		value === null || (typeof value === 'string' && /^[A-Za-z][A-Za-z0-9-]{0,39}$/.test(value))
 	if (
 		Object.keys(event).sort().join(',') !==
 			'action,category,requestId,summary,targetId,targetType' ||
-		!HCM2_AUDIT_ACTIONS.includes(event.action) ||
+		!actions.includes(event.action) ||
 		!['business', 'sensitive-access', 'export'].includes(event.category) ||
 		typeof event.targetType !== 'string' ||
 		!/^[a-z][a-z0-9-]{2,60}$/.test(event.targetType) ||
@@ -439,5 +452,5 @@ export function validateHcm2Audit(event: Hcm2AuditEvent): void {
 		!state(event.summary.fromState) ||
 		!state(event.summary.toState)
 	)
-		throw new Error('Invalid HCM-2 audit envelope')
+		throw new Error('Invalid business audit envelope')
 }

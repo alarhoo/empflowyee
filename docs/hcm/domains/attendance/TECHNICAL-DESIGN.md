@@ -94,6 +94,32 @@ reject unknown fields. Read DTOs add id/revision/state and contain no DB-only ke
 
 ## STORAGE
 
+Configuration roots are tenant-level shared master data, distinct from their
+dated scope assignments. Root curation requires one current tenant-wide operation
+grant; an employment-scoped grant does not authorize global templates or policies.
+Assignment/publication impact and employee workday reads additionally evaluate
+their actual dated workforce subjects. Human draft commands use the existing
+exclusive tenant mutation/revocation lock, exact source revision and an
+actor/operation/key receipt. Replays recheck current read authority. Session
+expiry is rechecked after awaited effects before returning the transaction.
+
+Schedule read projections may include `copiedFromVersionId`. Copy selects an
+immutable Published template version and creates an independent ordinary Draft;
+new versions derive from Published/Retired source content and preserve supersession.
+Root code/type cannot change through whole-draft replacement. Private reasons for
+copy/version/publication/retirement live encrypted in `attendance_command_receipt`
+with a key version and typed configuration-version reference; shared audit contains
+only action, source ID, field names and lifecycle states. Draft create/update have
+no extra reason field beyond their declared request schemas.
+
+`time_configuration_impact_preview` stores actor, exactly one typed version,
+source revision/digest, bounded date range, input revisions, result metrics/digest,
+expiry and lifecycle. Inputs and Ready results are immutable. Publication locks
+the source, revalidates all inputs/authority, consumes the still-current Ready
+preview, then advances the version in the same transaction. Expired, conflicting,
+locked-impact or changed-source previews cannot be consumed. Receipt, reason,
+audit and all business effects roll back together on any failure.
+
 Configuration representation: `candidateRule` is a closed union of
 `{source: LineManager}`, `{source: ManagerLevel,managerLevel}`,
 `{source: Function,functionCode}` and `{source: NamedUser,accountId}` from

@@ -333,6 +333,9 @@
 			"@empflowyee/hcm-api-attendance-domain": ["./libs/hcm/api/attendance/domain/src/index.ts"],
 			"@empflowyee/hcm-api-attendance-infrastructure": [
 				"./libs/hcm/api/attendance/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-attendance-application": [
+				"./libs/hcm/api/attendance/application/src/index.ts"
 			]
 		}
 	},
