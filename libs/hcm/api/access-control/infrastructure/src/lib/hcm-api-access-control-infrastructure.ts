@@ -2,6 +2,8 @@ import { sql, type Transaction, type Generated, type Kysely } from 'kysely'
 import { HcmTenantDatabase } from '@empflowyee/hcm-api-database-kysely'
 import {
 	HcmAccessError,
+	grantCoversSubject,
+	type HcmGrantScope,
 	type AccessPolicy,
 	type AccountAccessInvariant,
 	type HcmAccessRequirement,
@@ -32,7 +34,25 @@ export interface AccessTables extends AuditTables {
 		protected_admin: Generated<boolean>
 		revision: number
 	}
-	'hcm.account_role': { tenant_id: string; account_id: string; role_id: string }
+	'hcm.account_role': {
+		tenant_id: string
+		account_id: string
+		role_id: string
+		grant_id: Generated<string>
+	}
+	'hcm.account_role_scope': {
+		tenant_id: string
+		id: string
+		grant_id: string
+		scope_kind:
+			'Tenant' | 'LegalEntity' | 'OrgUnit' | 'Department' | 'Location' | 'Assignment' | 'Employment'
+		legal_entity_id: string | null
+		org_unit_id: string | null
+		department_id: string | null
+		location_id: string | null
+		assignment_id: string | null
+		employment_id: string | null
+	}
 	'hcm.role_permission': { tenant_id: string; role_id: string; permission_code: string }
 	'hcm.access_permission': { tenant_id: string; code: string; kind: string; description: string }
 	'hcm.tenant_entitlement': { tenant_id: string; code: string; enabled: boolean }
@@ -67,7 +87,7 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 			.where('id', '=', accountId)
 			.executeTakeFirst()
 		if (!account?.enabled) throw new HcmAccessError('unauthenticated')
-		const permission = await this.transaction
+		const permissions = await this.transaction
 			.selectFrom('hcm.account_role as a')
 			.innerJoin(
 				'hcm.role_permission as p',
@@ -79,19 +99,70 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 				/** Discovery codes never substitute for business authority. */ (join) =>
 					join.onRef('d.tenant_id', '=', 'p.tenant_id').onRef('d.code', '=', 'p.permission_code'),
 			)
-			.select('p.permission_code')
+			.select('a.grant_id')
 			.where('a.account_id', '=', accountId)
 			.where('p.permission_code', '=', requirement.permission)
 			.where('d.kind', '=', 'business-operation')
-			.executeTakeFirst()
+			.orderBy('a.grant_id')
+			.execute()
 		const entitlement = await this.transaction
 			.selectFrom('hcm.tenant_entitlement')
 			.select('code')
 			.where('code', '=', requirement.entitlement)
 			.where('enabled', '=', true)
 			.executeTakeFirst()
-		if (!permission || !entitlement) throw new HcmAccessError('forbidden')
-		return Object.freeze({ tenantId, accountId, personId: account.person_id })
+		if (!permissions.length || !entitlement) throw new HcmAccessError('forbidden')
+		const scopes = await this.transaction
+			.selectFrom('hcm.account_role_scope')
+			.selectAll()
+			.where(
+				'grant_id',
+				'in',
+				permissions.map(
+					/** Scope rows belong only to grants satisfying this exact operation. */ (grant) =>
+						grant.grant_id,
+				),
+			)
+			.execute()
+		for (const permission of permissions) {
+			const grantScopes: HcmGrantScope[] = []
+			for (const scope of scopes) {
+				if (scope.grant_id !== permission.grant_id) continue
+				switch (scope.scope_kind) {
+					case 'Tenant':
+						grantScopes.push({ dimension: 'tenant', targetId: tenantId })
+						break
+					case 'LegalEntity':
+						grantScopes.push({ dimension: 'legalEntityId', targetId: scope.legal_entity_id ?? '' })
+						break
+					case 'OrgUnit':
+						grantScopes.push({ dimension: 'orgUnitId', targetId: scope.org_unit_id ?? '' })
+						break
+					case 'Department':
+						grantScopes.push({ dimension: 'departmentId', targetId: scope.department_id ?? '' })
+						break
+					case 'Location':
+						grantScopes.push({ dimension: 'locationId', targetId: scope.location_id ?? '' })
+						break
+					case 'Assignment':
+						grantScopes.push({ dimension: 'assignmentId', targetId: scope.assignment_id ?? '' })
+						break
+					case 'Employment':
+						grantScopes.push({ dimension: 'employmentId', targetId: scope.employment_id ?? '' })
+						break
+					default:
+						throw new HcmAccessError('forbidden')
+				}
+			}
+			if (grantCoversSubject(grantScopes, tenantId, requirement.subject))
+				return Object.freeze({
+					tenantId,
+					accountId,
+					personId: account.person_id,
+					grantId: permission.grant_id,
+				})
+		}
+		throw new HcmAccessError('forbidden')
 	}
 	/** Inspect the post-mutation state under the shared tenant lock before committing access changes. */
 	async requireProtectedAdministrator(): Promise<void> {
@@ -110,6 +181,10 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 			.select('a.id')
 			.where('a.enabled', '=', true)
 			.where('r.protected_admin', '=', true)
+			.where(
+				sql<boolean>`NOT EXISTS (SELECT 1 FROM hcm.account_role_scope s
+				WHERE s.tenant_id=g.tenant_id AND s.grant_id=g.grant_id)`,
+			)
 			.executeTakeFirst()
 		if (!remaining) throw new HcmAccessError('protected-access')
 	}
@@ -132,6 +207,10 @@ export class HcmAccessDatabase {
 			/** Reauthorize only after any administration lock wait completes. */ async (transaction) => {
 				if (administrative)
 					await sql`SELECT pg_advisory_xact_lock(hashtextextended(${requireAuthenticatedTenant(context)},0))`.execute(
+						transaction,
+					)
+				else
+					await sql`SELECT pg_advisory_xact_lock_shared(hashtextextended(${requireAuthenticatedTenant(context)},0))`.execute(
 						transaction,
 					)
 				const policy = new TransactionalAccessPolicy(transaction, context)
