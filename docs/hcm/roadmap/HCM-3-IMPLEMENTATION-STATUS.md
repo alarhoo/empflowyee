@@ -22,6 +22,8 @@ Dated configuration selection and exact workday interval composition are verifie
 in [workday interval validation](../testing/HCM-3-WORKDAY-INTERVAL-VALIDATION.md).
 Schedule/template Draft commands and immutable command/preview evidence are
 verified in [command validation](../testing/HCM-3-CONFIGURATION-COMMAND-VALIDATION.md).
+The reusable template preview/publish/retire application flow is verified in
+[publication validation](../testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md).
 Durable workday publication, HTTP APIs, domain handlers and UI remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |

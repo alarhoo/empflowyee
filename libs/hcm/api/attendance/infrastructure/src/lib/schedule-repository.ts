@@ -26,6 +26,29 @@ export class KyselyScheduleRepository implements ScheduleRepository {
 		return this.reader.version(ownerId, versionId)
 	}
 
+	/** Publish only the reviewed Draft revision; SQL independently validates the complete immutable pattern. */
+	async publish(
+		ownerId: string,
+		versionId: string,
+		revision: number,
+		digest: string,
+	): Promise<void> {
+		const result = await sql<{ id: string }>`
+UPDATE hcm.work_schedule_version SET state='Published',revision=revision+1,publication_digest=${digest},published_at=clock_timestamp(),published_by_account_id=${this.accountId},updated_at=clock_timestamp()
+WHERE tenant_id=${this.tenantId} AND schedule_id=${ownerId} AND id=${versionId} AND revision=${revision} AND state='Draft' RETURNING id
+`.execute(this.transaction)
+		if (!result.rows.length) throw new HcmDomainError('revision-conflict')
+	}
+
+	/** Preserve published content and attribution while removing this version from future reuse. */
+	async retire(ownerId: string, versionId: string, revision: number): Promise<void> {
+		const result = await sql<{ id: string }>`
+UPDATE hcm.work_schedule_version SET state='Retired',revision=revision+1,updated_at=clock_timestamp()
+WHERE tenant_id=${this.tenantId} AND schedule_id=${ownerId} AND id=${versionId} AND revision=${revision} AND state='Published' RETURNING id
+`.execute(this.transaction)
+		if (!result.rows.length) throw new HcmDomainError('revision-conflict')
+	}
+
 	/** Lock the exact version before reading its immutable identity and current draft revision. */
 	async lock(ownerId: string, versionId: string): Promise<ScheduleVersionView | null> {
 		await sql`SELECT id FROM hcm.work_schedule_version WHERE tenant_id=${this.tenantId} AND schedule_id=${ownerId} AND id=${versionId} FOR UPDATE`.execute(

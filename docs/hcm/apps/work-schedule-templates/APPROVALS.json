@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "a44ff7d42f576b9a498ed7d2c2e4189b59202a117d94a979d4976cd34216ccfc",
+			"sha256": "66b1179b9394fbf1801266943cb986defca38fd2056a0bf2d58e835a1b495a9a",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-TRANSPORT-REVIEW.md; delegated technical reconciliation of the existing template publication lifecycle and explicit version/root scope; no separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md; reviewed bounded template preview freshness and explicit range defaults under existing delegated technical authority; no new business decision or separate human approval claimed."
 		},
 		{
 			"document": "TRACE",

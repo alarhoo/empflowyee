@@ -94,6 +94,14 @@ it does not claim dated workforce/DST suitability for a subsequently created
 schedule. That independent schedule requires its own scoped, dated impact preview
 and publication before use. Publication never implicitly supplies a break or zone.
 
+For a template preview, omitted effectiveTo means its explicit effectiveFrom date;
+the inclusive range stays within source coverage and the common 366-date bound.
+The synchronous Ready preview expires after 15 minutes (technical review freshness,
+not a business scheduling rule), binds its authenticated actor and exact source
+digest, and reports zero affected employments/workdays. Publish consumes it once
+before advancing the Draft in the same transaction. A stale, expired, changed or
+different actor's preview returns `preview-stale`; the client requests a new preview.
+
 ## AUTHORIZATION
 
 Entitlement `hcm.attendance` and each endpoint's explicit

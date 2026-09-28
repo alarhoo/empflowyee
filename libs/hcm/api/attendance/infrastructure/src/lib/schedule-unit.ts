@@ -13,9 +13,11 @@ import {
 	AttendanceScheduleUnitOfWork,
 	type AttendanceScheduleWork,
 	type ScheduleApplication,
+	type ScheduleOperation,
 } from '@empflowyee/hcm-api-attendance-application'
 import { KyselyScheduleRepository } from './schedule-repository'
 import { SqlAttendanceCommandReceipts } from './command-receipts'
+import { KyselyTemplatePreviews } from './template-previews'
 
 /** Compose schedule configuration commands on Access Control's current-authority transaction boundary. */
 export class KyselyAttendanceScheduleUnit extends AttendanceScheduleUnitOfWork {
@@ -31,7 +33,7 @@ export class KyselyAttendanceScheduleUnit extends AttendanceScheduleUnitOfWork {
 	async execute<T>(
 		context: AuthenticatedHcmContext,
 		app: ScheduleApplication,
-		operation: 'draft' | 'read',
+		operation: ScheduleOperation,
 		write: boolean,
 		work: (scope: AttendanceScheduleWork) => Promise<T>,
 	): Promise<T> {
@@ -57,6 +59,7 @@ export class KyselyAttendanceScheduleUnit extends AttendanceScheduleUnitOfWork {
 					}
 					const result = await work({
 						schedules: new KyselyScheduleRepository(transaction, tenantId, accountId),
+						previews: new KyselyTemplatePreviews(transaction, tenantId, accountId),
 						receipts: new SqlAttendanceCommandReceipts(
 							transaction,
 							tenantId,

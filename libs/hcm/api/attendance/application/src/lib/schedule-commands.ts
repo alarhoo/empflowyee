@@ -15,8 +15,10 @@ import {
 } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { AttendanceCommandReceiptStore } from './configuration-evidence'
+import type { TemplatePreviewRepository } from './template-publication'
 
 export type ScheduleApplication = 'Templates' | 'Schedules'
+export type ScheduleOperation = 'draft' | 'read' | 'preview' | 'publish' | 'retire'
 export interface ScheduleVersionInsert {
 	id: string
 	ownerId: string
@@ -26,6 +28,10 @@ export interface ScheduleVersionInsert {
 	draft: ScheduleDraft
 }
 export interface ScheduleRepository {
+	/** Advance the exact Draft after its preview has been consumed in the same transaction. */
+	publish(ownerId: string, versionId: string, revision: number, digest: string): Promise<void>
+	/** Retire a Published version without changing its payload or independent copies. */
+	retire(ownerId: string, versionId: string, revision: number): Promise<void>
 	/** Read the exact version projection inside the current tenant transaction. */
 	read(ownerId: string, versionId: string): Promise<ScheduleVersionView | null>
 	/** Lock the source version before mutation, preserving tenant and owning root checks. */
@@ -46,6 +52,7 @@ export interface ScheduleRepository {
 }
 export interface AttendanceScheduleWork {
 	schedules: ScheduleRepository
+	previews: TemplatePreviewRepository
 	receipts: AttendanceCommandReceiptStore
 	audit: AppendAudit
 	/** Reauthorize the read permission before returning a stored response to a retry. */
@@ -56,21 +63,21 @@ export abstract class AttendanceScheduleUnitOfWork {
 	abstract execute<T>(
 		context: AuthenticatedHcmContext,
 		app: ScheduleApplication,
-		operation: 'draft' | 'read',
+		operation: ScheduleOperation,
 		write: boolean,
 		work: (scope: AttendanceScheduleWork) => Promise<T>,
 	): Promise<T>
 }
 
 /** Remove read metadata explicitly before a version is copied into a new editable draft. */
-function draftOf(source: ScheduleVersionView): ScheduleDraft {
+export function draftOf(source: ScheduleVersionView): ScheduleDraft {
 	const { id, versionId, versionNumber, revision, state, copiedFromVersionId, ...draft } = source
 	void [id, versionId, versionNumber, revision, state, copiedFromVersionId]
 	return parseScheduleDraft(draft)
 }
 
 /** Execute an idempotent mutation, requiring fresh read authority on the replay path. */
-async function replaySafe<T>(
+export async function replaySafe<T>(
 	work: AttendanceScheduleWork,
 	operation: string,
 	key: string,

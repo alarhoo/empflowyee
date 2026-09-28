@@ -17,7 +17,10 @@ import {
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import { migrateHcmDatabase, loadSqlMigrations } from '@empflowyee/hcm-api-database-migrations'
 import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
-import { AttendanceScheduleDrafts } from '@empflowyee/hcm-api-attendance-application'
+import {
+	AttendanceScheduleDrafts,
+	AttendanceTemplatePublication,
+} from '@empflowyee/hcm-api-attendance-application'
 import type {
 	ScheduleDraft,
 	ScheduleSegment,
@@ -38,6 +41,7 @@ let admin: Client,
 	store: HcmRuntimeStore,
 	authentication: HcmRuntimeApplication,
 	commands: AttendanceScheduleDrafts
+let publication: AttendanceTemplatePublication
 let david: AuthenticatedHcmContext, toby: AuthenticatedHcmContext
 
 /** Produce a complete test-only template with deliberate break placement, never an automatically published default. */
@@ -102,7 +106,7 @@ beforeAll(
 		})
 		await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
 		for (const app of ['work-schedule-templates', 'work-schedules']) {
-			for (const operation of ['draft', 'read']) {
+			for (const operation of ['draft', 'read', 'preview', 'publish', 'retire']) {
 				const permission = `hcm.attendance.${app}.${operation}`
 				await admin.query(
 					"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Attendance test operation','business-operation')",
@@ -121,6 +125,9 @@ beforeAll(
 		)
 		access = new HcmAccessDatabase(runtime)
 		commands = new AttendanceScheduleDrafts(new KyselyAttendanceScheduleUnit(access, localCipher))
+		publication = new AttendanceTemplatePublication(
+			new KyselyAttendanceScheduleUnit(access, localCipher),
+		)
 		david = await context('david')
 		toby = await context('toby')
 	},
@@ -133,6 +140,258 @@ afterAll(
 		await admin?.end()
 	},
 )
+
+/** Create a real Draft and actor-bound preview through application commands, without fixture publication SQL. */
+async function readyTemplate() {
+	const source = await commands.create(david, 'Templates', randomUUID(), draft())
+	const preview = await publication.preview(david, source.id, source.versionId, randomUUID(), {
+		expectedRevision: 1,
+		effectiveFrom: source.effectiveFrom,
+	})
+	return {
+		source,
+		preview,
+		input: {
+			expectedRevision: 1,
+			previewId: preview.previewId,
+			digest: preview.digest,
+			reason: ' Reviewed reusable pattern ',
+		},
+	}
+}
+
+it('publishes and retires reusable patterns with atomic actor-bound preview consumption', /** Concurrent retries yield one lifecycle change while independent copies preserve source attribution. */ async () => {
+	const { source, preview, input } = await readyTemplate()
+	expect(preview).toMatchObject({
+		state: 'Ready',
+		affectedEmploymentCount: 0,
+		affectedWorkdayCount: 0,
+		conflicts: 0,
+		lockedImpact: false,
+		inputRevisions: [{ sourceType: 'Schedule', id: source.versionId, revision: 1 }],
+	})
+	const key = randomUUID()
+	const results = await Promise.all([
+		publication.publish(david, source.id, source.versionId, key, input),
+		publication.publish(david, source.id, source.versionId, key, input),
+	])
+	expect(results[0]).toEqual(results[1])
+	expect(results[0]).toMatchObject({ revision: 2, state: 'Published' })
+	await expect(
+		publication.publish(david, source.id, source.versionId, key, {
+			...input,
+			reason: 'Changed retry',
+		}),
+	).rejects.toMatchObject({ code: 'idempotency-conflict' })
+	const evidence = await admin.query(
+		'SELECT state,revision FROM hcm.time_configuration_impact_preview WHERE tenant_id=$1 AND id=$2',
+		[tenant, preview.previewId],
+	)
+	expect(evidence.rows).toEqual([{ state: 'Consumed', revision: 2 }])
+	const copy = await commands.copyTemplate(david, source.id, randomUUID(), {
+		sourceVersionId: source.versionId,
+		expectedRevision: 2,
+		code: 'LIFECYCLE_COPY',
+		name: 'Independent copy',
+		reason: 'Use published pattern',
+	})
+	const retireKey = randomUUID()
+	const retired = await publication.retire(david, source.id, source.versionId, retireKey, {
+		expectedRevision: 2,
+		reason: 'Retire future selection',
+	})
+	expect(retired).toMatchObject({ revision: 3, state: 'Retired' })
+	expect(
+		await publication.retire(david, source.id, source.versionId, retireKey, {
+			expectedRevision: 2,
+			reason: 'Retire future selection',
+		}),
+	).toEqual(retired)
+	expect(
+		(
+			await admin.query(
+				'SELECT state,revision,copied_from_id FROM hcm.work_schedule_version WHERE tenant_id=$1 AND id=$2',
+				[tenant, copy.versionId],
+			)
+		).rows,
+	).toEqual([{ state: 'Draft', revision: 1, copied_from_id: source.versionId }])
+	await expect(
+		commands.copyTemplate(david, source.id, randomUUID(), {
+			sourceVersionId: source.versionId,
+			expectedRevision: 3,
+			code: 'LATE_COPY',
+			name: 'Denied copy',
+			reason: 'Too late',
+		}),
+	).rejects.toMatchObject({ code: 'invalid-state' })
+})
+
+it('rejects wrong-source, modified-source and expired preview evidence', /** A valid-looking preview identifier never substitutes for exact immutable source input and database time. */ async () => {
+	const { source, preview, input } = await readyTemplate()
+	const other = await commands.create(david, 'Templates', randomUUID(), draft())
+	await expect(
+		publication.publish(david, other.id, other.versionId, randomUUID(), input),
+	).rejects.toMatchObject({ code: 'preview-stale' })
+	await expect(
+		publication.publish(david, source.id, source.versionId, randomUUID(), {
+			...input,
+			digest: 'b'.repeat(64),
+		}),
+	).rejects.toMatchObject({ code: 'preview-stale' })
+	// Preserve real source and actor evidence while arranging a historical expired preview fixture.
+	const expiredId = randomUUID()
+	await admin.query(
+		"INSERT INTO hcm.time_configuration_impact_preview(tenant_id,id,actor_account_id,work_schedule_version_id,source_revision,source_digest,from_date,to_date,state,input_revisions,result_digest,affected_employment_count,affected_workday_count,conflict_count,locked_impact,created_at,expires_at) SELECT tenant_id,$3,actor_account_id,work_schedule_version_id,source_revision,source_digest,from_date,to_date,state,input_revisions,result_digest,affected_employment_count,affected_workday_count,conflict_count,locked_impact,now()-interval '30 minutes',now()-interval '15 minutes' FROM hcm.time_configuration_impact_preview WHERE tenant_id=$1 AND id=$2",
+		[tenant, preview.previewId, expiredId],
+	)
+	await expect(
+		publication.publish(david, source.id, source.versionId, randomUUID(), {
+			...input,
+			previewId: expiredId,
+		}),
+	).rejects.toMatchObject({ code: 'preview-stale' })
+	await commands.update(david, 'Templates', source.id, source.versionId, randomUUID(), {
+		...draft(source.code),
+		expectedRevision: 1,
+		name: 'Changed after preview',
+	})
+	await expect(
+		publication.publish(david, source.id, source.versionId, randomUUID(), input),
+	).rejects.toMatchObject({ code: 'revision-conflict' })
+	await expect(
+		publication.publish(david, source.id, source.versionId, randomUUID(), {
+			...input,
+			expectedRevision: 2,
+		}),
+	).rejects.toMatchObject({ code: 'preview-stale' })
+	expect(
+		(
+			await admin.query(
+				'SELECT state FROM hcm.time_configuration_impact_preview WHERE tenant_id=$1 AND id=$2',
+				[tenant, preview.previewId],
+			)
+		).rows[0].state,
+	).toBe('Ready')
+})
+
+it('requires publication permission and the preview actor even when another actor has identical grants', /** Tenant-wide authority does not transfer a reviewed preview between authenticated people. */ async () => {
+	const { source, input } = await readyTemplate()
+	await expect(
+		publication.publish(toby, source.id, source.versionId, randomUUID(), input),
+	).rejects.toMatchObject({ code: 'forbidden' })
+	await admin.query(
+		"INSERT INTO hcm.account_role(tenant_id,account_id,role_id,grant_id) VALUES($1,'dunder-mifflin/account/toby','tenant-administrator','publication-test-grant')",
+		[tenant],
+	)
+	try {
+		await expect(
+			publication.publish(toby, source.id, source.versionId, randomUUID(), input),
+		).rejects.toMatchObject({ code: 'preview-stale' })
+	} finally {
+		await admin.query(
+			"DELETE FROM hcm.account_role WHERE tenant_id=$1 AND grant_id='publication-test-grant'",
+			[tenant],
+		)
+	}
+	const permission = 'hcm.attendance.work-schedule-templates.publish'
+	await admin.query(
+		"DELETE FROM hcm.role_permission WHERE tenant_id=$1 AND role_id='tenant-administrator' AND permission_code=$2",
+		[tenant, permission],
+	)
+	try {
+		await expect(
+			publication.publish(david, source.id, source.versionId, randomUUID(), input),
+		).rejects.toMatchObject({ code: 'forbidden' })
+	} finally {
+		await admin.query(
+			"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator',$2)",
+			[tenant, permission],
+		)
+	}
+})
+
+it('rolls back publication and preview consumption when encrypted command evidence fails', /** The same reviewed preview and idempotency key remain usable after a pre-commit failure. */ async () => {
+	const { source, preview, input } = await readyTemplate()
+	const key = randomUUID()
+	const unavailable = new AttendanceTemplatePublication(
+		new KyselyAttendanceScheduleUnit(access, new UnavailableFieldCipher()),
+	)
+	await expect(unavailable.publish(david, source.id, source.versionId, key, input)).rejects.toThrow(
+		'Field encryption is not configured',
+	)
+	expect(
+		(
+			await admin.query(
+				'SELECT state,revision FROM hcm.work_schedule_version WHERE tenant_id=$1 AND id=$2',
+				[tenant, source.versionId],
+			)
+		).rows,
+	).toEqual([{ state: 'Draft', revision: 1 }])
+	expect(
+		(
+			await admin.query(
+				'SELECT state,revision FROM hcm.time_configuration_impact_preview WHERE tenant_id=$1 AND id=$2',
+				[tenant, preview.previewId],
+			)
+		).rows,
+	).toEqual([{ state: 'Ready', revision: 1 }])
+	expect(
+		(
+			await admin.query('SELECT id FROM hcm.audit_event WHERE tenant_id=$1 AND request_id=$2', [
+				tenant,
+				key,
+			])
+		).rows,
+	).toEqual([])
+	expect(
+		(
+			await admin.query(
+				'SELECT id FROM hcm.attendance_command_receipt WHERE tenant_id=$1 AND idempotency_key=$2',
+				[tenant, key],
+			)
+		).rows,
+	).toEqual([])
+	expect(await publication.publish(david, source.id, source.versionId, key, input)).toMatchObject({
+		state: 'Published',
+		revision: 2,
+	})
+})
+
+it('rejects non-template publication, invalid lifecycle and out-of-coverage previews', /** Pattern curation cannot bypass ordinary schedule impact validation or retire an unpublished draft. */ async () => {
+	const source = await commands.create(david, 'Schedules', randomUUID(), {
+		...draft(),
+		isTemplate: false,
+	})
+	await expect(
+		publication.preview(david, source.id, source.versionId, randomUUID(), {
+			expectedRevision: 1,
+			effectiveFrom: source.effectiveFrom,
+		}),
+	).rejects.toMatchObject({ code: 'not-found' })
+	const template = await commands.create(david, 'Templates', randomUUID(), {
+		...draft(),
+		effectiveTo: '2026-12-31',
+	})
+	await expect(
+		publication.retire(david, template.id, template.versionId, randomUUID(), {
+			expectedRevision: 1,
+			reason: 'Cannot retire Draft',
+		}),
+	).rejects.toMatchObject({ code: 'invalid-state' })
+	await expect(
+		publication.preview(david, template.id, template.versionId, randomUUID(), {
+			expectedRevision: 1,
+			effectiveFrom: '2025-12-31',
+		}),
+	).rejects.toMatchObject({ code: 'effective-date-out-of-range' })
+	await expect(
+		publication.preview(david, template.id, template.versionId, randomUUID(), {
+			expectedRevision: 1,
+			effectiveFrom: '2026-12-31',
+			effectiveTo: '2027-01-01',
+		}),
+	).rejects.toMatchObject({ code: 'effective-date-out-of-range' })
+})
 
 it('creates and revises a real Draft with one receipt and safe audit per accepted command', /** Concurrent retry, immutable root identity and stale revisions all pass through current authorization. */ async () => {
 	const input = draft(),
