@@ -141,6 +141,17 @@ function segment(value: unknown, field: string): ScheduleSegment {
 	}
 }
 
+/** Parse explicit shift segments using the same endpoint contract for schedules and reusable shifts. */
+export function parseAttendanceSegments(value: unknown, field = 'segments'): ScheduleSegment[] {
+	if (!Array.isArray(value)) invalidField(field)
+	const segments = value.map(
+		/** Preserve input order and identify the exact invalid form row. */ (entry, index) =>
+			segment(entry, `${field}.${index}`),
+	)
+	validateScheduleSegments(segments, field)
+	return segments
+}
+
 /** Validate a single continuous shift envelope; a configured unpaid break fills a gap rather than overlapping a work segment. */
 export function validateScheduleSegments(
 	segments: readonly ScheduleSegment[],

@@ -11,6 +11,22 @@ const tenant = 'local-dunder-mifflin',
 	actor = 'dunder-mifflin/account/toby'
 let admin: Client, runtime: Client, projection: Kysely<unknown>
 
+/** Create a reusable cross-midnight test shift with an explicitly placed unpaid break. */
+async function shiftDraft(id: string): Promise<void> {
+	await runtime.query(
+		'INSERT INTO hcm.shift(tenant_id,id,code,created_by_account_id) VALUES($1,$2,$3,$4)',
+		[tenant, id, id.toUpperCase(), actor],
+	)
+	await runtime.query(
+		"INSERT INTO hcm.shift_version(tenant_id,id,shift_id,version_number,name,effective_from,timezone_mode,fixed_zone,created_by_account_id) VALUES($1,$2||'-v1',$2,1,'Night','2026-01-01','Fixed','Asia/Kolkata',$3)",
+		[tenant, id, actor],
+	)
+	await runtime.query(
+		"INSERT INTO hcm.shift_segment(tenant_id,id,version_id,ordinal,kind,start_time,end_time,start_day_offset,end_day_offset) VALUES($1,$2||'-one',$2||'-v1',1,'Work','22:00','00:00',0,1),($1,$2||'-two',$2||'-v1',2,'UnpaidBreak','00:00','00:30',1,1),($1,$2||'-three',$2||'-v1',3,'Work','00:30','06:00',1,1)",
+		[tenant, id],
+	)
+}
+
 /** Require the explicit disposable database harness before any schema setup or fixture write. */
 function connection(role: string): string {
 	const value = process.env[`HCM_TEST_${role}`]
@@ -427,5 +443,110 @@ it('serializes configuration publication against concurrent edits to both child 
 		await runtime.query('ROLLBACK')
 		await competitor.query('ROLLBACK')
 		await competitor.end()
+	}
+})
+
+it('publishes only complete contiguous shifts and protects their exact segments', /** Reusable shifts obey the same publication and elapsed-time boundary as schedule patterns. */ async () =>
+	scenario(
+		/** Incomplete, split and imprecise shift content must fail before freezing. */ async () => {
+			await shiftDraft('night')
+			await denied(
+				"UPDATE hcm.shift_segment SET end_time='00:00:00.0001' WHERE tenant_id=$1 AND id='night-one'",
+				[tenant],
+			)
+			await runtime.query(
+				"UPDATE hcm.shift_segment SET start_time='01:00' WHERE tenant_id=$1 AND id='night-three'",
+				[tenant],
+			)
+			await denied(
+				"UPDATE hcm.shift_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id=$2,publication_digest=repeat('a',64) WHERE tenant_id=$1 AND id='night-v1'",
+				[tenant, actor],
+			)
+			await runtime.query(
+				"UPDATE hcm.shift_segment SET start_time='00:30' WHERE tenant_id=$1 AND id='night-three'",
+				[tenant],
+			)
+			await runtime.query(
+				"UPDATE hcm.shift_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id=$2,publication_digest=repeat('a',64) WHERE tenant_id=$1 AND id='night-v1'",
+				[tenant, actor],
+			)
+			await denied(
+				"UPDATE hcm.shift_segment SET end_time='07:00' WHERE tenant_id=$1 AND id='night-three'",
+				[tenant],
+			)
+			await denied("DELETE FROM hcm.shift_segment WHERE tenant_id=$1 AND id='night-three'", [
+				tenant,
+			])
+			await denied(
+				"UPDATE hcm.shift_version SET name='Changed',revision=revision+1 WHERE tenant_id=$1 AND id='night-v1'",
+				[tenant],
+			)
+			await runtime.query(
+				"UPDATE hcm.shift_version SET state='Retired',revision=revision+1 WHERE tenant_id=$1 AND id='night-v1'",
+				[tenant],
+			)
+			await denied(
+				"UPDATE hcm.shift_version SET state='Draft',revision=revision+1,published_at=NULL,published_by_account_id=NULL,publication_digest=NULL WHERE tenant_id=$1 AND id='night-v1'",
+				[tenant],
+			)
+			await denied(
+				"INSERT INTO hcm.shift(tenant_id,id,code,created_by_account_id) VALUES('foreign-tenant','forged','FORGED','foreign-account')",
+				[],
+				'42501',
+			)
+			await denied(
+				"INSERT INTO hcm.shift(tenant_id,id,code,created_by_account_id) VALUES($1,'forged','FORGED','foreign-account')",
+				[tenant],
+				'23503',
+			)
+		},
+	))
+
+it('projects a shift without tenant leakage or implicit minimum rest', /** A reusable version does not acquire schedule weekdays or persistence-only start-day fields. */ async () => {
+	await runtime.query('BEGIN')
+	await runtime.query("SELECT set_config('hcm.tenant_id',$1,true)", [tenant])
+	await shiftDraft('reader-night')
+	await runtime.query('COMMIT')
+	await projection.transaction().execute(
+		/** Read the precise shift view under transaction-local tenant context. */ async (
+			transaction,
+		) => {
+			await sql`SELECT set_config('hcm.tenant_id',${tenant},true)`.execute(transaction)
+			const view = await new KyselyAttendanceConfigurationReader(transaction, tenant).shift(
+				'reader-night',
+				'reader-night-v1',
+			)
+			expect(view?.segments).toHaveLength(3)
+			expect(view?.segments[1]).toEqual({
+				startTime: '00:00:00',
+				endTime: '00:30:00',
+				endDayOffset: 1,
+				kind: 'UnpaidBreak',
+			})
+			expect(view).not.toHaveProperty('minimumRestMinutes')
+			expect(JSON.stringify(view)).not.toMatch(
+				/tenant_id|start_day_offset|created_by|published_by|weekStartsOn/,
+			)
+		},
+	)
+	await projection.transaction().execute(
+		/** An unbound reuse must not expose a known shift ID. */ async (transaction) => {
+			expect(
+				await new KyselyAttendanceConfigurationReader(transaction, tenant).shift(
+					'reader-night',
+					'reader-night-v1',
+				),
+			).toBeNull()
+		},
+	)
+	for (const table of ['shift', 'shift_version', 'shift_segment']) {
+		expect(
+			(
+				await admin.query(
+					'SELECT relrowsecurity,relforcerowsecurity FROM pg_class WHERE oid=$1::regclass',
+					['hcm.' + table],
+				)
+			).rows[0],
+		).toEqual({ relrowsecurity: true, relforcerowsecurity: true })
 	}
 })

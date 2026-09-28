@@ -2,6 +2,7 @@ import { sql, type Kysely } from 'kysely'
 import type {
 	AttendancePolicyVersionView,
 	HolidayVersionView,
+	ShiftVersionView,
 } from '@empflowyee/hcm-attendance-contract'
 
 /** Purpose-built configuration projections; callers retain authorization and transaction ownership. */
@@ -13,6 +14,23 @@ export class KyselyAttendanceConfigurationReader {
 	) {
 		if (!transaction.isTransaction || !tenantId)
 			throw new Error('Attendance configuration requires a tenant transaction')
+	}
+
+	/** Read one reusable shift with ordered exact wall endpoints, leaving dated DST resolution to the domain. */
+	async shift(id: string, versionId: string): Promise<ShiftVersionView | null> {
+		const result = await sql<{ view: ShiftVersionView }>`
+SELECT jsonb_strip_nulls(jsonb_build_object(
+  'id',r.id,'code',r.code,'versionId',v.id,'versionNumber',v.version_number,'revision',v.revision,'state',v.state,
+  'name',v.name,'description',v.description,'effectiveFrom',v.effective_from::text,'effectiveTo',v.effective_to::text,
+  'timezoneMode',v.timezone_mode,'fixedZone',v.fixed_zone,'minimumRestMinutes',v.minimum_rest_minutes,'minimumRestMode',v.minimum_rest_mode,
+  'segments',coalesce((SELECT jsonb_agg(jsonb_build_object('startTime',s.start_time::text,'endTime',s.end_time::text,
+    'endDayOffset',s.end_day_offset,'kind',s.kind,'overlapOffset',CASE WHEN s.start_overlap_choice IS NULL AND s.end_overlap_choice IS NULL THEN NULL
+      ELSE jsonb_build_object('start',s.start_overlap_choice,'end',s.end_overlap_choice) END) ORDER BY s.ordinal)
+    FROM hcm.shift_segment s WHERE s.tenant_id=v.tenant_id AND s.version_id=v.id),'[]'::jsonb))) AS view
+FROM hcm.shift r JOIN hcm.shift_version v ON v.tenant_id=r.tenant_id AND v.shift_id=r.id
+WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
+`.execute(this.transaction)
+		return result.rows[0]?.view ?? null
 	}
 
 	/** Read a policy and ordered typed candidate selectors without exposing audit actors or persistence rows. */
