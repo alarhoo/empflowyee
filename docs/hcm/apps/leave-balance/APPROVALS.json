@@ -100,11 +100,11 @@
 		},
 		{
 			"document": "WORKER",
-			"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f",
+			"sha256": "a4f09f3a098e65af11082da67a42eaaf1962f4528c7d956e1b2272f57fedc7d4",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORKER-ADR-STATUS-REVIEW.md; status-reference-only change reviewed under the existing product-owner technical finalization delegation; no new human approval claimed."
 		},
 		{
 			"document": "BASELINE",
