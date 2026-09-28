@@ -6,6 +6,7 @@ import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	AttendancePeriodFenceBinder,
 	AttendanceConfigurationInputBinder,
 	AttendanceScheduleUnitOfWork,
 	AttendanceHolidayUnitOfWork,
@@ -16,6 +17,7 @@ import {
 	AttendanceTemplatePublication,
 } from '@empflowyee/hcm-api-attendance-application'
 import {
+	KyselyAttendancePeriodFenceBinder,
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
 	KyselyAttendanceHolidayUnit,
@@ -29,8 +31,13 @@ import {
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
 	controllers: [ScheduleTemplatesController, HolidayCalendarsController],
-	exports: [AttendanceConfigurationInputBinder],
+	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
 	providers: [
+		{
+			provide: AttendancePeriodFenceBinder,
+			useFactory: /** Bind the monthly publication fence to the current source transaction. */ () =>
+				new KyselyAttendancePeriodFenceBinder(),
+		},
 		{
 			provide: AttendanceConfigurationInputBinder,
 			inject: [WorkforceTimeContextBinder],

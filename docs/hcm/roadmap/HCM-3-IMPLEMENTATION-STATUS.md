@@ -34,6 +34,8 @@ The five holiday draft/read HTTP routes and migration 43 cursor extension are
 verified in [holiday API validation](../testing/HCM-3-HOLIDAY-API-VALIDATION.md).
 Dated Workforce/configuration input composition is verified in
 [input validation](../testing/HCM-3-CONFIGURATION-INPUT-VALIDATION.md).
+Migration 44 monthly periods, immutable lock bases and publication fences are
+verified in [period fence validation](../testing/HCM-3-PERIOD-FENCE-VALIDATION.md).
 Remaining configuration APIs/seeds, durable workday publication, domain handlers
 and the other app UIs remain pending.
 

@@ -95,6 +95,41 @@ case and subject locks serialize decision; roster scope/range locks serialize
 publication; period locking fences new calculation publication. Keep existing
 Access Control revocation lock ordering before domain locks to avoid deadlocks.
 
+## PERIOD-FENCES
+
+Attendance configuration/workday publication must share a monthly fence with
+period state changes before worker handlers can publish dated results. The physical
+`attendance_period` has tenant/id, month_start (first calendar day), generated
+month_end, state, revision, current_lock_id and timestamps; unique tenant/month.
+The tenant's single organization profile is implied by ownership, without a second
+organization scope. Period names/codes are derived month labels, not new policy.
+`attendance_period_lock` is append-only tenant/id/period_id/lock_number, input,
+output and reconciliation digests, supersedes_id, locked_at and locked_by_account_id.
+Tenant/period composite references keep both the current and superseded locks in
+the same month. Lock status derives from the current pointer; historical lock
+payloads never change.
+
+Writers take the existing tenant authority lock first, then ascending monthly
+advisory fences, then owner row locks. The fence key is tenant plus the explicit
+calendar month. Period insertion/state changes take the exclusive month fence;
+configuration/workday publication takes shared month fences over its full affected
+range before reading period snapshots. Reading does not take period row locks,
+which avoids a row/advisory lock inversion. A missing period is an explicit absent
+snapshot and is protected against concurrent insertion by the same fence. Absence
+is not an Open period and cannot authorize attendance correction/calculation.
+Preview input binds each month and present period ID/revision/state/current lock;
+Closing/Locked impact blocks ordinary configuration publication. Revalidation
+under the fence detects period creation and lifecycle changes after preview.
+
+SQL accepts only monthly ranges and declared lifecycle transitions, increments
+revision exactly once and preserves identity. Lock insertion requires Closing,
+sequential numbering and the exact previous current lock. Final Locked state
+requires that appended lock. The reopen transition remains fail-closed until the
+separately approved Attendance source case/delta adapter is composed; storage alone
+must never permit an unapproved reopen. The later source-case migration supplies
+its typed authority references. No period/lock endpoint or automatic monthly
+closure is implied by this prerequisite storage slice.
+
 ## CROSS-DOMAIN
 
 PublishedWorkday query returns employment,date,zone,revision,digest,source version
