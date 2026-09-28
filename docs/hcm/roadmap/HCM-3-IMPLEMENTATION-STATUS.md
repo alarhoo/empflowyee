@@ -5,6 +5,9 @@ admits all 23 designs; readiness does not mean the applications are implemented.
 
 ## Foundations
 
+Workforce's read-only time-context prerequisite is implemented and verified;
+see [projection validation](../testing/HCM-3-WORKFORCE-TIME-VALIDATION.md).
+
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
 | Scoped access grants and decision-time checks     | Implemented                          | [Validation](../testing/HCM-3-ACCESS-FOUNDATION-VALIDATION.md)     |

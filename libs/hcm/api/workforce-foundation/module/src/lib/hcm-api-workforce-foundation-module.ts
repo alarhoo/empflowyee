@@ -9,10 +9,12 @@ import {
 	OrgChartFieldPolicyBinder,
 	OrganisationStructure,
 	WorkforcePortBinder,
+	WorkforceTimeContextBinder,
 	WorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
 	KyselyWorkforcePortBinder,
+	KyselyWorkforceTimeContextBinder,
 	KyselyWorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import {
@@ -31,6 +33,12 @@ import {
 		OrgChartController,
 	],
 	providers: [
+		{
+			provide: WorkforceTimeContextBinder,
+			useFactory:
+				/** Bind the minimal read-only time projection without manufacturing a human actor for workers. */ () =>
+					new KyselyWorkforceTimeContextBinder(),
+		},
 		{
 			provide: WorkforceUnitOfWork,
 			inject: [HcmAccessDatabase, { token: OrgChartFieldPolicyBinder, optional: true }],
@@ -72,6 +80,7 @@ import {
 		},
 	],
 	exports: [
+		WorkforceTimeContextBinder,
 		WorkforceUnitOfWork,
 		OrganisationStructure,
 		IdentificationTypes,
