@@ -18,7 +18,9 @@ Policy/holiday storage and DTO projections are verified in
 [configuration storage validation](../testing/HCM-3-CONFIGURATION-STORAGE-VALIDATION.md).
 Reusable shifts and their persistence/projection are verified in
 [shift validation](../testing/HCM-3-SHIFT-VALIDATION.md).
-Workday resolution, command APIs, domain handlers and UI remain pending.
+Dated configuration selection and exact workday interval composition are verified
+in [workday interval validation](../testing/HCM-3-WORKDAY-INTERVAL-VALIDATION.md).
+Durable workday publication, command APIs, domain handlers and UI remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |

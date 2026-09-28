@@ -6,6 +6,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { migrateHcmDatabase, loadSqlMigrations } from '@empflowyee/hcm-api-database-migrations'
 import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
 import { KyselyAttendanceConfigurationReader } from './configuration-readers'
+import { KyselyAttendanceAssignmentReader } from './configuration-assignments'
 
 const tenant = 'local-dunder-mifflin',
 	actor = 'dunder-mifflin/account/toby'
@@ -549,4 +550,71 @@ it('projects a shift without tenant leakage or implicit minimum rest', /** A reu
 			).rows[0],
 		).toEqual({ relrowsecurity: true, relforcerowsecurity: true })
 	}
+})
+
+it('filters assignment inputs by publication, exact employment, effective date and tenant before resolution', /** Server selection must not inherit another employment configuration or expose unrelated source rows. */ async () => {
+	await runtime.query('BEGIN')
+	await runtime.query("SELECT set_config('hcm.tenant_id',$1,true)", [tenant])
+	await runtime.query(
+		"INSERT INTO hcm.attendance_policy(tenant_id,id,code,created_by_account_id) VALUES($1,'selection-policy','SELECTION',$2)",
+		[tenant, actor],
+	)
+	await runtime.query(
+		"INSERT INTO hcm.attendance_policy_version(tenant_id,id,policy_id,version_number,name,effective_from,effective_to,grace_in_minutes,grace_out_minutes,rounding,overtime_enabled,created_by_account_id) VALUES($1,'selection-v1','selection-policy',1,'Selection','2026-01-01','2026-12-31',0,0,'None',false,$2)",
+		[tenant, actor],
+	)
+	await runtime.query(
+		"UPDATE hcm.attendance_policy_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id=$2,publication_digest=repeat('a',64) WHERE tenant_id=$1 AND id='selection-v1'",
+		[tenant, actor],
+	)
+	await runtime.query(
+		"INSERT INTO hcm.attendance_policy_assignment(tenant_id,id,version_id,scope_kind,effective_from,effective_to,created_by_account_id) VALUES($1,'selection-tenant','selection-v1','Tenant','2026-01-01','2026-12-31',$2)",
+		[tenant, actor],
+	)
+	await runtime.query(
+		"INSERT INTO hcm.attendance_policy_assignment(tenant_id,id,version_id,scope_kind,employment_id,effective_from,effective_to,created_by_account_id) VALUES($1,'selection-jim','selection-v1','Employment','dunder-mifflin/employment/jim','2026-01-01','2026-12-31',$2),($1,'selection-pam','selection-v1','Employment','dunder-mifflin/employment/pam','2026-01-01','2026-12-31',$2)",
+		[tenant, actor],
+	)
+	await runtime.query('COMMIT')
+	const scope = {
+		employmentId: 'dunder-mifflin/employment/jim',
+		legalEntityId: 'unused',
+		assignments: [],
+	}
+	await projection.transaction().execute(
+		/** Read only matching candidates; the domain subsequently applies the declared precedence. */ async (
+			transaction,
+		) => {
+			await sql`SELECT set_config('hcm.tenant_id',${tenant},true)`.execute(transaction)
+			const reader = new KyselyAttendanceAssignmentReader(transaction, tenant)
+			expect(
+				(await reader.matching('Policy', '2026-01-01', scope)).map(
+					/** Compare safe assignment identities after server filtering. */ (item) => item.id,
+				),
+			).toEqual(['selection-jim', 'selection-tenant'])
+			expect(await reader.matching('Policy', '2027-01-01', scope)).toEqual([])
+			expect(
+				await new KyselyAttendanceAssignmentReader(transaction, 'foreign-tenant').matching(
+					'Policy',
+					'2026-01-01',
+					scope,
+				),
+			).toEqual([])
+			await sql`UPDATE hcm.attendance_policy_version SET state='Retired',revision=revision+1 WHERE tenant_id=${tenant} AND id='selection-v1'`.execute(
+				transaction,
+			)
+			expect(await reader.matching('Policy', '2026-01-01', scope)).toEqual([])
+		},
+	)
+	await projection.transaction().execute(
+		/** RLS context must be absent on the next pool checkout. */ async (transaction) => {
+			expect(
+				await new KyselyAttendanceAssignmentReader(transaction, tenant).matching(
+					'Policy',
+					'2026-01-01',
+					scope,
+				),
+			).toEqual([])
+		},
+	)
 })
