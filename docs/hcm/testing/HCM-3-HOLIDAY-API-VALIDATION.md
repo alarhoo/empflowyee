@@ -46,3 +46,19 @@ pnpm exec nx build hcm-api
 The test runner provisions and removes its disposable PostgreSQL database. Apply
 migrations explicitly through the documented deployment/migration procedure before
 using these endpoints against another database; ordinary API startup never migrates.
+
+## Browser draft client
+
+The Angular Attendance data-access library now exports `HolidayCalendarsApi` for
+these five implemented routes. It passes server-owned list filters/continuations,
+encodes exact root/version paths, and retains caller-provided idempotency keys and
+the loaded revision for draft replacement. It exposes no publication operation.
+Targeted Prettier, ESLint and the data-access TypeScript check pass; architecture
+and documentation verification also pass. This client has no new business screen
+or browser acceptance claim. The earlier 61/61 result above is historical: current
+readiness is 60/61 pending [DEC-HCM3-024](HCM-3-HOLIDAY-PUBLICATION-QUESTION.md).
+
+```sh
+pnpm exec eslint libs/hcm/web/attendance/data-access/src/lib/holiday-calendars-api.ts libs/hcm/web/attendance/data-access/src/index.ts
+pnpm exec tsc --noEmit --allowImportingTsExtensions -p libs/hcm/web/attendance/data-access/tsconfig.lib.json
+```
