@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "d9450c710c04c9a1df5beef92feb97b06e4cd5653864377de07ca72d76d4910b",
+			"sha256": "5748d852630385aa1027e43a215aba8f98b78d2ec7d04709515b7245fe0683c8",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-QUERY-REVIEW.md; Codex technical review under existing delegated authority; additive typed holiday cursor support and exact query semantics, no new business decision or separate human approval."
 		},
 		{
 			"document": "TRACE",
@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DOMAIN",
-			"sha256": "5bbe647e2996f35ad4e32f371aa92d9885fb9161df3eb8956578f0803b0f5c0e",
+			"sha256": "d0087930041b77f80859746f98a3287f609a525cf1013ddcc8de9c7f5b7c7125",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-REVIEW.md; reviewed incomplete draft proposal representation without invented break placement or zone under existing delegated technical authority; no new business policy or separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-QUERY-REVIEW.md; Codex technical review under existing delegated authority; additive typed holiday cursor support and exact query semantics, no new business decision or separate human approval."
 		},
 		{
 			"document": "LOGICAL",
@@ -92,11 +92,11 @@
 		},
 		{
 			"document": "SQL",
-			"sha256": "a035650f27e4d68d1c593bb1c90a4802ddf7042571ab357942dbed96ce10ab87",
+			"sha256": "051c0b3341f6a612acf6977236246e8ab08b779be43bf0cb36dc5dc143ad8dfb",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-REVIEW.md; reviewed incomplete draft proposal representation without invented break placement or zone under existing delegated technical authority; no new business policy or separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-QUERY-REVIEW.md; Codex technical review under existing delegated authority; additive typed holiday cursor support and exact query semantics, no new business decision or separate human approval."
 		},
 		{
 			"document": "WORKER",

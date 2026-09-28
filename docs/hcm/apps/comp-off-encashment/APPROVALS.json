@@ -92,11 +92,11 @@
 		},
 		{
 			"document": "SQL",
-			"sha256": "a035650f27e4d68d1c593bb1c90a4802ddf7042571ab357942dbed96ce10ab87",
+			"sha256": "051c0b3341f6a612acf6977236246e8ab08b779be43bf0cb36dc5dc143ad8dfb",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-REVIEW.md; reviewed incomplete draft proposal representation without invented break placement or zone under existing delegated technical authority; no new business policy or separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-QUERY-REVIEW.md; Codex technical review under existing delegated authority; additive typed holiday cursor support and exact query semantics, no new business decision or separate human approval."
 		},
 		{
 			"document": "WORKER",

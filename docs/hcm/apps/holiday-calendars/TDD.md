@@ -34,6 +34,21 @@ from a resource DTO are rejected for that resource. Filter IDs, state and bounde
 date range only. Calendar filters use from/to and authorized employment; configuration
 lists use code/name/state. The common cursor contract binds all query parameters.
 
+Holiday lists use the latest version of each calendar before filters, with literal
+case-insensitive code/name substring filters and exact id/state filters. Sort is
+code/name/state/id, optional asc/desc, default code:asc and same-direction root-ID
+tie-break. Limit defaults to 25 and rejects values outside 1-100. Duplicate or
+unknown parameters fail. Exact detail uses the declared root/version path and
+accepts no query; writes accept no query. Source-version selection for successor
+is in the body. No latest-version substitution is allowed on mutation.
+
+Continuation uses the existing Attendance hash-only cursor mechanics, bound to
+actor, current tenant-wide grant, app, normalized query and monotonic source
+revision generation, with a 15-minute expiry. A calendar mutation invalidates its
+continuations. Cursor schema uses generated typed root references selected by the
+closed app code, with tenant-composite FKs for both calendars and schedules.
+This adds Holiday support without changing existing schedule handle semantics.
+
 ## NATIVE
 
 Installed capability evidence is [COMMON UX](../../architecture/TDD-HCM-3-COMMON.md#ux).

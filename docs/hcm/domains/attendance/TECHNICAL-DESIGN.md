@@ -126,8 +126,10 @@ preview, then advances the version in the same transaction. Expired, conflicting
 locked-impact or changed-source previews cannot be consumed. Receipt, reason,
 audit and all business effects roll back together on any failure.
 
-Schedule/template list continuation uses an opaque, server-stored random
-256-bit handle, not unsigned browser-encoded sort data. Only its SHA-256 digest
+Schedule/template and holiday-calendar list continuation uses an opaque, server-stored random
+256-bit handle, not unsigned browser-encoded sort data. Calendar lists follow the
+same latest-version-before-filter rule and closed code/name/state/id sort contract;
+exact calendar detail remains the declared root/version path without query. Only its SHA-256 digest
 is stored in `attendance_query_cursor`, with tenant/actor, allowlisted app,
 binding digest, last sort value/root ID and a 15-minute expiry. Binding covers
 the current authorized tenant-wide grant, permission, every normalized filter,

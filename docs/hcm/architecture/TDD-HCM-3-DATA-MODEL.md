@@ -52,7 +52,10 @@ Planner cursor unique tenant/workload/rule, last_planned_date and revision.
 
 Attendance's disposable `attendance_query_cursor` stores only a random handle
 digest, actor/app/query-authority binding, bounded sort continuation and expiry.
-It has tenant RLS and composite actor/root FKs; no runtime UPDATE. DELETE is
+It has tenant RLS and composite actor/root FKs; no runtime UPDATE. Its closed
+app allowlist selects generated typed schedule/calendar root-reference columns
+from the stored last ID, so every cursor retains a real tenant-composite FK
+without letting a caller choose an unrelated owner family. DELETE is
 limited by the adapter to bounded expired cache cleanup. Its owning TDD defines
 authentication and source revision binding; it is never a permission credential.
 
