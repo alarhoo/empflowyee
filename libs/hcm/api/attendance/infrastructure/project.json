@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-attendance-infrastructure",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/attendance/infrastructure/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:infrastructure"],
+	"// targets": "to see all targets run: nx show project hcm-api-attendance-infrastructure --web",
+	"targets": {}
+}

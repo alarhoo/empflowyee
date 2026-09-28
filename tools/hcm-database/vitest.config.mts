@@ -6,6 +6,7 @@ export default mergeConfig(
 	defineConfig({
 		test: {
 			include: [
+				'libs/hcm/api/attendance/**/*.database.spec.ts',
 				'libs/hcm/api/database/**/*.spec.ts',
 				'libs/hcm/api/runtime/**/*.database.spec.ts',
 				'libs/hcm/api/access-control/**/*.spec.ts',

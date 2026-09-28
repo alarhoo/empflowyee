@@ -10,7 +10,9 @@ see [projection validation](../testing/HCM-3-WORKFORCE-TIME-VALIDATION.md).
 
 Attendance's schedule contract and exact-time calculation slice is implemented;
 see [time validation](../testing/HCM-3-ATTENDANCE-TIME-VALIDATION.md).
-Its configuration persistence, APIs, domain handlers and UI remain pending.
+Schedule storage and the version reader are also verified in
+[storage validation](../testing/HCM-3-SCHEDULE-STORAGE-VALIDATION.md).
+Shift/policy/holiday persistence, command APIs, domain handlers and UI remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |

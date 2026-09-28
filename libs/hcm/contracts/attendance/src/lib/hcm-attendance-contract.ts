@@ -31,6 +31,13 @@ export interface ScheduleDraft {
 	minimumRestMode?: 'Warn' | 'Block'
 	days: ScheduleDay[]
 }
+export interface ScheduleVersionView extends ScheduleDraft {
+	id: string
+	versionId: string
+	versionNumber: number
+	revision: number
+	state: AttendanceConfigurationState
+}
 export interface ExactInterval {
 	startMilliseconds: number
 	endMilliseconds: number

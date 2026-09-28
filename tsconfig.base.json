@@ -330,7 +330,10 @@
 				"./libs/hcm/web/workforce-foundation/feature-identification-types/src/index.ts"
 			],
 			"@empflowyee/hcm-attendance-contract": ["./libs/hcm/contracts/attendance/src/index.ts"],
-			"@empflowyee/hcm-api-attendance-domain": ["./libs/hcm/api/attendance/domain/src/index.ts"]
+			"@empflowyee/hcm-api-attendance-domain": ["./libs/hcm/api/attendance/domain/src/index.ts"],
+			"@empflowyee/hcm-api-attendance-infrastructure": [
+				"./libs/hcm/api/attendance/infrastructure/src/index.ts"
+			]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]
