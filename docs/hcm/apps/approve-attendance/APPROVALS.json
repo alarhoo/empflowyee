@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DOMAIN",
-			"sha256": "5e9b1f87ffa9ce6c2bee458bea34c95b56ba3ada1bdabd4d66a4a55480b9eb2b",
+			"sha256": "e661a2177cab40f9569cee15a8537d251036b88f64343bbec7a11698d14fa090",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-ATTENDANCE-TIME-VALIDATION.md; reviewed exact overlap/day-offset representation and server Temporal selection under the existing delegated technical authority; product decisions unchanged, no additional human approval claimed."
 		},
 		{
 			"document": "LOGICAL",

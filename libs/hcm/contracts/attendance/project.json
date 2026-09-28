@@ -1,0 +1,9 @@
+{
+	"name": "hcm-attendance-contract",
+	"$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/contracts/attendance/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:universal", "domain:attendance", "type:contract"],
+	"// targets": "to see all targets run: nx show project hcm-attendance-contract --web",
+	"targets": {}
+}

@@ -328,7 +328,9 @@
 			],
 			"@empflowyee/hcm-web-workforce-foundation-feature-identification-types": [
 				"./libs/hcm/web/workforce-foundation/feature-identification-types/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-attendance-contract": ["./libs/hcm/contracts/attendance/src/index.ts"],
+			"@empflowyee/hcm-api-attendance-domain": ["./libs/hcm/api/attendance/domain/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

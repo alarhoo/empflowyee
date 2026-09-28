@@ -94,6 +94,29 @@ reject unknown fields. Read DTOs add id/revision/state and contain no DB-only ke
 
 ## STORAGE
 
+Implementation precision for the existing segment contract: `overlapOffset` is
+`{start?: Earlier|Later,end?: Earlier|Later}` so the two endpoints can identify
+different occurrences of a repeated wall-clock hour. It never authorizes shifting
+a nonexistent time. The first segment starts on workDate; each later contiguous
+segment starts on the preceding segment's end day. `endDayOffset` is relative to
+workDate (0 or 1). This supports breaks after midnight without a guessed date.
+Local continuity is checked in the shared parser; actual instant ordering and
+continuity are checked during dated resolution. A fold-crossing interval may have
+an earlier end wall time only with explicit Earlier start/Later end and a positive
+resolved duration. Missing ambiguity choices block dated resolution.
+
+The server domain uses pinned `@js-temporal/polyfill` 0.5.1 because the repository
+Node 24 runtime does not expose native Temporal. It compares both disambiguated
+occurrences back to the requested wall time, rejects gaps, requires overlap
+selection and retains actual endpoint offsets. No global Temporal replacement,
+timezone sampling heuristic or browser/server implementation import is used.
+The dependency and semantics were checked against the
+[maintainer release](https://github.com/js-temporal/temporal-polyfill/releases/tag/v0.5.1)
+and [Temporal timezone specification](https://tc39.es/proposal-temporal/docs/timezone.html).
+Integer millisecond parsing, interval union/subtraction and BigInt totals preserve
+sub-minute evidence. These are technical representations of DEC-HCM3-003/004,
+not additional business policy or an implementation acceptance claim.
+
 The physical TDD defines fields/constraints/RLS/indexes and immutable publication.
 Queries use Kysely only in Attendance infrastructure. One command transaction
 locks current authorization then subject/period, validates preview/input digest,

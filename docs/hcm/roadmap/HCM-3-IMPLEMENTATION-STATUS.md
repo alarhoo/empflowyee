@@ -8,6 +8,10 @@ admits all 23 designs; readiness does not mean the applications are implemented.
 Workforce's read-only time-context prerequisite is implemented and verified;
 see [projection validation](../testing/HCM-3-WORKFORCE-TIME-VALIDATION.md).
 
+Attendance's schedule contract and exact-time calculation slice is implemented;
+see [time validation](../testing/HCM-3-ATTENDANCE-TIME-VALIDATION.md).
+Its configuration persistence, APIs, domain handlers and UI remain pending.
+
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
 | Scoped access grants and decision-time checks     | Implemented                          | [Validation](../testing/HCM-3-ACCESS-FOUNDATION-VALIDATION.md)     |
