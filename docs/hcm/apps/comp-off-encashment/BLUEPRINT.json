@@ -1,0 +1,415 @@
+{
+	"formatVersion": 1,
+	"appCode": "COMP_OFF_ENCASHMENT",
+	"domain": "leave",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/comp-off-encashment/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/comp-off-encashment/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/comp-off-encashment/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/comp-off-encashment/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "LOGICAL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/DATA-MODEL.md"
+		},
+		{
+			"id": "MODEL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/DOMAIN-MODEL.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/BUSINESS-RULES.md"
+		},
+		{
+			"id": "STATE",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/STATE-MODEL.md"
+		},
+		{
+			"id": "ACCESS",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/ACCESS-MODEL.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md"
+		},
+		{
+			"id": "SQL",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md"
+		},
+		{
+			"id": "WORKER",
+			"kind": "foundation",
+			"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md"
+		},
+		{
+			"id": "BASELINE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md"
+		},
+		{
+			"id": "RESOLUTIONS",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md"
+		},
+		{
+			"id": "AUTHORITY",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md"
+		},
+		{
+			"id": "SEEDPOLICY",
+			"kind": "domain",
+			"path": "docs/hcm/domains/leave/INITIAL-POLICY-BASELINE.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		}
+	],
+	"route": "/leave/comp-off-encashment",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#FLOORPLAN"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"Form",
+				"FormItem",
+				"DatePicker",
+				"TimePicker",
+				"DateTimePicker",
+				"Select",
+				"ComboBox",
+				"TextArea",
+				"FileUploader"
+			],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent from @fundamental-ngx/core/object-status"],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["FlexibleColumnLayout"],
+			"ref": "TDD#NATIVE"
+		}
+	],
+	"contracts": [
+		{
+			"id": "COMP_OFF_ENCASHMENT-API",
+			"owner": "leave",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "leave-DTO",
+			"owner": "leave",
+			"ref": "DOMAIN#SCHEMAS"
+		},
+		{
+			"id": "HCM3-TRANSPORT",
+			"owner": "runtime",
+			"ref": "COMMON#CONTRACTS"
+		}
+	],
+	"data": [
+		{
+			"id": "COMP_OFF_ENCASHMENT-PERSISTENCE",
+			"owner": "leave",
+			"ref": "TDD#DATA"
+		},
+		{
+			"id": "HCM3-SQL",
+			"owner": "database",
+			"ref": "SQL#CONSTRAINTS"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.leave.comp-off-encashment.draft",
+			"owner": "leave",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.leave.comp-off-encashment.manage",
+			"owner": "leave",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.leave.comp-off-encashment.preview",
+			"owner": "leave",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.leave.comp-off-encashment.read",
+			"owner": "leave",
+			"ref": "TDD#AUTHORIZATION"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-leave-contract",
+			"root": "libs/hcm/contracts/leave",
+			"tags": ["product:hcm", "runtime:universal", "domain:leave", "type:contract"]
+		},
+		{
+			"name": "hcm-web-leave-data-access",
+			"root": "libs/hcm/web/leave/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:leave", "type:data-access"]
+		},
+		{
+			"name": "hcm-web-leave-feature-comp-off-encashment",
+			"root": "libs/hcm/web/leave/feature-comp-off-encashment",
+			"tags": ["product:hcm", "runtime:web", "domain:leave", "type:feature"]
+		},
+		{
+			"name": "hcm-api-leave-domain",
+			"root": "libs/hcm/api/leave/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:leave", "type:domain"]
+		},
+		{
+			"name": "hcm-api-leave-application",
+			"root": "libs/hcm/api/leave/application",
+			"tags": ["product:hcm", "runtime:api", "domain:leave", "type:application"]
+		},
+		{
+			"name": "hcm-api-leave-infrastructure",
+			"root": "libs/hcm/api/leave/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:leave", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-leave-transport",
+			"root": "libs/hcm/api/leave/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:leave", "type:transport"]
+		},
+		{
+			"name": "hcm-api-leave-module",
+			"root": "libs/hcm/api/leave/module",
+			"tags": ["product:hcm", "runtime:api", "domain:leave", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "CURRENT-FOUNDATION-CONTRACTS",
+			"state": "resolved",
+			"ref": "COMMON#FOUNDATIONS"
+		},
+		{
+			"id": "CURRENT-AUTHORITY",
+			"state": "resolved",
+			"ref": "COMMON#AUTHORIZATION"
+		},
+		{
+			"id": "WORKLOAD-TRUST",
+			"state": "resolved",
+			"ref": "COMMON#WORKLOAD"
+		},
+		{
+			"id": "OWNING-DOMAIN",
+			"state": "resolved",
+			"ref": "DOMAIN#ALGORITHM"
+		},
+		{
+			"id": "EXPLICIT-SQL",
+			"state": "resolved",
+			"ref": "SQL#MIGRATIONS"
+		},
+		{
+			"id": "WORKER-ADR",
+			"state": "resolved",
+			"ref": "WORKER#Decision"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-HCM3-006",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-010",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-016",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-019",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-021",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-001",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-002",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-009",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-017",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-018",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-COMP-OFF-ENCASHMENT-001",
+		"FDD#REQ-COMP-OFF-ENCASHMENT-002",
+		"FDD#REQ-COMP-OFF-ENCASHMENT-003",
+		"FDD#REQ-COMP-OFF-ENCASHMENT-004",
+		"FDD#REQ-COMP-OFF-ENCASHMENT-005",
+		"FDD#REQ-COMP-OFF-ENCASHMENT-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-COMP-OFF-ENCASHMENT-001",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-COMP-OFF-ENCASHMENT-001"
+		},
+		{
+			"id": "TEST-COMP-OFF-ENCASHMENT-002",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-COMP-OFF-ENCASHMENT-002"
+		},
+		{
+			"id": "TEST-COMP-OFF-ENCASHMENT-003",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-COMP-OFF-ENCASHMENT-003"
+		},
+		{
+			"id": "TEST-COMP-OFF-ENCASHMENT-004",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-COMP-OFF-ENCASHMENT-004"
+		},
+		{
+			"id": "TEST-COMP-OFF-ENCASHMENT-005",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-COMP-OFF-ENCASHMENT-005"
+		},
+		{
+			"id": "TEST-COMP-OFF-ENCASHMENT-006",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-COMP-OFF-ENCASHMENT-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-COMP-OFF-ENCASHMENT-001",
+			"design": "TDD#DESIGN-001",
+			"tests": ["TEST-COMP-OFF-ENCASHMENT-001"]
+		},
+		{
+			"requirement": "FDD#REQ-COMP-OFF-ENCASHMENT-002",
+			"design": "TDD#DESIGN-002",
+			"tests": ["TEST-COMP-OFF-ENCASHMENT-002"]
+		},
+		{
+			"requirement": "FDD#REQ-COMP-OFF-ENCASHMENT-003",
+			"design": "TDD#DESIGN-003",
+			"tests": ["TEST-COMP-OFF-ENCASHMENT-003"]
+		},
+		{
+			"requirement": "FDD#REQ-COMP-OFF-ENCASHMENT-004",
+			"design": "TDD#DESIGN-004",
+			"tests": ["TEST-COMP-OFF-ENCASHMENT-004"]
+		},
+		{
+			"requirement": "FDD#REQ-COMP-OFF-ENCASHMENT-005",
+			"design": "TDD#DESIGN-005",
+			"tests": ["TEST-COMP-OFF-ENCASHMENT-005"]
+		},
+		{
+			"requirement": "FDD#REQ-COMP-OFF-ENCASHMENT-006",
+			"design": "TDD#DESIGN-006",
+			"tests": ["TEST-COMP-OFF-ENCASHMENT-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-3-comp-off-encashment",
+		"commits": [
+			"feat(hcm-leave): add comp-off-encashment contracts and domain behavior",
+			"feat(hcm-leave): persist comp-off-encashment with authorization and receipts",
+			"feat(hcm-leave): add comp-off-encashment native application experience",
+			"test(hcm-leave): verify comp-off-encashment acceptance and document evidence"
+		]
+	}
+}

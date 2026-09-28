@@ -1,0 +1,182 @@
+{
+	"formatVersion": 1,
+	"appCode": "LEAVE_POLICIES",
+	"approvals": [
+		{
+			"document": "FDD",
+			"sha256": "9172e818220762e647dc492e3eccbf25643e6f756643ec8b150e312f09b1999c",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "TDD",
+			"sha256": "1de84a02ee671ab967222faf180a26f0b7db004eae129cd70ada7b3213a0a13f",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "TRACE",
+			"sha256": "bf898d8f2b0ac8b357adc0bdb47535e4203f1c4fcf0d3d1feacba399911ca3f6",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "DECISIONS",
+			"sha256": "831d5d4f000f3a38bcdf2bb134498a1bdc55eeadc9eed94cc318a3561acc5d77",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "DOMAIN",
+			"sha256": "b132219be6db46ab55f7bdf3b1c6dab33c9c6f636a224eda37e85d05c0159b10",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "LOGICAL",
+			"sha256": "6a7ac736d77abbd8d83bed12267be2c0f50103e8a0d433f969fd378cc9c91364",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "MODEL",
+			"sha256": "b95b21c53d652c8ffa5b817e3e1730036a38dbe8ca3f908fc9bbb72207152ec9",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "RULES",
+			"sha256": "c78b8b31d37cb2f37b7c8a10f6439563bffc14fb1db93f88c759dca307b4820c",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "STATE",
+			"sha256": "5d8b65a3904982411fc43189b556a9cc78b7a850631f3bffa67af50e10fbd82e",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "ACCESS",
+			"sha256": "3ddf9a0a7154fdf3d21047f3d7b5511f1e1f41a13a143025fdc6169d3fcea0d7",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "COMMON",
+			"sha256": "f4990bae621bab181ad05eb173909a5c4c725f077ef80be9e902a243000649bb",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "SQL",
+			"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "WORKER",
+			"sha256": "83e545b2570f10c8d7c82ace033825eedfa63d1a95f003e8b19d175b72eb9a1f",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "BASELINE",
+			"sha256": "fccc6efe8fa8a3a2d9c84247ce1eb9d0c2aaf2fae5be1a7579bc364efb8bf2ee",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "RESOLUTIONS",
+			"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "AUTHORITY",
+			"sha256": "022f4aa0bb3f8902b01c74e987dc21c95c2726d05196cb132418606be71eed3c",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "SEEDPOLICY",
+			"sha256": "855f91da64fd6912c5e3997777037944d91ea2ab35a0b76c5dd01b6b28f48cc6",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "FOUNDATION01",
+			"sha256": "14ed1c7f2e6f9e7bfc8a04b474baabb5e59d471bad2b193e8536075bd655f8ea",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "FOUNDATION02",
+			"sha256": "5757eed14d87c54023ea15293fbeed18535656b1d2a38b0d1bb1a170691c23b8",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "FOUNDATION03",
+			"sha256": "ab864a5c3fab3bda9d30373a485e77350e1078fc40857490a81b5bbf266b7db4",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "FOUNDATION04",
+			"sha256": "aec71045cedae3ff1736120c796e31137802d9b597715cce9ac0af902bc86e3c",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		},
+		{
+			"document": "BLUEPRINT",
+			"sha256": "0aa1b529d2de8f223485237ade39a9cd542d28f43b7ffd2a95c3603df2bd8006",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-27",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+		}
+	]
+}
