@@ -94,6 +94,33 @@ reject unknown fields. Read DTOs add id/revision/state and contain no DB-only ke
 
 ## STORAGE
 
+Configuration representation: `candidateRule` is a closed union of
+`{source: LineManager}`, `{source: ManagerLevel,managerLevel}`,
+`{source: Function,functionCode}` and `{source: NamedUser,accountId}` from
+AttendanceApprovalRule's logical selector fields. Manager levels and stages are
+positive integers; stage numbers are contiguous per subject, and array order
+identifies slots within a stage. These selectors never grant authority. Correction,
+Adjustment, Overtime, AnomalyWaiver and PeriodReopen rules must be independent.
+An enabled overtime policy requires an independent LineManager/ManagerLevel rule;
+missing rules for any required case yield an unavailable configuration, never an
+implicit approval. Disabled overtime has only `{enabled:false}`; changing to enabled
+requires explicit qualification, nonnegative cap and preapproval boolean. Monetary,
+offline, device, location-capture and auto-close fields are not accepted.
+
+Holiday partial endpoints support the same optional `overlapOffset` object as
+schedule endpoints. Partial wall intervals remain ordered within one observed
+date; actual instants must also be ordered. Missing choices at a repeated endpoint
+block resolution. Both dates are explicit; only observedDate determines applicability
+and must lie within the version's effective dates. Actual dates may differ across
+the year boundary. Optional regionCode is an exact workforce region selector,
+maximum 120 characters, without jurisdiction inference; an optional locationId
+is tenant-owned. Both selectors, when supplied, must match. Names and function
+codes have a 120-character bound; priority is a signed 32-bit integer. Higher
+priority wins each intersecting interval; any matching equal-priority intersection
+is rejected even if a higher-priority entry also covers it. Adjacent half-open
+intervals do not collide. Scope/zone-dependent collision checks run in preview
+and dated resolution, not solely in browser field validation.
+
 Implementation precision for the existing segment contract: `overlapOffset` is
 `{start?: Earlier|Later,end?: Earlier|Later}` so the two endpoints can identify
 different occurrences of a repeated wall-clock hour. It never authorizes shifting

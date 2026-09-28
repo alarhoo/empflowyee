@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DOMAIN",
-			"sha256": "e661a2177cab40f9569cee15a8537d251036b88f64343bbec7a11698d14fa090",
+			"sha256": "712c27881d6ee4cd4f90d2ac15ae55c34422eef878be501f2f8c0ff8450ce010",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-ATTENDANCE-TIME-VALIDATION.md; reviewed exact overlap/day-offset representation and server Temporal selection under the existing delegated technical authority; product decisions unchanged, no additional human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-POLICY-HOLIDAY-VALIDATION.md; reviewed typed candidate selectors and holiday endpoint/scope representation under existing delegated technical authority; no new product decision or separate human approval claimed."
 		},
 		{
 			"document": "LOGICAL",
