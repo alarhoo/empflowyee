@@ -6,6 +6,7 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	computed,
+	effect,
 	inject,
 	signal,
 	contentChildren,
@@ -21,6 +22,7 @@ import { Tab } from '@fundamental-ngx/ui5-webcomponents/tab'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
 import { Title } from '@fundamental-ngx/ui5-webcomponents/title'
 import { Text } from '@fundamental-ngx/ui5-webcomponents/text'
+import { Avatar } from '@fundamental-ngx/ui5-webcomponents/avatar'
 import { Toolbar } from '@fundamental-ngx/ui5-webcomponents/toolbar'
 import { ToolbarButton } from '@fundamental-ngx/ui5-webcomponents/toolbar-button'
 import { BusyIndicator } from '@fundamental-ngx/ui5-webcomponents/busy-indicator'
@@ -53,6 +55,7 @@ export interface HcmObjectAction {
 		Button,
 		Title,
 		Text,
+		Avatar,
 		Toolbar,
 		ToolbarButton,
 		NgTemplateOutlet,
@@ -85,11 +88,17 @@ export class HcmObjectPage {
 	}
 
 	readonly title = input.required<string>()
+	/** Optional application label above an object's identity. */
+	readonly contextLabel = input('')
+	/** Optional initials beside the expanded and snapped object headings. */
+	readonly avatarInitials = input('')
 	readonly summary = input('')
 	readonly state = input<'content' | 'loading' | 'empty' | 'error' | 'denied' | 'unavailable'>(
 		'content',
 	)
 	readonly readOnly = input(false)
+	/** Mount only the active section when a feature opts into lazy tab content. */
+	readonly lazySections = input(false)
 	readonly showFooter = input(false)
 	readonly actions = input<readonly HcmObjectAction[]>([])
 	readonly errorMessage = input('This object could not be loaded. Try again.')
@@ -97,6 +106,41 @@ export class HcmObjectPage {
 	readonly retry = output<void>()
 	readonly sectionChange = output<string>()
 	readonly sections = contentChildren(HcmObjectSection)
+	readonly selectedSection = signal('')
+	/** Drop a stale selection when the feature clears or removes its projected sections. */
+	constructor() {
+		effect(
+			/** Prevent a removed section from being selected again after a context reload. */ () => {
+				const selected = this.selectedSection()
+				if (
+					selected &&
+					!this.sections().some(
+						/** Keep only a currently projected section identity. */ (section) =>
+							section.id() === selected,
+					)
+				)
+					this.selectedSection.set('')
+			},
+		)
+	}
+	/** Render the selected section only; fall back when conditional sections disappear. */
+	readonly activeSection = computed(
+		/** Preserve a valid selection while the feature refreshes its content. */ () =>
+			this.sections()
+				.find(
+					/** Match the native tab's stable section identity. */ (section) =>
+						section.id() === this.selectedSection(),
+				)
+				?.id() ??
+			this.sections()[0]?.id() ??
+			'',
+	)
+	/** Keep Angular content and native tab selection in sync without mounting inactive forms. */
+	selectSection(id: string): void {
+		if (!id) return
+		this.selectedSection.set(id)
+		this.sectionChange.emit(id)
+	}
 	readonly navigationAction = computed(
 		/** Separate closing a detail column from business commands such as closing a review. */ () =>
 			this.actions().find(

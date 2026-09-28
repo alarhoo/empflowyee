@@ -7,17 +7,50 @@
 		footer: { role: 'region', name: title() + ' footer' },
 	}">
 	<ui5-dynamic-page-title slot="titleArea">
-		<ui5-title
-			slot="heading"
-			level="H1">
-			{{ title() }}
-		</ui5-title>
-		<ui5-title
-			slot="snappedHeading"
-			level="H2">
-			{{ title() }}
-		</ui5-title>
-		<ui5-text slot="subheading">{{ summary() }}</ui5-text>
+		@if (contextLabel()) {
+			<ui5-text slot="breadcrumbs">{{ contextLabel() }}</ui5-text>
+		}
+		@if (avatarInitials()) {
+			<div
+				slot="heading"
+				class="object-heading">
+				<ui5-avatar
+					size="L"
+					[initials]="avatarInitials()"
+					[accessibleName]="title()"></ui5-avatar>
+				<div class="object-heading-copy">
+					<ui5-title
+						level="H1"
+						size="H3">
+						{{ title() }}
+					</ui5-title>
+					@if (summary()) {
+						<ui5-text>{{ summary() }}</ui5-text>
+					}
+				</div>
+			</div>
+			<div
+				slot="snappedHeading"
+				class="object-heading">
+				<ui5-avatar
+					size="S"
+					[initials]="avatarInitials()"
+					[accessibleName]="title()"></ui5-avatar>
+				<ui5-title level="H2">{{ title() }}</ui5-title>
+			</div>
+		} @else {
+			<ui5-title
+				slot="heading"
+				level="H1">
+				{{ title() }}
+			</ui5-title>
+			<ui5-title
+				slot="snappedHeading"
+				level="H2">
+				{{ title() }}
+			</ui5-title>
+			<ui5-text slot="subheading">{{ summary() }}</ui5-text>
+		}
 		<ng-content select="[hcmKeyInfo]" />
 		<ui5-toolbar
 			slot="actionsBar"
@@ -58,22 +91,24 @@
 		<ui5-tabcontainer
 			tabLayout="Inline"
 			contentBackgroundDesign="Transparent"
-			(ui5TabSelect)="sectionChange.emit($event.detail.tab.getAttribute('data-section') || '')">
+			(ui5TabSelect)="selectSection($event.detail.tab.getAttribute('data-section') || '')">
 			@for (section of sections(); track section.id()) {
 				<ui5-tab
 					[text]="section.label()"
 					[attr.data-section]="section.id()"
-					[selected]="$first">
-					<section
-						class="object-section"
-						[attr.aria-label]="section.label()">
-						@if (readOnly()) {
-							<ui5-message-strip [hideCloseButton]="true">
-								Read-only view. Changes are not available.
-							</ui5-message-strip>
-						}
-						<ng-container [ngTemplateOutlet]="section.template" />
-					</section>
+					[selected]="section.id() === activeSection()">
+					@if (!lazySections() || section.id() === activeSection()) {
+						<section
+							class="object-section"
+							[attr.aria-label]="section.label()">
+							@if (readOnly()) {
+								<ui5-message-strip [hideCloseButton]="true">
+									Read-only view. Changes are not available.
+								</ui5-message-strip>
+							}
+							<ng-container [ngTemplateOutlet]="section.template" />
+						</section>
+					}
 				</ui5-tab>
 			}
 		</ui5-tabcontainer>

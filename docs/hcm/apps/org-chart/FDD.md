@@ -16,7 +16,7 @@ The catalogue title remains provisional; no rename is made here.
 
 ## JOURNEY
 
-1. Open the chart; the begin column shows root nodes: current primary assignments without a current primary solid manager line.
+1. Open the connected chart; the begin column shows root nodes: current primary assignments without a current primary solid manager line. Switch between Chart and Tree without losing loaded branches or selection.
 2. Expand a node to load its direct reports in pages; or search by name or worker number to reveal a person’s path from the root.
 3. Select a node; the mid column shows the person’s organisation-visible details and direct reports, deep-linked by assignment.
 4. Follow the manager link or a direct report to move through the chart.
@@ -28,6 +28,11 @@ The catalogue title remains provisional; no rename is made here.
 Build the hierarchy from current primary solid reporting lines as of today in the organisation time zone. Children load in pages of 50 sorted by display name with a _Load more_ item.
 
 Acceptance: Multiple roots render; closed and future lines are excluded; a manager with 120 reports needs three bounded requests; no request loads the whole tenant.
+
+Chart is the default presentation, with connected person cards, zoom, fit/reset
+and a locally scrollable canvas. Expand/collapse loads the same paged reports as
+the retained Tree presentation. The first expandable root opens initially so the
+reporting connection is visible. Each card opens the existing person details.
 
 <a id="req-org-chart-002"></a>
 

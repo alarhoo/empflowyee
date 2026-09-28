@@ -52,6 +52,7 @@ export default defineConfig({
 			'libs/hcm/api/runtime/infrastructure/src/lib/worker-config.spec.ts',
 			'libs/hcm/api/runtime/module/src/lib/hcm-api-runtime-module.spec.ts',
 			'libs/hcm/contracts/runtime/**/*.spec.ts',
+			'libs/hcm/contracts/employee/**/*.spec.ts',
 		],
 		testTimeout: 15000,
 	},

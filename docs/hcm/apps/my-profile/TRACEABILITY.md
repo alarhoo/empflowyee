@@ -23,7 +23,10 @@ Setup: versioned Dunder Mifflin seeds or isolated test fixtures; tenants A and B
 
 Exercise: The DTO equals the Self allowlist; an account without a linked worker sees an explanatory empty state, not an error.
 
-Assert: Show every field whose effective visibility includes Self, grouped by section, with each field’s edit mode. Concurrent employments are shown separately.
+Assert: Show every field whose effective visibility includes Self in the grouped
+Personal view. Display values without personal mutation controls or maintenance
+labels until Edit profile is selected. The header uses primary employment facts;
+concurrent employments remain separate in Employment. Only the active tab is mounted.
 
 Evidence: record the test path, run and result in the implementation validation record. Nothing is executed by this design.
 
@@ -36,6 +39,10 @@ Setup: versioned Dunder Mifflin seeds or isolated test fixtures; tenants A and B
 Exercise: Emergency priority is unique per person; dependants are allowed only for relationship types eligible as dependants; fields in other modes reject edits with `field-not-editable`.
 
 Assert: Edit preferred name, blood group, personal email and mobile (saved as not verified), emergency contacts and dependants, and Direct custom fields.
+
+Check email and phone length boundaries, malformed formats, optional versus emergency
+phones, contact-type changes and correction feedback. Invalid add/edit attempts must
+send no browser command; malformed API commands must leave stored values unchanged.
 
 Evidence: record the test path, run and result in the implementation validation record. Nothing is executed by this design.
 

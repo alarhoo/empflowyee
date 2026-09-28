@@ -1,6 +1,28 @@
-# empFLOWyee HCM-3 Foundation v1.0.0
+# empFLOWyee
 
-This overlay gives Claude a clean current-domain foundation for HCM-3 and lets it start without rediscovering Leave, Attendance/Work Schedule, and Workflow/Approvals semantics.
+## Local HCM review
+
+Use the repository-pinned Node/pnpm runtime and Docker. Install dependencies with
+`pnpm install --frozen-lockfile`, then run `pnpm hcm:db:up` to explicitly apply
+pending SQL migrations and versioned development seeds to the persistent local
+database. This command preserves existing data; it does not reset the database.
+Start `pnpm dev:hcm-api` and `pnpm dev:hcm --host=127.0.0.1` in separate terminals.
+Open **http://acme.localhost:4302**.
+
+The default local persona is Jim Halpert. The profile menu offers Manager,
+HR Operations and Tenant Administrator personas. Inspect all applications shows
+all catalogue entries; planned apps remain unavailable and permissions still apply.
+See the [local launcher guide](tools/hcm-factory/README.md#runtime-catalogue-and-local-launchpad)
+for runtime configuration and smoke checks.
+
+## HCM-3 scope
+
+## Implemented screen updates
+
+Org Chart provides a connected D3 hierarchy and the native Tree view, selected
+with Chart / Tree controls. Both use the same paged API and person details.
+See the [Org Chart design](docs/hcm/apps/org-chart/TDD.md#connected-chart-composition)
+and [validation record](docs/hcm/testing/HCM-2-ORG-CHART-VALIDATION.md) for scope and checks.
 
 HCM-3 contains **23 HCM applications** across three domains:
 

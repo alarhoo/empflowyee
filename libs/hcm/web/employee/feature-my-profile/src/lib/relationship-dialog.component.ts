@@ -9,7 +9,7 @@ import {
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { forkJoin } from 'rxjs'
-import { form, FormField, maxLength, pattern, required } from '@angular/forms/signals'
+import { form, FormField, maxLength, pattern, required, validate } from '@angular/forms/signals'
 import { Dialog } from '@fundamental-ngx/ui5-webcomponents/dialog'
 import { Bar } from '@fundamental-ngx/ui5-webcomponents/bar'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
@@ -31,8 +31,13 @@ import {
 	employeeErrorMessage,
 	type RelationshipBody,
 } from '@empflowyee/hcm-web-employee-data-access'
-import type { MyReferenceItemDto, MyRelationshipDto } from '@empflowyee/hcm-employee-contract'
+import {
+	PROFILE_PHONE_MAX_LENGTH,
+	type MyReferenceItemDto,
+	type MyRelationshipDto,
+} from '@empflowyee/hcm-employee-contract'
 import { ProfileDialog } from './profile-dialog'
+import { contactValidationError, PROFILE_PHONE_HELP } from './contact-validation'
 
 export interface RelationshipDialogRequest {
 	relationship: MyRelationshipDto | null
@@ -76,6 +81,8 @@ export class RelationshipDialog extends ProfileDialog implements OnInit {
 	readonly genders = signal<MyReferenceItemDto[]>([])
 	readonly optionsState = signal<'loading' | 'ready' | 'error'>('loading')
 	readonly optionsError = signal('')
+	readonly phoneMaxLength = PROFILE_PHONE_MAX_LENGTH
+	readonly phoneHelp = PROFILE_PHONE_HELP
 	readonly model = signal({
 		relationshipType: '',
 		fullName: '',
@@ -107,10 +114,12 @@ export class RelationshipDialog extends ProfileDialog implements OnInit {
 			required(path.fullName)
 			pattern(path.fullName, /\S/)
 			maxLength(path.fullName, 150)
-			pattern(path.contactNumber, /^(\+?[0-9][0-9 ()-]{4,28}[0-9])?$/)
-			required(path.contactNumber, {
-				when: /** Emergency contacts need a number. */ () => this.emergencyContact(),
-			})
+			validate(
+				path.contactNumber,
+				/** Share the phone rules with personal contacts, including conditional requiredness. */ ({
+					value,
+				}) => contactValidationError('MobilePhone', value(), this.emergencyContact()),
+			)
 		},
 	)
 	readonly draft = new HcmDraft(

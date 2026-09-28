@@ -1,0 +1,57 @@
+:host {
+	display: block;
+	min-width: 0;
+}
+.chart-help {
+	margin: 0.5rem 0;
+	color: var(--sapContent_LabelColor);
+	font: var(--sapFontSize) var(--sapFontFamily);
+}
+.viewport {
+	overflow: auto;
+	position: relative;
+	height: clamp(22rem, 60vh, 48rem);
+	max-width: 100%;
+	border: 1px solid var(--sapGroup_ContentBorderColor);
+	border-radius: var(--sapElement_BorderCornerRadius);
+	background: var(--sapBackgroundColor);
+	overscroll-behavior: contain;
+}
+.viewport:focus-visible {
+	outline: 2px solid var(--sapContent_FocusColor);
+	outline-offset: -2px;
+}
+.extent {
+	position: relative;
+	overflow: hidden;
+}
+.canvas {
+	position: absolute;
+	inset: 0 auto auto 0;
+	transform-origin: top left;
+}
+.connectors {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+.connectors path {
+	fill: none;
+	stroke: var(--sapContent_NonInteractiveIconColor);
+	stroke-width: 2;
+}
+.node {
+	position: absolute;
+	box-sizing: border-box;
+}
+.node.selected {
+	outline: 2px solid var(--sapSelectedColor);
+	outline-offset: 2px;
+}
+.node-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.5rem 0.75rem;
+}

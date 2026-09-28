@@ -23,6 +23,11 @@ Exercise: Multiple roots render; closed and future lines are excluded; a manager
 
 Assert: Build the hierarchy from current primary solid reporting lines as of today in the organisation time zone. Children load in pages of 50 sorted by display name with a _Load more_ item.
 
+Also verify the connected Chart presentation, independent roots, expand/collapse,
+zoom/fit/reset and switching to Tree without losing loaded expansion or selection.
+Chart overflow must remain local at the supported widths, and both presentations
+must reveal searched people and open the same organisation-visible details.
+
 Evidence: record the test path, run and result in the implementation validation record. Nothing is executed by this design.
 
 ## TEST-ORG-CHART-002

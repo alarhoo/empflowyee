@@ -346,7 +346,8 @@
 			],
 			"@empflowyee/hcm-web-attendance-feature-work-schedule-templates": [
 				"./libs/hcm/web/attendance/feature-work-schedule-templates/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-web-ux-hierarchy-chart": ["./libs/hcm/web/ux/hierarchy-chart/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

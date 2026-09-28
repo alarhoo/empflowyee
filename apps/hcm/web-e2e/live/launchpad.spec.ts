@@ -27,10 +27,15 @@ test('offers and persists all four themes, then resumes device appearance', /** 
 		await expect(page.locator('html')).not.toHaveAttribute('data-hcm-theme-loading', 'true')
 		await expect(page.locator('.hcm-launchpad-content')).toBeVisible()
 		const colors = await page.evaluate(
-			/** Verify actual native palette colors, not just a preference marker. */ () => ({
-				text: getComputedStyle(document.querySelector('fd-tile h3')!).color,
-				surface: getComputedStyle(document.querySelector('ui5-shellbar')!).backgroundColor,
-			}),
+			/** Verify actual native palette colors, not just a preference marker. */ () => {
+				const title = document.querySelector('fd-tile h3')
+				const shell = document.querySelector('ui5-shellbar')
+				if (!title || !shell) throw new Error('Launchpad title or shell is missing')
+				return {
+					text: getComputedStyle(title).color,
+					surface: getComputedStyle(shell).backgroundColor,
+				}
+			},
 		)
 		const textChannel = Number(colors.text.match(/[\d.]+/)?.[0])
 		const surfaceChannel = Number(colors.surface.match(/[\d.]+/)?.[0])
@@ -158,12 +163,12 @@ test('boots a real local tenant and inspects every catalogue placement', /** Ver
 	await expect(
 		page.getByRole('button', { name: 'Access Assignments — Available', exact: true }),
 	).toBeVisible()
-	await page.getByRole('textbox', { name: 'Search applications' }).fill('MY_PROFILE')
+	await page.getByRole('textbox', { name: 'Search applications' }).fill('HOLIDAY_CALENDARS')
 	await expect(page.locator('fd-tile')).toHaveCount(1)
-	const tile = page.getByRole('button', { name: 'My Profile — Planned', exact: true })
+	const tile = page.getByRole('button', { name: 'Holiday Calendars — Planned', exact: true })
 	await tile.focus()
 	await page.keyboard.press('Enter')
-	await expect(page.getByRole('dialog', { name: 'My Profile', exact: true })).toBeVisible()
+	await expect(page.getByRole('dialog', { name: 'Holiday Calendars', exact: true })).toBeVisible()
 	await expect(
 		page.getByText('Planned application. This capability has not been implemented yet.'),
 	).toBeVisible()

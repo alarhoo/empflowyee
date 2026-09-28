@@ -14,6 +14,17 @@ Run `pnpm nx lint hcm-web-ux-floorplan-object-page` and `pnpm nx test hcm-web-ux
 
 Supply `title`, optional `summary`, `actions`, `state`, `readOnly` and `errorMessage`. Action descriptors include a stable `id`, `label`, optional `icon`, `mutates`, `emphasized` and `disabled`. Consume `action`, `retry` and `sectionChange` outputs in the feature. Project header content using `hcmHeader`, with optional `hcmImage` and `hcmKeyInfo` regions.
 
+For an identity header, supply `contextLabel` and `avatarInitials`. The shared
+composition aligns native Avatar, Title and Text in DynamicPageTitle's heading slot;
+the snapped heading uses a smaller Avatar. UI5 continues to own snapping and action
+overflow. Native subsection surfaces receive shared vertical spacing.
+
+Set `lazySections` to mount only the active section's template. The native tabs retain
+their keyboard behavior, selection survives a data refresh, and the first available
+section is selected if the previous section disappears. The default is eager content
+to preserve existing consumers. A feature opting into lazy sections must keep drafts
+outside the section template or guard navigation before destroying them.
+
 ```html
 <ef-hcm-object-page title="Record details" [actions]="actions()" (action)="handleAction($event)">
 	<ui5-text hcmHeader>Feature-owned summary</ui5-text>

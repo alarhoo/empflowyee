@@ -61,6 +61,7 @@
 					</ui5-label>
 					<ui5-input
 						id="my-profile-relationship-name"
+						[maxlength]="150"
 						accessibleName="Full name"
 						[formField]="fields.fullName"
 						[disabled]="draft.saving()"
@@ -110,21 +111,37 @@
 						[required]="emergencyContact()">
 						Contact number
 					</ui5-label>
-					<ui5-input
-						id="my-profile-relationship-phone"
-						type="Tel"
-						accessibleName="Contact number"
-						[formField]="fields.contactNumber"
-						[disabled]="draft.saving()"
-						[valueState]="
-							fields.contactNumber().touched() && fields.contactNumber().invalid()
-								? 'Negative'
-								: 'None'
-						">
-						<ui5-text slot="valueStateMessage">
-							Emergency contacts need a phone number of digits, spaces, brackets or dashes.
-						</ui5-text>
-					</ui5-input>
+					<div>
+						<ui5-input
+							id="my-profile-relationship-phone"
+							type="Tel"
+							accessibleName="Contact number"
+							accessibleDescriptionRef="my-profile-relationship-phone-help my-profile-relationship-phone-error"
+							[maxlength]="phoneMaxLength"
+							[required]="emergencyContact()"
+							[formField]="fields.contactNumber"
+							[disabled]="draft.saving()"
+							(focusout)="fields.contactNumber().markAsTouched()"
+							[valueState]="
+								fields.contactNumber().touched() && fields.contactNumber().invalid()
+									? 'Negative'
+									: 'None'
+							">
+							<ui5-text slot="valueStateMessage">
+								{{ fields.contactNumber().errors()[0]?.message }}
+							</ui5-text>
+						</ui5-input>
+						<div>
+							<ui5-text id="my-profile-relationship-phone-help">{{ phoneHelp }}</ui5-text>
+						</div>
+						<div
+							id="my-profile-relationship-phone-error"
+							aria-live="polite">
+							@if (fields.contactNumber().touched() && fields.contactNumber().invalid()) {
+								<ui5-text>{{ fields.contactNumber().errors()[0]?.message }}</ui5-text>
+							}
+						</div>
+					</div>
 				</ui5-form-item>
 				@if (request().family) {
 					<ui5-form-item>

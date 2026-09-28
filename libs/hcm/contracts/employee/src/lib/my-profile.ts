@@ -21,6 +21,12 @@ import {
 	type SelfEditMode,
 } from './profile-policy'
 import { parseFieldRef } from './profile-configuration'
+import {
+	PROFILE_EMAIL_MAX_LENGTH,
+	PROFILE_PHONE_MAX_LENGTH,
+	profileEmailIssue,
+	profilePhoneIssue,
+} from './profile-contact-validation'
 
 export const BLOOD_GROUP_VALUES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const
 export type BloodGroupValue = (typeof BLOOD_GROUP_VALUES)[number]
@@ -220,13 +226,15 @@ export interface VisibilityPreferenceCommand {
 	expectedRevision: number | null
 }
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PHONE = /^\+?[0-9][0-9 ()-]{4,28}[0-9]$/
-
 /** Validate a contact value for its type; emails and phone numbers have distinct shapes. */
 export function contactValue(type: SelfContactPointType, value: unknown): string {
-	const text = textValue(value, 'value', type === 'PersonalEmail' ? 254 : 40).trim()
-	if (!(type === 'PersonalEmail' ? EMAIL : PHONE).test(text)) invalidField('value', 'format')
+	const text = textValue(
+		value,
+		'value',
+		type === 'PersonalEmail' ? PROFILE_EMAIL_MAX_LENGTH : PROFILE_PHONE_MAX_LENGTH,
+	)
+	if (type === 'PersonalEmail' ? profileEmailIssue(text) : profilePhoneIssue(text))
+		invalidField('value', 'format')
 	return text
 }
 
@@ -255,7 +263,7 @@ export function parseContactPointCreate(body: unknown): ContactPointCreateComman
 export function parseContactPointUpdate(body: unknown): ContactPointUpdateCommand {
 	const v = readBody(body, ['value', 'primary', 'expectedRevision'])
 	return {
-		value: textValue(v['value'], 'value', 254),
+		value: textValue(v['value'], 'value', PROFILE_EMAIL_MAX_LENGTH),
 		primary: boolValue(v['primary'], 'primary'),
 		expectedRevision: revisionValue(v['expectedRevision']),
 	}
@@ -287,8 +295,12 @@ export function parseRelationship(
 	const priority = v['emergencyPriority']
 	if (emergencyContact && (priority === undefined || priority === null))
 		invalidField('emergencyPriority', 'required')
-	const contactNumber = optionalText(v['contactNumber'], 'contactNumber', 40).trim()
-	if (contactNumber && !PHONE.test(contactNumber)) invalidField('contactNumber', 'format')
+	const contactNumber = optionalText(
+		v['contactNumber'],
+		'contactNumber',
+		PROFILE_PHONE_MAX_LENGTH,
+	).trim()
+	if (contactNumber && profilePhoneIssue(contactNumber)) invalidField('contactNumber', 'format')
 	if (emergencyContact && !contactNumber) invalidField('contactNumber', 'required')
 	const birthDate = optionalDate(v['birthDate'], 'birthDate')
 	return {

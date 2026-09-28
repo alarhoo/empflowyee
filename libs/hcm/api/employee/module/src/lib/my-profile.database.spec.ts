@@ -212,6 +212,20 @@ it('edits direct personal facts with revisions, audit and replay', /** TEST-MY-P
 })
 
 it('keeps personal contacts unverified with one primary per type', /** TEST-MY-PROFILE-002. */ async () => {
+	for (const [type, value] of [
+		['PersonalEmail', 'jim..halpert@example.com'],
+		['PersonalEmail', 'jim@-example.com'],
+		['PersonalEmail', 'a'.repeat(65) + '@example.com'],
+		['PersonalEmail', 'a'.repeat(255)],
+		['MobilePhone', '1    2'],
+		['MobilePhone', '1234567890123456'],
+		['MobilePhone', '+1 (570 5550100'],
+		['MobilePhone', 'letters'],
+	]) {
+		expect((await api.send('jim', 'POST', `${base}/contact-points`, { type, value })).status).toBe(
+			400,
+		)
+	}
 	const first = await api.send<MyProfileDto>('jim', 'POST', `${base}/contact-points`, {
 		type: 'PersonalEmail',
 		value: 'bigtuna@example.com',
@@ -240,6 +254,20 @@ it('keeps personal contacts unverified with one primary per type', /** TEST-MY-P
 		/** New one. */ (c) => c.value === 'jim@example.com',
 	)
 	expect(added?.primary).toBe(false)
+	expect(
+		(
+			await api.send(
+				'jim',
+				'PUT',
+				`${base}/contact-points/${encodeURIComponent(added?.id ?? '')}`,
+				{
+					value: 'bad..name@example.com',
+					primary: false,
+					expectedRevision: added?.revision,
+				},
+			)
+		).status,
+	).toBe(400)
 	const promoted = await api.send<MyProfileDto>(
 		'jim',
 		'PUT',
@@ -368,6 +396,46 @@ it('maintains emergency contacts and dependants within their rules', /** TEST-MY
 	)
 	expect(options.body.items).toEqual([{ code: 'SPOUSE', name: 'Spouse', dependentEligible: true }])
 	expect((await api.send('jim', 'GET', `${base}/options/countries`)).status).toBe(400)
+})
+
+it('rejects malformed phone updates without changing the stored number', /** Editing must use the stored contact type and the same validator as creation. */ async () => {
+	const created = await api.send<MyProfileDto>('jim', 'POST', `${base}/contact-points`, {
+		type: 'MobilePhone',
+		value: '+1 (570) 555-0100',
+	})
+	expect(created.status).toBe(201)
+	const contact = created.body.contactPoints?.find(
+		/** Identify this test's newly created phone. */ (item) => item.value === '+1 (570) 555-0100',
+	)
+	expect(contact).toBeDefined()
+	const route = `${base}/contact-points/${encodeURIComponent(contact?.id ?? '')}`
+	try {
+		for (const value of ['letters', '1    2', '1234567890123456', '++123456789', '1'.repeat(41)]) {
+			expect(
+				(
+					await api.send('jim', 'PUT', route, {
+						value,
+						primary: true,
+						expectedRevision: contact?.revision,
+					})
+				).status,
+			).toBe(400)
+		}
+		expect(
+			(await jim()).contactPoints?.find(
+				/** Re-read the unchanged contact after rejected writes. */ (item) =>
+					item.id === contact?.id,
+			),
+		).toMatchObject({ value: '+1 (570) 555-0100', revision: contact?.revision })
+	} finally {
+		expect(
+			(
+				await api.send('jim', 'POST', `${route}/deactivate`, {
+					expectedRevision: contact?.revision,
+				})
+			).status,
+		).toBe(200)
+	}
 })
 
 it('records direct custom values and refuses protected ones', /** TEST-MY-PROFILE-002. */ async () => {

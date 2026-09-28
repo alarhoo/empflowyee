@@ -10,3 +10,24 @@ ui5-dynamic-page {
 	justify-content: center;
 	padding: 2rem;
 }
+
+// DynamicPageTitle has no avatar slot; this shared composition preserves its native headings.
+.object-heading {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	min-width: 0;
+}
+
+.object-heading-copy {
+	display: grid;
+	gap: 0.25rem;
+	min-width: 0;
+}
+
+// Space native subsection surfaces without adding feature-specific layouts or colors.
+.object-section {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}

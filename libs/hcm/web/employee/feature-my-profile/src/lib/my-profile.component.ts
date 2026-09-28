@@ -13,7 +13,8 @@ import { Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import type { Subscription } from 'rxjs'
 import { ObjectStatusComponent } from '@fundamental-ngx/core/object-status'
-import { Avatar } from '@fundamental-ngx/ui5-webcomponents/avatar'
+import { Panel } from '@fundamental-ngx/ui5-webcomponents/panel'
+import { Tag } from '@fundamental-ngx/ui5-webcomponents/tag'
 import { Form } from '@fundamental-ngx/ui5-webcomponents/form'
 import { FormGroup } from '@fundamental-ngx/ui5-webcomponents/form-group'
 import { FormItem } from '@fundamental-ngx/ui5-webcomponents/form-item'
@@ -29,7 +30,11 @@ import { TableHeaderCell } from '@fundamental-ngx/ui5-webcomponents/table-header
 import { TableRow } from '@fundamental-ngx/ui5-webcomponents/table-row'
 import { TableCell } from '@fundamental-ngx/ui5-webcomponents/table-cell'
 import { TableRowAction } from '@fundamental-ngx/ui5-webcomponents/table-row-action'
-import { HcmObjectPage, HcmObjectSection } from '@empflowyee/hcm-web-ux-floorplan-object-page'
+import {
+	HcmObjectPage,
+	HcmObjectSection,
+	type HcmObjectAction,
+} from '@empflowyee/hcm-web-ux-floorplan-object-page'
 import { HcmDatePipe, HcmRuntimeStore } from '@empflowyee/hcm-web-runtime-context'
 import { canAccessHcmFeature, findHcmFeature } from '@empflowyee/hcm-web-navigation-catalog'
 import {
@@ -92,7 +97,8 @@ const PERSONAL_FIELDS = [
 	selector: 'ef-hcm-my-profile',
 	imports: [
 		ObjectStatusComponent,
-		Avatar,
+		Panel,
+		Tag,
 		Form,
 		FormGroup,
 		FormItem,
@@ -137,6 +143,7 @@ export class MyProfileComponent {
 		},
 	)
 	readonly contactLabels = CONTACT_LABELS
+	readonly selfContactTypes = SELF_CONTACT_TYPES
 	readonly addressTypes = ADDRESS_TYPES
 	readonly employmentTypes = EMPLOYMENT_TYPES
 	readonly workModes = WORK_MODES
@@ -147,10 +154,67 @@ export class MyProfileComponent {
 	readonly state = signal<'content' | 'loading' | 'error' | 'denied'>('loading')
 	readonly message = signal('')
 	readonly dialog = signal<OpenDialog | null>(null)
+	readonly editing = signal(false)
+	readonly activeTab = computed(
+		/** Use the floorplan's actual selection, including its fallback after a context refresh. */ () =>
+			this.objectPage()?.activeSection() ?? 'personal',
+	)
+	readonly notice = signal('')
 	readonly avatar = computed(/** Initials. */ () => initials(this.profile()?.displayName ?? ''))
+	readonly primaryEmployment = computed(
+		/** Select the declared primary employment even when the API collection is reordered. */ () =>
+			this.profile()?.employments.find(
+				/** Select the primary current employment. */ (job) => job.primary,
+			),
+	)
 	readonly primary = computed(
-		/** The primary placement for the header and overview. */ () =>
-			this.profile()?.employments[0]?.assignments[0],
+		/** Select the primary assignment of the primary employment for the identity header. */ () =>
+			this.primaryEmployment()?.assignments.find(
+				/** Select the primary placement. */ (placement) => placement.primary,
+			),
+	)
+	readonly summary = computed(
+		/** Present only the role and department returned by the Self allowlist. */ () =>
+			[this.primary()?.designation, this.primary()?.department].filter(Boolean).join(' · '),
+	)
+	readonly employmentTagDesign = computed(
+		/** Translate employment semantics into native UI5 Tag designs without theme styling. */ () => {
+			const status = employmentStatus(this.primaryEmployment()?.employmentStatus ?? '').status
+			switch (status) {
+				case 'positive':
+					return 'Positive'
+				case 'negative':
+					return 'Negative'
+				case 'critical':
+					return 'Critical'
+				case 'informative':
+					return 'Information'
+				default:
+					return 'Neutral'
+			}
+		},
+	)
+	readonly actions = computed<readonly HcmObjectAction[]>(
+		/** Offer personal editing only when at least one supported command is permitted. */ () => {
+			const canEdit =
+				this.personalEditable() ||
+				this.contactTypes().length > 0 ||
+				this.emergencyEditable() ||
+				this.familyEditable() ||
+				this.customFields().some(
+					/** Include writable custom values. */ (field) =>
+						field.editMode === 'Direct' && field.custom?.storable,
+				)
+			if (!this.profile()?.linked || this.activeTab() !== 'personal' || !canEdit) return []
+			return [
+				{
+					id: 'edit-profile',
+					label: this.editing() ? 'Done editing' : 'Edit profile',
+					emphasized: true,
+					mutates: true,
+				},
+			]
+		},
 	)
 	readonly personal = computed(
 		/** Visible personal fields in display order. */ () =>
@@ -179,7 +243,29 @@ export class MyProfileComponent {
 		/** Fields that allow a worker preference. */ () =>
 			(this.profile()?.fields ?? []).filter(/** Allowed. */ (field) => field.preference !== null),
 	)
+	readonly emergencyContacts = computed(
+		/** Display emergency contacts in their recorded priority order. */ () =>
+			(this.profile()?.relationships ?? [])
+				.filter(
+					/** Include relationships flagged as emergency contacts. */ (person) =>
+						person.emergencyContact,
+				)
+				.sort(
+					/** Sort missing priorities last without changing the API response. */ (a, b) =>
+						(a.emergencyPriority ?? Number.MAX_SAFE_INTEGER) -
+						(b.emergencyPriority ?? Number.MAX_SAFE_INTEGER),
+				),
+	)
+	readonly familyMembers = computed(
+		/** Avoid duplicating emergency-only contacts in the family table. */ () =>
+			(this.profile()?.relationships ?? []).filter(
+				/** Keep family relationships and dependants even when they are also emergency contacts. */ (
+					person,
+				) => !person.emergencyContact || person.dependent,
+			),
+	)
 	private readonly personalEditor = viewChild(PersonalDialog)
+	private readonly objectPage = viewChild(HcmObjectPage)
 	private readonly contactEditor = viewChild(ContactDialog)
 	private readonly relationshipEditor = viewChild(RelationshipDialog)
 	private readonly customEditor = viewChild(CustomValueDialog)
@@ -195,12 +281,26 @@ export class MyProfileComponent {
 						this.request?.unsubscribe()
 						this.profile.set(null)
 						this.dialog.set(null)
+						this.editing.set(false)
+						this.notice.set('')
 						if (context) this.load()
 					},
 				)
 			},
 		)
 		this.destroy.onDestroy(/** Cancel in-flight reads. */ () => this.request?.unsubscribe())
+	}
+
+	/** Reveal or hide the supported focused editors without creating a page-wide draft. */
+	toggleEditing(): void {
+		this.editing.update(/** Toggle editing controls for the Personal tab. */ (editing) => !editing)
+		this.notice.set('')
+	}
+
+	/** Return to read mode when the employee switches to another tab. */
+	selectTab(): void {
+		this.editing.set(false)
+		this.notice.set('')
 	}
 
 	/** Load the own profile. */
@@ -317,6 +417,7 @@ export class MyProfileComponent {
 	saved(profile: MyProfileDto): void {
 		this.profile.set(profile)
 		this.dialog.set(null)
+		this.notice.set('Your changes have been saved.')
 	}
 
 	/** Close the Dialog without changes. */
