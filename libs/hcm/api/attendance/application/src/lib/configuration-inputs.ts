@@ -7,6 +7,7 @@ import {
 	selectAttendanceConfiguration,
 	type AttendanceEmploymentScope,
 	type DatedConfigurationAssignment,
+	type PublishedHoliday,
 } from '@empflowyee/hcm-api-attendance-domain'
 import { commandHash } from '@empflowyee/hcm-api-runtime-application'
 import { dateValue, idValue } from '@empflowyee/hcm-runtime-contract'
@@ -16,10 +17,14 @@ import type {
 	WorkforceTimeUnavailableReason,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 
+/** Internal source projection retains entry identity for immutable workday foreign keys; public calendar views stay unchanged. */
+export interface HolidayResolutionVersion extends HolidayVersionView {
+	entries: PublishedHoliday[]
+}
 export interface AttendanceConfigurationVersions {
 	Schedule: ScheduleVersionView
 	Policy: AttendancePolicyVersionView
-	Holiday: HolidayVersionView
+	Holiday: HolidayResolutionVersion
 }
 export type AttendanceConfigurationFamily = keyof AttendanceConfigurationVersions
 
@@ -63,6 +68,11 @@ export interface AttendanceConfigurationInputPort {
 		employmentId: string,
 		workDate: string,
 	): Promise<AttendanceConfigurationInput<Family>>
+	/** Resolve a civil date's calendar using the already loaded start-workdate employment scope for cross-midnight work. */
+	holidayForWorkforce(
+		workforce: WorkforceTimeContext,
+		observedDate: string,
+	): Promise<AttendanceConfigurationInput<'Holiday'>>
 }
 export abstract class AttendanceConfigurationInputBinder {
 	/** Bind to the caller's verified tenant transaction and lock boundary; this port never creates authority. */
@@ -90,7 +100,24 @@ export class AttendanceConfigurationInputs implements AttendanceConfigurationInp
 			throw new Error('Unsupported attendance configuration family')
 		const facts = await this.workforce.read(employmentId, workDate)
 		if (facts.state === 'Unavailable') return { state: 'Unavailable', family, reason: facts.reason }
-		const workforce = facts.context
+		return this.select(family, facts.context, workDate)
+	}
+
+	/** Keep next-date calendar validity separate from the workday's source-owned start-date workforce facts. */
+	holidayForWorkforce(
+		workforce: WorkforceTimeContext,
+		observedDate: string,
+	): Promise<AttendanceConfigurationInput<'Holiday'>> {
+		dateValue(observedDate, 'observedDate')
+		return this.select('Holiday', workforce, observedDate)
+	}
+
+	/** Bind the selected date, all matching assignment revisions and exact immutable source content into reproducible evidence. */
+	private async select<Family extends AttendanceConfigurationFamily>(
+		family: Family,
+		workforce: WorkforceTimeContext,
+		workDate: string,
+	): Promise<AttendanceConfigurationInput<Family>> {
 		const assignments = await this.configurations.matching(family, workDate, workforce)
 		const selected = selectAttendanceConfiguration(workDate, workforce, assignments)
 		if (selected.state === 'Unavailable')
@@ -113,6 +140,7 @@ export class AttendanceConfigurationInputs implements AttendanceConfigurationInp
 		const digest = commandHash('AttendanceConfigurationInput', {
 			tenantId: this.tenantId,
 			family,
+			selectionDate: workDate,
 			workforceDigest: workforce.inputDigest,
 			assignments: ordered,
 			version,

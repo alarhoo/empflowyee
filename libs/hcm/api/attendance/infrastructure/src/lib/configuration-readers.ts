@@ -4,17 +4,22 @@ import type {
 	HolidayVersionView,
 	ShiftVersionView,
 } from '@empflowyee/hcm-attendance-contract'
+import type { HolidayResolutionVersion } from '@empflowyee/hcm-api-attendance-application'
 
-/** Closed holiday DTO projection shared by authorized exact-version and latest-version reads. */
-export const holidayVersionProjection = sql`jsonb_strip_nulls(jsonb_build_object(
+/** Share exact holiday business fields while reserving source identity for internal resolution evidence. */
+function holidayProjection(includeIdentity: boolean) {
+	return sql`jsonb_strip_nulls(jsonb_build_object(
   'id',r.id,'code',r.code,'versionId',v.id,'versionNumber',v.version_number,'revision',v.revision,'state',v.state,
   'name',v.name,'effectiveFrom',v.effective_from::text,'effectiveTo',v.effective_to::text,
   'entries',coalesce((SELECT jsonb_agg(jsonb_build_object('date',h.actual_date::text,'observedDate',h.observed_date::text,
     'category',h.category,'name',h.name,'priority',h.priority,'regionCode',h.region_code,'locationId',h.location_id,
     'startTime',h.start_time::text,'endTime',h.end_time::text,
     'overlapOffset',CASE WHEN h.start_overlap_choice IS NULL AND h.end_overlap_choice IS NULL THEN NULL
-      ELSE jsonb_build_object('start',h.start_overlap_choice,'end',h.end_overlap_choice) END) ORDER BY h.ordinal)
+      ELSE jsonb_build_object('start',h.start_overlap_choice,'end',h.end_overlap_choice) END) || ${includeIdentity ? sql`jsonb_build_object('id',h.id,'versionId',h.version_id)` : sql`'{}'::jsonb`} ORDER BY h.ordinal)
     FROM hcm.holiday h WHERE h.tenant_id=v.tenant_id AND h.version_id=v.id),'[]'::jsonb)))`
+}
+/** Closed holiday DTO projection shared by authorized exact-version and latest-version reads. */
+export const holidayVersionProjection = holidayProjection(false)
 
 /** Purpose-built configuration projections; callers retain authorization and transaction ownership. */
 export class KyselyAttendanceConfigurationReader {
@@ -69,6 +74,19 @@ WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
 	async holidayCalendar(id: string, versionId: string): Promise<HolidayVersionView | null> {
 		const result = await sql<{ view: HolidayVersionView }>`
 SELECT ${holidayVersionProjection} AS view
+FROM hcm.holiday_calendar r JOIN hcm.holiday_calendar_version v ON v.tenant_id=r.tenant_id AND v.calendar_id=r.id
+WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
+`.execute(this.transaction)
+		return result.rows[0]?.view ?? null
+	}
+
+	/** Retain exact tenant-owned holiday entry IDs for the internal resolver; never expose this projection through calendar HTTP queries. */
+	async holidayResolutionCalendar(
+		id: string,
+		versionId: string,
+	): Promise<HolidayResolutionVersion | null> {
+		const result = await sql<{ view: HolidayResolutionVersion }>`
+SELECT ${holidayProjection(true)} AS view
 FROM hcm.holiday_calendar r JOIN hcm.holiday_calendar_version v ON v.tenant_id=r.tenant_id AND v.calendar_id=r.id
 WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
 `.execute(this.transaction)

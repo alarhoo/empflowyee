@@ -217,6 +217,39 @@ Worker resolves published schedules, calculates, reconciles and delivers evidenc
 No durable scheduler in hcm-api. Notifications report approved roster/correction/
 period state with safe IDs only. Evidence uses the Documents purpose-bound port.
 
+## ASSIGNED-WORKDAY-RESOLUTION
+
+The first resolver path composes assigned Published schedule, policy and calendar
+inputs for one employment/start date in the caller's tenant transaction. Missing
+configuration remains unavailable; an explicitly empty published calendar and
+explicitly inactive policy rules are real configuration, not inferred defaults.
+Internal calendar projections retain holiday entry/version IDs for typed evidence;
+public calendar DTOs continue to omit storage identity. For cross-midnight work,
+select the next civil date's calendar against the start-date Workforce scope,
+retaining both selection dates/digests. Filter each calendar's entries to its
+selected observed date before combining them, so a version switch cannot leak a
+non-selected date or duplicate the same entry. The workday location is the explicit
+Location-mode assignment/location, otherwise the unique primary location; Fixed
+continues to use its explicit timezone while regional/location holiday applicability
+uses that dated location's facts. Missing or ambiguous holiday scope is unavailable.
+
+Configured minimum-rest evaluation looks backwards through current dated schedule
+inputs to the nearest preceding Work envelope, stopping at this employment's hire
+date. Every examined Rest/Work input digest is retained; missing history, ambiguous
+zone or DST errors remain unavailable rather than presumed rest. Both rules compare
+the exact previous envelope end and current start. No preceding employment work is
+an explicit boundary result, not fabricated elapsed time. When both rules are unset,
+or the current pattern is Rest, no minimum-rest history is needed. A positive
+caller-supplied history-read budget limits execution; exhaustion returns unavailable
+and never a truncated successful result. It is an operational bound, not a business
+minimum-rest or eligibility rule. An internal caller can retry with an appropriate
+budget. Preserve each rule's source/version/threshold/mode and outcome, including Warn
+when another rule Blocks. Source digest covers all selections, location, interval
+resolution and rest evidence. Only Available may reach immutable workday publication.
+
+This path does not yet select rosters/overrides. Their typed owning storage and
+approved priority checks must be composed before those producers become available.
+
 ## TESTS
 
 Required boundary fixtures: DST spring gap; both fall overlap offsets; cross-

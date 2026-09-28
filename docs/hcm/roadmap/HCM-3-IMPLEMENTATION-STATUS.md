@@ -38,6 +38,8 @@ Migration 44 monthly periods, immutable lock bases and publication fences are
 verified in [period fence validation](../testing/HCM-3-PERIOD-FENCE-VALIDATION.md).
 Migration 45 immutable scheduled workdays and exact interval evidence are verified
 in [workday storage validation](../testing/HCM-3-WORKDAY-STORAGE-VALIDATION.md).
+The assigned resolver applies DEC-HCM3-022/023 and retains dated source evidence;
+see [assigned resolver validation](../testing/HCM-3-ASSIGNED-RESOLVER-VALIDATION.md).
 Remaining configuration APIs/seeds, durable workday publication, domain handlers
 and the other app UIs remain pending.
 

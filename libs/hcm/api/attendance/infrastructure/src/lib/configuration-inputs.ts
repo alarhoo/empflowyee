@@ -56,7 +56,7 @@ class KyselyAttendanceConfigurationInputs
 			Policy: /** Reuse the closed policy and approval-rule projection. */ () =>
 				configurations.policy(ownerId, versionId),
 			Holiday: /** Preserve explicit observed dates and exact partial endpoints. */ () =>
-				configurations.holidayCalendar(ownerId, versionId),
+				configurations.holidayResolutionCalendar(ownerId, versionId),
 		}
 		return readers[family]()
 	}

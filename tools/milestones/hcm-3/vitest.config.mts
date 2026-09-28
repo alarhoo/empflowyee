@@ -11,6 +11,7 @@ export default mergeConfig(
 				'libs/hcm/api/audit/application/**/*.spec.ts',
 				'libs/hcm/contracts/attendance/**/*.spec.ts',
 				'libs/hcm/api/attendance/domain/**/*.spec.ts',
+				'libs/hcm/api/attendance/application/**/*.spec.ts',
 			],
 		},
 	}),

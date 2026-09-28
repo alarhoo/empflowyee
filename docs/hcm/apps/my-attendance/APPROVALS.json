@@ -36,11 +36,11 @@
 		},
 		{
 			"document": "DOMAIN",
-			"sha256": "234c4e68d1f03b8b2c40e03e60d13b3cfe681cc5e14865bae0a17b523b019af2",
+			"sha256": "cf6aeab46491a990107a6699740a4da5508549599860b3a0010613ac36928ce0",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-ASSIGNED-RESOLVER-REVIEW.md; Codex technical review under existing delegated authority; DEC-HCM3-022/023 integration and internal assigned resolver refinement, no separate human approval claimed."
 		},
 		{
 			"document": "LOGICAL",

@@ -5,6 +5,7 @@ import type { AttendanceConfigurationInputPort } from '@empflowyee/hcm-api-atten
 import {
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyScheduleRepository,
+	KyselyAttendanceConfigurationReader,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import { HcmAttendanceModule } from './hcm-api-attendance-module'
@@ -134,10 +135,31 @@ it('selects exact published holiday versions by employment and invalidates evide
 				assignment: { id: 'employee-assignment' },
 				version: {
 					versionId: 'employee-calendar-v1',
-					entries: [{ observedDate: date, startTime: '09:00:00.125' }],
+					entries: [
+						{
+							id: 'employee-calendar-day',
+							versionId: 'employee-calendar-v1',
+							observedDate: date,
+							startTime: '09:00:00.125',
+						},
+					],
 				},
 			})
 			if (first.state !== 'Available') throw new Error('Expected assigned source')
+			const publicView = await new KyselyAttendanceConfigurationReader(
+				transaction,
+				tenant,
+			).holidayCalendar('employee-calendar', 'employee-calendar-v1')
+			expect(publicView?.entries[0]).not.toHaveProperty('id')
+			expect(publicView?.entries[0]).not.toHaveProperty('versionId')
+			const nextDate = await port.holidayForWorkforce(first.workforce, '2026-09-29')
+			expect(nextDate).toMatchObject({
+				state: 'Available',
+				workforce: first.workforce,
+				version: first.version,
+			})
+			if (nextDate.state !== 'Available') throw new Error('Expected next civil date calendar')
+			expect(nextDate.digest).not.toBe(first.digest)
 			expect(JSON.stringify(first)).not.toMatch(
 				/created_by|published_by|publication_digest|workEmail|displayName|encrypted_reason/,
 			)
@@ -276,7 +298,10 @@ it('projects schedule and policy families and refuses foreign or ambient tenant 
 				policy = await port.read('Policy', employment, date)
 			expect(schedule).toMatchObject({
 				state: 'Available',
-				version: { isTemplate: false, days: expect.arrayContaining([expect.objectContaining({ kind: 'Rest', segments: [] })]) },
+				version: {
+					isTemplate: false,
+					days: expect.arrayContaining([expect.objectContaining({ kind: 'Rest', segments: [] })]),
+				},
 			})
 			expect(policy).toMatchObject({
 				state: 'Available',
