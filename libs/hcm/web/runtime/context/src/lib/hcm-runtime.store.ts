@@ -60,6 +60,20 @@ export class HcmRuntimeStore {
 			hour12: preferences.timeFormat === '12h',
 		}).format(date)
 	}
+	/** Format a timezone-free wall clock in account preferences, preserving configured millisecond precision. */
+	formatWallTime(value: string): string {
+		if (!/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?$/.test(value)) return '—'
+		const preferences = this.preferences()
+		return new Intl.DateTimeFormat(preferences.language, {
+			hour: 'numeric',
+			minute: '2-digit',
+			second: '2-digit',
+			...(value.includes('.') ? { fractionalSecondDigits: 3 as const } : {}),
+			hour12: preferences.timeFormat === '12h',
+			timeZone: 'UTC',
+		}).format(new Date(`2000-01-01T${value}Z`))
+	}
+
 	/** Save non-sensitive presentation choices per tenant/account in this browser only. */
 	setPresentationPreference(key: 'language' | 'dateFormat' | 'timeFormat', value: string): void {
 		const allowed = {

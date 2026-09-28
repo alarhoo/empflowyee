@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'attendance/work-schedule-templates',
+		data: { catalogId: 'WORK_SCHEDULE_TEMPLATES' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load attendance-owned template routes with their dirty-draft guards. */ () =>
+			import('@empflowyee/hcm-web-attendance-feature-work-schedule-templates').then(
+				/** Preserve the exact-version detail and dedicated editor routes. */ (m) =>
+					m.WORK_SCHEDULE_TEMPLATES_ROUTES,
+			),
+	},
+	{
 		path: 'documents/document-requests',
 		data: { catalogId: 'DOCUMENT_REQUESTS' },
 		canMatch: [hcmRouteAccess],

@@ -1,8 +1,7 @@
 # Work Schedule Templates — technical design
 
 Status: approved technical design, 2026-09-28, following the approved [FDD](FDD.md)
-and [product-owner delegation](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation
-is planned. The owning [attendance TDD](../../domains/attendance/TECHNICAL-DESIGN.md),
+and [product-owner delegation](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation is accepted locally; see [acceptance evidence](../../testing/HCM-3-TEMPLATE-UI-VALIDATION.md). The owning [attendance TDD](../../domains/attendance/TECHNICAL-DESIGN.md),
 [shared TDD](../../architecture/TDD-HCM-3-COMMON.md) and
 [SQL/integration TDD](../../architecture/TDD-HCM-3-DATA-MODEL.md) are normative parts
 of this design; the blueprint binds their exact reviewed revisions.
@@ -69,18 +68,18 @@ PATCH is whole-draft replacement, not an arbitrary JSON patch. Lists are envelop
 `{items,nextCursor,total?}`, with scope-filtered total only. `CommandResult`
 contains id/revision/state and async operationId/statusUrl when applicable.
 
-| Method | Exact route                                         | Request schema                   | Response schema | Business permission                             |
-| ------ | --------------------------------------------------- | -------------------------------- | --------------- | ----------------------------------------------- |
-| GET    | `/api/v1/attendance/schedule-templates`             | Query                            | ScheduleDraft[] | `hcm.attendance.work-schedule-templates.read`   |
-| GET    | `/api/v1/attendance/schedule-templates/defaults`    | No query                         | ScheduleSeedDefaults | `hcm.attendance.work-schedule-templates.read` |
-| GET    | `/api/v1/attendance/schedule-templates/{id}`        | Query                            | ScheduleDraft   | `hcm.attendance.work-schedule-templates.read`   |
-| POST   | `/api/v1/attendance/schedule-templates`             | ScheduleDraft                    | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
-| PATCH  | `/api/v1/attendance/schedule-templates/{id}`        | ScheduleDraft + expectedRevision | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
-| POST   | `/api/v1/attendance/schedule-templates/{id}/versions` | VersionDraftCommand              | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
-| POST   | `/api/v1/attendance/schedule-templates/{id}/preview` | ConfigurationPreview             | Preview         | `hcm.attendance.work-schedule-templates.preview` |
-| POST   | `/api/v1/attendance/schedule-templates/{id}/publish` | PublishCommand                   | CommandResult   | `hcm.attendance.work-schedule-templates.publish` |
-| POST   | `/api/v1/attendance/schedule-templates/{id}/copy`   | CopyCommand                      | ScheduleDraft   | `hcm.attendance.work-schedule-templates.draft`  |
-| POST   | `/api/v1/attendance/schedule-templates/{id}/retire` | ReasonCommand                    | CommandResult   | `hcm.attendance.work-schedule-templates.retire` |
+| Method | Exact route                                           | Request schema                   | Response schema      | Business permission                              |
+| ------ | ----------------------------------------------------- | -------------------------------- | -------------------- | ------------------------------------------------ |
+| GET    | `/api/v1/attendance/schedule-templates`               | Query                            | ScheduleDraft[]      | `hcm.attendance.work-schedule-templates.read`    |
+| GET    | `/api/v1/attendance/schedule-templates/defaults`      | No query                         | ScheduleSeedDefaults | `hcm.attendance.work-schedule-templates.read`    |
+| GET    | `/api/v1/attendance/schedule-templates/{id}`          | Query                            | ScheduleDraft        | `hcm.attendance.work-schedule-templates.read`    |
+| POST   | `/api/v1/attendance/schedule-templates`               | ScheduleDraft                    | ScheduleDraft        | `hcm.attendance.work-schedule-templates.draft`   |
+| PATCH  | `/api/v1/attendance/schedule-templates/{id}`          | ScheduleDraft + expectedRevision | ScheduleDraft        | `hcm.attendance.work-schedule-templates.draft`   |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/versions` | VersionDraftCommand              | ScheduleDraft        | `hcm.attendance.work-schedule-templates.draft`   |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/preview`  | ConfigurationPreview             | Preview              | `hcm.attendance.work-schedule-templates.preview` |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/publish`  | PublishCommand                   | CommandResult        | `hcm.attendance.work-schedule-templates.publish` |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/copy`     | CopyCommand                      | ScheduleDraft        | `hcm.attendance.work-schedule-templates.draft`   |
+| POST   | `/api/v1/attendance/schedule-templates/{id}/retire`   | ReasonCommand                    | CommandResult        | `hcm.attendance.work-schedule-templates.retire`  |
 
 Every response has a purpose-built projection; private narrative/evidence requires
 additional current field permission. No persistence row serialization. Disabled
@@ -168,8 +167,7 @@ after commit. Recovery rechecks current authority and cannot fabricate source tr
 
 ## PROJECTS
 
-Planned projects, generated only when this slice needs them (reuse shared domain
-projects once created). Dependency direction is feature → data-access/contract/UX;
+The projects below are now generated for this slice; shared domain projects are reused. Dependency direction is feature → data-access/contract/UX;
 transport → application/contract; application → domain/ports; infrastructure
 implements ports; module/root composes. Cross-domain calls use owner ports and
 universal DTOs; browser never imports backend implementation. Worker is a separate
@@ -188,8 +186,30 @@ approved foundation composition, not a project hidden in this business blueprint
 
 ## VERIFICATION
 
-All test IDs in [traceability](TRACEABILITY.md) are planned acceptance cases, not
-executed-test claims. Use real PostgreSQL/HTTP for tenant/concurrency/receipt
+### Browser binding review
+
+Codex technical review, 2026-09-28, under the existing technical-finalization
+delegation: the installed Fundamental 0.64.3 StepInput exposes native numeric
+`value`, `ui5Input` and `ui5Change` but has no ControlValueAccessor host directive.
+Bind those APIs directly to the corresponding Signal Form field's value/touched
+state and focus the native control for a field error. This uses the maintained
+control without a custom component, HTML imitation or second form model.
+Other installed input wrappers use their supported FormField compatibility path.
+The routed editor and focused action dialog use Signal Forms submission and the universal schedule parser;
+native affordances do not replace authoritative API validation.
+
+Unpaid-minute targets belong only to the incomplete seed proposal form. Existing
+complete drafts edit their exact intervals directly; nominal wall-clock minutes
+must not reject a valid explicitly disambiguated DST interval. DatePicker keeps
+calendar dates timezone-free. TimePicker retains seconds and milliseconds, and
+read displays use the shared account-preference wall-time formatter. The app
+clears rows, source, cursors, previews and private drafts on runtime-context change.
+The identity Form occupies the native header area, not the compact title key-info
+slot. FCL columns have distinct landmark names. Close restores row focus after
+Angular/native rendering, following the existing shared consumer pattern.
+
+The requirement IDs in [traceability](TRACEABILITY.md) now map to executed acceptance
+evidence and the remaining shared native-control limitations. Use real PostgreSQL/HTTP for tenant/concurrency/receipt
 invariants, contract tests for DTO projections and pure unit tests for algorithms.
 Production-app browser checks cover keyboard, narrow/desktop layout, native action
 behavior, focus, validation, empty/error/retry and stale response clearing. Include

@@ -1,17 +1,33 @@
 # Work Schedule Templates — requirement traceability
 
-Status: design/test plan with partial implementation evidence, 2026-09-28.
-The [command](../../testing/HCM-3-CONFIGURATION-COMMAND-VALIDATION.md),
-[publication](../../testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md) and
-[HTTP API](../../testing/HCM-3-TEMPLATE-API-VALIDATION.md) suites verify backend
-parts of requirements 001–004 and 006. Contract/domain/storage suites cover segment
-validation and template assignment denial. Requirement 005 and native UI portions
-of every journey remain pending. Canonical seed defaults/grants are now verified in
-[seed validation](../../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md). The app
-remains Planned. The scenarios below remain the full acceptance obligations;
-backend tests alone do not approve the floorplan or complete an app.
+Status: implemented acceptance mapping, 2026-09-28. Codex technical review under
+[delegated authority](../../roadmap/HCM-3-DESIGN-APPROVAL.md#authority).
+The [UI acceptance record](../../testing/HCM-3-TEMPLATE-UI-VALIDATION.md) covers
+native interaction and end-to-end production-build behavior. The
+[command](../../testing/HCM-3-CONFIGURATION-COMMAND-VALIDATION.md),
+[publication](../../testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md),
+[HTTP API](../../testing/HCM-3-TEMPLATE-API-VALIDATION.md) and
+[seed](../../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md) records cover the source
+boundary. This app's completion does not claim downstream Work Schedules or
+workday publication is complete.
 
-| Requirement                                                               | Design                          | Planned test                                                          |
+Implementation paths: [contracts](../../../../libs/hcm/contracts/attendance/src/lib),
+[application](../../../../libs/hcm/api/attendance/application/src/lib),
+[SQL/repositories](../../../../libs/hcm/api/attendance/infrastructure/src/lib),
+[HTTP](../../../../libs/hcm/api/attendance/transport/src/lib),
+[data access](../../../../libs/hcm/web/attendance/data-access/src/lib/schedule-templates-api.ts),
+[native feature](../../../../libs/hcm/web/attendance/feature-work-schedule-templates/src/lib).
+SQL migrations 37 and 40-42 own this app's schedule, command/preview, cursor and
+seed-default persistence; no UI-slice migration is required.
+
+| Requirements  | Executed suite / assertions                                                                                                                                                                                                                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 001, 003, 006 | [SQL commands](../../../../libs/hcm/api/attendance/infrastructure/src/lib/schedule-commands.database.spec.ts): independent copy mutation, immutable source, retirement, successor, concurrent replay, rollback and expiry                                                                                                    |
+| 002, 004      | [SQL storage](../../../../libs/hcm/api/attendance/infrastructure/src/lib/attendance-schedules.database.spec.ts): template assignment denial and tenant composite references; [HTTP](../../../../libs/hcm/api/attendance/module/src/lib/schedule-templates.database.spec.ts): scoped/revoked/foreign authority and validation |
+| 001-006       | [Browser](../../../../libs/hcm/api/attendance/module/src/lib/templates-browser.spec.ts): production native routes, lifecycle, invalid submit, receipt recovery, keyboard/focus, responsive layout, exact time and delayed response clearing                                                                                  |
+| 002, 005      | [Form model](../../../../libs/hcm/web/attendance/feature-work-schedule-templates/src/lib/schedule-form.spec.ts): incomplete seed, explicit breaks, minimum-rest opt-in, DST overlap/cross-midnight precision and invalid boundaries                                                                                          |
+
+| Requirement                                                               | Design                          | Acceptance scenario                                                   |
 | ------------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------- |
 | [REQ-WORK-SCHEDULE-TEMPLATES-001](FDD.md#req-work-schedule-templates-001) | [DESIGN-001](TDD.md#design-001) | [TEST-WORK-SCHEDULE-TEMPLATES-001](#test-work-schedule-templates-001) |
 | [REQ-WORK-SCHEDULE-TEMPLATES-002](FDD.md#req-work-schedule-templates-002) | [DESIGN-002](TDD.md#design-002) | [TEST-WORK-SCHEDULE-TEMPLATES-002](#test-work-schedule-templates-002) |
@@ -29,7 +45,7 @@ Assert: Copying preserves source attribution; editing the copy never changes the
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Executed suite mapping above; required coverage: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-WORK-SCHEDULE-TEMPLATES-002
 
@@ -40,7 +56,7 @@ Assert: A template ID supplied as a live assignment is denied; conflicting segme
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Executed suite mapping above; required coverage: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-WORK-SCHEDULE-TEMPLATES-003
 
@@ -51,7 +67,7 @@ Assert: Previously copied/published schedules remain unchanged and a retired tem
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Executed suite mapping above; required coverage: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-WORK-SCHEDULE-TEMPLATES-004
 
@@ -62,7 +78,7 @@ Assert: Direct API and queue/count requests deny missing/revoked grants, entitle
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Executed suite mapping above; required coverage: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-WORK-SCHEDULE-TEMPLATES-005
 
@@ -73,7 +89,7 @@ Assert: Keyboard and responsive flows, field validation, empty/error/retry, dirt
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: browser accessibility/interaction plus HTTP projection.
+Executed suite mapping above; required coverage: browser accessibility/interaction plus HTTP projection.
 
 ## TEST-WORK-SCHEDULE-TEMPLATES-006
 
@@ -84,4 +100,4 @@ Assert: Commands retain durable result/audit/receipt and required outbox atomica
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Executed suite mapping above; required coverage: PostgreSQL/API integration plus domain boundary cases.

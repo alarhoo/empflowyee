@@ -4,27 +4,27 @@
 	"approvals": [
 		{
 			"document": "FDD",
-			"sha256": "11fe14e956336a3a1e26fc8041d403ada3601d4428d31a02e4ffb2ebb8c181b9",
+			"sha256": "3df82d7180bbc6588582235dfb7006c8f65970646e9d639911aff0bd45c30a6c",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md; Codex technical review of native bindings, source-contract alignment and executed local acceptance under existing delegated authority; no new business decision, separate human approval or production deployment claimed."
 		},
 		{
 			"document": "TDD",
-			"sha256": "e8fcbfca02f138215bfb1080f7eca138d018f1c1ac0f81ad5e4781be13b31c8b",
+			"sha256": "470dad47762be61361bcf8c0e746a473228dd090f0c03fb1edd501842d4d6eea",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-REVIEW.md; reviewed incomplete draft proposal representation without invented break placement or zone under existing delegated technical authority; no new business policy or separate human approval claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md; Codex technical review of native bindings, source-contract alignment and executed local acceptance under existing delegated authority; no new business decision, separate human approval or production deployment claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "ac6365b8b6c4b07a56f902d73304438f9ae6164d1e33987c45ef8f58627786c5",
+			"sha256": "af6ec7d11c62aed17a1c942beb29a4f644200e7f19fcddc942374a36d279bb23",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-SEED-DEFAULTS-VALIDATION.md; reviewed canonical seed and backend traceability against executed tests; UI acceptance remains pending; delegated technical review, not separate human approval."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md; Codex technical review of native bindings, source-contract alignment and executed local acceptance under existing delegated authority; no new business decision, separate human approval or production deployment claimed."
 		},
 		{
 			"document": "DECISIONS",

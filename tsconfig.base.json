@@ -340,7 +340,13 @@
 			"@empflowyee/hcm-api-attendance-transport": [
 				"./libs/hcm/api/attendance/transport/src/index.ts"
 			],
-			"@empflowyee/hcm-api-attendance-module": ["./libs/hcm/api/attendance/module/src/index.ts"]
+			"@empflowyee/hcm-api-attendance-module": ["./libs/hcm/api/attendance/module/src/index.ts"],
+			"@empflowyee/hcm-web-attendance-data-access": [
+				"./libs/hcm/web/attendance/data-access/src/index.ts"
+			],
+			"@empflowyee/hcm-web-attendance-feature-work-schedule-templates": [
+				"./libs/hcm/web/attendance/feature-work-schedule-templates/src/index.ts"
+			]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

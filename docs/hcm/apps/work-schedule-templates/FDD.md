@@ -1,6 +1,6 @@
 # Work Schedule Templates — functional design
 
-Status: approved functional design, 2026-09-28. Design approval derives from [product-owner resolutions](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation remains Planned.
+Status: approved functional design, 2026-09-28. Design approval derives from [product-owner resolutions](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation accepted locally; see [acceptance evidence](../../testing/HCM-3-TEMPLATE-UI-VALIDATION.md).
 
 App `WORK_SCHEDULE_TEMPLATES`; owner `attendance`; wave HCM-3.
 

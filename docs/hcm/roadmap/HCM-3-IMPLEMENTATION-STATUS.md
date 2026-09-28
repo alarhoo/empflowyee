@@ -29,7 +29,7 @@ The template HTTP API and authenticated pagination are verified in
 Canonical template grants and incomplete draft defaults are verified in
 [seed validation](../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md).
 Remaining configuration APIs/seeds, durable workday publication, domain handlers
-and UI remain pending.
+and the other app UIs remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
@@ -40,7 +40,9 @@ and UI remain pending.
 | Shared worker runtime/root                        | Implemented; domain handlers pending | [Runbook](../operations/WORKER.md)                                 |
 | Attendance, Leave and Workflow domain foundations | Planned                              | [Ordered plan](HCM-3-FOUNDATION-DESIGN.md#order)                   |
 
-All 23 business apps remain Planned. Update this record and the canonical app
-statuses only after the corresponding implementation and acceptance are verified.
+**Work Schedule Templates is Complete** under local acceptance; see its
+[production-build browser evidence](../testing/HCM-3-TEMPLATE-UI-VALIDATION.md).
+The other 22 business apps remain Planned. Update this record and the canonical
+app statuses only after their corresponding acceptance is verified.
 Granular branches inherit prerequisite commits; main changes require PRs. Local
 implementation commits do not deploy or provision cloud resources.

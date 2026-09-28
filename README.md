@@ -19,15 +19,16 @@ The [HCM-3 finalized design review](docs/hcm/roadmap/HCM-3-DESIGN-REVIEW.md)
 contains all 23 owning FDD/TDD/blueprint packages, the readiness table, resolved
 decisions, SQL/contract reconciliation, accepted worker ADR and implementation
 sequence. See the [executed validation record](docs/hcm/testing/HCM-3-PREPARATION-VALIDATION.md)
-for design gate results. Implementation is in progress; all 23 business apps
-remain Planned until their individual acceptance checks pass.
+for design gate results. Implementation is in progress. Work Schedule Templates has passed local acceptance;
+the remaining 22 business apps are Planned.
 
 Step-2 work is tracked in [HCM-3 implementation status](docs/hcm/roadmap/HCM-3-IMPLEMENTATION-STATUS.md),
 with slice-specific validation and explicit migration prerequisites.
 
 The template API is composed in `hcm-api`; [API validation](docs/hcm/testing/HCM-3-TEMPLATE-API-VALIDATION.md)
 and [canonical seed defaults](docs/hcm/testing/HCM-3-SEED-DEFAULTS-VALIDATION.md)
-distinguish tested backend delivery from pending native screens.
+document the backend prerequisites. The [native template acceptance record](docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md)
+provides UI routes, local prerequisites and reproducible production-build browser checks.
 
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with

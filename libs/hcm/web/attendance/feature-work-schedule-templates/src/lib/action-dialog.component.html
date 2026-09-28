@@ -1,0 +1,131 @@
+<ui5-dialog
+	[open]="true"
+	[headerText]="title()"
+	[accessibleName]="title()"
+	(ui5BeforeClose)="beforeClose($event)">
+	<ui5-text>
+		{{ source().name }} - version {{ source().versionNumber }}, revision {{ source().revision }}
+	</ui5-text>
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Template action"
+		accessibleMode="Edit"
+		layout="S1 M1 L1 XL1"
+		labelSpan="S12 M12 L12 XL12">
+		@if (operation() === 'copy') {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">New schedule code</ui5-label>
+				<ui5-input
+					accessibleName="New schedule code"
+					[formField]="fields.code"
+					[maxlength]="40"
+					[disabled]="draft.saving()"
+					[valueState]="fieldError('code') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('code') }}</ui5-text>
+			</ui5-form-item>
+		}
+		@if (operation() === 'copy') {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">New schedule name</ui5-label>
+				<ui5-input
+					accessibleName="New schedule name"
+					[formField]="fields.name"
+					[maxlength]="120"
+					[disabled]="draft.saving()"
+					[valueState]="fieldError('name') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('name') }}</ui5-text>
+			</ui5-form-item>
+		}
+		@if (operation() === 'publish') {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Review from</ui5-label>
+				<ui5-date-picker
+					accessibleName="Review from"
+					[formField]="fields.effectiveFrom"
+					valueFormat="yyyy-MM-dd"
+					[displayFormat]="runtime.preferences().dateFormat"
+					[disabled]="draft.saving()"
+					(ui5Input)="invalidatePreview()"
+					(ui5Change)="invalidatePreview()"
+					[valueState]="fieldError('effectiveFrom') ? 'Negative' : 'None'"></ui5-date-picker>
+				<ui5-text>{{ fieldError('effectiveFrom') }}</ui5-text>
+			</ui5-form-item>
+		}
+		@if (operation() === 'publish') {
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Review through</ui5-label>
+				<ui5-date-picker
+					accessibleName="Review through"
+					[formField]="fields.effectiveTo"
+					valueFormat="yyyy-MM-dd"
+					[displayFormat]="runtime.preferences().dateFormat"
+					[disabled]="draft.saving()"
+					(ui5Input)="invalidatePreview()"
+					(ui5Change)="invalidatePreview()"
+					[valueState]="fieldError('effectiveTo') ? 'Negative' : 'None'"></ui5-date-picker>
+				<ui5-text>{{ fieldError('effectiveTo') }}</ui5-text>
+			</ui5-form-item>
+		}
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Reason</ui5-label>
+			<ui5-textarea
+				accessibleName="Reason"
+				[formField]="fields.reason"
+				[maxlength]="2000"
+				[disabled]="draft.saving()"
+				[valueState]="fieldError('reason') ? 'Negative' : 'None'"></ui5-textarea>
+			<ui5-text>{{ fieldError('reason') }}</ui5-text>
+		</ui5-form-item>
+	</ui5-form>
+	@if (operation() === 'publish') {
+		<ui5-button
+			[disabled]="draft.saving()"
+			(click)="review()">
+			Request preview
+		</ui5-button>
+		@if (preview(); as evidence) {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				Reusable pattern review: {{ evidence.affectedEmploymentCount }} affected employments,
+				{{ evidence.affectedWorkdayCount }} affected workdays, {{ evidence.conflicts }} conflicts.
+				Expires {{ evidence.expiresAt | hcmDate }}. Templates cannot be assigned directly; each
+				schedule copy needs its own dated impact review.
+			</ui5-message-strip>
+		}
+	}
+	@if (operation() === 'copy') {
+		<ui5-text>
+			The copy is an independent schedule draft. It is not published or assigned by this action.
+		</ui5-text>
+	}
+	@if (operation() === 'retire') {
+		<ui5-text>
+			Existing schedule copies remain unchanged. New copies from this version will be unavailable.
+		</ui5-text>
+	}
+	<ui5-bar slot="footer">
+		<ui5-button
+			slot="endContent"
+			design="Emphasized"
+			[disabled]="draft.saving() || (operation() === 'publish' && !preview())"
+			(click)="submit()">
+			{{ draft.saving() ? 'Processing...' : 'Confirm' }}
+		</ui5-button>
+		<ui5-button
+			slot="endContent"
+			[disabled]="draft.saving()"
+			(click)="cancel()">
+			Cancel
+		</ui5-button>
+	</ui5-bar>
+</ui5-dialog>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

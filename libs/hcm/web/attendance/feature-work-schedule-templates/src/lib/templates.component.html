@@ -1,0 +1,262 @@
+<ui5-flexible-column-layout
+	[layout]="layout()"
+	[accessibilityAttributes]="{
+		startColumn: { role: 'region', name: 'Template collection column' },
+		midColumn: { role: 'region', name: 'Selected template' },
+	}">
+	<ef-hcm-dynamic-page
+		slot="startColumn"
+		title="Work Schedule Templates"
+		summary="Reusable patterns; templates cannot be assigned directly"
+		[state]="state()"
+		[errorMessage]="message()"
+		[actions]="listActions()"
+		(action)="create()"
+		(retry)="load(false)">
+		<ui5-form
+			hcmHeader
+			accessibleName="Template filters"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Code</ui5-label>
+				<ui5-input
+					accessibleName="Filter code"
+					[formField]="fields.code"
+					[maxlength]="40"
+					(keyup.enter)="load(false)"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Name</ui5-label>
+				<ui5-input
+					accessibleName="Filter name"
+					[formField]="fields.name"
+					[maxlength]="120"
+					(keyup.enter)="load(false)"></ui5-input>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Status</ui5-label>
+				<ui5-select
+					accessibleName="Filter status"
+					[formField]="fields.state">
+					<ui5-option value="">All statuses</ui5-option>
+					<ui5-option value="Draft">Draft</ui5-option>
+					<ui5-option value="Published">Published</ui5-option>
+					<ui5-option value="Retired">Retired</ui5-option>
+				</ui5-select>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actions</ui5-label>
+				<ui5-button (click)="load(false)">Apply filters</ui5-button>
+			</ui5-form-item>
+		</ui5-form>
+		@if (notice()) {
+			<ui5-message-strip
+				design="Positive"
+				(ui5Close)="notice.set('')">
+				{{ notice() }}
+			</ui5-message-strip>
+		}
+		<ef-hcm-view-settings
+			label="Templates"
+			[value]="sort()"
+			[fields]="sortFields"
+			(sortChange)="sortChanged($event)"></ef-hcm-view-settings>
+		<ui5-table
+			accessibleName="Schedule templates"
+			overflowMode="Popin"
+			[rowActionCount]="1"
+			[loading]="state() === 'loading'"
+			noDataText="No templates match these filters. Create a draft to complete a reusable pattern."
+			(ui5RowClick)="open($event.detail.row.rowKey)">
+			<ui5-table-header-row slot="headerRow">
+				<ui5-table-header-cell
+					[importance]="100"
+					minWidth="14rem"
+					popinText="Template">
+					Template
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="90"
+					minWidth="8rem"
+					popinText="Status">
+					Status
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="60"
+					minWidth="6rem"
+					popinText="Version">
+					Version
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="50"
+					minWidth="10rem"
+					popinText="Effective from">
+					Effective from
+				</ui5-table-header-cell>
+				<ui5-table-header-cell
+					[importance]="40"
+					minWidth="10rem"
+					popinText="Timezone policy">
+					Timezone policy
+				</ui5-table-header-cell>
+			</ui5-table-header-row>
+			@for (item of items(); track item.id) {
+				<ui5-table-row
+					[rowKey]="item.id"
+					[interactive]="true"
+					[navigated]="selected().id === item.id">
+					<ui5-table-cell>{{ item.name }} ({{ item.code }})</ui5-table-cell>
+					<ui5-table-cell>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="
+								item.state === 'Published'
+									? 'positive'
+									: item.state === 'Draft'
+										? 'informative'
+										: 'neutral'
+							"
+							[label]="item.state"></span>
+					</ui5-table-cell>
+					<ui5-table-cell>{{ item.versionNumber }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.effectiveFrom | hcmDate: 'date' }}</ui5-table-cell>
+					<ui5-table-cell>{{ item.fixedZone ?? item.timezoneMode }}</ui5-table-cell>
+					<ui5-table-row-action-navigation
+						slot="actions"
+						[interactive]="true"
+						(ui5Click)="open(item.id)"></ui5-table-row-action-navigation>
+				</ui5-table-row>
+			}
+			@if (cursor()) {
+				<ui5-table-growing
+					slot="features"
+					mode="Button"
+					text="Load more templates"
+					(ui5LoadMore)="load(true)"></ui5-table-growing>
+			}
+		</ui5-table>
+	</ef-hcm-dynamic-page>
+	@if (selected().id) {
+		<ef-hcm-object-page
+			slot="midColumn"
+			[title]="source()?.name ?? 'Schedule template'"
+			summary="Published patterns are immutable; copies have their own lifecycle"
+			[state]="detailState()"
+			[errorMessage]="detailMessage()"
+			[actions]="detailActions()"
+			(action)="action($event)"
+			(retry)="reloadDetail()">
+			@if (source(); as item) {
+				<ui5-form
+					hcmHeader
+					accessibleName="Template identity"
+					layout="S1 M2 L3 XL3"
+					labelSpan="S12 M12 L12 XL12">
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Code</ui5-label>
+						<ui5-text>{{ item.code }}</ui5-text>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Status</ui5-label>
+						<span
+							fd-object-status
+							[inverted]="true"
+							[status]="
+								item.state === 'Published'
+									? 'positive'
+									: item.state === 'Draft'
+										? 'informative'
+										: 'neutral'
+							"
+							[label]="item.state"></span>
+					</ui5-form-item>
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Version / revision</ui5-label>
+						<ui5-text>{{ item.versionNumber }} / {{ item.revision }}</ui5-text>
+					</ui5-form-item>
+				</ui5-form>
+			}
+			<ng-template
+				efHcmObjectSection="pattern"
+				label="Weekly pattern">
+				@if (source(); as item) {
+					@for (day of item.days; track day.weekday) {
+						<ui5-title level="H2">{{ weekdays[day.weekday - 1] }} - {{ day.kind }}</ui5-title>
+						@for (segment of day.segments; track $index) {
+							<ui5-text>
+								{{ segment.kind === 'UnpaidBreak' ? 'Unpaid break' : 'Work' }}:
+								{{ wallTime(segment.startTime) }} to {{ wallTime(segment.endTime)
+								}}{{ segment.endDayOffset ? ' (following date)' : '' }}. Local time. Start overlap:
+								{{ segment.overlapOffset?.start ?? 'Unambiguous required' }}; end overlap:
+								{{ segment.overlapOffset?.end ?? 'Unambiguous required' }}.
+							</ui5-text>
+						}
+					}
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="configuration"
+				label="Configuration">
+				@if (source(); as item) {
+					<ui5-form
+						accessibleName="Template configuration"
+						layout="S1 M2 L3 XL3"
+						labelSpan="S12 M12 L12 XL12">
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Description</ui5-label>
+							<ui5-text>{{ item.description || 'No description' }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Effective from</ui5-label>
+							<ui5-text>{{ item.effectiveFrom | hcmDate: 'date' }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Effective to</ui5-label>
+							<ui5-text>
+								{{ item.effectiveTo ? (item.effectiveTo | hcmDate: 'date') : 'No end date' }}
+							</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Timezone policy</ui5-label>
+							<ui5-text>{{ item.fixedZone ?? item.timezoneMode }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Week starts on</ui5-label>
+							<ui5-text>{{ weekdays[item.weekStartsOn - 1] }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Minimum-rest validation</ui5-label>
+							<ui5-text>
+								{{
+									item.minimumRestMinutes === undefined
+										? 'Not configured'
+										: item.minimumRestMinutes + ' minutes; ' + item.minimumRestMode
+								}}
+							</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Copy source</ui5-label>
+							<ui5-text>{{ item.copiedFromVersionId ?? 'Original template' }}</ui5-text>
+						</ui5-form-item>
+						<ui5-form-item>
+							<ui5-label slot="labelContent">Version identifier</ui5-label>
+							<ui5-text>{{ item.versionId }}</ui5-text>
+						</ui5-form-item>
+					</ui5-form>
+				}
+			</ng-template>
+		</ef-hcm-object-page>
+	}
+</ui5-flexible-column-layout>
+@if (operation(); as action) {
+	@if (source(); as item) {
+		<ef-hcm-template-action-dialog
+			[operation]="action"
+			[source]="item"
+			(closed)="operation.set(null)"
+			(completed)="completed($event)"></ef-hcm-template-action-dialog>
+	}
+}

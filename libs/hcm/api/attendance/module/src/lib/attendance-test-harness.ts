@@ -36,6 +36,8 @@ export interface HcmReply<T> {
 	cache: string | undefined
 }
 export interface HcmTestApi {
+	/** Loopback origin used only by real-browser integration tests. */
+	origin: string
 	/** Send one real HTTP request as a persisted development persona. */
 	send<T = Record<string, unknown>>(
 		persona: string,
@@ -54,7 +56,10 @@ export interface HcmTestApi {
  * Migrate and seed the disposable database, then start the real Nest module over the restricted
  * runtime role so tests exercise routing, authorization, RLS and persistence together.
  */
-export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
+export async function startHcmTestApi(
+	module: unknown,
+	writeOrigin = HCM_TEST_ORIGIN,
+): Promise<HcmTestApi> {
 	const migrator = process.env['HCM_TEST_MIGRATOR'],
 		runtime = process.env['HCM_TEST_RUNTIME']
 	if (!migrator || !runtime) throw new Error('Disposable database required')
@@ -82,13 +87,14 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 		.overrideProvider(HcmAccessDatabase)
 		.useValue(new HcmAccessDatabase(runtime))
 		.overrideProvider(HCM_ROLE_WRITE_ORIGIN)
-		.useValue(HCM_TEST_ORIGIN)
+		.useValue(writeOrigin)
 		.compile()
 	const app: INestApplication = compiled.createNestApplication({ logger: false })
 	app.setGlobalPrefix('api')
 	await app.listen(0, '127.0.0.1')
 	const origin = await app.getUrl()
 	return {
+		origin,
 		admin,
 		/** Send one request with browser-like same-origin write headers. */
 		send<T>(
@@ -108,7 +114,7 @@ export async function startHcmTestApi(module: unknown): Promise<HcmTestApi> {
 							headers: {
 								host: 'acme.localhost',
 								'x-hcm-development-persona': persona,
-								origin: HCM_TEST_ORIGIN,
+								origin: writeOrigin,
 								'sec-fetch-site': 'same-origin',
 								'content-type': 'application/json',
 								'idempotency-key': randomUUID(),
