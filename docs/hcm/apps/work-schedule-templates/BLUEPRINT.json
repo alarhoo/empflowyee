@@ -131,13 +131,17 @@
 		{
 			"package": "@fundamental-ngx/core",
 			"version": "0.64.3",
-			"imports": ["ObjectStatusComponent from @fundamental-ngx/core/object-status"],
+			"imports": [
+				"ObjectStatusComponent from @fundamental-ngx/core/object-status"
+			],
 			"ref": "TDD#NATIVE"
 		},
 		{
 			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
 			"version": "0.64.3",
-			"imports": ["FlexibleColumnLayout"],
+			"imports": [
+				"FlexibleColumnLayout"
+			],
 			"ref": "TDD#NATIVE"
 		}
 	],
@@ -201,42 +205,82 @@
 		{
 			"name": "hcm-attendance-contract",
 			"root": "libs/hcm/contracts/attendance",
-			"tags": ["product:hcm", "runtime:universal", "domain:attendance", "type:contract"]
+			"tags": [
+				"product:hcm",
+				"runtime:universal",
+				"domain:attendance",
+				"type:contract"
+			]
 		},
 		{
 			"name": "hcm-web-attendance-data-access",
 			"root": "libs/hcm/web/attendance/data-access",
-			"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:data-access"]
+			"tags": [
+				"product:hcm",
+				"runtime:web",
+				"domain:attendance",
+				"type:data-access"
+			]
 		},
 		{
 			"name": "hcm-web-attendance-feature-work-schedule-templates",
 			"root": "libs/hcm/web/attendance/feature-work-schedule-templates",
-			"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:feature"]
+			"tags": [
+				"product:hcm",
+				"runtime:web",
+				"domain:attendance",
+				"type:feature"
+			]
 		},
 		{
 			"name": "hcm-api-attendance-domain",
 			"root": "libs/hcm/api/attendance/domain",
-			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:domain"]
+			"tags": [
+				"product:hcm",
+				"runtime:api",
+				"domain:attendance",
+				"type:domain"
+			]
 		},
 		{
 			"name": "hcm-api-attendance-application",
 			"root": "libs/hcm/api/attendance/application",
-			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:application"]
+			"tags": [
+				"product:hcm",
+				"runtime:api",
+				"domain:attendance",
+				"type:application"
+			]
 		},
 		{
 			"name": "hcm-api-attendance-infrastructure",
 			"root": "libs/hcm/api/attendance/infrastructure",
-			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:infrastructure"]
+			"tags": [
+				"product:hcm",
+				"runtime:api",
+				"domain:attendance",
+				"type:infrastructure"
+			]
 		},
 		{
 			"name": "hcm-api-attendance-transport",
 			"root": "libs/hcm/api/attendance/transport",
-			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:transport"]
+			"tags": [
+				"product:hcm",
+				"runtime:api",
+				"domain:attendance",
+				"type:transport"
+			]
 		},
 		{
 			"name": "hcm-api-attendance-module",
 			"root": "libs/hcm/api/attendance/module",
-			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:module"]
+			"tags": [
+				"product:hcm",
+				"runtime:api",
+				"domain:attendance",
+				"type:module"
+			]
 		}
 	],
 	"prerequisites": [
@@ -329,6 +373,14 @@
 		{
 			"id": "DEC-HCM3-018",
 			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-022",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-023",
+			"classification": "RESOLVED"
 		}
 	],
 	"requirements": [
@@ -375,32 +427,44 @@
 		{
 			"requirement": "FDD#REQ-WORK-SCHEDULE-TEMPLATES-001",
 			"design": "TDD#DESIGN-001",
-			"tests": ["TEST-WORK-SCHEDULE-TEMPLATES-001"]
+			"tests": [
+				"TEST-WORK-SCHEDULE-TEMPLATES-001"
+			]
 		},
 		{
 			"requirement": "FDD#REQ-WORK-SCHEDULE-TEMPLATES-002",
 			"design": "TDD#DESIGN-002",
-			"tests": ["TEST-WORK-SCHEDULE-TEMPLATES-002"]
+			"tests": [
+				"TEST-WORK-SCHEDULE-TEMPLATES-002"
+			]
 		},
 		{
 			"requirement": "FDD#REQ-WORK-SCHEDULE-TEMPLATES-003",
 			"design": "TDD#DESIGN-003",
-			"tests": ["TEST-WORK-SCHEDULE-TEMPLATES-003"]
+			"tests": [
+				"TEST-WORK-SCHEDULE-TEMPLATES-003"
+			]
 		},
 		{
 			"requirement": "FDD#REQ-WORK-SCHEDULE-TEMPLATES-004",
 			"design": "TDD#DESIGN-004",
-			"tests": ["TEST-WORK-SCHEDULE-TEMPLATES-004"]
+			"tests": [
+				"TEST-WORK-SCHEDULE-TEMPLATES-004"
+			]
 		},
 		{
 			"requirement": "FDD#REQ-WORK-SCHEDULE-TEMPLATES-005",
 			"design": "TDD#DESIGN-005",
-			"tests": ["TEST-WORK-SCHEDULE-TEMPLATES-005"]
+			"tests": [
+				"TEST-WORK-SCHEDULE-TEMPLATES-005"
+			]
 		},
 		{
 			"requirement": "FDD#REQ-WORK-SCHEDULE-TEMPLATES-006",
 			"design": "TDD#DESIGN-006",
-			"tests": ["TEST-WORK-SCHEDULE-TEMPLATES-006"]
+			"tests": [
+				"TEST-WORK-SCHEDULE-TEMPLATES-006"
+			]
 		}
 	],
 	"delivery": {

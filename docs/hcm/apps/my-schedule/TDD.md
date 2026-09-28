@@ -184,3 +184,12 @@ Planned coherent commits:
 Omit persistence mutations for read-only slices; reuse admitted domain foundation
 work rather than duplicate tables. PR CI never deploys. No implementation occurs
 as part of this Step-1 design package.
+
+## DATED-RESOLUTION
+
+Apply the owning Attendance ALGORITHM for approved DEC-HCM3-022/023. Keep independent
+schedule/policy rule outcomes and their source revisions. Resolve timezone from
+current dated Workforce assignment/location facts; never use display preferences
+or first-row selection. The source resolver returns unavailable for missing or
+ambiguous authority facts. The approval update records the product owner's two
+explicit Step-2 answers and Codex's technical integration review.

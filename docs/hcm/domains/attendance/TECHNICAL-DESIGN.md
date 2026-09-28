@@ -25,6 +25,21 @@ retains that choice; if missing return `DstOverlap`. Verify offset is possible
 for that zone/time. Cross-midnight end day offset is 0 or 1, end instant after
 start; split shifts are rejected. Compare minimum rest using instants only when
 minimumRestMinutes is non-null under its explicit minimumRestMode Warn/Block; null disables the check, with no 11-hour fallback.
+DEC-HCM3-022 applies schedule and policy minimum-rest rules independently. A Block
+outcome from either prevents publication; Warn outcomes remain explicit evidence
+and do not become a Block. Neither source overrides the other and an unset source
+adds no default threshold. Each comparison uses the same exact prior-end/current-
+start instants while retaining its source version, threshold and mode.
+
+DEC-HCM3-023 resolves Employment mode from the unique effective primary assignment's
+location. Location mode resolves the explicitly targeted workforce assignment or
+location in the selected schedule assignment; other target kinds fall back to the
+unique effective primary assignment's location. Missing/ambiguous matches return
+unavailable. Fixed uses its explicit zone. User display preferences never supply
+schedule timezone authority. Multiple workforce assignments at the same explicitly
+targeted location refer to that single location's facts; they do not select another
+employment or an arbitrary different location.
+
 Compute half-open intervals and exact milliseconds; subtract configured unpaid
 break/absence overlaps once. Retain planned work and break segments separately.
 

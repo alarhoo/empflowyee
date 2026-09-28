@@ -127,3 +127,14 @@ sessions with explicit permissions/scopes, reason capture and audit. No new
 step-up infrastructure is required. LOP tracks units without a balance or
 reservation; encashment configuration/contracts remain disabled for submission
 and handoff. These resolutions govern conditional wording in this FDD.
+
+## DATED-RESOLUTION
+
+[DEC-HCM3-022 and DEC-HCM3-023](../../roadmap/HCM-3-DECISIONS.md#decisions)
+resolve the Step-2 business clarifications. Configured schedule and Attendance
+policy minimum-rest rules apply independently with their own Warn/Block modes;
+unset rules remain inactive. Employment timezone follows the unique primary
+assignment's location. Location timezone follows an explicitly targeted assignment/
+location, otherwise that unique primary location. Missing/ambiguous matches remain
+unavailable. Fixed timezone remains explicit. These rules govern dated resolution;
+this app does not invent a different timezone or minimum-rest fallback.

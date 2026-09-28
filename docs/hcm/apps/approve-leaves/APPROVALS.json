@@ -116,11 +116,11 @@
 		},
 		{
 			"document": "RESOLUTIONS",
-			"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a",
+			"sha256": "4e82436c5533b5c201c0dee1d6a10e389197dc5d0da69e8758223f412d4be3d7",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
 		},
 		{
 			"document": "AUTHORITY",

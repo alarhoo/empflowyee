@@ -4,19 +4,19 @@
 	"approvals": [
 		{
 			"document": "FDD",
-			"sha256": "744412249376aff9c508770e8a5f6267d9b4ec8e364a2de70e095682a130761b",
+			"sha256": "92a181e52d4fc5fd0ca3bc6fcb4f5cb5aaea7c10a70c425904ab55d7189f26ae",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
 		},
 		{
 			"document": "TDD",
-			"sha256": "f6ac057e14f32b4138ea76565e0f26c1cfa4906a9216f7114dd23c707567335a",
+			"sha256": "24fdc0e24f9c2bf8c432e4bb8508fadcd2f90867b14e61670379fa19f4b8a2c2",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
 		},
 		{
 			"document": "TRACE",
@@ -28,19 +28,19 @@
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "71f69b77403fde0eda59343870fe51029c75dc7681f1b694df4cde21536ef999",
-			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
-		},
-		{
-			"document": "DOMAIN",
-			"sha256": "d0087930041b77f80859746f98a3287f609a525cf1013ddcc8de9c7f5b7c7125",
+			"sha256": "95665585497bae1995fbd78d2985228df46b4113ae9a282e03629e853b90ef93",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-QUERY-REVIEW.md; Codex technical review under existing delegated authority; additive typed holiday cursor support and exact query semantics, no new business decision or separate human approval."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+		},
+		{
+			"document": "DOMAIN",
+			"sha256": "234c4e68d1f03b8b2c40e03e60d13b3cfe681cc5e14865bae0a17b523b019af2",
+			"decision": "approved",
+			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
 		},
 		{
 			"document": "LOGICAL",
@@ -116,11 +116,11 @@
 		},
 		{
 			"document": "RESOLUTIONS",
-			"sha256": "7fc737737da20b9357d21a5252f0f67eb03df01e3ec18f2d6cc6b2d495fe608a",
+			"sha256": "4e82436c5533b5c201c0dee1d6a10e389197dc5d0da69e8758223f412d4be3d7",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
 		},
 		{
 			"document": "AUTHORITY",
@@ -164,11 +164,11 @@
 		},
 		{
 			"document": "BLUEPRINT",
-			"sha256": "a218d70b3e811b931aca6bec0aa7d63952e955df2592b7bfda1f6c31c4f5f6a7",
+			"sha256": "d33b74472fb595f4a0ae583f548d9b5cc93fb4e5c29c95cf998043ba8784e0dc",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
 		}
 	]
 }
