@@ -14,7 +14,9 @@ Schedule storage and the version reader are also verified in
 [storage validation](../testing/HCM-3-SCHEDULE-STORAGE-VALIDATION.md).
 Policy/holiday contracts and holiday interval resolution are verified in
 [configuration validation](../testing/HCM-3-POLICY-HOLIDAY-VALIDATION.md).
-Shift/policy/holiday persistence, command APIs, domain handlers and UI remain pending.
+Policy/holiday storage and DTO projections are verified in
+[configuration storage validation](../testing/HCM-3-CONFIGURATION-STORAGE-VALIDATION.md).
+Shift persistence, command APIs, domain handlers and UI remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |

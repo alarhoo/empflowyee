@@ -1,0 +1,56 @@
+import { sql, type Kysely } from 'kysely'
+import type {
+	AttendancePolicyVersionView,
+	HolidayVersionView,
+} from '@empflowyee/hcm-attendance-contract'
+
+/** Purpose-built configuration projections; callers retain authorization and transaction ownership. */
+export class KyselyAttendanceConfigurationReader {
+	/** Bind reads to one already authorized tenant transaction, never a pooled executor with ambient state. */
+	constructor(
+		private readonly transaction: Kysely<unknown>,
+		private readonly tenantId: string,
+	) {
+		if (!transaction.isTransaction || !tenantId)
+			throw new Error('Attendance configuration requires a tenant transaction')
+	}
+
+	/** Read a policy and ordered typed candidate selectors without exposing audit actors or persistence rows. */
+	async policy(id: string, versionId: string): Promise<AttendancePolicyVersionView | null> {
+		const result = await sql<{ view: AttendancePolicyVersionView }>`
+SELECT jsonb_strip_nulls(jsonb_build_object(
+  'id',r.id,'code',r.code,'versionId',v.id,'versionNumber',v.version_number,'revision',v.revision,'state',v.state,
+  'name',v.name,'effectiveFrom',v.effective_from::text,'effectiveTo',v.effective_to::text,
+  'graceInMinutes',v.grace_in_minutes,'graceOutMinutes',v.grace_out_minutes,'rounding',v.rounding,
+  'roundingIncrementMinutes',v.rounding_increment_minutes,'roundingDirection',v.rounding_direction,
+  'minimumRestMinutes',v.minimum_rest_minutes,'minimumRestMode',v.minimum_rest_mode,
+  'overtime',jsonb_build_object('enabled',v.overtime_enabled,'qualification',v.overtime_qualification,
+    'capMinutes',v.overtime_cap_minutes,'preapprovalRequired',v.overtime_preapproval_required),
+  'approvalRules',coalesce((SELECT jsonb_agg(jsonb_build_object('subjectType',a.subject_type,'stage',a.stage,
+    'independent',a.independent,'candidateRule',jsonb_build_object('source',a.candidate_source,
+      'managerLevel',a.manager_level,'functionCode',a.function_code,'accountId',a.account_id)) ORDER BY a.ordinal)
+    FROM hcm.attendance_approval_rule a WHERE a.tenant_id=v.tenant_id AND a.version_id=v.id),'[]'::jsonb))) AS view
+FROM hcm.attendance_policy r JOIN hcm.attendance_policy_version v ON v.tenant_id=r.tenant_id AND v.policy_id=r.id
+WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
+`.execute(this.transaction)
+		return result.rows[0]?.view ?? null
+	}
+
+	/** Read actual and observed dates with exact partial endpoints, excluding storage-only identity and publication fields. */
+	async holidayCalendar(id: string, versionId: string): Promise<HolidayVersionView | null> {
+		const result = await sql<{ view: HolidayVersionView }>`
+SELECT jsonb_strip_nulls(jsonb_build_object(
+  'id',r.id,'code',r.code,'versionId',v.id,'versionNumber',v.version_number,'revision',v.revision,'state',v.state,
+  'name',v.name,'effectiveFrom',v.effective_from::text,'effectiveTo',v.effective_to::text,
+  'entries',coalesce((SELECT jsonb_agg(jsonb_build_object('date',h.actual_date::text,'observedDate',h.observed_date::text,
+    'category',h.category,'name',h.name,'priority',h.priority,'regionCode',h.region_code,'locationId',h.location_id,
+    'startTime',h.start_time::text,'endTime',h.end_time::text,
+    'overlapOffset',CASE WHEN h.start_overlap_choice IS NULL AND h.end_overlap_choice IS NULL THEN NULL
+      ELSE jsonb_build_object('start',h.start_overlap_choice,'end',h.end_overlap_choice) END) ORDER BY h.ordinal)
+    FROM hcm.holiday h WHERE h.tenant_id=v.tenant_id AND h.version_id=v.id),'[]'::jsonb))) AS view
+FROM hcm.holiday_calendar r JOIN hcm.holiday_calendar_version v ON v.tenant_id=r.tenant_id AND v.calendar_id=r.id
+WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
+`.execute(this.transaction)
+		return result.rows[0]?.view ?? null
+	}
+}

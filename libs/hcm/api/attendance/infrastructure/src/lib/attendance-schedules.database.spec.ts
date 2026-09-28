@@ -247,14 +247,14 @@ it('rejects incomplete, split and rest-with-work patterns at publication', /** D
 				[tenant],
 			)
 			await runtime.query(
-			"UPDATE hcm.work_schedule_day SET kind='Rest' WHERE tenant_id=$1 AND version_id='schedule-one-v1' AND weekday=1",
+				"UPDATE hcm.work_schedule_day SET kind='Rest' WHERE tenant_id=$1 AND version_id='schedule-one-v1' AND weekday=1",
 				[tenant],
 			)
 			await runtime.query('SAVEPOINT rest_work')
 			await expect(publish()).rejects.toMatchObject({ code: '23514' })
 			await runtime.query('ROLLBACK TO SAVEPOINT rest_work')
 			await runtime.query(
-			"UPDATE hcm.work_schedule_day SET kind='Work' WHERE tenant_id=$1 AND version_id='schedule-one-v1' AND weekday=1",
+				"UPDATE hcm.work_schedule_day SET kind='Work' WHERE tenant_id=$1 AND version_id='schedule-one-v1' AND weekday=1",
 				[tenant],
 			)
 			await runtime.query(
@@ -356,5 +356,33 @@ it('enforces tenant RLS and composite actor ownership under the runtime role', /
 				).rows[0]
 				expect(flags).toEqual({ relrowsecurity: true, relforcerowsecurity: true })
 			}
+		},
+	))
+
+it('allows ending a retired schedule assignment without restoring or extending it', /** Supersession preserves publication history while explicitly ending old selection authority. */ async () =>
+	scenario(
+		/** Verify the forward lifecycle refinement with the existing schedule storage. */ async () => {
+			await schedule()
+			await publish()
+			await runtime.query(
+				"INSERT INTO hcm.work_schedule_assignment(tenant_id,id,version_id,scope_kind,effective_from,created_by_account_id) VALUES($1,'ending','schedule-one-v1','Tenant','2026-01-01',$2)",
+				[tenant, actor],
+			)
+			await runtime.query(
+				"UPDATE hcm.work_schedule_version SET state='Retired',revision=revision+1 WHERE tenant_id=$1 AND id='schedule-one-v1'",
+				[tenant],
+			)
+			await runtime.query(
+				"UPDATE hcm.work_schedule_assignment SET effective_to='2026-06-30',revision=revision+1 WHERE tenant_id=$1 AND id='ending'",
+				[tenant],
+			)
+			await denied(
+				"UPDATE hcm.work_schedule_assignment SET effective_to='2026-07-01',revision=revision+1 WHERE tenant_id=$1 AND id='ending'",
+				[tenant],
+			)
+			await denied(
+				"UPDATE hcm.work_schedule_assignment SET effective_to=NULL,revision=revision+1 WHERE tenant_id=$1 AND id='ending'",
+				[tenant],
+			)
 		},
 	))
