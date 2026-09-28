@@ -19,7 +19,7 @@ If sources conflict, do not silently choose one. Report the conflict and identif
 - One Nx monorepo managed with pnpm.
 - Four product boundaries: `marketing`, `account`, `hcm`, `console`.
 - Seven existing web/API deployables: `marketing-web`, `account-web`, `account-api`, `hcm-web`, `hcm-api`, `console-web`, `console-api`.
-- Approved planned HCM background runtime: `hcm-worker`, a thin shared composition for Leave, Attendance and Workflow. Follow `docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md`; cloud activation requires infrastructure/IAM review.
+- Approved HCM background runtime: `hcm-worker`, a thin shared composition for Leave, Attendance and Workflow. Follow `docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md`; cloud activation requires infrastructure/IAM review.
 - Application projects are thin composition/bootstrap roots. Heavy implementation belongs in libraries.
 - Product implementation libraries must not import another product's implementation libraries.
 - Cross-product communication uses explicit HTTP/event contracts, not implementation imports.

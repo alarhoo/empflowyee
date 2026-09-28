@@ -2,6 +2,7 @@ import { beforeAll, afterAll, it, expect } from 'vitest'
 import { Client } from 'pg'
 import { randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
+import { sql } from 'kysely'
 import { migrateHcmDatabase, loadSqlMigrations } from '@empflowyee/hcm-api-database-migrations'
 import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
 import { HcmTenantDatabase } from '@empflowyee/hcm-api-database-kysely'
@@ -16,6 +17,7 @@ import {
 	HcmDurableWorkStore,
 	enqueueHcmWork,
 	advanceHcmPlanner,
+	HcmTransactionalWorkerLane,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
 import type { WorkloadAuditTables } from '@empflowyee/hcm-api-audit-infrastructure'
 
@@ -312,4 +314,55 @@ it('denies foreign tenant intents and preserves owner/workload table constraints
 		).rows[0]
 		expect(row).toEqual({ relrowsecurity: true, relforcerowsecurity: true })
 	}
+})
+
+it('rolls back an effect when its lease expires during execution', /** The final clock check is required even after the handler acquired the original fence. */ async () => {
+	await enqueue(intent('test.expiry'))
+	const work = claimed(await store.claim(context, ['test.expiry']))
+	await expect(
+		store.complete(
+			context,
+			work,
+			/** Inject expiry within the same transaction after a business write. */ async (
+				transaction,
+			) => {
+				await transaction
+					.insertInto('hcm.access_role')
+					.values({ tenant_id: tenant, id: 'expired-effect', label: 'Expired effect' })
+					.execute()
+				await sql`UPDATE hcm.leave_outbox SET lease_until=clock_timestamp()-interval '1 second' WHERE tenant_id=${tenant} AND id=${work.id}`.execute(
+					transaction,
+				)
+			},
+		),
+	).rejects.toMatchObject({ code: 'lease-lost' })
+	expect(
+		(await admin.query("SELECT id FROM hcm.access_role WHERE id='expired-effect'")).rows,
+	).toEqual([])
+	expect(
+		(await admin.query('SELECT state FROM hcm.leave_outbox WHERE id=$1', [work.id])).rows[0].state,
+	).toBe('Leased')
+})
+
+it('binds the registered schema handler to verified database intent', /** Unsupported versions enter retry handling and cannot execute a caller-substituted supported version. */ async () => {
+	let executed = 0
+	const lane = new HcmTransactionalWorkerLane('LeaveAccrual', store, [
+		{
+			kind: 'test.registry',
+			schemaVersion: 1,
+			/** Count only executions of the explicitly supported work schema. */ async execute() {
+				executed++
+			},
+		},
+	])
+	await enqueue({ ...intent('test.registry'), schemaVersion: 2 })
+	const work = claimed(await lane.claim(context))
+	await expect(lane.complete(context, { ...work, schemaVersion: 1 })).rejects.toMatchObject({
+		code: 'invalid-work',
+	})
+	expect(executed).toBe(0)
+	await lane.fail(context, work, 10000)
+	await enqueue(intent('test.registry'))
+	await lane.complete(context, claimed(await lane.claim(context)))
+	expect(executed).toBe(1)
 })

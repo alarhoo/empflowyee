@@ -16,20 +16,29 @@ Executed verification:
 - `workload-context.database.spec.ts` and existing `audit-log.database.spec.ts`:
   10 passing tests, including two tenants through one connection, expiry rollback,
   tenant suspension, immutable audit and exact actor constraints.
-- `durable-work.database.spec.ts`: 7 passing tests covering canonical replay,
+- `durable-work.database.spec.ts`: 9 passing tests covering canonical replay,
   changed-input rejection, concurrent claims, crash rollback/retry, stale fencing,
-  exhausted-work quarantine, atomic planner progress and foreign-tenant denial.
+  exhausted-work quarantine, atomic planner progress and foreign-tenant denial,
+  expiry during execution and schema-bound handler selection.
+- `worker.spec.ts` and `worker-config.spec.ts`: 7 passing scheduler/configuration
+  tests covering quotas, continuation, poison-work fairness, shutdown and local
+  activation boundaries. These use isolated port doubles; durable behavior is
+  independently proven by the PostgreSQL tests above.
 - Runtime infrastructure/module and Audit infrastructure TypeScript checks pass
   with the repository test-import option `--allowImportingTsExtensions`.
 - Targeted ESLint: zero errors; SQL field naming produces existing camelcase
-  warnings. Prettier check, `pnpm architecture:check` and `hcm-api:build` pass.
+  warnings. Prettier check, `pnpm architecture:check`, `hcm-api:build` and
+  `hcm-worker:build` pass. Worker and Runtime module type checks pass.
 
 Tests use `pnpm exec vitest run --config tools/hcm-database/vitest.config.mts`
 with the named suites under `libs/hcm/api/runtime/module/src/lib/` and
 `libs/hcm/api/audit/module/src/lib/`. The harness migrates and removes its own
 database container. Developer databases are not reset or implicitly migrated.
 
-The shared worker composition, domain receipts and business handlers are delivered
-in subsequent slices. Work completion here proves only the atomic mechanics;
+The generated worker root composes the implemented finite/poll runtime; its domain
+registry remains empty pending source handlers. Selecting an unimplemented
+workload fails startup rather than consuming work without an effect. Domain
+receipts and business handlers are delivered in subsequent slices.
+Work completion here proves only the atomic mechanics;
 source-specific revisions, outcomes and receipt semantics remain domain-owned.
 Cloud activation remains subject to the accepted ADR's infrastructure review.

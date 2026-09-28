@@ -112,7 +112,8 @@ A folder such as `libs/hcm/web/leave/` is an organizational group, not necessari
 ## HCM worker exception
 
 The [accepted HCM background-work ADR](../../../hcm/adr/ADR-HCM-BACKGROUND-WORK.md)
-adds the planned `hcm-worker` application at `apps/hcm/worker`, tagged
+adds the `hcm-worker` application at `apps/hcm/worker`, tagged
 `product:hcm`, `runtime:api`, `domain:runtime`, `type:app`. It is a thin Node
 composition, not another HTTP API or domain owner. Seven existing web/API projects
-remain materialized; worker generation is an HCM-3 foundation implementation step.
+remain materialized alongside the worker root. Domain handler delivery and local
+activation are tracked in the [HCM-3 implementation status](../../../hcm/roadmap/HCM-3-IMPLEMENTATION-STATUS.md).

@@ -10,6 +10,11 @@ const expected = [
 	['apps/account/api/project.json', 'account-api', ['product:account', 'runtime:api', 'type:app']],
 	['apps/hcm/web/project.json', 'hcm-web', ['product:hcm', 'runtime:web', 'type:app']],
 	['apps/hcm/api/project.json', 'hcm-api', ['product:hcm', 'runtime:api', 'type:app']],
+	[
+		'apps/hcm/worker/project.json',
+		'hcm-worker',
+		['product:hcm', 'runtime:api', 'domain:runtime', 'type:app'],
+	],
 	['apps/console/web/project.json', 'console-web', ['product:console', 'runtime:web', 'type:app']],
 	['apps/console/api/project.json', 'console-api', ['product:console', 'runtime:api', 'type:app']],
 ]

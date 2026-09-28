@@ -48,6 +48,8 @@ export default defineConfig({
 	test: {
 		environment: 'node',
 		include: [
+			'libs/hcm/api/runtime/application/src/lib/worker.spec.ts',
+			'libs/hcm/api/runtime/infrastructure/src/lib/worker-config.spec.ts',
 			'libs/hcm/api/runtime/module/src/lib/hcm-api-runtime-module.spec.ts',
 			'libs/hcm/contracts/runtime/**/*.spec.ts',
 		],

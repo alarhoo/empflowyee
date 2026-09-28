@@ -4,7 +4,9 @@
 
 Accepted, 2026-09-28, by product-owner resolution DEC-HCM3-021 and delegated
 technical finalization. See [approval provenance](../roadmap/HCM-3-DESIGN-APPROVAL.md).
-This approves the architecture; no runtime, migration or infrastructure is implemented.
+This approves the architecture. Local implementation and validation are tracked
+in the [implementation status](../roadmap/HCM-3-IMPLEMENTATION-STATUS.md);
+cloud infrastructure is not activated by this ADR.
 
 ## Context
 

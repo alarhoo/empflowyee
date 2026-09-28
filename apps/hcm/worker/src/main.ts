@@ -1,0 +1,34 @@
+import { runHcmWorker } from '@empflowyee/hcm-api-runtime-infrastructure'
+
+const shutdown = new AbortController()
+/** Stop new claims; current fenced transactions settle before their pools close. */
+function stop(): void {
+	shutdown.abort()
+}
+process.once('SIGINT', stop)
+process.once('SIGTERM', stop)
+
+void runHcmWorker(
+	process.env,
+	{
+		/** Register source-owned handlers as their domain foundations are delivered. Missing workloads fail startup explicitly. */
+		lanes: () => [],
+		/** Write aggregate operational counters only; source reasons, employee identifiers and payloads never enter logs. */
+		report: (result) => console.log(JSON.stringify({ event: 'hcm-worker-drain', ...result })),
+	},
+	shutdown.signal,
+)
+	.catch(
+		/** Keep connection credentials and database diagnostics out of process output. */ () => {
+			console.error(
+				'HCM worker unavailable: verify local configuration, registered workloads and database readiness.',
+			)
+			process.exitCode = 1
+		},
+	)
+	.finally(
+		/** Remove handlers after finite execution so the process exits normally. */ () => {
+			process.removeListener('SIGINT', stop)
+			process.removeListener('SIGTERM', stop)
+		},
+	)
