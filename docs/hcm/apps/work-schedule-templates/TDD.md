@@ -34,6 +34,15 @@ from a resource DTO are rejected for that resource. Filter IDs, state and bounde
 date range only. Calendar filters use from/to and authorized employment; configuration
 lists use code/name/state. The common cursor contract binds all query parameters.
 
+Template lists select the latest version of each root before filtering. `code`
+and `name` are literal case-insensitive substring filters; `id` and `state` are
+exact. Sort is `code|name|state|id` with optional `:asc|:desc`, default `code:asc`,
+and same-direction root-ID tie-break. Duplicate/unknown parameters are rejected.
+Detail accepts only optional `version`; all exact-version mutations require it.
+Lists use the owning TDD's server-stored authenticated cursor and return no private
+reason or storage-only fields. A source edit invalidates continuation; refresh
+starts a new page sequence rather than mixing configuration revisions.
+
 ## NATIVE
 
 Installed capability evidence is [COMMON UX](../../architecture/TDD-HCM-3-COMMON.md#ux).

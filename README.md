@@ -25,6 +25,10 @@ remain Planned until their individual acceptance checks pass.
 Step-2 work is tracked in [HCM-3 implementation status](docs/hcm/roadmap/HCM-3-IMPLEMENTATION-STATUS.md),
 with slice-specific validation and explicit migration prerequisites.
 
+The template API is composed in `hcm-api`; its [validation and remaining delivery
+work](docs/hcm/testing/HCM-3-TEMPLATE-API-VALIDATION.md) distinguish tested endpoints
+from pending canonical seed grants/default drafts and native screens.
+
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with
 `pnpm nx run hcm-worker:build`; this command does not migrate a database or start

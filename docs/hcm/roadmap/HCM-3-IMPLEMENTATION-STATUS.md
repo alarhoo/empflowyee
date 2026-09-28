@@ -24,7 +24,10 @@ Schedule/template Draft commands and immutable command/preview evidence are
 verified in [command validation](../testing/HCM-3-CONFIGURATION-COMMAND-VALIDATION.md).
 The reusable template preview/publish/retire application flow is verified in
 [publication validation](../testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md).
-Durable workday publication, HTTP APIs, domain handlers and UI remain pending.
+The template HTTP API and authenticated pagination are verified in
+[API validation](../testing/HCM-3-TEMPLATE-API-VALIDATION.md).
+Canonical Attendance seeds, remaining configuration APIs, durable workday
+publication, domain handlers and UI remain pending.
 
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |

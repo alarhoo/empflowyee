@@ -18,6 +18,7 @@ import {
 import { KyselyScheduleRepository } from './schedule-repository'
 import { SqlAttendanceCommandReceipts } from './command-receipts'
 import { KyselyTemplatePreviews } from './template-previews'
+import { KyselyScheduleQueries } from './schedule-queries'
 
 /** Compose schedule configuration commands on Access Control's current-authority transaction boundary. */
 export class KyselyAttendanceScheduleUnit extends AttendanceScheduleUnitOfWork {
@@ -50,6 +51,7 @@ export class KyselyAttendanceScheduleUnit extends AttendanceScheduleUnitOfWork {
 				/** Bind every adapter to the same verified tenant transaction. */ async (access) => {
 					const transaction = access.transaction as unknown as Kysely<unknown>
 					const { tenantId, accountId } = access.actor
+					if (!access.actor.grantId) throw new Error('Verified configuration grant unavailable')
 					/** Returning a stored response requires current source read authority. */
 					const requireRead = async (): Promise<void> => {
 						await new TransactionalAccessPolicy(access.transaction, context).require({
@@ -60,6 +62,12 @@ export class KyselyAttendanceScheduleUnit extends AttendanceScheduleUnitOfWork {
 					const result = await work({
 						schedules: new KyselyScheduleRepository(transaction, tenantId, accountId),
 						previews: new KyselyTemplatePreviews(transaction, tenantId, accountId),
+						queries: new KyselyScheduleQueries(
+							transaction,
+							tenantId,
+							accountId,
+							access.actor.grantId,
+						),
 						receipts: new SqlAttendanceCommandReceipts(
 							transaction,
 							tenantId,

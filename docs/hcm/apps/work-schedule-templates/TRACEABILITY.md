@@ -1,8 +1,14 @@
 # Work Schedule Templates — requirement traceability
 
-Status: reviewed design/test plan, 2026-09-28. No business tests have run because
-implementation has not begun. Each scenario below is an implementation acceptance
-obligation linked to the approved FDD and concrete technical design.
+Status: design/test plan with partial implementation evidence, 2026-09-28.
+The [command](../../testing/HCM-3-CONFIGURATION-COMMAND-VALIDATION.md),
+[publication](../../testing/HCM-3-TEMPLATE-PUBLICATION-VALIDATION.md) and
+[HTTP API](../../testing/HCM-3-TEMPLATE-API-VALIDATION.md) suites verify backend
+parts of requirements 001–004 and 006. Contract/domain/storage suites cover segment
+validation and template assignment denial. Requirement 005 and native UI portions
+of every journey remain pending, as do canonical seed defaults/grants. The app
+remains Planned. The scenarios below remain the full acceptance obligations;
+backend tests alone do not approve the floorplan or complete an app.
 
 | Requirement                                                               | Design                          | Planned test                                                          |
 | ------------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------- |

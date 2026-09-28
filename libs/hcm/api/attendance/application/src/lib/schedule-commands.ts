@@ -16,6 +16,7 @@ import {
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { AttendanceCommandReceiptStore } from './configuration-evidence'
 import type { TemplatePreviewRepository } from './template-publication'
+import type { ScheduleQueryRepository } from './schedule-queries'
 
 export type ScheduleApplication = 'Templates' | 'Schedules'
 export type ScheduleOperation = 'draft' | 'read' | 'preview' | 'publish' | 'retire'
@@ -53,6 +54,7 @@ export interface ScheduleRepository {
 export interface AttendanceScheduleWork {
 	schedules: ScheduleRepository
 	previews: TemplatePreviewRepository
+	queries: ScheduleQueryRepository
 	receipts: AttendanceCommandReceiptStore
 	audit: AppendAudit
 	/** Reauthorize the read permission before returning a stored response to a retry. */

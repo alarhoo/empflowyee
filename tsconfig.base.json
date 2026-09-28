@@ -336,7 +336,11 @@
 			],
 			"@empflowyee/hcm-api-attendance-application": [
 				"./libs/hcm/api/attendance/application/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-api-attendance-transport": [
+				"./libs/hcm/api/attendance/transport/src/index.ts"
+			],
+			"@empflowyee/hcm-api-attendance-module": ["./libs/hcm/api/attendance/module/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

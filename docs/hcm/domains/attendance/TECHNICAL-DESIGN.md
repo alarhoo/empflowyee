@@ -120,6 +120,21 @@ preview, then advances the version in the same transaction. Expired, conflicting
 locked-impact or changed-source previews cannot be consumed. Receipt, reason,
 audit and all business effects roll back together on any failure.
 
+Schedule/template list continuation uses an opaque, server-stored random
+256-bit handle, not unsigned browser-encoded sort data. Only its SHA-256 digest
+is stored in `attendance_query_cursor`, with tenant/actor, allowlisted app,
+binding digest, last sort value/root ID and a 15-minute expiry. Binding covers
+the current authorized tenant-wide grant, permission, every normalized filter,
+sort/direction/limit and collection revision. The latter is the exact integer sum
+of all version revisions in that tenant's selected schedule/template family;
+runtime cannot delete versions and every insert/update increases the sum. Any
+source mutation invalidates continuation, requiring a fresh first page. Cursors
+never grant authority; authorization is reloaded before lookup/count on every page.
+Bounded opportunistic deletion of at most 100 expired cursor rows on issuance
+is technical cache cleanup, not a durable API scheduling loop. Different app,
+actor, scope, filter, sort, limit or revision cannot reuse a handle. This needs no
+new signing secret, authentication service or process-local key.
+
 Configuration representation: `candidateRule` is a closed union of
 `{source: LineManager}`, `{source: ManagerLevel,managerLevel}`,
 `{source: Function,functionCode}` and `{source: NamedUser,accountId}` from

@@ -50,6 +50,12 @@ actor and operation as the existing command receipt contract requires. Workflow
 dispatch additionally binds a globally unique domain dispatch key under tenant.
 Planner cursor unique tenant/workload/rule, last_planned_date and revision.
 
+Attendance's disposable `attendance_query_cursor` stores only a random handle
+digest, actor/app/query-authority binding, bounded sort continuation and expiry.
+It has tenant RLS and composite actor/root FKs; no runtime UPDATE. DELETE is
+limited by the adapter to bounded expired cache cleanup. Its owning TDD defines
+authentication and source revision binding; it is never a permission credential.
+
 ## CONSTRAINTS
 
 Every tenant table has tenant_id directly, ENABLE and FORCE RLS using the existing

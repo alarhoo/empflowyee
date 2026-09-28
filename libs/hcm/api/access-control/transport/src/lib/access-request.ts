@@ -31,7 +31,7 @@ export interface RoleResponse {
 }
 
 /** Reject unknown and duplicate parameters before converting bounded list query values. */
-export function queryParameters(request: RoleRequest, allowed: string[]): URLSearchParams {
+export function queryParameters(request: RoleRequest, allowed: readonly string[]): URLSearchParams {
 	const query = new URL(request.originalUrl, 'http://local.invalid').searchParams
 	for (const key of query.keys())
 		if (!allowed.includes(key) || query.getAll(key).length !== 1)
@@ -44,8 +44,9 @@ export function accessWriteKey(
 	origin: string | null,
 	requestId: string,
 	media: 'json' | 'multipart' = 'json',
+	allowedQuery: readonly string[] = [],
 ): string {
-	queryParameters(request, [])
+	queryParameters(request, allowedQuery)
 	if (
 		!origin ||
 		request.headers['origin'] !== origin ||

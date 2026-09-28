@@ -92,11 +92,11 @@
 		},
 		{
 			"document": "SQL",
-			"sha256": "d83e8c5453fe8c43702aac6fe4091bcd55005383679dfc75e9d15a535691ec11",
+			"sha256": "3670cfee2bc2552500e53575ef9e43fb6424e68befe3028622eb973e4264597b",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-09-28",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-QUERY-REVIEW.md; reviewed authenticated cursor persistence and exact query/source binding under existing delegated technical authority; no new business decision or separate human approval claimed."
 		},
 		{
 			"document": "WORKER",
