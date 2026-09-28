@@ -53,7 +53,7 @@ runtime is a naming exception, not an exemption from runtime tagging or boundari
 Do not name this library `hcm-web-leave-contract`, `hcm-api-leave-contract`, or
 `hcm-universal-leave-contract`.
 
-Deployable application names are the seven fixed `<product>-<web|api>` names in
+Deployable application names are the seven existing `<product>-<web|api>` names in
 `AGENTS.md`; they do not use the library pattern. Their end-to-end test projects
 append `-e2e` to the application name. Names describe projects; the four Nx tags
 remain authoritative for dependency enforcement.
@@ -108,3 +108,11 @@ libs/hcm/contracts/<domain>
 ```
 
 A folder such as `libs/hcm/web/leave/` is an organizational group, not necessarily one Nx project.
+
+## HCM worker exception
+
+The [accepted HCM background-work ADR](../../../hcm/adr/ADR-HCM-BACKGROUND-WORK.md)
+adds the planned `hcm-worker` application at `apps/hcm/worker`, tagged
+`product:hcm`, `runtime:api`, `domain:runtime`, `type:app`. It is a thin Node
+composition, not another HTTP API or domain owner. Seven existing web/API projects
+remain materialized; worker generation is an HCM-3 foundation implementation step.

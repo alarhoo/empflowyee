@@ -36,3 +36,14 @@ Cloud SQL PostgreSQL instance per environment
 ```
 
 HCM tenants share `hcm_db`; tenant-owned rows are scoped by `tenant_id`. Separate customer databases/schemas are not the default SaaS tenancy model.
+
+## HCM background runtime
+
+The [accepted HCM background-work ADR](../../hcm/adr/ADR-HCM-BACKGROUND-WORK.md)
+authorizes one additional planned composition, `hcm-worker`, for Leave accrual
+and expiry, Attendance calculations/reconciliation and Workflow timers/dispatch/
+reconciliation. It shares `hcm_db` with explicit tenant RLS and has no public
+HTTP routes. `hcm-api` does not host durable scheduling loops. Local finite-drain/
+poll mode is the initial runtime target; future Cloud Run Job and Cloud Scheduler
+provisioning require the normal infrastructure/IAM review. The seven existing
+web/API deployables remain the current implemented topology.
