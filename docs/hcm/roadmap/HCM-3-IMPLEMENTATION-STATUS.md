@@ -7,6 +7,8 @@ admits all 23 designs; readiness does not mean the applications are implemented.
 
 Workforce's read-only time-context prerequisite is implemented and verified;
 see [projection validation](../testing/HCM-3-WORKFORCE-TIME-VALIDATION.md).
+Its bounded dated impact-subject port is verified in
+[subject paging validation](../testing/HCM-3-TIME-SUBJECTS-VALIDATION.md).
 
 Attendance's schedule contract and exact-time calculation slice is implemented;
 see [time validation](../testing/HCM-3-ATTENDANCE-TIME-VALIDATION.md).

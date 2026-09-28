@@ -10,11 +10,13 @@ import {
 	OrganisationStructure,
 	WorkforcePortBinder,
 	WorkforceTimeContextBinder,
+	WorkforceTimeSubjectsBinder,
 	WorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
 	KyselyWorkforcePortBinder,
 	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceTimeSubjectsBinder,
 	KyselyWorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import {
@@ -34,10 +36,16 @@ import {
 	],
 	providers: [
 		{
+			provide: WorkforceTimeSubjectsBinder,
+			useFactory:
+			/** Keep dated impact enumeration in Workforce while the consumer retains transaction authority. */ () =>
+				new KyselyWorkforceTimeSubjectsBinder(),
+		},
+		{
 			provide: WorkforceTimeContextBinder,
 			useFactory:
-				/** Bind the minimal read-only time projection without manufacturing a human actor for workers. */ () =>
-					new KyselyWorkforceTimeContextBinder(),
+			/** Bind the minimal read-only time projection without manufacturing a human actor for workers. */ () =>
+				new KyselyWorkforceTimeContextBinder(),
 		},
 		{
 			provide: WorkforceUnitOfWork,
@@ -80,6 +88,7 @@ import {
 		},
 	],
 	exports: [
+		WorkforceTimeSubjectsBinder,
 		WorkforceTimeContextBinder,
 		WorkforceUnitOfWork,
 		OrganisationStructure,

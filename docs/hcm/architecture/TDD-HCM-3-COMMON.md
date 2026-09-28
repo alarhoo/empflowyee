@@ -113,6 +113,25 @@ dated assignments and revisions, legal entity, org unit, department, location,
 timezone, employment/service dates, worker type and digest. Missing facts return
 Unavailable. Bind ports in composition; no reciprocal infrastructure imports.
 
+Workforce also owns an internal `WorkforceTimeSubjects` paging port for impact
+and producer planning. It selects employment IDs/revisions for one real workDate
+and exactly one Tenant/LegalEntity/OrgUnit/Department/Location/Assignment/Employment
+target. Employment date coverage is inclusive; current employment status alone
+never drops valid historical subjects. Unknown hire dates remain candidates so
+the time-context port can report incomplete facts. Tenant/Employment/LegalEntity
+selection does not require a matching assignment; assignment-derived targets use
+an effective assignment EXISTS predicate and never duplicate a subject with
+multiple matches. No names, personal data or cross-employment combination is returned.
+
+This internal port uses an employment-ID keyset in PostgreSQL C collation, 1?100
+items and one extra lookahead row, with a nullable nextAfterEmploymentId. It is
+not a browser cursor or an authority token. The caller owns current scope/workload
+authorization and the existing tenant transaction/lock for stable enumeration;
+publication re-enumerates membership and dated context digests under that boundary.
+Missing tenant context returns no rows; pool binding and malformed dates, selectors,
+limits or continuation IDs are rejected. HTTP APIs must retain their own opaque,
+authority-bound cursor rules rather than expose this internal continuation.
+
 Documents extends its existing blob consumer-purpose enum with LeaveEvidence and
 AttendanceEvidence. Stage/attach/open calls bind tenant, subject, uploader and
 classification; PDF/PNG/JPEG up to 10 MiB use existing storage validation. Staged

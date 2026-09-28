@@ -1,10 +1,14 @@
 import { beforeAll, afterAll, it, expect } from 'vitest'
 import { Kysely, PostgresDialect, sql, type Transaction } from 'kysely'
 import { Pool } from 'pg'
-import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import {
+	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceTimeSubjectsBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import type {
 	WorkforceTimeContextPort,
 	WorkforceTimeContextResult,
+	WorkforceTimeTarget,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { HcmWorkforceFoundationModule } from './hcm-api-workforce-foundation-module'
 import { HCM_TEST_TENANT, startHcmTestApi, type HcmTestApi } from './hcm2-test-harness'
@@ -177,6 +181,180 @@ it('cannot read known employment facts under a substituted tenant or an unscoped
 	await readWithin(
 		/** Reject a malformed calendar date before sending it to SQL. */ async (port) => {
 			await expect(port.read(employmentId, '2026-02-30')).rejects.toThrow()
+		},
+	)
+})
+
+it('pages employment identities with a deterministic internal keyset and retains incomplete candidates', /** Full dated scope membership is filtered before limit, without leaking names or silently omitting bad source facts. */ async () => {
+	await readWithin(
+		/** Compare the complete paginated identity set with an independent SQL predicate in the same snapshot. */ async (
+			_port,
+			transaction,
+		) => {
+			await sql`INSERT INTO hcm.employment(tenant_id,id,worker_id,organisation_id) VALUES(${HCM_TEST_TENANT},'impact-A','dunder-mifflin/worker/jim','dunder-mifflin/organisation/company'),(${HCM_TEST_TENANT},'impact-a','dunder-mifflin/worker/jim','dunder-mifflin/organisation/company')`.execute(
+				transaction,
+			)
+			const subjects = new KyselyWorkforceTimeSubjectsBinder().bind(transaction, HCM_TEST_TENANT)
+			const expected = await sql<{
+				id: string
+			}>`SELECT id FROM hcm.employment WHERE tenant_id=${HCM_TEST_TENANT} AND (hire_date IS NULL OR hire_date<=${workDate}::date) AND (employment_end_date IS NULL OR employment_end_date>=${workDate}::date) ORDER BY id COLLATE "C"`.execute(
+				transaction,
+			)
+			const collected: string[] = []
+			let after: string | undefined
+			for (let index = 0; index < 100; index++) {
+				const page = await subjects.page(workDate, { kind: 'Tenant' }, after, 3)
+				expect(page.items.length).toBeLessThanOrEqual(3)
+				for (const item of page.items) {
+					expect(Object.keys(item).sort()).toEqual(['employmentId', 'employmentRevision'])
+					expect(item.employmentRevision).toBeGreaterThan(0)
+					collected.push(item.employmentId)
+				}
+				if (page.nextAfterEmploymentId === null) break
+				expect(page.nextAfterEmploymentId).toBe(page.items.at(-1)?.employmentId)
+				after = page.nextAfterEmploymentId
+			}
+			expect(collected).toEqual(
+				expected.rows.map(
+					/** Compare exact database identity order without locale-specific JavaScript sorting. */ (
+						row,
+					) => row.id,
+				),
+			)
+			expect(new Set(collected).size).toBe(collected.length)
+			expect(collected).toContain('impact-A')
+			expect(collected).toContain('impact-a')
+			expect((await subjects.page(workDate, { kind: 'Employment', id: 'impact-A' })).items).toEqual(
+				[{ employmentId: 'impact-A', employmentRevision: 1 }],
+			)
+		},
+	)
+})
+
+it('filters all dated scope kinds before paging and deduplicates multiple matching assignments', /** Multiple assignments cannot double-count an employment or make unrelated targets eligible. */ async () => {
+	await readWithin(
+		/** Resolve authoritative scope facts and add a second matching assignment only for this scenario. */ async (
+			port,
+			transaction,
+		) => {
+			const facts = available(await port.read(employmentId, workDate)),
+				assignment = facts.assignments[0]
+			const subjects = new KyselyWorkforceTimeSubjectsBinder().bind(transaction, HCM_TEST_TENANT)
+			const targets: WorkforceTimeTarget[] = [
+				{ kind: 'Employment', id: employmentId },
+				{ kind: 'Assignment', id: assignment.id },
+				{ kind: 'LegalEntity', id: facts.legalEntityId },
+				{ kind: 'OrgUnit', id: assignment.orgUnitId },
+				{ kind: 'Location', id: assignment.locationId },
+			]
+			if (assignment.departmentId) targets.push({ kind: 'Department', id: assignment.departmentId })
+			else throw new Error('Expected seeded department')
+			for (const target of targets)
+				expect(
+					(await subjects.page(workDate, target, undefined, 100)).items.some(
+						/** The exact employment must appear in each of its effective source scopes. */ (
+							item,
+						) => item.employmentId === employmentId,
+					),
+				).toBe(true)
+			expect(
+				(await subjects.page(workDate, { kind: 'Assignment', id: assignment.id })).items,
+			).toEqual([{ employmentId, employmentRevision: facts.employmentRevision }])
+			await sql`INSERT INTO hcm.assignment(tenant_id,id,employment_id,organisation_id,location_id,job_title,work_mode,full_time_equivalent,is_primary_assignment,effective_from) VALUES(${HCM_TEST_TENANT},'impact-secondary',${employmentId},${assignment.orgUnitId},${assignment.locationId},'Test','Remote',0.1,false,'2026-09-28')`.execute(
+				transaction,
+			)
+			await sql`UPDATE hcm.assignment SET effective_to='2026-09-29',revision=revision+1 WHERE tenant_id=${HCM_TEST_TENANT} AND id='impact-secondary'`.execute(
+				transaction,
+			)
+			const matching = await subjects.page(
+				workDate,
+				{ kind: 'Location', id: assignment.locationId },
+				undefined,
+				100,
+			)
+			expect(
+				matching.items.filter(
+					/** EXISTS must return one employment despite two matching assignments. */ (item) =>
+						item.employmentId === employmentId,
+				),
+			).toHaveLength(1)
+			expect(
+				(await subjects.page('2026-09-27', { kind: 'Assignment', id: 'impact-secondary' })).items,
+			).toHaveLength(0)
+			expect(
+				(await subjects.page('2026-09-29', { kind: 'Assignment', id: 'impact-secondary' })).items,
+			).toHaveLength(1)
+			expect(
+				(await subjects.page('2026-09-30', { kind: 'Assignment', id: 'impact-secondary' })).items,
+			).toHaveLength(0)
+			expect(
+				(await subjects.page(workDate, { kind: 'Location', id: 'missing' })).items,
+			).toHaveLength(0)
+		},
+	)
+})
+
+it('includes ended employments on their covered historical dates without requiring an assignment', /** Current status does not erase historical impact, and no-assignment facts stay visible for explicit downstream unavailability. */ async () => {
+	await readWithin(
+		/** Arrange a separate employment whose two-day coverage has already ended. */ async (
+			port,
+			transaction,
+		) => {
+			await sql`INSERT INTO hcm.legal_entity(tenant_id,id,code,name,registered_name,entity_type,country_code,reporting_currency_code) VALUES(${HCM_TEST_TENANT},'impact-entity','IMPACT_ENTITY','Impact','Impact','Other','US','USD')`.execute(
+				transaction,
+			)
+			await sql`INSERT INTO hcm.employment(tenant_id,id,worker_id,organisation_id,legal_entity_id,employment_type,employment_status,hire_date,employment_sequence,is_primary_employment) VALUES(${HCM_TEST_TENANT},'impact-ended','dunder-mifflin/worker/jim','dunder-mifflin/organisation/company','impact-entity','Contract','Active','2026-09-28',2,false)`.execute(
+				transaction,
+			)
+			await sql`UPDATE hcm.employment SET employment_status='Ended',employment_end_date='2026-09-29',revision=revision+1 WHERE tenant_id=${HCM_TEST_TENANT} AND id='impact-ended'`.execute(
+				transaction,
+			)
+			const subjects = new KyselyWorkforceTimeSubjectsBinder().bind(transaction, HCM_TEST_TENANT)
+			for (const date of ['2026-09-28', '2026-09-29'])
+				expect(
+					(await subjects.page(date, { kind: 'LegalEntity', id: 'impact-entity' })).items,
+				).toEqual([{ employmentId: 'impact-ended', employmentRevision: 2 }])
+			for (const date of ['2026-09-27', '2026-09-30'])
+				expect(
+					(await subjects.page(date, { kind: 'Employment', id: 'impact-ended' })).items,
+				).toHaveLength(0)
+			expect(await port.read('impact-ended', workDate)).toMatchObject({
+				state: 'Unavailable',
+				reason: 'assignment-unavailable',
+			})
+		},
+	)
+})
+
+it('rejects malformed internal continuations and cannot read through foreign or missing tenant context', /** Keyset values are bounded selectors, never authorization or raw SQL identifiers. */ async () => {
+	await readWithin(
+		/** Exercise parser guards and FORCE RLS on a real restricted transaction. */ async (
+			_port,
+			transaction,
+		) => {
+			const binder = new KyselyWorkforceTimeSubjectsBinder(),
+				subjects = binder.bind(transaction, HCM_TEST_TENANT)
+			expect(
+				(await binder.bind(transaction, 'foreign').page(workDate, { kind: 'Tenant' })).items,
+			).toHaveLength(0)
+			for (const limit of [0, 101, 1.5])
+				await expect(
+					subjects.page(workDate, { kind: 'Tenant' }, undefined, limit),
+				).rejects.toThrow()
+			await expect(subjects.page('2026-02-30', { kind: 'Tenant' })).rejects.toThrow()
+			await expect(subjects.page(workDate, { kind: 'Tenant' }, '')).rejects.toThrow()
+			await expect(
+				subjects.page(workDate, { kind: 'Tenant', id: 'hidden' } as WorkforceTimeTarget),
+			).rejects.toThrow()
+			await expect(
+				subjects.page(workDate, { kind: 'constructor' } as unknown as WorkforceTimeTarget),
+			).rejects.toThrow()
+			await sql`SELECT set_config('hcm.tenant_id','',true)`.execute(transaction)
+			expect((await subjects.page(workDate, { kind: 'Tenant' })).items).toHaveLength(0)
+			expect(
+				/** A pool has no stable transaction-local authority or membership snapshot. */ () =>
+					binder.bind(runtime, HCM_TEST_TENANT),
+			).toThrow('tenant transaction')
 		},
 	)
 })
