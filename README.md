@@ -30,6 +30,10 @@ and [canonical seed defaults](docs/hcm/testing/HCM-3-SEED-DEFAULTS-VALIDATION.md
 document the backend prerequisites. The [native template acceptance record](docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md)
 provides UI routes, local prerequisites and reproducible production-build browser checks.
 
+The holiday draft/read API is also composed in `hcm-api`; its
+[partial API validation](docs/hcm/testing/HCM-3-HOLIDAY-API-VALIDATION.md) documents
+migration 43 and the remaining publication, assignment and UI work.
+
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with
 `pnpm nx run hcm-worker:build`; this command does not migrate a database or start

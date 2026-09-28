@@ -1,6 +1,5 @@
-import { createHash, randomBytes } from 'node:crypto'
 import { sql, type Kysely } from 'kysely'
-import { invalidField, type HcmPage } from '@empflowyee/hcm-runtime-contract'
+import type { HcmPage } from '@empflowyee/hcm-runtime-contract'
 import type {
 	ScheduleListQuery,
 	ScheduleVersionView,
@@ -14,10 +13,7 @@ import { commandHash } from '@empflowyee/hcm-api-runtime-application'
 import { likePattern } from '@empflowyee/hcm-api-database-kysely'
 import { scheduleVersionProjection } from './hcm-api-attendance-infrastructure'
 
-interface Position {
-	value: string
-	id: string
-}
+import { AttendanceQueryCursors, type AttendanceCursorApp } from './query-cursors'
 
 /** Latest-version reads and opaque server-authenticated continuation inside one current-authority transaction. */
 export class KyselyScheduleQueries implements ScheduleQueryRepository {
@@ -82,7 +78,9 @@ WHERE s.tenant_id=${this.tenantId} AND s.is_template=${app === 'Templates'}
 			parameters,
 			generation,
 		})
-		const after = cursor === undefined ? null : await this.readCursor(app, cursor, binding)
+		const cursors = new AttendanceQueryCursors(this.transaction, this.tenantId, this.accountId)
+		const after =
+			cursor === undefined ? null : await cursors.read(this.appCode(app), cursor, binding)
 		const fields = { code: sql`s.code`, name: sql`v.name`, state: sql`v.state`, id: sql`s.id` }
 		const sort = fields[query.sort]
 		const direction = query.direction === 'asc' ? sql`ASC` : sql`DESC`
@@ -105,10 +103,12 @@ WHERE ${sql.join(clauses, sql` AND `)} ORDER BY ${sort} COLLATE "C" ${direction}
 		).rows
 		const page = rows.slice(0, query.limit)
 		const last = page.at(-1)
-		const nextCursor =
-			rows.length > query.limit && last
-				? await this.storeCursor(app, binding, { value: last.sortValue, id: last.view.id })
-				: null
+		let nextCursor: string | null = null
+		if (rows.length > query.limit && last)
+			nextCursor = await cursors.store(this.appCode(app), binding, {
+				value: last.sortValue,
+				id: last.view.id,
+			})
 		return {
 			items: page.map(
 				/** Expose only the declared DTO, never pagination or persistence internals. */ (row) =>
@@ -118,44 +118,8 @@ WHERE ${sql.join(clauses, sql` AND `)} ORDER BY ${sort} COLLATE "C" ${direction}
 		}
 	}
 
-	/** Validate the unpredictable handle against server-owned tenant, actor, query, grant and source revision facts. */
-	private async readCursor(
-		app: ScheduleApplication,
-		cursor: string,
-		binding: string,
-	): Promise<Position> {
-		const token = createHash('sha256').update(cursor).digest('hex')
-		const result = await sql<Position>`
-SELECT last_sort_value AS value,last_id AS id FROM hcm.attendance_query_cursor
-WHERE tenant_id=${this.tenantId} AND token_digest=${token} AND actor_account_id=${this.accountId}
-  AND app_code=${this.appCode(app)} AND binding_digest=${binding} AND expires_at>clock_timestamp()
-`.execute(this.transaction)
-		if (!result.rows[0]) invalidField('cursor', 'stale-or-invalid')
-		return result.rows[0]
-	}
-
-	/** Persist a hash-only continuation and prune at most 100 expired cache entries without a scheduling loop. */
-	private async storeCursor(
-		app: ScheduleApplication,
-		binding: string,
-		position: Position,
-	): Promise<string> {
-		const token = randomBytes(32).toString('base64url')
-		const digest = createHash('sha256').update(token).digest('hex')
-		await sql`
-DELETE FROM hcm.attendance_query_cursor WHERE tenant_id=${this.tenantId} AND token_digest IN (
-  SELECT token_digest FROM hcm.attendance_query_cursor WHERE tenant_id=${this.tenantId} AND expires_at<=clock_timestamp()
-  ORDER BY expires_at,token_digest LIMIT 100)
-`.execute(this.transaction)
-		await sql`
-INSERT INTO hcm.attendance_query_cursor(tenant_id,token_digest,actor_account_id,app_code,binding_digest,last_sort_value,last_id,created_at,expires_at)
-VALUES(${this.tenantId},${digest},${this.accountId},${this.appCode(app)},${binding},${position.value},${position.id},statement_timestamp(),statement_timestamp()+interval '15 minutes')
-`.execute(this.transaction)
-		return token
-	}
-
 	/** Map the closed application family to its persistent catalogue identity. */
-	private appCode(app: ScheduleApplication): string {
+	private appCode(app: ScheduleApplication): AttendanceCursorApp {
 		return app === 'Templates' ? 'WORK_SCHEDULE_TEMPLATES' : 'WORK_SCHEDULES'
 	}
 }

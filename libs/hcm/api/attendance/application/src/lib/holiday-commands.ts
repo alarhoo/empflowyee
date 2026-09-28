@@ -10,6 +10,7 @@ import { HcmDomainError, idValue } from '@empflowyee/hcm-runtime-contract'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { AttendanceCommandReceiptStore } from './configuration-evidence'
+import type { HolidayQueryRepository } from './holiday-queries'
 import { replaySafe } from './schedule-commands'
 
 export interface HolidayVersionInsert {
@@ -35,6 +36,7 @@ export interface HolidayRepository {
 }
 export interface AttendanceHolidayWork {
 	holidayCalendars: HolidayRepository
+	queries: HolidayQueryRepository
 	receipts: AttendanceCommandReceiptStore
 	audit: AppendAudit
 	/** Recheck source read permission even when returning an earlier command receipt. */

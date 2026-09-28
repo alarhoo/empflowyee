@@ -5,6 +5,17 @@ import type {
 	ShiftVersionView,
 } from '@empflowyee/hcm-attendance-contract'
 
+/** Closed holiday DTO projection shared by authorized exact-version and latest-version reads. */
+export const holidayVersionProjection = sql`jsonb_strip_nulls(jsonb_build_object(
+  'id',r.id,'code',r.code,'versionId',v.id,'versionNumber',v.version_number,'revision',v.revision,'state',v.state,
+  'name',v.name,'effectiveFrom',v.effective_from::text,'effectiveTo',v.effective_to::text,
+  'entries',coalesce((SELECT jsonb_agg(jsonb_build_object('date',h.actual_date::text,'observedDate',h.observed_date::text,
+    'category',h.category,'name',h.name,'priority',h.priority,'regionCode',h.region_code,'locationId',h.location_id,
+    'startTime',h.start_time::text,'endTime',h.end_time::text,
+    'overlapOffset',CASE WHEN h.start_overlap_choice IS NULL AND h.end_overlap_choice IS NULL THEN NULL
+      ELSE jsonb_build_object('start',h.start_overlap_choice,'end',h.end_overlap_choice) END) ORDER BY h.ordinal)
+    FROM hcm.holiday h WHERE h.tenant_id=v.tenant_id AND h.version_id=v.id),'[]'::jsonb)))`
+
 /** Purpose-built configuration projections; callers retain authorization and transaction ownership. */
 export class KyselyAttendanceConfigurationReader {
 	/** Bind reads to one already authorized tenant transaction, never a pooled executor with ambient state. */
@@ -57,15 +68,7 @@ WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
 	/** Read actual and observed dates with exact partial endpoints, excluding storage-only identity and publication fields. */
 	async holidayCalendar(id: string, versionId: string): Promise<HolidayVersionView | null> {
 		const result = await sql<{ view: HolidayVersionView }>`
-SELECT jsonb_strip_nulls(jsonb_build_object(
-  'id',r.id,'code',r.code,'versionId',v.id,'versionNumber',v.version_number,'revision',v.revision,'state',v.state,
-  'name',v.name,'effectiveFrom',v.effective_from::text,'effectiveTo',v.effective_to::text,
-  'entries',coalesce((SELECT jsonb_agg(jsonb_build_object('date',h.actual_date::text,'observedDate',h.observed_date::text,
-    'category',h.category,'name',h.name,'priority',h.priority,'regionCode',h.region_code,'locationId',h.location_id,
-    'startTime',h.start_time::text,'endTime',h.end_time::text,
-    'overlapOffset',CASE WHEN h.start_overlap_choice IS NULL AND h.end_overlap_choice IS NULL THEN NULL
-      ELSE jsonb_build_object('start',h.start_overlap_choice,'end',h.end_overlap_choice) END) ORDER BY h.ordinal)
-    FROM hcm.holiday h WHERE h.tenant_id=v.tenant_id AND h.version_id=v.id),'[]'::jsonb))) AS view
+SELECT ${holidayVersionProjection} AS view
 FROM hcm.holiday_calendar r JOIN hcm.holiday_calendar_version v ON v.tenant_id=r.tenant_id AND v.calendar_id=r.id
 WHERE r.tenant_id=${this.tenantId} AND r.id=${id} AND v.id=${versionId}
 `.execute(this.transaction)

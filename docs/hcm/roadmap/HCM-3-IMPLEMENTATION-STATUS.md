@@ -30,6 +30,8 @@ Canonical template grants and incomplete draft defaults are verified in
 [seed validation](../testing/HCM-3-SEED-DEFAULTS-VALIDATION.md).
 Holiday calendar Draft creation/replacement/successor commands are verified in
 [holiday command validation](../testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md).
+The five holiday draft/read HTTP routes and migration 43 cursor extension are
+verified in [holiday API validation](../testing/HCM-3-HOLIDAY-API-VALIDATION.md).
 Remaining configuration APIs/seeds, durable workday publication, domain handlers
 and the other app UIs remain pending.
 

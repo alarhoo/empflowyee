@@ -13,6 +13,7 @@ import {
 	AttendanceHolidayUnitOfWork,
 	type AttendanceHolidayWork,
 } from '@empflowyee/hcm-api-attendance-application'
+import { KyselyHolidayQueries } from './holiday-queries'
 import { KyselyHolidayRepository } from './holiday-repository'
 import { SqlAttendanceCommandReceipts } from './command-receipts'
 
@@ -44,8 +45,15 @@ export class KyselyAttendanceHolidayUnit extends AttendanceHolidayUnitOfWork {
 				) => {
 					const transaction = access.transaction as unknown as Kysely<unknown>
 					const { tenantId, accountId } = access.actor
+					if (!access.actor.grantId) throw new Error('Verified configuration grant unavailable')
 					const result = await work({
 						holidayCalendars: new KyselyHolidayRepository(transaction, tenantId, accountId),
+						queries: new KyselyHolidayQueries(
+							transaction,
+							tenantId,
+							accountId,
+							access.actor.grantId,
+						),
 						receipts: new SqlAttendanceCommandReceipts(
 							transaction,
 							tenantId,

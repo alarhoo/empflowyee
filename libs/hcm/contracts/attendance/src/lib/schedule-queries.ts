@@ -79,3 +79,10 @@ export function parseScheduleVersionQuery(
 	if (required) invalidField('version', 'required')
 	return undefined
 }
+
+export type HolidayListQuery = ScheduleListQuery
+
+/** Parse the same closed configuration-list grammar for calendar-owned results. */
+export function parseHolidayListQuery(params: URLSearchParams): HolidayListQuery {
+	return parseScheduleListQuery(params)
+}

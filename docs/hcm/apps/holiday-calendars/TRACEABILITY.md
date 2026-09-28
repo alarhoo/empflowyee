@@ -10,8 +10,15 @@ root authorization and atomic encrypted receipts/audit. Owning
 and [PostgreSQL tests](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-commands.database.spec.ts)
 cover backend portions of 001, 004 and 006. Migration 38 and the existing domain
 boundary tests cover immutable storage and exact holiday resolution. Publication
-impact, assignments, HTTP and all native UI acceptance remain pending. The app
+impact, assignments and all native UI acceptance remain pending. The app
 remains Planned; the full scenarios below are still acceptance obligations.
+
+[Holiday API validation](../../testing/HCM-3-HOLIDAY-API-VALIDATION.md) adds five
+real HTTP/SQL tests for the list/create/exact-version/update/successor routes,
+authorization, safe projections and actor-bound continuation. Migration 43 proves
+typed tenant references and compatibility with existing schedule cursors. These
+extend backend evidence for 001, 004 and 006 without claiming publication or UI
+acceptance.
 
 | Requirement                                                   | Design                          | Planned test                                              |
 | ------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------- |
