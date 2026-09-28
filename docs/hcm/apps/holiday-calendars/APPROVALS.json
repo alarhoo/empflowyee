@@ -92,11 +92,11 @@
 		},
 		{
 			"document": "SQL",
-			"sha256": "c4fe012a8edd50203990593116089e603c644783795ff77d6f50cfaa3d9da882",
+			"sha256": "2530a8890a90c96eda5e1731dfe71651b7b328a68e503909a680ff74edb17dc9",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-PERIOD-FENCE-REVIEW.md; Codex technical review under existing delegated authority; monthly storage/fence refinement, no new business decision or separate human approval."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORKDAY-STORAGE-REVIEW.md; Codex technical review under existing delegated authority; immutable exact workday evidence refinement, no new business decision or separate human approval."
 		},
 		{
 			"document": "WORKER",

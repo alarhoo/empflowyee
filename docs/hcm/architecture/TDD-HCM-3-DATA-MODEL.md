@@ -130,6 +130,46 @@ must never permit an unapproved reopen. The later source-case migration supplies
 its typed authority references. No period/lock endpoint or automatic monthly
 closure is implied by this prerequisite storage slice.
 
+## WORKDAY-EVIDENCE
+
+The initial workday persistence slice supports the assigned schedule path. Its
+`published_workday` stores tenant/id/employment/work_date, IANA zone, schedule
+kind Work/Rest, exact scheduled-work/break/expected-work milliseconds, positive
+revision, input/resolution digests, exact schedule version, optional policy version,
+supersedes_id, resolved_at and workload_run_id. Unique tenant/employment/date/revision
+and tenant/employment/date/resolution_digest prevent forks and duplicate results.
+Supersession references the same employment/date and the immediately preceding
+revision. Current selection is derived; no historical payload is updated.
+The roster/override source references are added by their owning migrations before
+those resolution paths are composed, never represented by untyped placeholder IDs.
+
+`published_workday_holiday_source` retains every exact calendar version used,
+including a different version for the next civil date of cross-midnight work.
+Its composite parent/version identity anchors Holiday segments. `published_work_segment`
+stores ordered Work, UnpaidBreak, Holiday and ExpectedWork intervals. ExpectedWork
+is the exact interval difference already defined by the domain, stored separately
+from original Work/UnpaidBreak evidence so holiday subtraction never erases it.
+Each segment retains UTC instants, local timestamps and actual offset seconds;
+seconds avoid rounding historical timezone offsets to whole minutes. Holiday
+segments reference their exact tenant/calendar-version/holiday identity.
+
+A workday append takes the shared monthly period fence and an exclusive
+employment/date fence after tenant authority. Closing/Locked/Reopened periods
+reject ordinary append; missing or Planned periods do not authorize attendance
+calculation, although future schedule workdays may be materialized. Referenced
+configuration must be Published and cover the date when a new workday is appended.
+The worker still revalidates all input digests and its lease fence before commit.
+This storage does not manufacture current input authority from a supplied digest.
+
+All workday/source/segment rows are insert-only. A server-controlled transaction
+identity confines child insertion to the parent's creation transaction. Deferred
+SQL checks require a complete contiguous single-shift schedule or a real Rest day,
+nonoverlapping intervals per lane, exact totals and ExpectedWork = Work minus Holiday.
+Typed holiday references, instant/local/offset consistency and millisecond precision
+are enforced. A failed child or invariant rolls back the whole append. Persistence
+of successful workday evidence does not replace explicit unavailable/conflict run
+outcomes, which must never be stored as a fabricated zero-duration workday.
+
 ## CROSS-DOMAIN
 
 PublishedWorkday query returns employment,date,zone,revision,digest,source version
