@@ -1,0 +1,429 @@
+{
+	"formatVersion": 1,
+	"appCode": "SHIFT_PLANNING",
+	"domain": "attendance",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/shift-planning/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/shift-planning/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/shift-planning/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/shift-planning/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "LOGICAL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/DATA-MODEL.md"
+		},
+		{
+			"id": "MODEL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md"
+		},
+		{
+			"id": "STATE",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/STATE-MODEL.md"
+		},
+		{
+			"id": "ACCESS",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md"
+		},
+		{
+			"id": "SQL",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md"
+		},
+		{
+			"id": "WORKER",
+			"kind": "foundation",
+			"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md"
+		},
+		{
+			"id": "BASELINE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md"
+		},
+		{
+			"id": "RESOLUTIONS",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md"
+		},
+		{
+			"id": "AUTHORITY",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		}
+	],
+	"route": "/attendance/shift-planning",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#FLOORPLAN"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"Form",
+				"FormItem",
+				"DatePicker",
+				"TimePicker",
+				"DateTimePicker",
+				"Select",
+				"ComboBox",
+				"TextArea",
+				"FileUploader"
+			],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent from @fundamental-ngx/core/object-status"],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["FlexibleColumnLayout"],
+			"ref": "TDD#NATIVE"
+		}
+	],
+	"contracts": [
+		{
+			"id": "SHIFT_PLANNING-API",
+			"owner": "attendance",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "attendance-DTO",
+			"owner": "attendance",
+			"ref": "DOMAIN#SCHEMAS"
+		},
+		{
+			"id": "HCM3-TRANSPORT",
+			"owner": "runtime",
+			"ref": "COMMON#CONTRACTS"
+		}
+	],
+	"data": [
+		{
+			"id": "SHIFT_PLANNING-PERSISTENCE",
+			"owner": "attendance",
+			"ref": "TDD#DATA"
+		},
+		{
+			"id": "HCM3-SQL",
+			"owner": "database",
+			"ref": "SQL#CONSTRAINTS"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.attendance.shift-planning.cancel",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.shift-planning.draft",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.shift-planning.preview",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.shift-planning.publish",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.shift-planning.read",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.shift-planning.submit",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		},
+		{
+			"id": "hcm.attendance.shift-planning.supersede",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-attendance-contract",
+			"root": "libs/hcm/contracts/attendance",
+			"tags": ["product:hcm", "runtime:universal", "domain:attendance", "type:contract"]
+		},
+		{
+			"name": "hcm-web-attendance-data-access",
+			"root": "libs/hcm/web/attendance/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:data-access"]
+		},
+		{
+			"name": "hcm-web-attendance-feature-shift-planning",
+			"root": "libs/hcm/web/attendance/feature-shift-planning",
+			"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:feature"]
+		},
+		{
+			"name": "hcm-api-attendance-domain",
+			"root": "libs/hcm/api/attendance/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:domain"]
+		},
+		{
+			"name": "hcm-api-attendance-application",
+			"root": "libs/hcm/api/attendance/application",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:application"]
+		},
+		{
+			"name": "hcm-api-attendance-infrastructure",
+			"root": "libs/hcm/api/attendance/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-attendance-transport",
+			"root": "libs/hcm/api/attendance/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:transport"]
+		},
+		{
+			"name": "hcm-api-attendance-module",
+			"root": "libs/hcm/api/attendance/module",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "CURRENT-FOUNDATION-CONTRACTS",
+			"state": "resolved",
+			"ref": "COMMON#FOUNDATIONS"
+		},
+		{
+			"id": "CURRENT-AUTHORITY",
+			"state": "resolved",
+			"ref": "COMMON#AUTHORIZATION"
+		},
+		{
+			"id": "WORKLOAD-TRUST",
+			"state": "resolved",
+			"ref": "COMMON#WORKLOAD"
+		},
+		{
+			"id": "OWNING-DOMAIN",
+			"state": "resolved",
+			"ref": "DOMAIN#ALGORITHM"
+		},
+		{
+			"id": "EXPLICIT-SQL",
+			"state": "resolved",
+			"ref": "SQL#MIGRATIONS"
+		},
+		{
+			"id": "WORKER-ADR",
+			"state": "resolved",
+			"ref": "WORKER#Decision"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-HCM3-003",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-004",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-007",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-008",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-016",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-021",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-001",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-002",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-009",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-017",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-018",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-SHIFT-PLANNING-001",
+		"FDD#REQ-SHIFT-PLANNING-002",
+		"FDD#REQ-SHIFT-PLANNING-003",
+		"FDD#REQ-SHIFT-PLANNING-004",
+		"FDD#REQ-SHIFT-PLANNING-005",
+		"FDD#REQ-SHIFT-PLANNING-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-SHIFT-PLANNING-001",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-SHIFT-PLANNING-001"
+		},
+		{
+			"id": "TEST-SHIFT-PLANNING-002",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-SHIFT-PLANNING-002"
+		},
+		{
+			"id": "TEST-SHIFT-PLANNING-003",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-SHIFT-PLANNING-003"
+		},
+		{
+			"id": "TEST-SHIFT-PLANNING-004",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-SHIFT-PLANNING-004"
+		},
+		{
+			"id": "TEST-SHIFT-PLANNING-005",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-SHIFT-PLANNING-005"
+		},
+		{
+			"id": "TEST-SHIFT-PLANNING-006",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-SHIFT-PLANNING-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-SHIFT-PLANNING-001",
+			"design": "TDD#DESIGN-001",
+			"tests": ["TEST-SHIFT-PLANNING-001"]
+		},
+		{
+			"requirement": "FDD#REQ-SHIFT-PLANNING-002",
+			"design": "TDD#DESIGN-002",
+			"tests": ["TEST-SHIFT-PLANNING-002"]
+		},
+		{
+			"requirement": "FDD#REQ-SHIFT-PLANNING-003",
+			"design": "TDD#DESIGN-003",
+			"tests": ["TEST-SHIFT-PLANNING-003"]
+		},
+		{
+			"requirement": "FDD#REQ-SHIFT-PLANNING-004",
+			"design": "TDD#DESIGN-004",
+			"tests": ["TEST-SHIFT-PLANNING-004"]
+		},
+		{
+			"requirement": "FDD#REQ-SHIFT-PLANNING-005",
+			"design": "TDD#DESIGN-005",
+			"tests": ["TEST-SHIFT-PLANNING-005"]
+		},
+		{
+			"requirement": "FDD#REQ-SHIFT-PLANNING-006",
+			"design": "TDD#DESIGN-006",
+			"tests": ["TEST-SHIFT-PLANNING-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-3-shift-planning",
+		"commits": [
+			"feat(hcm-attendance): add shift-planning contracts and domain behavior",
+			"feat(hcm-attendance): persist shift-planning with authorization and receipts",
+			"feat(hcm-attendance): add shift-planning native application experience",
+			"test(hcm-attendance): verify shift-planning acceptance and document evidence"
+		]
+	}
+}

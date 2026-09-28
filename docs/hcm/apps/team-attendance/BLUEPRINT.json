@@ -1,0 +1,407 @@
+{
+	"formatVersion": 1,
+	"appCode": "TEAM_ATTENDANCE",
+	"domain": "attendance",
+	"documents": [
+		{
+			"id": "FDD",
+			"kind": "fdd",
+			"path": "docs/hcm/apps/team-attendance/FDD.md"
+		},
+		{
+			"id": "TDD",
+			"kind": "tdd",
+			"path": "docs/hcm/apps/team-attendance/TDD.md"
+		},
+		{
+			"id": "TRACE",
+			"kind": "traceability",
+			"path": "docs/hcm/apps/team-attendance/TRACEABILITY.md"
+		},
+		{
+			"id": "DECISIONS",
+			"kind": "decisions",
+			"path": "docs/hcm/apps/team-attendance/DECISIONS.md"
+		},
+		{
+			"id": "DOMAIN",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/TECHNICAL-DESIGN.md"
+		},
+		{
+			"id": "LOGICAL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/DATA-MODEL.md"
+		},
+		{
+			"id": "MODEL",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/DOMAIN-MODEL.md"
+		},
+		{
+			"id": "RULES",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/BUSINESS-RULES.md"
+		},
+		{
+			"id": "STATE",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/STATE-MODEL.md"
+		},
+		{
+			"id": "ACCESS",
+			"kind": "domain",
+			"path": "docs/hcm/domains/attendance/ACCESS-MODEL.md"
+		},
+		{
+			"id": "COMMON",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-COMMON.md"
+		},
+		{
+			"id": "SQL",
+			"kind": "contract",
+			"path": "docs/hcm/architecture/TDD-HCM-3-DATA-MODEL.md"
+		},
+		{
+			"id": "WORKER",
+			"kind": "foundation",
+			"path": "docs/hcm/adr/ADR-HCM-BACKGROUND-WORK.md"
+		},
+		{
+			"id": "BASELINE",
+			"kind": "contract",
+			"path": "docs/hcm/roadmap/HCM-3-FUNCTIONAL-BASELINE.md"
+		},
+		{
+			"id": "RESOLUTIONS",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DECISIONS.md"
+		},
+		{
+			"id": "AUTHORITY",
+			"kind": "foundation",
+			"path": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md"
+		},
+		{
+			"id": "FOUNDATION01",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-LAUNCHPAD-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION02",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-DATABASE-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION03",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-0-SEED-VALIDATION.md"
+		},
+		{
+			"id": "FOUNDATION04",
+			"kind": "foundation",
+			"path": "docs/hcm/testing/HCM-PERSISTENT-RUNTIME-VALIDATION.md"
+		}
+	],
+	"route": "/attendance/team-attendance",
+	"floorplan": {
+		"id": "UX-FP-FCL",
+		"mode": "NATIVE",
+		"ref": "TDD#FLOORPLAN"
+	},
+	"nativeComponents": [
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents",
+			"version": "0.64.3",
+			"imports": [
+				"Table",
+				"Form",
+				"FormItem",
+				"DatePicker",
+				"TimePicker",
+				"DateTimePicker",
+				"Select",
+				"ComboBox",
+				"TextArea",
+				"FileUploader"
+			],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/core",
+			"version": "0.64.3",
+			"imports": ["ObjectStatusComponent from @fundamental-ngx/core/object-status"],
+			"ref": "TDD#NATIVE"
+		},
+		{
+			"package": "@fundamental-ngx/ui5-webcomponents-fiori",
+			"version": "0.64.3",
+			"imports": ["FlexibleColumnLayout"],
+			"ref": "TDD#NATIVE"
+		}
+	],
+	"contracts": [
+		{
+			"id": "TEAM_ATTENDANCE-API",
+			"owner": "attendance",
+			"ref": "TDD#API"
+		},
+		{
+			"id": "attendance-DTO",
+			"owner": "attendance",
+			"ref": "DOMAIN#SCHEMAS"
+		},
+		{
+			"id": "HCM3-TRANSPORT",
+			"owner": "runtime",
+			"ref": "COMMON#CONTRACTS"
+		}
+	],
+	"data": [
+		{
+			"id": "TEAM_ATTENDANCE-PERSISTENCE",
+			"owner": "attendance",
+			"ref": "TDD#DATA"
+		},
+		{
+			"id": "HCM3-SQL",
+			"owner": "database",
+			"ref": "SQL#CONSTRAINTS"
+		}
+	],
+	"permissions": [
+		{
+			"id": "hcm.attendance.team-attendance.read",
+			"owner": "attendance",
+			"ref": "TDD#AUTHORIZATION"
+		}
+	],
+	"projects": [
+		{
+			"name": "hcm-attendance-contract",
+			"root": "libs/hcm/contracts/attendance",
+			"tags": ["product:hcm", "runtime:universal", "domain:attendance", "type:contract"]
+		},
+		{
+			"name": "hcm-web-attendance-data-access",
+			"root": "libs/hcm/web/attendance/data-access",
+			"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:data-access"]
+		},
+		{
+			"name": "hcm-web-attendance-feature-team-attendance",
+			"root": "libs/hcm/web/attendance/feature-team-attendance",
+			"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:feature"]
+		},
+		{
+			"name": "hcm-api-attendance-domain",
+			"root": "libs/hcm/api/attendance/domain",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:domain"]
+		},
+		{
+			"name": "hcm-api-attendance-application",
+			"root": "libs/hcm/api/attendance/application",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:application"]
+		},
+		{
+			"name": "hcm-api-attendance-infrastructure",
+			"root": "libs/hcm/api/attendance/infrastructure",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:infrastructure"]
+		},
+		{
+			"name": "hcm-api-attendance-transport",
+			"root": "libs/hcm/api/attendance/transport",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:transport"]
+		},
+		{
+			"name": "hcm-api-attendance-module",
+			"root": "libs/hcm/api/attendance/module",
+			"tags": ["product:hcm", "runtime:api", "domain:attendance", "type:module"]
+		}
+	],
+	"prerequisites": [
+		{
+			"id": "CURRENT-FOUNDATION-CONTRACTS",
+			"state": "resolved",
+			"ref": "COMMON#FOUNDATIONS"
+		},
+		{
+			"id": "CURRENT-AUTHORITY",
+			"state": "resolved",
+			"ref": "COMMON#AUTHORIZATION"
+		},
+		{
+			"id": "WORKLOAD-TRUST",
+			"state": "resolved",
+			"ref": "COMMON#WORKLOAD"
+		},
+		{
+			"id": "OWNING-DOMAIN",
+			"state": "resolved",
+			"ref": "DOMAIN#ALGORITHM"
+		},
+		{
+			"id": "EXPLICIT-SQL",
+			"state": "resolved",
+			"ref": "SQL#MIGRATIONS"
+		},
+		{
+			"id": "WORKER-ADR",
+			"state": "resolved",
+			"ref": "WORKER#Decision"
+		}
+	],
+	"foundations": [
+		{
+			"id": "HCM0-01",
+			"ref": "FOUNDATION01#Runtime"
+		},
+		{
+			"id": "HCM0-02",
+			"ref": "FOUNDATION02#Automated"
+		},
+		{
+			"id": "HCM0-03",
+			"ref": "FOUNDATION03#Reproduction"
+		},
+		{
+			"id": "HCM0-04",
+			"ref": "FOUNDATION04#Automated"
+		}
+	],
+	"decisions": [
+		{
+			"id": "DEC-HCM3-003",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-004",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-005",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-006",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-007",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-008",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-016",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-021",
+			"classification": "RESOLVED"
+		},
+		{
+			"id": "DEC-HCM3-001",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-002",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-009",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-017",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		},
+		{
+			"id": "DEC-HCM3-018",
+			"classification": "BLOCKS_LATER_CAPABILITY"
+		}
+	],
+	"requirements": [
+		"FDD#REQ-TEAM-ATTENDANCE-001",
+		"FDD#REQ-TEAM-ATTENDANCE-002",
+		"FDD#REQ-TEAM-ATTENDANCE-003",
+		"FDD#REQ-TEAM-ATTENDANCE-004",
+		"FDD#REQ-TEAM-ATTENDANCE-005",
+		"FDD#REQ-TEAM-ATTENDANCE-006"
+	],
+	"tests": [
+		{
+			"id": "TEST-TEAM-ATTENDANCE-001",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-TEAM-ATTENDANCE-001"
+		},
+		{
+			"id": "TEST-TEAM-ATTENDANCE-002",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-TEAM-ATTENDANCE-002"
+		},
+		{
+			"id": "TEST-TEAM-ATTENDANCE-003",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-TEAM-ATTENDANCE-003"
+		},
+		{
+			"id": "TEST-TEAM-ATTENDANCE-004",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-TEAM-ATTENDANCE-004"
+		},
+		{
+			"id": "TEST-TEAM-ATTENDANCE-005",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-TEAM-ATTENDANCE-005"
+		},
+		{
+			"id": "TEST-TEAM-ATTENDANCE-006",
+			"kind": "planned-acceptance",
+			"ref": "TRACE#TEST-TEAM-ATTENDANCE-006"
+		}
+	],
+	"traceability": [
+		{
+			"requirement": "FDD#REQ-TEAM-ATTENDANCE-001",
+			"design": "TDD#DESIGN-001",
+			"tests": ["TEST-TEAM-ATTENDANCE-001"]
+		},
+		{
+			"requirement": "FDD#REQ-TEAM-ATTENDANCE-002",
+			"design": "TDD#DESIGN-002",
+			"tests": ["TEST-TEAM-ATTENDANCE-002"]
+		},
+		{
+			"requirement": "FDD#REQ-TEAM-ATTENDANCE-003",
+			"design": "TDD#DESIGN-003",
+			"tests": ["TEST-TEAM-ATTENDANCE-003"]
+		},
+		{
+			"requirement": "FDD#REQ-TEAM-ATTENDANCE-004",
+			"design": "TDD#DESIGN-004",
+			"tests": ["TEST-TEAM-ATTENDANCE-004"]
+		},
+		{
+			"requirement": "FDD#REQ-TEAM-ATTENDANCE-005",
+			"design": "TDD#DESIGN-005",
+			"tests": ["TEST-TEAM-ATTENDANCE-005"]
+		},
+		{
+			"requirement": "FDD#REQ-TEAM-ATTENDANCE-006",
+			"design": "TDD#DESIGN-006",
+			"tests": ["TEST-TEAM-ATTENDANCE-006"]
+		}
+	],
+	"delivery": {
+		"branch": "codex/hcm-3-team-attendance",
+		"commits": [
+			"feat(hcm-attendance): add team-attendance contracts and domain behavior",
+			"feat(hcm-attendance): persist team-attendance with authorization and receipts",
+			"feat(hcm-attendance): add team-attendance native application experience",
+			"test(hcm-attendance): verify team-attendance acceptance and document evidence"
+		]
+	}
+}
