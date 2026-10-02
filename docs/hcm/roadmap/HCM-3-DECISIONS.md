@@ -2,8 +2,8 @@
 
 Status: approved for current HCM-3 design, 2026-09-28. The product owner's
 [explicit resolutions and delegated finalization](HCM-3-DESIGN-APPROVAL.md#authority)
-govern the resolved decisions. DEC-HCM3-024 is a newly identified Holiday
-Calendars publication question awaiting a product-owner answer.
+govern the resolved decisions. DEC-HCM3-024 was resolved by the product owner on 2026-09-29: publication requires
+an explicit employment/timezone validation context.
 Technical implementation choices follow the approved owning TDDs.
 
 <a id="step-1-register--2026-09-28"></a>
@@ -36,7 +36,7 @@ Technical implementation choices follow the approved owning TDDs.
 | DEC-HCM3-021 | RESOLVED                | Accepted: one shared hcm-worker composition/runtime for Leave accrual/expiry, Attendance calculation/reconciliation and Workflow timers/dispatch/reconciliation. PostgreSQL durable intent/outbox/lease/idempotency; local finite-drain/poll modes; no durable loops in hcm-api. Future Cloud Run Job + Scheduler remains subject to infrastructure/IAM review. |
 | DEC-HCM3-022 | RESOLVED | Product owner approved during Step 2: enforce configured schedule and Attendance policy minimum-rest rules independently, preserving each rule's Warn/Block mode. Neither rule overrides the other; unset rules remain inactive. |
 | DEC-HCM3-023 | RESOLVED | Product owner approved during Step 2: Employment timezone mode uses the unique primary assignment's location. Location mode uses the schedule's explicitly targeted assignment/location, otherwise the unique primary assignment's location. Missing or ambiguous matches are unavailable; Fixed retains its explicit configured zone. |
-| DEC-HCM3-024 | BLOCKS_THIS_APP | Holiday Calendars publication only: decide whether an unassigned calendar may publish after structural/definite-collision checks with actual DST and scoped collision checks mandatory on assignment, or must receive an explicit employment/timezone validation context before publication. No publication admission rule is inferred while the product-owner question is pending. |
+| DEC-HCM3-024 | RESOLVED | Publication requires an explicit employment/timezone validation context. Product owner selected this option on 2026-09-29. Validate the exact dated Workforce context, DST and scoped collisions before publication; missing or ambiguous context blocks publication. Assignment revalidates actual affected contexts. |
 
 ## APPLICATION
 

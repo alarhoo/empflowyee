@@ -4,6 +4,7 @@ import {
 } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
 	KyselyAttendanceResolveHandler,
+	KyselyHolidayPreviewHandler,
 	KyselyAttendanceConfigurationInputBinder,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
@@ -19,9 +20,10 @@ process.once('SIGTERM', stop)
 void runHcmWorker(
 	process.env,
 	{
-		/** Compose only the delivered assigned-workday handler; all other workloads remain explicitly unavailable. */
+		/** Compose delivered workday resolution and Holiday preview handlers; other workloads remain unavailable. */
 		lanes: (_database, store) => [
 			new HcmTransactionalWorkerLane('AttendanceResolve', store, [
+				new KyselyHolidayPreviewHandler(new KyselyWorkforceTimeContextBinder()),
 				new KyselyAttendanceResolveHandler(
 					new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder()),
 				),

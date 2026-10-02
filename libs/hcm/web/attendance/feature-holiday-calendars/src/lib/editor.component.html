@@ -1,0 +1,248 @@
+<ef-hcm-dynamic-page
+	[title]="id ? 'Edit holiday calendar' : 'Create holiday calendar'"
+	summary="Enter actual and observed dates explicitly; publication requires employment/timezone validation"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true"
+	(retry)="load()">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	<ui5-form
+		accessibleName="Calendar properties"
+		accessibleMode="Edit"
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Code</ui5-label>
+			<ui5-input
+				accessibleName="Code"
+				[formField]="fields.code"
+				[maxlength]="40"
+				[readonly]="!!id"
+				[valueState]="fieldError('code') ? 'Negative' : 'None'"></ui5-input>
+			<ui5-text>{{ fieldError('code') }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Name</ui5-label>
+			<ui5-input
+				accessibleName="Name"
+				[formField]="fields.name"
+				[maxlength]="120"
+				[valueState]="fieldError('name') ? 'Negative' : 'None'"></ui5-input>
+			<ui5-text>{{ fieldError('name') }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Effective from</ui5-label>
+			<ui5-date-picker
+				hcmDateField
+				accessibleName="Effective from"
+				[formField]="fields.effectiveFrom"
+				valueFormat="yyyy-MM-dd"
+				[displayFormat]="runtime.preferences().dateFormat"
+				[valueState]="fieldError('effectiveFrom') ? 'Negative' : 'None'"></ui5-date-picker>
+			<ui5-text>{{ fieldError('effectiveFrom') }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Effective to (optional)</ui5-label>
+			<ui5-date-picker
+				hcmDateField
+				accessibleName="Effective to"
+				[formField]="fields.effectiveTo"
+				valueFormat="yyyy-MM-dd"
+				[displayFormat]="runtime.preferences().dateFormat"
+				[valueState]="fieldError('effectiveTo') ? 'Negative' : 'None'"></ui5-date-picker>
+			<ui5-text>{{ fieldError('effectiveTo') }}</ui5-text>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-title level="H2">Location choices</ui5-title>
+	<ui5-input
+		accessibleName="Search locations"
+		[value]="locationQuery()"
+		#locationSearch
+		(ui5Input)="locationQuery.set(locationSearch.value() ?? '')"
+		[maxlength]="120"></ui5-input>
+	<ui5-button (click)="findLocations()">Search locations</ui5-button>
+	<ui5-text>{{ locationError() }}</ui5-text>
+	@for (entry of fields.entries; track $index; let i = $index) {
+		<ui5-title level="H2">Holiday {{ i + 1 }}</ui5-title>
+		<ui5-form
+			[accessibleName]="'Holiday ' + (i + 1)"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Holiday name</ui5-label>
+				<ui5-input
+					accessibleName="Holiday name"
+					[formField]="entry.name"
+					[maxlength]="120"
+					[valueState]="fieldError('entries.' + i + '.name') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('entries.' + i + '.name') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Actual date</ui5-label>
+				<ui5-date-picker
+					hcmDateField
+					accessibleName="Actual date"
+					[formField]="entry.date"
+					valueFormat="yyyy-MM-dd"
+					[displayFormat]="runtime.preferences().dateFormat"
+					[valueState]="
+						fieldError('entries.' + i + '.date') ? 'Negative' : 'None'
+					"></ui5-date-picker>
+				<ui5-text>{{ fieldError('entries.' + i + '.date') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Observed date</ui5-label>
+				<ui5-date-picker
+					hcmDateField
+					accessibleName="Observed date"
+					[formField]="entry.observedDate"
+					valueFormat="yyyy-MM-dd"
+					[displayFormat]="runtime.preferences().dateFormat"
+					[valueState]="
+						fieldError('entries.' + i + '.observedDate') ? 'Negative' : 'None'
+					"></ui5-date-picker>
+				<ui5-text>{{ fieldError('entries.' + i + '.observedDate') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Category</ui5-label>
+				<ui5-select
+					accessibleName="Category"
+					[formField]="entry.category"
+					[valueState]="fieldError('entries.' + i + '.category') ? 'Negative' : 'None'">
+					<ui5-option value="">Choose category</ui5-option>
+					<ui5-option value="Public">Public</ui5-option>
+					<ui5-option value="Company">Company</ui5-option>
+					<ui5-option value="Regional">Regional</ui5-option>
+					<ui5-option value="Substitute">Substitute</ui5-option>
+				</ui5-select>
+				<ui5-text>{{ fieldError('entries.' + i + '.category') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Region code (optional)</ui5-label>
+				<ui5-input
+					accessibleName="Region code"
+					[formField]="entry.regionCode"
+					[maxlength]="120"
+					[valueState]="
+						fieldError('entries.' + i + '.regionCode') ? 'Negative' : 'None'
+					"></ui5-input>
+				<ui5-text>{{ fieldError('entries.' + i + '.regionCode') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Start time (optional)</ui5-label>
+				<ui5-time-picker
+					accessibleName="Start time"
+					[formField]="entry.startTime"
+					valueFormat="HH:mm:ss.SSS"
+					[formatPattern]="timeFormat()"
+					[valueState]="
+						fieldError('entries.' + i + '.startTime') ? 'Negative' : 'None'
+					"></ui5-time-picker>
+				<ui5-text>{{ fieldError('entries.' + i + '.startTime') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">End time (optional)</ui5-label>
+				<ui5-time-picker
+					accessibleName="End time"
+					[formField]="entry.endTime"
+					valueFormat="HH:mm:ss.SSS"
+					[formatPattern]="timeFormat()"
+					[valueState]="
+						fieldError('entries.' + i + '.endTime') ? 'Negative' : 'None'
+					"></ui5-time-picker>
+				<ui5-text>{{ fieldError('entries.' + i + '.endTime') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Repeated start time (optional)</ui5-label>
+				<ui5-select
+					accessibleName="Repeated start time"
+					[formField]="entry.startOverlap"
+					[valueState]="fieldError('entries.' + i + '.startOverlap') ? 'Negative' : 'None'">
+					<ui5-option value="">Choose repeated start time</ui5-option>
+					<ui5-option value="Earlier">Earlier</ui5-option>
+					<ui5-option value="Later">Later</ui5-option>
+				</ui5-select>
+				<ui5-text>{{ fieldError('entries.' + i + '.startOverlap') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Repeated end time (optional)</ui5-label>
+				<ui5-select
+					accessibleName="Repeated end time"
+					[formField]="entry.endOverlap"
+					[valueState]="fieldError('entries.' + i + '.endOverlap') ? 'Negative' : 'None'">
+					<ui5-option value="">Choose repeated end time</ui5-option>
+					<ui5-option value="Earlier">Earlier</ui5-option>
+					<ui5-option value="Later">Later</ui5-option>
+				</ui5-select>
+				<ui5-text>{{ fieldError('entries.' + i + '.endOverlap') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Priority</ui5-label>
+				<ui5-step-input
+					[id]="'holiday-priority-' + i"
+					accessibleName="Priority"
+					[value]="entry.priority().value()"
+					[disabled]="draft.saving()"
+					[min]="-2147483648"
+					[max]="2147483647"
+					[step]="1"
+					(ui5Input)="entry.priority().value.set(numericValue($event.target))"
+					(ui5Change)="
+						entry.priority().value.set(numericValue($event.target));
+						entry.priority().markAsTouched()
+					"></ui5-step-input>
+				<ui5-text>
+					{{
+						submitted() || entry.priority().touched()
+							? fieldError('entries.' + i + '.priority')
+							: ''
+					}}
+				</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Location (optional)</ui5-label>
+				<ui5-select
+					accessibleName="Location"
+					[formField]="entry.locationId">
+					<ui5-option value="">All locations</ui5-option>
+					@for (location of locations(); track location.id) {
+						<ui5-option [value]="location.id">{{ location.name }}</ui5-option>
+					}
+				</ui5-select>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-button
+			[disabled]="draft.saving()"
+			(click)="removeEntry(i)">
+			Remove holiday {{ i + 1 }}
+		</ui5-button>
+	}
+	<ui5-button
+		[disabled]="draft.saving()"
+		(click)="addEntry()">
+		Add holiday
+	</ui5-button>
+	<ui5-button
+		hcmFooter
+		design="Emphasized"
+		[disabled]="draft.saving() || state() !== 'content'"
+		(click)="save()">
+		{{ draft.saving() ? 'Saving...' : 'Save draft' }}
+	</ui5-button>
+	<ui5-button
+		hcmFooter
+		[disabled]="draft.saving()"
+		(click)="cancel()">
+		Cancel
+	</ui5-button>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

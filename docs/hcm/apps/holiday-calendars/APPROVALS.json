@@ -4,35 +4,35 @@
 	"approvals": [
 		{
 			"document": "FDD",
-			"sha256": "ae8bc16691862008306898709dd5f330e413d24af86c02f170ab058e8c2b39ea",
+			"sha256": "fd3f681f539e7733ada0236c460a80b36de739c7222e4fb52132a0c38d51b04e",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewer": "Codex technical review under existing product-owner delegation",
+			"reviewedAt": "2026-10-02",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md#technical-review; actual publication/assignment and native binding review plus executed normal-build browser acceptance; no separate human approval."
 		},
 		{
 			"document": "TDD",
-			"sha256": "5748d852630385aa1027e43a215aba8f98b78d2ec7d04709515b7245fe0683c8",
+			"sha256": "ce70b86683f16d90ea560e6972088a21a6b520cca9ed7f789452b6d27dcdfd68",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-QUERY-REVIEW.md; Codex technical review under existing delegated authority; additive typed holiday cursor support and exact query semantics, no new business decision or separate human approval."
+			"reviewer": "Codex technical review under existing product-owner delegation",
+			"reviewedAt": "2026-10-02",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md#technical-review; actual publication/assignment and native binding review plus executed normal-build browser acceptance; no separate human approval."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "d294bd56db445273b227dbf58ba79f935266d082791a0e103457d756b45674ec",
+			"sha256": "5e87baa728e33510cdd46c81dd33656cf89a7757f9f2fe848b41dde9eac4c986",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-API-VALIDATION.md; Codex technical review under existing delegated authority; partial HTTP/SQL evidence only, app acceptance remains pending, no separate human approval."
+			"reviewer": "Codex technical review under existing product-owner delegation",
+			"reviewedAt": "2026-10-02",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md#technical-review; actual publication/assignment and native binding review plus executed normal-build browser acceptance; no separate human approval."
 		},
 		{
 			"document": "DECISIONS",
-			"sha256": "c1317883aa44cbd333bd7bd2b076eaab2d37ec21b85e7c7e9c50246076b563ec",
+			"sha256": "ffdfb22caff6869d5059b9754f674e846173846994dc680b9714d48600c04547",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewer": "Codex technical review under existing product-owner delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md#resolution--2026-09-29; explicit product-owner answer recorded, not implementation acceptance."
 		},
 		{
 			"document": "DOMAIN",
@@ -116,11 +116,11 @@
 		},
 		{
 			"document": "RESOLUTIONS",
-			"sha256": "a87339a27f60c6b3f610989b877fe39a0c099cb81073fd13c7295d753475d16e",
+			"sha256": "601ff6cb1ae592f4b1d9567c43bd39fad3848472e033f47ba0f2fcedd23bf687",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewer": "Codex technical review under existing product-owner delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md#resolution--2026-09-29; explicit product-owner answer recorded, not implementation acceptance."
 		},
 		{
 			"document": "AUTHORITY",
@@ -164,11 +164,11 @@
 		},
 		{
 			"document": "BLUEPRINT",
-			"sha256": "6a09c05ec7f2b8948f785b6f9242abee30a82a87ad4ff0297ac8f10790668b6b",
+			"sha256": "d7807b195346c0d4785f90cd1d5aed2417c516b1639c708cbf9bf0fc541b002d",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewer": "Codex technical review under existing product-owner delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md#resolution--2026-09-29; explicit product-owner answer recorded, not implementation acceptance."
 		}
 	]
 }

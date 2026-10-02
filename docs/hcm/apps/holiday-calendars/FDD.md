@@ -1,6 +1,6 @@
 # Holiday Calendars — functional design
 
-Status: approved functional design, 2026-09-28. Design approval derives from [product-owner resolutions](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation remains Planned.
+Status: approved functional design, 2026-09-28. Design approval derives from [product-owner resolutions](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation acceptance is recorded in [traceability](TRACEABILITY.md).
 
 App `HOLIDAY_CALENDARS`; owner `attendance`; wave HCM-3.
 

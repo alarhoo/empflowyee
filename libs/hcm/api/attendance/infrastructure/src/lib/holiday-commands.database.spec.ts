@@ -111,11 +111,11 @@ beforeAll(
 		for (const operation of ['draft', 'read']) {
 			const permission = 'hcm.attendance.holiday-calendars.' + operation
 			await admin.query(
-				"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Holiday test operation','business-operation')",
+				"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Holiday test operation','business-operation') ON CONFLICT DO NOTHING",
 				[tenant, permission],
 			)
 			await admin.query(
-				"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator',$2)",
+				"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator',$2) ON CONFLICT DO NOTHING",
 				[tenant, permission],
 			)
 		}

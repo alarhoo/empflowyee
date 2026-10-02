@@ -47,11 +47,11 @@ beforeAll(
 		for (const operation of ['draft', 'read']) {
 			const permission = 'hcm.attendance.holiday-calendars.' + operation
 			await api.admin.query(
-				"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Holiday API test','business-operation')",
+				"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,$2,'Holiday API test','business-operation') ON CONFLICT DO NOTHING",
 				[tenant, permission],
 			)
 			await api.admin.query(
-				"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator',$2)",
+				"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator',$2) ON CONFLICT DO NOTHING",
 				[tenant, permission],
 			)
 		}
@@ -148,7 +148,7 @@ it('serves exact calendar draft/version routes without exposing source metadata 
 			)
 		).body.items,
 	).toEqual([])
-	expect((await api.send('david', 'POST', path + '/publish', {})).status).toBe(404)
+	expect((await api.send('david', 'POST', path + '/publish', {})).status).toBe(400)
 })
 
 it('binds literal filtered pagination to current actor, source, grant and exact query parameters', /** Opaque handles cannot be changed, mixed with other filters or reused after a source mutation. */ async () => {

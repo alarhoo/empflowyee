@@ -888,10 +888,10 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 			appCode: 'HOLIDAY_CALENDARS',
 			title: 'Holiday Calendars',
 			domain: 'attendance',
-			catalogueIds: ['hr-specialist-operations'],
+			catalogueIds: ['hr-specialist-operations', 'tenant-administration'],
 			route: '/attendance/holiday-calendars',
 			floorplan: 'UX-FP-FCL',
-			implementationStatus: 'planned',
+			implementationStatus: 'complete',
 			fddStatus: 'approved',
 			tddStatus: 'approved',
 			discoveryPolicy: {
@@ -3155,6 +3155,7 @@ export const HCM_CATALOGUE: HcmCatalogue = {
 					appCodes: [
 						'WORKFLOW_DEFINITIONS',
 						'WORK_SCHEDULE_TEMPLATES',
+						'HOLIDAY_CALENDARS',
 						'TIMESHEET_POLICIES',
 						'EXPENSE_POLICIES',
 					],

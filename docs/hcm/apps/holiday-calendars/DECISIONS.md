@@ -1,7 +1,7 @@
 # Holiday Calendars — approved decisions
 
 Authority: [HCM-3 product resolutions](../../roadmap/HCM-3-DECISIONS.md#decisions).
-DEC-HCM3-024 blocks publication admission pending a product-owner answer.
+DEC-HCM3-024 requires explicit employment/timezone validation before publication.
 Previously approved draft/read behavior and the remaining resolved decisions are
 unchanged. Do not infer an unassigned calendar timezone.
 
@@ -16,4 +16,4 @@ unchanged. Do not infer an unassigned calendar timezone.
 | DEC-HCM3-009 | BLOCKS_LATER_CAPABILITY | Production capture retention/precision remains deferred. Current capture omits location, IP and device assertions.                                                                                                                                                                                                                                              |
 | DEC-HCM3-017 | BLOCKS_LATER_CAPABILITY | Production workflow retention/redaction and per-record crypto-erasure remain deferred; never erase a shared tenant key to dispose one record.                                                                                                                                                                                                                   |
 | DEC-HCM3-018 | BLOCKS_LATER_CAPABILITY | Production freshness, dispatch, timer and reconciliation SLOs remain deferred. Current durable recovery and bounded processing are required.                                                                                                                                                                                                                    |
-| DEC-HCM3-024 | BLOCKS_THIS_APP | Holiday Calendars publication only: decide whether an unassigned calendar may publish after structural/definite-collision checks with actual DST and scoped collision checks mandatory on assignment, or must receive an explicit employment/timezone validation context before publication. No publication admission rule is inferred while the product-owner question is pending. |
+| DEC-HCM3-024 | RESOLVED | Publication requires an explicit employment/timezone validation context. Product owner selected this option on 2026-09-29. Validate the exact dated Workforce context, DST and scoped collisions before publication; missing or ambiguous context blocks publication. Assignment revalidates actual affected contexts. |

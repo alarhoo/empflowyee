@@ -1,5 +1,9 @@
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
-import { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
+import {
+	WorkforceTimeContextBinder,
+	WorkforceTimeSubjectsBinder,
+	WorkforcePortBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-application'
 import { Module } from '@nestjs/common'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
@@ -10,7 +14,11 @@ import {
 	AttendanceConfigurationInputBinder,
 	AttendanceScheduleUnitOfWork,
 	AttendanceHolidayUnitOfWork,
+	AttendanceHolidayAssignmentUnit,
+	AttendanceHolidayAssignments,
 	AttendanceHolidayDrafts,
+	AttendanceHolidayPublication,
+	AttendanceHolidayReferences,
 	AttendanceHolidayQueries,
 	AttendanceScheduleDrafts,
 	AttendanceScheduleQueries,
@@ -21,18 +29,47 @@ import {
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
 	KyselyAttendanceHolidayUnit,
+	KyselyHolidayAssignmentUnit,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import {
 	ScheduleTemplatesController,
 	HolidayCalendarsController,
+	HolidayAssignmentsController,
 } from '@empflowyee/hcm-api-attendance-transport'
 
 /** Attendance composition owns no scheduler loop or startup migration. */
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [ScheduleTemplatesController, HolidayCalendarsController],
+	controllers: [
+		ScheduleTemplatesController,
+		HolidayCalendarsController,
+		HolidayAssignmentsController,
+	],
 	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
 	providers: [
+		{
+			provide: AttendanceHolidayAssignmentUnit,
+			inject: [
+				HcmAccessDatabase,
+				FieldCipher,
+				WorkforceTimeContextBinder,
+				WorkforceTimeSubjectsBinder,
+			],
+			useFactory:
+			/** Compose scope enumeration, time facts and transactional assignments from existing owner ports. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				workforce: WorkforceTimeContextBinder,
+				subjects: WorkforceTimeSubjectsBinder,
+			) => new KyselyHolidayAssignmentUnit(database, cipher, workforce, subjects),
+		},
+		{
+			provide: AttendanceHolidayAssignments,
+			inject: [AttendanceHolidayAssignmentUnit],
+			useFactory: /** Bind assignment behavior without putting business logic in the root. */ (
+				unit: AttendanceHolidayAssignmentUnit,
+			) => new AttendanceHolidayAssignments(unit),
+		},
 		{
 			provide: AttendancePeriodFenceBinder,
 			useFactory: /** Bind the monthly publication fence to the current source transaction. */ () =>
@@ -47,11 +84,27 @@ import {
 		},
 		{
 			provide: AttendanceHolidayUnitOfWork,
-			inject: [HcmAccessDatabase, FieldCipher],
+			inject: [HcmAccessDatabase, FieldCipher, WorkforceTimeContextBinder, WorkforcePortBinder],
 			useFactory: /** Compose holiday transactions with existing encryption. */ (
 				database: HcmAccessDatabase | null,
 				cipher: FieldCipher,
-			) => new KyselyAttendanceHolidayUnit(database, cipher),
+				workforce: WorkforceTimeContextBinder,
+				references: WorkforcePortBinder,
+			) => new KyselyAttendanceHolidayUnit(database, cipher, workforce, references),
+		},
+		{
+			provide: AttendanceHolidayReferences,
+			inject: [AttendanceHolidayUnitOfWork],
+			useFactory: /** Compose minimal selectors under their own calendar operation authority. */ (
+				unit: AttendanceHolidayUnitOfWork,
+			) => new AttendanceHolidayReferences(unit),
+		},
+		{
+			provide: AttendanceHolidayPublication,
+			inject: [AttendanceHolidayUnitOfWork],
+			useFactory: /** Bind publication commands to their real durable validation adapter. */ (
+				unit: AttendanceHolidayUnitOfWork,
+			) => new AttendanceHolidayPublication(unit),
 		},
 		{
 			provide: AttendanceHolidayDrafts,

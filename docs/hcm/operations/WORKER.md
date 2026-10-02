@@ -11,7 +11,10 @@ The runtime root registers AttendanceResolve with the assigned-workday handler
 `attendance.workday.resolve` (schema 1). It accepts source-owned durable intents
 with employmentId, workDate and the accepted inputDigest, then publishes exact
 immutable workdays or explicit unavailable outcomes. Its receipt, workload audit
-and lease completion share the publication transaction. Other workloads fail
+and lease completion share the publication transaction. The same lane also runs
+`attendance.holiday.preview` (schema 1), produced by the Holiday preview API. It
+validates explicit employment/timezone context and completes Ready/Failed review
+evidence; it never publishes a calendar. Other workloads fail
 startup as unavailable. Leave accrual/expiry, Attendance calculation/reconciliation,
 Workflow processing and source producer/recovery commands are still being delivered.
 See [worker validation](../testing/HCM-3-RESOLVE-WORKER-VALIDATION.md) and
@@ -56,8 +59,11 @@ the composition; an approved code alone is insufficient to enable processing.
 
 For the implemented lane set `HCM_WORKER_WORKLOADS=AttendanceResolve`. A schema-1
 resolution intent is source-owned evidence; do not manually insert or modify its
-payload in ordinary development. Assignment/publication producers are a separate
-slice. With no due intents, finite drain exits normally with zero completed work.
+payload in ordinary development. The Holiday preview API produces its own intent;
+the Holiday assignment command produces exact workday intents for its explicit
+resolution window when all dated inputs are Available. Other configuration
+producers remain separate delivery slices. With no due intents,
+finite drain exits normally with zero completed work.
 Unavailable outcomes also count as completed jobs; inspect the domain receipt's
 state/result code before treating a workday as published. The handler allows 366
 historical schedule reads; exhaustion returns ResolutionBudgetExceeded, never an

@@ -2,7 +2,7 @@
 
 Status: approved technical design, 2026-09-28, following the approved [FDD](FDD.md)
 and [product-owner delegation](../../roadmap/HCM-3-DESIGN-APPROVAL.md). Implementation
-is planned. The owning [attendance TDD](../../domains/attendance/TECHNICAL-DESIGN.md),
+status is maintained in [traceability](TRACEABILITY.md). The owning [attendance TDD](../../domains/attendance/TECHNICAL-DESIGN.md),
 [shared TDD](../../architecture/TDD-HCM-3-COMMON.md) and
 [SQL/integration TDD](../../architecture/TDD-HCM-3-DATA-MODEL.md) are normative parts
 of this design; the blueprint binds their exact reviewed revisions.
@@ -17,6 +17,10 @@ with exact `id` filter and requires exactly one authorized row; otherwise 404.
 The feature lazy loads from `libs/hcm/web/attendance/feature-holiday-calendars`. Discovery permission
 `hcm.catalogue.HOLIDAY_CALENDARS.discover` reveals navigation only; every API uses
 business authorization. Unavailable dependencies render an honest state.
+Canonical discovery includes HR Operations / Projects, Time, and Leave and
+Administration / Reference Data and Policies / Process and Time. The existing
+Tenant Administrator's calendar operation grants are independent of those
+placements; adding navigation never grants another role or another business action.
 
 ## FLOORPLAN
 
@@ -63,6 +67,34 @@ events and accessibility. Platform table and Core calendar APIs were evaluated;
 no resource-lane/drag scheduler is claimed. Runtime keyboard, responsive and screen-
 reader acceptance remains required in the production app.
 
+### Date binding and field restrictions
+
+The installed UI5 2.26 DatePicker retains its previous `value` during `input`
+and commits the edited date on `change`. Fundamental 0.64.3 GenericControlValueAccessor
+normally forwards both events. Browser acceptance exposed lost date text during
+rapid keyboard/paste entry when that stale input value is forwarded. The shared
+UX Forms `HcmDateField` directive changes only the injected accessor event list to
+`change`. Native parsing, calendar interaction, focus and accessibility remain
+unchanged; the same Signal Form validates committed dates on blur and submit.
+It reads no shadow DOM and introduces no second form model. Holiday date controls
+consume this binding; numeric StepInput uses its documented native value events
+because its installed wrapper does not expose a ControlValueAccessor.
+
+| Field | Restriction |
+| --- | --- |
+| Code | Required string, 1–40, starts with A–Z, then uppercase letters/digits/underscore/hyphen; immutable after create |
+| Calendar/holiday name | Required preserved nonblank string, at most 120 characters |
+| Effective from/to | Required from, optional ordered to; ISO date contract, localized native presentation |
+| Actual/observed dates | Both required explicit ISO dates; observed date within version coverage |
+| Category | Required Public, Company, Regional or Substitute |
+| Priority | Required integer from −2147483648 to 2147483647; incomplete input invalid |
+| Region/location | Optional nonblank region up to 120; optional authorized location ID |
+| Partial interval | Both endpoints or neither; exact local time to milliseconds, end strictly after start |
+| Repeated endpoint | Optional Earlier/Later, only with partial interval; ambiguity checked in actual zone |
+| Publication context | Explicit authorized employment and valid IANA timezone; ordered review range within version, at most 366 dates |
+| Action reason | Required nonblank preserved string, maximum 2,000 |
+| Search/filter text | Reference search 120; list code 40/name 120; closed state/sort enums |
+
 ## API
 
 Exact routes below are the admitted endpoint set for this app. Query means the
@@ -90,6 +122,123 @@ contains id/revision/state and async operationId/statusUrl when applicable.
 Every response has a purpose-built projection; private narrative/evidence requires
 additional current field permission. No persistence row serialization. Disabled
 encashment/device/pool/delegation/payment routes are absent, not successful stubs.
+
+### Explicit publication context
+
+DEC-HCM3-024 requires `employmentId` and `timezone` on Holiday publication preview,
+in addition to `expectedRevision,effectiveFrom,effectiveTo?`. The bounded review
+window follows the common 366-date limit and must lie within source coverage.
+The worker validates the union of that window and every declared observed date;
+the query bound does not limit a calendar's lifespan. On each date, Workforce must
+provide an available employment and a unique primary assignment location whose
+timezone matches the explicitly selected IANA zone. Missing or changed facts,
+DST gaps, unresolved repeated endpoints and equal-priority applicable collisions
+prevent publication. The calendar itself acquires neither an assignment nor a zone.
+
+`POST .../{id}/versions/{version}/preview` returns 202 and `HolidayPreviewView`:
+`previewId,operationId,statusUrl,state,digest?,affectedEmploymentCount?,
+affectedWorkdayCount?,conflicts?,lockedImpact?,failureCode?,expiresAt`.
+Unexecuted result fields are null. `GET .../{id}/versions/{version}/previews/{preview}`
+requires the independent read grant, accepts no query, and hides another actor's
+or source's preview. The operation ID is the preview ID; the status URL is this
+exact authenticated resource path. Counts describe the explicit validation
+employment and reviewed dates, not assignments that have not been created.
+
+Migration 47 adds immutable `holiday_publication_context` with tenant-composite
+references to the existing preview and employment. The preview producer, encrypted
+command receipt, audit and AttendanceResolve outbox intent commit together.
+`attendance.holiday.preview` schema 1 executes through the existing worker lane;
+lease-fenced completion stores Ready/Failed evidence atomically. It cannot publish.
+Publication rechecks actor authority, source revision/content, all dated Workforce
+digests and ascending monthly period fences before consuming Ready evidence and
+freezing the version. The review expires after 15 minutes. Closing/Locked/Reopened
+periods block publication. Same-key recovery retains the original accepted result
+and still requires current read authority.
+
+The focused native publication Dialog uses authorized Worker/Employment selectors,
+explicit timezone ComboBox, DatePickers and reason.
+Signal Forms and the shared parser validate the context; edited context invalidates
+displayed review evidence. Running/Failed/Expired never enable publication. The
+dialog refreshes real worker status and preserves uncertain command retry keys.
+Assignment remains a separate command with validation of its actual target scope;
+publication review does not authorize or replace that validation.
+
+### Reference selectors
+
+`GET /api/v1/attendance/holiday-calendars/references/workers` and
+`GET /api/v1/attendance/holiday-calendars/references/workers/{worker}/employments`
+require the calendar preview permission. `GET .../references/locations` requires
+the calendar draft permission. All use the calendar's existing tenant-wide
+curation boundary and the independent `hcm.attendance` entitlement; no Employee
+Changes or organization-maintenance permission is granted by a calendar action.
+
+The closed query is `asOf` (required ISO date) and `q` (optional, maximum 120
+characters); unknown or duplicate fields fail. Workforce's existing records,
+change-context and structure-reference owner ports run in the same authorized
+transaction. Options project only `{id,code,name}` and `hasMore`; employment choices
+project only `{employmentId,legalEntityName}`. No private HR facts, owner cursor or
+mutation affordance is serialized. At most 100 options are returned and excess
+matches instruct the user to narrow by name or code. Selection remains explicit,
+including workers with concurrent employments. These reference results do not
+replace authoritative dated validation at preview/publication.
+
+### Assignment command refinement
+
+Assignment uses the existing typed `AssignmentCommand`, with required
+`expectedRevision` naming the Published calendar revision. Optional
+`supersedes: {id,expectedRevision}` explicitly ends an existing assignment of the
+same target on the day before `effectiveFrom`, then inserts the successor in the
+same transaction. It cannot overwrite the old version or change its start date.
+An overlapping insert without this exact supersession remains a conflict.
+
+`resolutionFrom,resolutionTo` are required, inclusive dates within the assignment,
+bounded to 366 dates for one command. They select durable workday production,
+not the lifespan of an open-ended assignment. Validation also includes every
+declared observed holiday within assignment coverage. The command queues only this explicit window; later approved configuration
+commands must explicitly request additional dates. No implicit current-year or
+rolling horizon is created.
+Missing schedule/policy inputs leave resolution explicitly Unavailable; a holiday
+assignment cannot manufacture those inputs. My Schedule reads stored workdays
+only, and never creates work from a GET.
+
+The command authorizes the target predicate and every affected dated Workforce
+subject using one complete current manage grant. Current account, operation and
+entitlement checks precede source lookups. Dated enumeration uses the existing
+Workforce owner port, and the same tenant mutation/revocation lock protects
+authorization, validation and commit. Empty scopes cannot acquire broader rights.
+Ascending month fences cover changed dates; Closing/Locked/Reopened prevents
+ordinary reassignment. Scoped DST/collision checks use real employment/location
+facts. Equal-precedence selection ties fail even across different targets.
+
+The native ObjectPage Assignments tab contains scope, target, dated coverage,
+explicit resolution window, reason and an explicit supersession CheckBox. Scope
+is one of the seven contract kinds; target is a required authorized selector
+except for Tenant. From and both resolution dates are required ISO dates; To is
+optional and ordered. Resolution is at most 366 dates within assignment coverage.
+Reason is required, non-whitespace and at most 2,000 characters. Supersession is
+boolean and binds the exact inspected predecessor revision. Contract parsers
+validate both Signal Forms and HTTP commands; invalid submission stays local.
+
+`GET /api/v1/attendance/holiday-calendar-assignments` accepts only
+`kind,id?,asOf`, with id forbidden for Tenant and required otherwise. The read
+grant must cover that exact target. It returns the current dated assignment or
+null, including safe calendar name, version, target, coverage and revision.
+It neither enumerates unrelated assignments nor produces work.
+
+`GET /api/v1/attendance/holiday-calendars/assignment-references/{kind}` accepts
+workers, locations, legal-entities, units or departments. The corresponding
+`.../assignment-references/workers/{worker}/context` returns only minimal dated
+employment and assignment choices. Both require tenant-wide calendar read and
+Attendance entitlement, use the same closed asOf/q query and 100-option limit as
+publication selectors, and confer no write authority. The assignment command
+independently rechecks manage authority over all affected subjects.
+
+Assignment, any predecessor end, encrypted reason, audit, receipt and durable
+workday intents commit atomically. Each Available assigned resolution contributes
+its exact accepted digest to the existing `attendance.workday.resolve` handler.
+The result reports assignment identity/revision and queued/unavailable counts;
+queued is not completion. Source changes before execution retain InputChanged
+evidence. Existing published workdays remain immutable.
 
 ## AUTHORIZATION
 
@@ -154,8 +303,8 @@ approved foundation composition, not a project hidden in this business blueprint
 
 ## VERIFICATION
 
-All test IDs in [traceability](TRACEABILITY.md) are planned acceptance cases, not
-executed-test claims. Use real PostgreSQL/HTTP for tenant/concurrency/receipt
+[Traceability](TRACEABILITY.md) maps acceptance cases to executed evidence;
+its linked validation record distinguishes completed checks from remaining work. Use real PostgreSQL/HTTP for tenant/concurrency/receipt
 invariants, contract tests for DTO projections and pure unit tests for algorithms.
 Production-app browser checks cover keyboard, narrow/desktop layout, native action
 behavior, focus, validation, empty/error/retry and stale response clearing. Include

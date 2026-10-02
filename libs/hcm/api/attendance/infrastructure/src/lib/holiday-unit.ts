@@ -16,6 +16,12 @@ import {
 import { KyselyHolidayQueries } from './holiday-queries'
 import { KyselyHolidayRepository } from './holiday-repository'
 import { SqlAttendanceCommandReceipts } from './command-receipts'
+import type {
+	WorkforceTimeContextBinder,
+	WorkforcePortBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-application'
+import { KyselyHolidayPreviews } from './holiday-previews'
+import { KyselyHolidayReferences } from './holiday-references'
 
 /** Holiday-root commands use current tenant-wide grants and the existing revocation/transaction boundary. */
 export class KyselyAttendanceHolidayUnit extends AttendanceHolidayUnitOfWork {
@@ -23,13 +29,15 @@ export class KyselyAttendanceHolidayUnit extends AttendanceHolidayUnitOfWork {
 	constructor(
 		private readonly database: HcmAccessDatabase | null,
 		private readonly cipher: FieldCipher,
+		private readonly workforce?: WorkforceTimeContextBinder,
+		private readonly workforceReferences?: WorkforcePortBinder,
 	) {
 		super()
 	}
 	/** Authorize the explicit operation before all reads, mutations and receipt recovery. */
 	async execute<T>(
 		context: AuthenticatedHcmContext,
-		operation: 'draft' | 'read',
+		operation: 'draft' | 'read' | 'retire' | 'preview' | 'publish' | 'manage',
 		write: boolean,
 		work: (scope: AttendanceHolidayWork) => Promise<T>,
 	): Promise<T> {
@@ -47,6 +55,14 @@ export class KyselyAttendanceHolidayUnit extends AttendanceHolidayUnitOfWork {
 					const { tenantId, accountId } = access.actor
 					if (!access.actor.grantId) throw new Error('Verified configuration grant unavailable')
 					const result = await work({
+						references: this.workforceReferences
+							? new KyselyHolidayReferences(
+								this.workforceReferences.bind(transaction, { tenantId, accountId }),
+							)
+							: undefined,
+						publication: this.workforce
+							? new KyselyHolidayPreviews(transaction, tenantId, accountId, this.workforce)
+							: undefined,
 						holidayCalendars: new KyselyHolidayRepository(transaction, tenantId, accountId),
 						queries: new KyselyHolidayQueries(
 							transaction,

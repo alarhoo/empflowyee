@@ -75,3 +75,11 @@ Use Angular `submit()` to coordinate submission state and returned validation er
 The **Forms/Signal Form** workshop uses a local typed profile fixture. It demonstrates valid/invalid, saving, read-only/edit, save/reset, cancel/discard and mapped server errors. Saving and server errors are in-memory simulations; there is no HTTP request. The story supplies accessible labels, touched-field messages and UI5 value states. A production form must add its own transport, cross-field/async validation when required, and navigation guard.
 
 Run `pnpm nx test hcm-web-ux-forms` for action/error-mapping tests and the [Storybook test runner](../storybook.md#build-and-test) for browser save/cancel/validation interactions.
+
+For installed UI5 2.26 DatePicker controls, add `HcmDateField` from this library
+alongside `[formField]`. It configures the maintained wrapper accessor to consume
+native `change`, when the parsed date is committed. The native `input` event still
+contains the previous date and must not overwrite the Signal Form while typing.
+Keyboard/paste and calendar behavior remain native. See [Holiday date binding
+review](../../apps/holiday-calendars/TDD.md#date-binding-and-field-restrictions) and
+its executed browser evidence. Domain date validation remains unchanged.

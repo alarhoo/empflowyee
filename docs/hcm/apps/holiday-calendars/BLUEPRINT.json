@@ -333,7 +333,7 @@
 		},
 		{
 			"id": "DEC-HCM3-024",
-			"classification": "BLOCKS_THIS_APP"
+			"classification": "RESOLVED"
 		}
 	],
 	"requirements": [
