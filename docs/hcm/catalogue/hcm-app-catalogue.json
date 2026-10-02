@@ -1942,8 +1942,14 @@
 			"runtime": "web",
 			"domain": "attendance",
 			"deliveryWave": "HCM-3",
-			"catalogueIds": ["hr-specialist-operations"],
+			"catalogueIds": ["hr-specialist-operations", "tenant-administration"],
 			"placements": [
+				{
+					"spaceId": "tenant-administration",
+					"pageId": "admin-reference-data",
+					"sectionId": "admin-process-time",
+					"display": "tiles"
+				},
 				{
 					"spaceId": "hr-operations",
 					"pageId": "hr-time-projects",
@@ -1956,8 +1962,8 @@
 			"floorplan": "UX-FP-FCL",
 			"fddStatus": "approved",
 			"tddStatus": "approved",
-			"blockingDecisionStatus": "blocked",
-			"implementationStatus": "planned",
+			"blockingDecisionStatus": "clear",
+			"implementationStatus": "complete",
 			"dataPolicy": "real-api-only",
 			"themeContract": "theme-agnostic",
 			"customCssPolicy": "forbidden-by-default",

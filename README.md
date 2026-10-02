@@ -52,9 +52,12 @@ and [canonical seed defaults](docs/hcm/testing/HCM-3-SEED-DEFAULTS-VALIDATION.md
 document the backend prerequisites. The [native template acceptance record](docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md)
 provides UI routes, local prerequisites and reproducible production-build browser checks.
 
-The holiday draft/read API is also composed in `hcm-api`; its
-[partial API validation](docs/hcm/testing/HCM-3-HOLIDAY-API-VALIDATION.md) documents
-migration 43 and the remaining publication, assignment and UI work.
+Holiday Calendars is locally accepted with native draft, durable publication,
+retirement and dated assignment/supersession journeys backed by PostgreSQL.
+Publication requires explicit employment/timezone context. David Wallace opens
+`/attendance/holiday-calendars` through Administration → Reference Data and Policies;
+see [acceptance and reproduction](docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md).
+Work Schedules, My Schedule and the requested Leave apps remain in progress.
 
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with

@@ -1,26 +1,23 @@
 # Holiday Calendars — requirement traceability
 
-Status: design/test plan with partial backend evidence, 2026-09-28.
-[Holiday command validation](../../testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md)
-verifies Draft curation, exact replacement, immutable-source successor, current
-root authorization and atomic encrypted receipts/audit. Owning
-[application commands](../../../../libs/hcm/api/attendance/application/src/lib/holiday-commands.ts),
-[SQL repository](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-repository.ts),
-[transaction adapter](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-unit.ts)
-and [PostgreSQL tests](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-commands.database.spec.ts)
-cover backend portions of 001, 004 and 006. Migration 38 and the existing domain
-boundary tests cover immutable storage and exact holiday resolution. Publication
-impact, assignments and all native UI acceptance remain pending. The app
-remains Planned; the full scenarios below are still acceptance obligations.
+Status: locally accepted FDD scope, 2026-10-03.
+The [validation record](../../testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md)
+records normal-production-build discovery and business journeys.
 
-[Holiday API validation](../../testing/HCM-3-HOLIDAY-API-VALIDATION.md) adds five
-real HTTP/SQL tests for the list/create/exact-version/update/successor routes,
-authorization, safe projections and actor-bound continuation. Migration 43 proves
-typed tenant references and compatibility with existing schedule cursors. These
-extend backend evidence for 001, 004 and 006 without claiming publication or UI
-acceptance.
+| Requirement | Implementation and executed evidence |
+| --- | --- |
+| 001 | [Draft commands](../../../../libs/hcm/api/attendance/application/src/lib/holiday-commands.ts), [editor](../../../../libs/hcm/web/attendance/feature-holiday-calendars/src/lib/editor.component.ts), [form tests](../../../../libs/hcm/web/attendance/feature-holiday-calendars/src/lib/holiday-form.spec.ts), existing [draft API evidence](../../testing/HCM-3-HOLIDAY-API-VALIDATION.md) |
+| 002 | [Publication application](../../../../libs/hcm/api/attendance/application/src/lib/holiday-publication.ts), [durable worker](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-previews.ts), [HTTP/SQL tests](../../../../libs/hcm/api/attendance/module/src/lib/holiday-publication.database.spec.ts), immutable migration 47 context |
+| 003 | [Assignment command](../../../../libs/hcm/api/attendance/application/src/lib/holiday-assignments.ts), [transaction adapter](../../../../libs/hcm/api/attendance/infrastructure/src/lib/holiday-assignment-unit.ts), same-target exclusion and actual-zone checks in the HTTP/SQL suite |
+| 004 | Current independent operations, complete-grant assignment authorization, foreign-tenant and revoked-grant denial in the HTTP/SQL suite; [batch scope tests](../../../../libs/hcm/api/access-control/infrastructure/src/lib/grant-scope.database.spec.ts) |
+| 005 | [Native browser journeys](../../../../libs/hcm/api/attendance/module/src/lib/holidays-browser.spec.ts): validation, reload, publication, assignment/supersession, lost response recovery, dirty navigation, keyboard/narrow FCL; production discovery and denial checked separately |
+| 006 | Atomic assignment/source publication, encrypted reasons, audit, receipts and durable worker intents in HTTP/SQL tests; existing [command rollback/concurrency evidence](../../testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md) |
 
-| Requirement                                                   | Design                          | Planned test                                              |
+The scenarios below retain the stable acceptance identifiers. Source-owned
+workday production queues only the command's explicit resolution window;
+missing schedule/policy configuration remains Unavailable.
+
+| Requirement                                                   | Design                          | Acceptance test                                              |
 | ------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------- |
 | [REQ-HOLIDAY-CALENDARS-001](FDD.md#req-holiday-calendars-001) | [DESIGN-001](TDD.md#design-001) | [TEST-HOLIDAY-CALENDARS-001](#test-holiday-calendars-001) |
 | [REQ-HOLIDAY-CALENDARS-002](FDD.md#req-holiday-calendars-002) | [DESIGN-002](TDD.md#design-002) | [TEST-HOLIDAY-CALENDARS-002](#test-holiday-calendars-002) |
@@ -38,7 +35,7 @@ Assert: Invalid partial ranges or unresolved collisions block preview/publicatio
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Verification suite: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-HOLIDAY-CALENDARS-002
 
@@ -49,7 +46,7 @@ Assert: A changed draft/workforce input makes the preview stale; publication fre
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Verification suite: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-HOLIDAY-CALENDARS-003
 
@@ -60,7 +57,7 @@ Assert: Equal-precedence overlapping assignments fail and unrelated scopes keep 
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Verification suite: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-HOLIDAY-CALENDARS-004
 
@@ -71,7 +68,7 @@ Assert: Direct API and queue/count requests deny missing/revoked grants, entitle
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Verification suite: PostgreSQL/API integration plus domain boundary cases.
 
 ## TEST-HOLIDAY-CALENDARS-005
 
@@ -82,7 +79,7 @@ Assert: Keyboard and responsive flows, field validation, empty/error/retry, dirt
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: browser accessibility/interaction plus HTTP projection.
+Verification suite: browser accessibility/interaction plus HTTP projection.
 
 ## TEST-HOLIDAY-CALENDARS-006
 
@@ -93,4 +90,4 @@ Assert: Commands retain durable result/audit/receipt and required outbox atomica
 Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
-Planned suite: PostgreSQL/API integration plus domain boundary cases.
+Verification suite: PostgreSQL/API integration plus domain boundary cases.

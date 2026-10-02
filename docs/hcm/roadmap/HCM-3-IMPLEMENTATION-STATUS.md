@@ -2,9 +2,9 @@
 
 Step-2 implementation is in progress. [Step-1 readiness](HCM-3-DESIGN-REVIEW.md)
 admitted all 23 designs; readiness does not mean the applications are implemented.
-Current publication work in Holiday Calendars is awaiting the newly raised
-[DEC-HCM3-024](../testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md). Other resolved
-decisions remain approved; no pending answer has been inferred.
+The product owner resolved [DEC-HCM3-024](../testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md):
+Holiday publication requires explicit employment/timezone context.
+The Holiday Calendars native UI is now locally accepted.
 
 ## Foundations
 
@@ -37,6 +37,11 @@ Holiday calendar Draft creation/replacement/successor commands are verified in
 [holiday command validation](../testing/HCM-3-HOLIDAY-COMMAND-VALIDATION.md).
 The five holiday draft/read HTTP routes and migration 43 cursor extension are
 verified in [holiday API validation](../testing/HCM-3-HOLIDAY-API-VALIDATION.md).
+Holiday publication now has real durable previews, publication and retirement,
+with migration 47 preserving explicit context. See the current
+[publication validation](../testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md).
+Dated assignments/supersession, durable workday production, normal launchpad
+discovery and two browser journeys pass; unavailable prerequisites remain explicit.
 Dated Workforce/configuration input composition is verified in
 [input validation](../testing/HCM-3-CONFIGURATION-INPUT-VALIDATION.md).
 Migration 44 monthly periods, immutable lock bases and publication fences are
@@ -61,7 +66,10 @@ app UIs remain pending.
 
 **Work Schedule Templates is Complete** under local acceptance; see its
 [production-build browser evidence](../testing/HCM-3-TEMPLATE-UI-VALIDATION.md).
-The other 22 business apps remain Planned. Update this record and the canonical
+**Holiday Calendars is also Complete** under its linked local acceptance.
+The other 21 business apps remain Planned. No requested delivery milestone is
+complete until its remaining apps and end-to-end journey pass.
+Update this record and the canonical
 app statuses only after their corresponding acceptance is verified.
 Granular branches inherit prerequisite commits; main changes require PRs. Local
 implementation commits do not deploy or provision cloud resources.

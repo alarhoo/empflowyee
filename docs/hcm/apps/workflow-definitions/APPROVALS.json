@@ -116,11 +116,11 @@
 		},
 		{
 			"document": "RESOLUTIONS",
-			"sha256": "a87339a27f60c6b3f610989b877fe39a0c099cb81073fd13c7295d753475d16e",
+			"sha256": "601ff6cb1ae592f4b1d9567c43bd39fad3848472e033f47ba0f2fcedd23bf687",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
+			"reviewer": "Codex technical review under existing product-owner delegation",
 			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md; technical review of accurate pending blocker status under existing documentation delegation, not product approval of DEC-HCM3-024."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-QUESTION.md#resolution--2026-09-29; explicit product-owner answer recorded, not implementation acceptance."
 		},
 		{
 			"document": "AUTHORITY",
