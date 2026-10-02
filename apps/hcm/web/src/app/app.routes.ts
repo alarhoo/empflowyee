@@ -5,6 +5,16 @@ import { hcmRouteAccess, isThemeLabEnabled } from '@empflowyee/hcm-web-runtime-c
 
 export const appRoutes: Routes = [
 	{
+		path: 'attendance/holiday-calendars',
+		data: { catalogId: 'HOLIDAY_CALENDARS' },
+		canMatch: [hcmRouteAccess],
+		loadChildren: /** Load the calendar workspace and guarded draft editor. */ () =>
+			import('@empflowyee/hcm-web-attendance-feature-holiday-calendars').then(
+				/** Preserve the owning feature's exact-version routes. */ (m) =>
+					m.HOLIDAY_CALENDARS_ROUTES,
+			),
+	},
+	{
 		path: 'attendance/work-schedule-templates',
 		data: { catalogId: 'WORK_SCHEDULE_TEMPLATES' },
 		canMatch: [hcmRouteAccess],

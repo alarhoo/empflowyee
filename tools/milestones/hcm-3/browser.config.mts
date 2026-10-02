@@ -7,7 +7,10 @@ export default mergeConfig(
 	runtime,
 	defineConfig({
 		test: {
-			include: ['libs/hcm/api/attendance/module/src/lib/templates-browser.spec.ts'],
+			include: [
+				'libs/hcm/api/attendance/module/src/lib/templates-browser.spec.ts',
+				'libs/hcm/api/attendance/module/src/lib/holidays-browser.spec.ts',
+			],
 			globalSetup: ['tools/hcm-database/test-postgres.mts'],
 			fileParallelism: false,
 			testTimeout: 120000,
