@@ -163,6 +163,54 @@ it('preserves unscoped grants and matches alternatives without relaxing other di
 	expect(grantCoversSubject([{ dimension: 'tenant', targetId: 'other' }], tenant)).toBe(false)
 })
 
+it('requires a single grant across a dated impact set and denies empty restricted operations', /** Two individually authorized subjects cannot pool different grants for one assignment. */ async () => {
+	const jim = { employmentId: jimEmployment, departmentId: departments[0] },
+		pam = { employmentId: pamEmployment, departmentId: departments[1] }
+	await expect(
+		database.execute(
+			context,
+			{ permission, entitlement: 'hcm.access-control', subjects: [jim, jim] },
+			false,
+			actor,
+		),
+	).resolves.toMatchObject({ grantId: 'scope-role-0' })
+	await expect(
+		database.execute(
+			context,
+			{ permission, entitlement: 'hcm.access-control', subjects: [jim, pam] },
+			false,
+			actor,
+		),
+	).rejects.toMatchObject({ code: 'forbidden' })
+	await expect(
+		database.execute(
+			context,
+			{ permission, entitlement: 'hcm.access-control', subjects: [] },
+			false,
+			actor,
+		),
+	).rejects.toMatchObject({ code: 'forbidden' })
+	await expect(
+		database.execute(
+			context,
+			{ permission, entitlement: 'hcm.access-control' },
+			false,
+			actor,
+			/** A source resolver runs within the same tenant and revocation transaction. */ async (
+				transaction,
+			) => {
+				const row = await transaction
+					.selectFrom('hcm.user_account')
+					.select('id')
+					.where('id', '=', 'dunder-mifflin/account/jim')
+					.executeTakeFirst()
+				expect(row?.id).toBe('dunder-mifflin/account/jim')
+				return [jim]
+			},
+		),
+	).resolves.toMatchObject({ grantId: 'scope-role-0' })
+})
+
 it('serializes authorization with revocation and observes the committed scope change', /** An administrative lock gates the policy reload; after revocation no stale session or grant snapshot authorizes. */ async () => {
 	await admin.query('BEGIN')
 	await admin.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [tenant])
@@ -175,6 +223,23 @@ it('serializes authorization with revocation and observes the committed scope ch
 		"INSERT INTO hcm.role_permission (tenant_id,role_id,permission_code) VALUES ($1,'scope-role-0',$2)",
 		[tenant, permission],
 	)
+})
+
+it('denies missing operation authority before resolving any source facts', /** Unauthorized requests cannot probe source existence through a resolver error. */ async () => {
+	let readSource = false
+	await expect(
+		database.execute(
+			context,
+			{ permission: 'hcm.attendance.holiday-calendars.manage', entitlement: 'hcm.attendance' },
+			false,
+			actor,
+			/** Detect any premature source access without returning business information. */ async () => {
+				readSource = true
+				throw new Error('Source lookup must not run')
+			},
+		),
+	).rejects.toMatchObject({ code: 'forbidden' })
+	expect(readSource).toBe(false)
 })
 
 it('protects administrator grants and enforces exactly one typed scope target', /** SQL rejects narrowing protected administration and malformed or mutable scope rows independently of transport. */ async () => {

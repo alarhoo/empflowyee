@@ -271,6 +271,24 @@
 			"requiresMigrations": ["000042_attendance_seed_defaults.sql"],
 			"apply": "attendance.configuration.1.apply.sql",
 			"reset": "attendance.configuration.1.reset.sql"
+		},
+		{
+			"id": "access.attendance",
+			"domain": "access-control",
+			"version": 2,
+			"dependsOn": ["access.attendance@1"],
+			"requiresMigrations": ["000043_attendance_calendar_cursors.sql"],
+			"apply": "access.attendance.2.apply.sql",
+			"reset": "access.attendance.2.reset.sql"
+		},
+		{
+			"id": "access.attendance",
+			"domain": "access-control",
+			"version": 3,
+			"dependsOn": ["access.attendance@2", "access.discovery@1"],
+			"requiresMigrations": ["000038_attendance_policy_holidays.sql"],
+			"apply": "access.attendance.3.apply.sql",
+			"reset": "access.attendance.3.reset.sql"
 		}
 	]
 }

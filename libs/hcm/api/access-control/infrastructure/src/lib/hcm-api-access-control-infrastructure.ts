@@ -8,6 +8,7 @@ import {
 	type AccountAccessInvariant,
 	type HcmAccessRequirement,
 	type HcmBusinessActor,
+	type HcmScopeSubject,
 } from '@empflowyee/hcm-api-access-control-application'
 import {
 	requireAuthenticatedTenant,
@@ -71,7 +72,11 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 		private readonly context: AuthenticatedHcmContext,
 	) {}
 	/** Reload account, tenant, grants and entitlement; stale public session claims cannot authorize work. */
-	async require(requirement: HcmAccessRequirement): Promise<HcmBusinessActor> {
+	async require(
+		requirement: HcmAccessRequirement,
+		resolveSubjects?: () => Promise<readonly Readonly<HcmScopeSubject>[]>,
+	): Promise<HcmBusinessActor> {
+		if (requirement.subject && requirement.subjects) throw new HcmAccessError('forbidden')
 		const tenantId = requireAuthenticatedTenant(this.context)
 		const accountId = requireAuthenticatedAccount(this.context)
 		const tenant = await this.transaction
@@ -124,6 +129,10 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 				),
 			)
 			.execute()
+		// Source reads run only after current account, operation and entitlement checks.
+		// A resolver must return unresolved subjects rather than expose lookup errors.
+		const resolvedSubjects = resolveSubjects ? await resolveSubjects() : requirement.subjects
+		const subjects = resolvedSubjects?.length ? resolvedSubjects : [requirement.subject]
 		for (const permission of permissions) {
 			const grantScopes: HcmGrantScope[] = []
 			for (const scope of scopes) {
@@ -154,7 +163,13 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 						throw new HcmAccessError('forbidden')
 				}
 			}
-			if (grantCoversSubject(grantScopes, tenantId, requirement.subject))
+			if (
+				subjects.every(
+					/** Never combine separate grants to authorize different members of one operation. */ (
+						subject,
+					) => grantCoversSubject(grantScopes, tenantId, subject),
+				)
+			)
 				return Object.freeze({
 					tenantId,
 					accountId,
@@ -201,6 +216,9 @@ export class HcmAccessDatabase {
 		requirement: HcmAccessRequirement,
 		administrative: boolean,
 		work: (scope: AuthorizedAccessWork) => Promise<Result>,
+		resolveSubjects?: (
+			transaction: Transaction<AccessTables>,
+		) => Promise<readonly Readonly<HcmScopeSubject>[]>,
 	): Promise<Result> {
 		return this.database.transaction(
 			context,
@@ -214,7 +232,13 @@ export class HcmAccessDatabase {
 						transaction,
 					)
 				const policy = new TransactionalAccessPolicy(transaction, context)
-				const actor = await policy.require(requirement)
+				const actor = await policy.require(
+					requirement,
+					resolveSubjects
+						? /** Resolve source-owned scope facts only after checking the operation. */ () =>
+							resolveSubjects(transaction)
+						: undefined,
+				)
 				const result = await work({
 					transaction,
 					actor,

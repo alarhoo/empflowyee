@@ -23,6 +23,29 @@ export class KyselyHolidayRepository implements HolidayRepository {
 	read(ownerId: string, versionId: string): Promise<HolidayVersionView | null> {
 		return this.reader.holidayCalendar(ownerId, versionId)
 	}
+	/** Advance only lifecycle metadata; all holiday rows and version payload remain immutable. */
+	async publish(
+		ownerId: string,
+		versionId: string,
+		revision: number,
+		digest: string,
+	): Promise<void> {
+		const result = await sql<{
+			id: string
+		}>`UPDATE hcm.holiday_calendar_version SET state='Published',revision=revision+1,published_at=clock_timestamp(),published_by_account_id=${this.accountId},publication_digest=${digest},updated_at=clock_timestamp() WHERE tenant_id=${this.tenantId} AND calendar_id=${ownerId} AND id=${versionId} AND revision=${revision} AND state='Draft' RETURNING id`.execute(
+			this.transaction,
+		)
+		if (!result.rows.length) throw new HcmDomainError('revision-conflict')
+	}
+	/** Retire lifecycle metadata while preserving published content and original attribution. */
+	async retire(ownerId: string, versionId: string, revision: number): Promise<void> {
+		const result = await sql<{
+			id: string
+		}>`UPDATE hcm.holiday_calendar_version SET state='Retired', revision=revision+1, updated_at=clock_timestamp() WHERE tenant_id=${this.tenantId} AND calendar_id=${ownerId} AND id=${versionId} AND revision=${revision} AND state='Published' RETURNING id`.execute(
+			this.transaction,
+		)
+		if (!result.rows.length) throw new HcmDomainError('revision-conflict')
+	}
 	/** Lock the exact tenant/calendar/version and then read its current projection. */
 	async lock(ownerId: string, versionId: string): Promise<HolidayVersionView | null> {
 		await sql`SELECT id FROM hcm.holiday_calendar_version WHERE tenant_id=${this.tenantId} AND calendar_id=${ownerId} AND id=${versionId} FOR UPDATE`.execute(

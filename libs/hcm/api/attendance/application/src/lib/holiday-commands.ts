@@ -3,6 +3,7 @@ import {
 	parseHolidayDraft,
 	parseHolidayDraftUpdate,
 	parseAttendanceVersionCommand,
+	parseConfigurationReason,
 	type HolidayDraft,
 	type HolidayVersionView,
 } from '@empflowyee/hcm-attendance-contract'
@@ -11,6 +12,8 @@ import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-applic
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { AttendanceCommandReceiptStore } from './configuration-evidence'
 import type { HolidayQueryRepository } from './holiday-queries'
+import type { HolidayPublicationPort } from './holiday-publication'
+import type { HolidayReferencePort } from './holiday-references'
 import { replaySafe } from './schedule-commands'
 
 export interface HolidayVersionInsert {
@@ -33,8 +36,14 @@ export interface HolidayRepository {
 	insertVersion(input: HolidayVersionInsert): Promise<void>
 	/** Replace only an exact editable revision and its entries. */
 	replace(ownerId: string, versionId: string, revision: number, draft: HolidayDraft): Promise<void>
+	/** Retire only a currently published version while preserving its content and history. */
+	retire(ownerId: string, versionId: string, revision: number): Promise<void>
+	/** Freeze one validated exact draft and retain its publication evidence. */
+	publish(ownerId: string, versionId: string, revision: number, digest: string): Promise<void>
 }
 export interface AttendanceHolidayWork {
+	references?: HolidayReferencePort
+	publication?: HolidayPublicationPort
 	holidayCalendars: HolidayRepository
 	queries: HolidayQueryRepository
 	receipts: AttendanceCommandReceiptStore
@@ -46,7 +55,7 @@ export abstract class AttendanceHolidayUnitOfWork {
 	/** Require current tenant-wide authority and bind every effect to the same transaction. */
 	abstract execute<T>(
 		context: AuthenticatedHcmContext,
-		operation: 'draft' | 'read',
+		operation: 'draft' | 'read' | 'retire' | 'preview' | 'publish' | 'manage',
 		write: boolean,
 		work: (scope: AttendanceHolidayWork) => Promise<T>,
 	): Promise<T>
@@ -63,6 +72,51 @@ export function holidayDraftOf(source: HolidayVersionView): HolidayDraft {
 export class AttendanceHolidayDrafts {
 	/** Depend only on the owner transaction port, independent of HTTP and SQL. */
 	constructor(private readonly unit: AttendanceHolidayUnitOfWork) {}
+
+	/** Retire an exact published revision with independent authority and atomic reason, audit and receipt. */
+	retire(
+		context: AuthenticatedHcmContext,
+		ownerId: string,
+		versionId: string,
+		key: string,
+		value: unknown,
+	): Promise<HolidayVersionView> {
+		idValue(ownerId, 'id')
+		idValue(versionId, 'version')
+		const input = parseConfigurationReason(value)
+		return this.unit.execute(
+			context,
+			'retire',
+			true,
+			/** Authorize before recovering the original command result. */ (work) =>
+				replaySafe(
+					work,
+					'Holidays.retire',
+					key,
+					ownerId + '/' + versionId,
+					input,
+					/** Preserve immutable holiday content and reject stale or draft targets. */ async () => {
+						const current = await this.requireVersion(
+							work,
+							ownerId,
+							versionId,
+							input.expectedRevision,
+						)
+						if (current.state !== 'Published') throw new HcmDomainError('invalid-state')
+						await work.holidayCalendars.retire(ownerId, versionId, current.revision)
+						return this.finish(
+							work,
+							ownerId,
+							versionId,
+							key,
+							'attendance.configuration-retired',
+							'Published',
+							input.reason,
+						)
+					},
+				),
+		)
+	}
 
 	/** Read one exact version without granting access from its route identity. */
 	read(

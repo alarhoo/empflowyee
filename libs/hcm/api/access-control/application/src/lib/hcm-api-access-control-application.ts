@@ -14,6 +14,8 @@ export interface HcmAccessRequirement {
 	entitlement: string
 	/** Supply verified source facts for a scoped subject; omission requires a tenant-wide grant. */
 	subject?: Readonly<HcmScopeSubject>
+	/** One grant must cover every source-resolved dated subject; an empty set still requires tenant-wide authority. */
+	subjects?: readonly Readonly<HcmScopeSubject>[]
 }
 export interface HcmBusinessActor {
 	readonly tenantId: string
