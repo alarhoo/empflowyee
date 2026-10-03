@@ -41,6 +41,13 @@ and the Leave app journeys can be accepted.
   preserve same-key results. Source commands still own permission, evidence,
   independent approval where required, audit and command receipts. No public
   grant endpoint, opening seed balance or completed accrual handler is implied.
+- Exact accrual quantity core supports explicit None/CalendarDays/WorkingDays
+  proration, waiting periods, posted-balance caps and unavailable working facts.
+  Occurrence planning and worker integration remain unimplemented.
+- Workforce exposes a minimal private eligibility owner port; Attendance exposes
+  stored workday intervals with current-source digest validation. The existing
+  Attendance UI query reuses the same stored projection. No new public endpoint
+  or private schedule/calendar field was added.
 
 ## Verification
 
@@ -75,6 +82,14 @@ libs/hcm/api/leave/domain libs/hcm/contracts/workflow/src/lib/actions.spec.ts`.
   millionth-unit totals, immutable evidence, direct-balance-edit denial, full
   rollback after source failure, unmatched grant/posting rejection and RLS.
   Affected lint and Leave module type check passed.
+- Source-port follow-up: Attendance resolver/worker suite passed 8 PostgreSQL
+  tests; Workforce time/eligibility suite passed 10. Checks prove absent workdays
+  are not materialized by reads, changed source facts invalidate stored evidence,
+  person revision changes invalidate eligibility and cross-tenant binding fails.
+  Leave domain suite passed 10 pure tests, including 3 accrual tests. Affected
+  lint, Attendance/Workforce module type checks and a fresh API build passed.
+  The first formatting attempt encountered a transient Windows file lock; the
+  full formatter/lint rerun succeeded. These checks are not browser acceptance.
 
 ## Remaining
 

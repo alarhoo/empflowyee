@@ -10,6 +10,7 @@ import {
 	OrganisationStructure,
 	WorkforcePortBinder,
 	WorkforceTimeContextBinder,
+	WorkforceLeaveEligibilityBinder,
 	WorkforceApprovalRoutingBinder,
 	WorkforceTimeSubjectsBinder,
 	WorkforceUnitOfWork,
@@ -17,6 +18,7 @@ import {
 import {
 	KyselyWorkforcePortBinder,
 	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceLeaveEligibilityBinder,
 	KyselyWorkforceApprovalRoutingBinder,
 	KyselyWorkforceTimeSubjectsBinder,
 	KyselyWorkforceUnitOfWork,
@@ -37,6 +39,14 @@ import {
 		OrgChartController,
 	],
 	providers: [
+		{
+			provide: WorkforceLeaveEligibilityBinder,
+			inject: [WorkforceTimeContextBinder],
+			useFactory:
+			/** Export only private Leave eligibility facts through the owning Workforce contract. */ (
+				time: WorkforceTimeContextBinder,
+			) => new KyselyWorkforceLeaveEligibilityBinder(time),
+		},
 		{
 			provide: WorkforceApprovalRoutingBinder,
 			useFactory:
@@ -96,6 +106,7 @@ import {
 		},
 	],
 	exports: [
+		WorkforceLeaveEligibilityBinder,
 		WorkforceApprovalRoutingBinder,
 		WorkforceTimeSubjectsBinder,
 		WorkforceTimeContextBinder,

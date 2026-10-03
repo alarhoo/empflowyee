@@ -153,6 +153,28 @@ effects require their own typed source references before their transaction kinds
 are admitted; the first ledger migration supports Grant only. Worker attribution
 is not replaced with a fabricated human account.
 
+Accrual quantity calculation consumes one explicitly planned occurrence. The
+source builder supplies service days, eligible/total calendar days and, for
+WorkingDays proration, eligible/total actual working-day counts. Missing workday
+facts remain Unavailable. None uses the configured occurrence amount; CalendarDays
+and WorkingDays multiply by the exact corresponding ratio and round once under
+the published rule. Annual/monthly summary amounts are not additional grants.
+Waiting-period and no-eligible-day outcomes are recorded as skips. A configured
+maximum accrued balance limits the credit to remaining posted-balance capacity;
+reservations do not enlarge that capacity. Overflow is rejected before posting.
+This calculator does not itself choose occurrence dates, post or claim work.
+
+`WorkforceLeaveEligibilityBinder` supplies the existing dated Workforce context
+plus only gender code and person revision for private typed eligibility. It has
+no HTTP endpoint and does not add protected fields to general schedule/calendar
+DTOs. Leave's calling command/workload owns current scope authorization; retained
+basis is encrypted. Its digest binds the dated facts and person revision.
+`AttendancePublishedWorkdayBinder` reuses Attendance's existing stored interval
+projection in the same transaction and compares its input digest with the current
+owner resolver. Missing, pending, failed or stale evidence stays Unavailable;
+reading never publishes or enqueues a workday. Both ports reject a mismatched
+tenant transaction and avoid Leave queries against another domain's tables.
+
 Technical review, 2026-10-03, under the existing finalization delegation: this
 mapping preserves Business Rules 2, 4, 6, 24 and 28, the published-version-first
 eligibility order and the Unpaid exception. No period dates, entitlement amounts,
