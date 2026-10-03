@@ -114,3 +114,28 @@ database backup; the existing encryption key was preserved. API liveness and the
 tenant-host web entry point returned 200 after restarting only task-owned API and
 worker processes. Migrations 50–51 remain disposable-database verification at this
 point; ordinary API/worker startup does not apply them.
+
+## Override draft technical review
+
+On 2026-10-03 Codex reviewed the additive safe reload route, universal draft
+restrictions, exact basis/review transactions, encrypted receipt extension and
+pure source decision evaluator under the existing delegated authority. The review
+checked tenant-composite ownership, forced RLS inherited from source/receipt tables,
+current whole-grant dated scope and fresh replay read permission, monthly/workday
+lock ordering, rollback of proposed Approved state, private-field exclusion, and
+explicit rejection of evidence while its owner adapter is absent. No new trust
+boundary, independent human approval or application acceptance is claimed.
+
+The focused PostgreSQL/API suite passed 12 tests, including real override draft
+creation/read and review, same-key replay and mismatched retry rejection, unauthorized
+employee denial, stale workday rejection, exact cross-midnight 14,400,250 ms review,
+encrypted private reason storage, and unchanged source/workday/outbox state after
+preview. Three contract tests cover explicit nonworking intervals, malformed fields
+and exact endpoint preservation. Four pure source-decision tests cover staged slots,
+rejection/final approval, maker/beneficiary/distinct actors, current candidate and
+permission checks, session expiry and stale routing/generation/revisions.
+
+Migration 52 has only been run against disposable PostgreSQL. The persistent local
+database remains at migration 49 / Attendance seed 4. The override UI, governed
+evidence, submit/source-case persistence, Workflow and complete impact handling are
+still required. Work Schedules and all three requested milestones remain incomplete.

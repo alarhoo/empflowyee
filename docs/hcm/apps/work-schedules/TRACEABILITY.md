@@ -13,7 +13,12 @@ covers typed rule draft/publication, reviewed schedule/policy assignments, stale
 evidence, durable workday production, safe inspection, authorization and tenant
 isolation (requirements 001, 003, 004, 005 and 007, partial). It also exercises typed
 roster/override storage and actual worker precedence using explicit disposable
-fixtures; production override command/approval acceptance remains open (002).
+fixtures. Real override Draft creation/read/preview now covers receipt recovery,
+encrypted reasons, stale workdays and rolled-back proposed resolution; submit,
+evidence admission and approval acceptance remain open (002).
+The [source decision evaluator tests](../../../../libs/hcm/api/attendance/domain/src/lib/source-approval.spec.ts)
+cover staged all-required/any-reject rules and current-authority guards in isolation;
+case persistence and Workflow integration are not claimed by those tests.
 The [dated selection tests](../../../../libs/hcm/api/attendance/domain/src/lib/dated-source-selection.spec.ts)
 cover precedence, ties and inactive sources. Existing exact-time/rest tests remain
 the calculation evidence. Shared schedule/shift and policy form conversion tests

@@ -1011,6 +1011,112 @@ async function materializeDatedSource(workDate: string) {
 	}
 }
 
+it('creates and previews real override drafts without approving or materializing them', /** Actor-bound receipts retain private reasons and review never leaves proposed state or work behind. */ async () => {
+	const input = {
+		employmentId: 'dunder-mifflin/employment/jim',
+		workDate: '2027-02-03',
+		workdayRevision: 1,
+		zone: 'America/New_York',
+		segments: [],
+		evidenceIds: [],
+		reason: 'Private override reason retained encrypted',
+	}
+	const key = randomUUID(),
+		base = 'attendance/overrides'
+	expect((await api.send('jim', 'POST', base, input)).status).toBe(403)
+	expect((await api.send('david', 'POST', base, { ...input, workdayRevision: 999 })).status).toBe(
+		409,
+	)
+	expect(
+		(await api.send('david', 'POST', base, { ...input, evidenceIds: ['unvalidated-evidence'] }))
+			.status,
+	).toBe(409)
+	const created = await api.send<
+		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideView
+	>('david', 'POST', base, input, { 'idempotency-key': key })
+	expect(created.status).toBe(201)
+	expect(created.body).toMatchObject({
+		state: 'Draft',
+		revision: 1,
+		workdayRevision: 1,
+		segments: [],
+	})
+	expect(created.body).not.toHaveProperty('reason')
+	expect(created.body).not.toHaveProperty('evidenceIds')
+	expect((await api.send('david', 'POST', base, input, { 'idempotency-key': key })).body).toEqual(
+		created.body,
+	)
+	expect(
+		(
+			await api.send(
+				'david',
+				'POST',
+				base,
+				{ ...input, reason: 'Changed retry' },
+				{ 'idempotency-key': key },
+			)
+		).status,
+	).toBe(409)
+	const path = base + '/' + created.body.id
+	expect((await api.send('david', 'GET', path)).body).toEqual(created.body)
+	expect((await api.send('jim', 'GET', path)).status).toBe(403)
+	expect((await api.send('david', 'GET', base + '/foreign-override')).status).toBe(404)
+	const counts =
+		'SELECT (SELECT count(*) FROM hcm.published_workday WHERE tenant_id=$1)::int AS days,(SELECT count(*) FROM hcm.attendance_outbox WHERE tenant_id=$1)::int AS jobs'
+	const before = (await api.admin.query(counts, [tenant])).rows
+	const command = { expectedRevision: 1, reason: 'Review nonworking date' },
+		previewKey = randomUUID()
+	const preview = await api.send<
+		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideReview
+	>('david', 'POST', path + '/preview', command, { 'idempotency-key': previewKey })
+	expect(preview.status).toBe(200)
+	expect(preview.body).toMatchObject({
+		sourceRevision: 1,
+		workdayRevision: 1,
+		scheduledMilliseconds: '0',
+		expectedMilliseconds: '0',
+		approvalRequired: false,
+	})
+	expect(
+		(await api.send('david', 'POST', path + '/preview', command, { 'idempotency-key': previewKey }))
+			.body,
+	).toEqual(preview.body)
+	expect((await api.send('david', 'GET', path)).body).toEqual(created.body)
+	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before)
+	const receipt = (
+		await api.admin.query(
+			'SELECT encrypted_reason,reason_key_version,response,schedule_override_id FROM hcm.attendance_command_receipt WHERE tenant_id=$1 AND idempotency_key=$2',
+			[tenant, key],
+		)
+	).rows[0]
+	expect(receipt.schedule_override_id).toBe(created.body.id)
+	expect(Buffer.isBuffer(receipt.encrypted_reason)).toBe(true)
+	expect(receipt.encrypted_reason.toString('utf8')).not.toContain(input.reason)
+	expect(JSON.stringify(receipt.response)).not.toContain(input.reason)
+	expect(
+		(await api.send('david', 'POST', path + '/preview', { ...command, expectedRevision: 2 }))
+			.status,
+	).toBe(409)
+	const custom = await api.send<
+		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideView
+	>('david', 'POST', base, {
+		...input,
+		segments: [
+			{ kind: 'Work', startTime: '22:00:00.125', endTime: '02:00:00.375', endDayOffset: 1 },
+		],
+	})
+	expect(custom.status).toBe(201)
+	const reviewed = await api.send(
+		'david',
+		'POST',
+		base + '/' + custom.body.id + '/preview',
+		command,
+	)
+	expect(reviewed.status).toBe(200)
+	expect(reviewed.body['scheduledMilliseconds']).toBe('14400250')
+	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before)
+})
+
 it('resolves published roster then approved override with typed immutable workday references', /** Real SQL selection, precedence and worker publication preserve history without fabricating schedule identities. */ async () => {
 	const employment = 'dunder-mifflin/employment/jim',
 		actor = 'dunder-mifflin/account/david'

@@ -326,7 +326,7 @@ is explicit and does not enable free-text account IDs. Existing loaded reference
 remain distinguishable when outside the current search page.
 
 These editor integrations do not establish full application acceptance. Leave
-impact, override precedence and browser journeys remain required by the FDD before
+impact, override command/approval acceptance and browser journeys remain required by the FDD before
 catalogue availability changes to Complete.
 
 ## ASSIGNMENT-REVIEW-AND-INSPECTION
@@ -397,3 +397,44 @@ adds safe dated source references and the source revision captured by the workda
 receipt, without returning private override reasons. Internal roster publication
 commands and override approval/command producers still require delivery; disposable
 SQL fixtures prove storage/resolution only, not production approval acceptance.
+
+## OVERRIDE-DRAFT-AND-REVIEW
+
+The admitted override draft and preview routes now reuse Attendance transactions,
+command receipts, period fences and the exact dated resolver. The additive
+`GET /api/v1/attendance/overrides/{id}` route supplies a safe reload representation
+under current `hcm.attendance.work-schedules.read` and the complete dated subject
+scope. It accepts no query fields. Its response contains ID, revision, lifecycle,
+employment/date, prior workday revision, zone and configured intervals; reasons and
+evidence identities are excluded. Creation uses `manage`; review uses `preview`.
+Each command requires a trusted write origin and actor-bound UUID retry key.
+
+The draft parser requires all declared fields. IDs are opaque validated identities;
+work date is an ISO calendar date and workday revision is a positive integer. Zone
+is a validated named timezone of at most 100 characters. Reason is nonblank text
+of at most 2,000 characters, preserved exactly. Evidence IDs are explicit and
+unique. Segments reuse the universal exact wall-time, contiguous-shift, day-offset,
+break and independent overlap-choice restrictions. Explicit `[]` means nonworking;
+a missing segments field is invalid. Supplied evidence is rejected as unavailable
+until Documents' purpose-bound admission adapter is delivered; no arbitrary ID is
+silently accepted or discarded.
+
+Migration 52 adds a typed override reference to existing immutable Attendance
+receipts and keeps their at-most-one-source invariant. Reasons use the existing
+row-bound cipher. Creation checks the latest stored workday under monthly,
+dated-source and workday fences; current whole-grant scope covers all actual dated
+assignment dimensions. No stored workday changes. Review temporarily evaluates
+Approved selection in an always-rolled-back savepoint, retaining Draft state and
+creating no workday or outbox row. Its actor-bound result expires after 15 minutes
+and binds source, exact prior workday revision, period, policy and resolution.
+It reports exact scheduled/expected milliseconds and whether policy has an
+Override approval route. This is dated resolution review only; Leave and subsequent
+workday impact, evidence upload/admission, submit/approval and native override UI
+remain acceptance requirements.
+
+The pure source decision evaluator implements the existing Attendance ApprovalCase
+state model: current source authority and candidates, session/revision/generation
+checks, configured independence/distinct actors, all required slots in each stage,
+and rejection terminating the case. It does not provide a persistence adapter,
+Workflow dispatch or an authorized HTTP decision route. No Workflow task or static
+candidate snapshot can manufacture source authority.

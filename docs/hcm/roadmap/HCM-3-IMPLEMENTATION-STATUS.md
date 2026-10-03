@@ -57,7 +57,9 @@ app UIs remain pending.
 
 Work Schedules implementation now includes native schedule/shift/policy editors,
 dated publication, reviewed schedule/policy assignments, stored-workday inspection
-and typed roster/override resolution. See its
+and typed roster/override resolution. Override Draft/read/preview commands now
+retain encrypted reasons and exact reviewed workday bases; independent approval
+evaluation has focused domain tests but no persisted case/Workflow integration yet. See its
 [integration record](../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) for executed
 tests and remaining command, approval, Leave-impact and browser work. It has not
 passed complete-app acceptance and its tile remains unavailable. Local PostgreSQL

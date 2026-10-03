@@ -10,6 +10,8 @@ import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	AttendanceOverrideUnit,
+	AttendanceOverrides,
 	AttendancePeriodFenceBinder,
 	AttendanceConfigurationInputBinder,
 	AttendanceScheduleUnitOfWork,
@@ -35,6 +37,7 @@ import {
 	AttendanceTemplatePublication,
 } from '@empflowyee/hcm-api-attendance-application'
 import {
+	KyselyAttendanceOverrideUnit,
 	KyselyAttendancePeriodFenceBinder,
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
@@ -46,6 +49,7 @@ import {
 	KyselyHolidayAssignmentUnit,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import {
+	AttendanceOverridesController,
 	ScheduleTemplatesController,
 	WorkConfigurationsController,
 	WorkSchedulesController,
@@ -61,6 +65,7 @@ import {
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
 	controllers: [
+		AttendanceOverridesController,
 		AttendanceWorkdaysController,
 		DatedPublicationController,
 		WorkAssignmentsController,
@@ -73,6 +78,22 @@ import {
 	],
 	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
 	providers: [
+		{
+			provide: AttendanceOverrideUnit,
+			inject: [HcmAccessDatabase, FieldCipher, WorkforceTimeContextBinder],
+			useFactory: /** Compose current-authority override storage with existing owner ports. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				workforce: WorkforceTimeContextBinder,
+			) => new KyselyAttendanceOverrideUnit(database, cipher, workforce),
+		},
+		{
+			provide: AttendanceOverrides,
+			inject: [AttendanceOverrideUnit],
+			useFactory: /** Keep dated override commands in their application layer. */ (
+				unit: AttendanceOverrideUnit,
+			) => new AttendanceOverrides(unit),
+		},
 		{
 			provide: AttendanceWorkdayReadPort,
 			inject: [HcmAccessDatabase, WorkforceTimeContextBinder],
