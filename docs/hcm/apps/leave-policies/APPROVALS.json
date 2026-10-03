@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "1de84a02ee671ab967222faf180a26f0b7db004eae129cd70ada7b3213a0a13f",
+			"sha256": "8f848ba29ad78bd711ffdb58255fc64e85ce1e239b5055bebb14256d64a02d2b",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/apps/leave-policies/TDD.md#policy-field-implementation-contract and #api; reviewed explicit typed fields, actor/grant/query-bound continuation and atomic draft receipts against approved FDD/common contracts under existing product-owner technical delegation. No separate human review or full application acceptance claimed."
 		},
 		{
 			"document": "TRACE",

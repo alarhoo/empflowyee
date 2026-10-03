@@ -1,0 +1,9 @@
+{
+	"name": "hcm-leave-contract",
+	"$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/contracts/leave/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:universal", "domain:leave", "type:contract"],
+	"// targets": "to see all targets run: nx show project hcm-leave-contract --web",
+	"targets": {}
+}

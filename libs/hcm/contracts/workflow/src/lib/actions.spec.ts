@@ -11,6 +11,9 @@ it('rejects authority injection, unknown actions and unbounded or absent decisio
 		reason: 'Reviewed the dated source',
 	}
 	expect(parseWorkflowActionCommand(valid)).toEqual(valid)
+	expect(
+		parseWorkflowActionCommand({ ...valid, reason: '  Reviewed\nwith evidence  ' }).reason,
+	).toBe('  Reviewed\nwith evidence  ')
 	for (const invalid of [
 		{ ...valid, actorAccountId: 'another-user' },
 		{ ...valid, slotId: 'another-slot' },

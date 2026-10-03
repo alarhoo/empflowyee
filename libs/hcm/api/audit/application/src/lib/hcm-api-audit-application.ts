@@ -104,7 +104,11 @@ export interface AppendAudit {
 /** Validate assignment-specific safe evidence without permitting account names or permission payloads. */
 export function validateAccessAudit(event: AccessAuditEvent): void {
 	if (event && 'category' in event) {
-		if (event.action.startsWith('attendance.') || event.action.startsWith('workflow.'))
+		if (
+			event.action.startsWith('attendance.') ||
+			event.action.startsWith('workflow.') ||
+			event.action.startsWith('leave.')
+		)
 			validateHcm3Audit(event)
 		else validateHcm2Audit(event)
 		return

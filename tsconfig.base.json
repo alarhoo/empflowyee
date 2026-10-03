@@ -363,7 +363,15 @@
 			],
 			"@empflowyee/hcm-api-workflow-infrastructure": [
 				"./libs/hcm/api/workflow/infrastructure/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-leave-contract": ["./libs/hcm/contracts/leave/src/index.ts"],
+			"@empflowyee/hcm-api-leave-domain": ["./libs/hcm/api/leave/domain/src/index.ts"],
+			"@empflowyee/hcm-api-leave-application": ["./libs/hcm/api/leave/application/src/index.ts"],
+			"@empflowyee/hcm-api-leave-infrastructure": [
+				"./libs/hcm/api/leave/infrastructure/src/index.ts"
+			],
+			"@empflowyee/hcm-api-leave-transport": ["./libs/hcm/api/leave/transport/src/index.ts"],
+			"@empflowyee/hcm-api-leave-module": ["./libs/hcm/api/leave/module/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

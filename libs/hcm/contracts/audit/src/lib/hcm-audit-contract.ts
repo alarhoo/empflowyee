@@ -9,6 +9,9 @@ export const HCM3_AUDIT_ACTIONS = [
 	'attendance.configuration-assigned',
 	'attendance.override-submitted',
 	'workflow.action-requested',
+	'leave.policy-created',
+	'leave.policy-updated',
+	'leave.policy-versioned',
 ] as const
 
 export const AUDIT_ACTIONS = [

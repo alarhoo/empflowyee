@@ -1,4 +1,9 @@
-import { enumValue, readBody, revisionValue, textValue } from '@empflowyee/hcm-runtime-contract'
+import {
+	enumValue,
+	readBody,
+	revisionValue,
+	preservedTextValue,
+} from '@empflowyee/hcm-runtime-contract'
 
 export interface WorkflowActionCommand {
 	expectedRevision: number
@@ -44,6 +49,6 @@ export function parseWorkflowActionCommand(value: unknown): WorkflowActionComman
 		),
 		generation: revisionValue(body['generation'], 'generation'),
 		action: enumValue(body['action'], 'action', ['Approve', 'Reject']),
-		reason: textValue(body['reason'], 'reason', 2000),
+		reason: preservedTextValue(body['reason'], 'reason', 2000),
 	}
 }

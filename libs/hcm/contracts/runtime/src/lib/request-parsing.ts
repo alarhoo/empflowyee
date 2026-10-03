@@ -84,6 +84,17 @@ export function textValue(value: unknown, field: string, max: number, required =
 	return trimmed
 }
 
+/** Validate bounded narrative without changing the evidence the user supplied. */
+export function preservedTextValue(
+	value: unknown,
+	field: string,
+	max: number,
+	required = true,
+): string {
+	textValue(value, field, max, required)
+	return value as string
+}
+
 /** Parse optional text where omission and null both mean empty. */
 export function optionalText(value: unknown, field: string, max: number): string {
 	return value === undefined || value === null ? '' : textValue(value, field, max, false)

@@ -1,0 +1,9 @@
+{
+	"name": "hcm-api-leave-application",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/api/leave/application/src",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:api", "domain:leave", "type:application"],
+	"// targets": "to see all targets run: nx show project hcm-api-leave-application --web",
+	"targets": {}
+}
