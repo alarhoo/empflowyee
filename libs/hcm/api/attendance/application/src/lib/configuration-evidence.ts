@@ -1,6 +1,6 @@
 import type { CommandReceiptStore } from '@empflowyee/hcm-api-runtime-application'
 
-export type AttendanceConfigurationOwner = 'Schedule' | 'Shift' | 'Policy' | 'Holiday'
+export type AttendanceConfigurationOwner = 'Schedule' | 'Shift' | 'Policy' | 'Holiday' | 'Override'
 export interface AttendanceConfigurationEvidence {
 	owner: AttendanceConfigurationOwner
 	versionId: string

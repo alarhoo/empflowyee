@@ -1,8 +1,31 @@
 # Work Schedules — requirement traceability
 
-Status: reviewed design/test plan, 2026-09-28. No business tests have run because
-implementation has not begun. Each scenario below is an implementation acceptance
-obligation linked to the approved FDD and concrete technical design.
+Status: implementation in progress, 2026-10-03. The acceptance obligations below
+remain open until the complete app journey passes. Executed evidence is recorded
+separately from those obligations; no Work Schedules browser acceptance is claimed.
+
+## Executed implementation evidence
+
+The [integration record](../../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) records
+the commands and limitations. The real
+[PostgreSQL/API suite](../../../../libs/hcm/api/attendance/module/src/lib/work-configurations.database.spec.ts)
+covers typed rule draft/publication, reviewed schedule/policy assignments, stale
+evidence, durable workday production, safe inspection, authorization and tenant
+isolation (requirements 001, 003, 004, 005 and 007, partial). It also exercises typed
+roster/override storage and actual worker precedence using explicit disposable
+fixtures. Real override Draft creation/read/preview now covers receipt recovery,
+encrypted reasons, stale workdays and rolled-back proposed resolution; submit,
+evidence admission and approval acceptance remain open (002).
+The [source decision evaluator tests](../../../../libs/hcm/api/attendance/domain/src/lib/source-approval.spec.ts)
+cover staged all-required/any-reject rules and current-authority guards in isolation;
+SQL fixture tests additionally cover complete source-case storage, stage guards,
+immutable decisions and restricted runtime access. Production source-case commands
+and Workflow integration remain required.
+The [dated selection tests](../../../../libs/hcm/api/attendance/domain/src/lib/dated-source-selection.spec.ts)
+cover precedence, ties and inactive sources. Existing exact-time/rest tests remain
+the calculation evidence. Shared schedule/shift and policy form conversion tests
+cover approved input restrictions. A production build confirms template typing;
+requirement 006 still needs the Work Schedules real-browser journeys.
 
 | Requirement                                             | Design                          | Planned test                                        |
 | ------------------------------------------------------- | ------------------------------- | --------------------------------------------------- |

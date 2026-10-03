@@ -1,0 +1,396 @@
+<ef-hcm-dynamic-page
+	[title]="id ? 'Edit attendance policy' : 'Create attendance policy'"
+	summary="Configure explicit time rules and approval candidates"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true"
+	(retry)="load()">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (state() === 'content') {
+		<ui5-form
+			accessibleName="Policy identity"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Code</ui5-label>
+				<ui5-input
+					accessibleName="Code"
+					[formField]="fields.code"
+					[maxlength]="40"
+					[readonly]="!!id"
+					[valueState]="fieldError('code') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('code') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Name</ui5-label>
+				<ui5-input
+					accessibleName="Name"
+					[formField]="fields.name"
+					[maxlength]="120"
+					[valueState]="fieldError('name') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('name') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Effective from</ui5-label>
+				<ui5-date-picker
+					hcmDateField
+					accessibleName="Effective from"
+					[formField]="fields.effectiveFrom"
+					valueFormat="yyyy-MM-dd"
+					[displayFormat]="runtime.preferences().dateFormat"
+					[valueState]="fieldError('effectiveFrom') ? 'Negative' : 'None'"></ui5-date-picker>
+				<ui5-text>{{ fieldError('effectiveFrom') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Effective to (optional)</ui5-label>
+				<ui5-date-picker
+					hcmDateField
+					accessibleName="Effective to (optional)"
+					[formField]="fields.effectiveTo"
+					valueFormat="yyyy-MM-dd"
+					[displayFormat]="runtime.preferences().dateFormat"
+					[valueState]="fieldError('effectiveTo') ? 'Negative' : 'None'"></ui5-date-picker>
+				<ui5-text>{{ fieldError('effectiveTo') }}</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-form
+			accessibleName="Time rules"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Grace in minutes</ui5-label>
+				<ui5-input
+					accessibleName="Grace in minutes"
+					[formField]="fields.graceInMinutes"
+					[maxlength]="16"
+					type="Number"
+					[valueState]="fieldError('graceInMinutes') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('graceInMinutes') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Grace out minutes</ui5-label>
+				<ui5-input
+					accessibleName="Grace out minutes"
+					[formField]="fields.graceOutMinutes"
+					[maxlength]="16"
+					type="Number"
+					[valueState]="fieldError('graceOutMinutes') ? 'Negative' : 'None'"></ui5-input>
+				<ui5-text>{{ fieldError('graceOutMinutes') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Rounding</ui5-label>
+				<ui5-select
+					accessibleName="Rounding"
+					[formField]="fields.rounding"
+					[valueState]="fieldError('rounding') ? 'Negative' : 'None'">
+					<ui5-option value="">Choose rounding</ui5-option>
+					<ui5-option value="None">None</ui5-option>
+					<ui5-option value="Configured">Configured</ui5-option>
+				</ui5-select>
+				<ui5-text>{{ fieldError('rounding') }}</ui5-text>
+			</ui5-form-item>
+			@if (model().rounding === 'Configured') {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Rounding increment minutes</ui5-label>
+					<ui5-input
+						accessibleName="Rounding increment minutes"
+						[formField]="fields.roundingIncrementMinutes"
+						[maxlength]="16"
+						type="Number"
+						[valueState]="fieldError('roundingIncrementMinutes') ? 'Negative' : 'None'"></ui5-input>
+					<ui5-text>{{ fieldError('roundingIncrementMinutes') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Rounding direction</ui5-label>
+					<ui5-select
+						accessibleName="Rounding direction"
+						[formField]="fields.roundingDirection"
+						[valueState]="fieldError('roundingDirection') ? 'Negative' : 'None'">
+						<ui5-option value="">Choose rounding direction</ui5-option>
+						<ui5-option value="Down">Down</ui5-option>
+						<ui5-option value="Up">Up</ui5-option>
+						<ui5-option value="Nearest">Nearest</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('roundingDirection') }}</ui5-text>
+				</ui5-form-item>
+			}
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Minimum rest</ui5-label>
+				<ui5-checkbox
+					text="Configure policy minimum rest"
+					[formField]="fields.minimumRestEnabled"></ui5-checkbox>
+			</ui5-form-item>
+			@if (model().minimumRestEnabled) {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Minimum rest minutes</ui5-label>
+					<ui5-input
+						accessibleName="Minimum rest minutes"
+						[formField]="fields.minimumRestMinutes"
+						[maxlength]="16"
+						type="Number"
+						[valueState]="fieldError('minimumRestMinutes') ? 'Negative' : 'None'"></ui5-input>
+					<ui5-text>{{ fieldError('minimumRestMinutes') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Minimum-rest action</ui5-label>
+					<ui5-select
+						accessibleName="Minimum-rest action"
+						[formField]="fields.minimumRestMode"
+						[valueState]="fieldError('minimumRestMode') ? 'Negative' : 'None'">
+						<ui5-option value="">Choose minimum-rest action</ui5-option>
+						<ui5-option value="Warn">Warn</ui5-option>
+						<ui5-option value="Block">Block</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('minimumRestMode') }}</ui5-text>
+				</ui5-form-item>
+			}
+		</ui5-form>
+		<ui5-text>
+			Minute values are whole numbers from 0 through 9,007,199,254,740,991; rounding increments
+			start at 1. Schedule and policy minimum-rest rules apply independently.
+		</ui5-text>
+		<ui5-form
+			accessibleName="Overtime rules"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Enable overtime</ui5-label>
+				<ui5-select
+					accessibleName="Enable overtime"
+					[formField]="fields.overtimeEnabled"
+					[valueState]="fieldError('overtime.enabled') ? 'Negative' : 'None'">
+					<ui5-option value="">Choose enable overtime</ui5-option>
+					<ui5-option value="true">Yes</ui5-option>
+					<ui5-option value="false">No</ui5-option>
+				</ui5-select>
+				<ui5-text>{{ fieldError('overtime.enabled') }}</ui5-text>
+			</ui5-form-item>
+			@if (model().overtimeEnabled === 'true') {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Overtime qualification</ui5-label>
+					<ui5-select
+						accessibleName="Overtime qualification"
+						[formField]="fields.qualification"
+						[valueState]="fieldError('overtime.qualification') ? 'Negative' : 'None'">
+						<ui5-option value="">Choose overtime qualification</ui5-option>
+						<ui5-option value="ScheduledExcess">ScheduledExcess</ui5-option>
+						<ui5-option value="RestDay">RestDay</ui5-option>
+						<ui5-option value="Holiday">Holiday</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('overtime.qualification') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Overtime cap minutes</ui5-label>
+					<ui5-input
+						accessibleName="Overtime cap minutes"
+						[formField]="fields.capMinutes"
+						[maxlength]="16"
+						type="Number"
+						[valueState]="fieldError('overtime.capMinutes') ? 'Negative' : 'None'"></ui5-input>
+					<ui5-text>{{ fieldError('overtime.capMinutes') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Overtime preapproval required</ui5-label>
+					<ui5-select
+						accessibleName="Overtime preapproval required"
+						[formField]="fields.preapprovalRequired"
+						[valueState]="fieldError('overtime.preapprovalRequired') ? 'Negative' : 'None'">
+						<ui5-option value="">Choose overtime preapproval required</ui5-option>
+						<ui5-option value="true">Yes</ui5-option>
+						<ui5-option value="false">No</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('overtime.preapprovalRequired') }}</ui5-text>
+				</ui5-form-item>
+			}
+		</ui5-form>
+		<ui5-title level="H2">Approval rules</ui5-title>
+		<ui5-text>
+			Stages start at 1 and must be consecutive for each subject. Candidate selection never grants
+			decision authority. Correction, adjustment, overtime, anomaly waiver and period reopening
+			require independent approval.
+		</ui5-text>
+		<ui5-button
+			[disabled]="draft.saving()"
+			(click)="addRule()">
+			Add approval rule
+		</ui5-button>
+		<ui5-text>{{ fieldError('approvalRules') }}</ui5-text>
+		@for (rule of fields.approvalRules; track $index; let i = $index) {
+			<ui5-form
+				[accessibleName]="'Approval rule ' + (i + 1)"
+				accessibleMode="Edit"
+				layout="S1 M2 L3 XL3"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Subject</ui5-label>
+					<ui5-select
+						accessibleName="Subject"
+						[formField]="rule.subjectType"
+						[valueState]="fieldError('approvalRules.' + i + '.subjectType') ? 'Negative' : 'None'">
+						<ui5-option value="">Choose subject</ui5-option>
+						<ui5-option value="Correction">Correction</ui5-option>
+						<ui5-option value="Adjustment">Adjustment</ui5-option>
+						<ui5-option value="Overtime">Overtime</ui5-option>
+						<ui5-option value="Roster">Roster</ui5-option>
+						<ui5-option value="Override">Override</ui5-option>
+						<ui5-option value="AnomalyWaiver">AnomalyWaiver</ui5-option>
+						<ui5-option value="PeriodReopen">PeriodReopen</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('approvalRules.' + i + '.subjectType') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Stage</ui5-label>
+					<ui5-input
+						accessibleName="Stage"
+						[formField]="rule.stage"
+						[maxlength]="10"
+						type="Number"
+						[valueState]="
+							fieldError('approvalRules.' + i + '.stage') ? 'Negative' : 'None'
+						"></ui5-input>
+					<ui5-text>{{ fieldError('approvalRules.' + i + '.stage') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Independent approval</ui5-label>
+					<ui5-select
+						accessibleName="Independent approval"
+						[formField]="rule.independent"
+						[valueState]="fieldError('approvalRules.' + i + '.independent') ? 'Negative' : 'None'">
+						<ui5-option value="">Choose independent approval</ui5-option>
+						<ui5-option value="true">Yes</ui5-option>
+						<ui5-option value="false">No</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('approvalRules.' + i + '.independent') }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Candidate source</ui5-label>
+					<ui5-select
+						accessibleName="Candidate source"
+						[formField]="rule.source"
+						[valueState]="
+							fieldError('approvalRules.' + i + '.candidateRule.source') ? 'Negative' : 'None'
+						">
+						<ui5-option value="">Choose candidate source</ui5-option>
+						<ui5-option value="LineManager">LineManager</ui5-option>
+						<ui5-option value="ManagerLevel">ManagerLevel</ui5-option>
+						<ui5-option value="Function">Function</ui5-option>
+						<ui5-option value="NamedUser">NamedUser</ui5-option>
+					</ui5-select>
+					<ui5-text>{{ fieldError('approvalRules.' + i + '.candidateRule.source') }}</ui5-text>
+				</ui5-form-item>
+				@if (model().approvalRules[i].source === 'ManagerLevel') {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Manager level</ui5-label>
+						<ui5-input
+							accessibleName="Manager level"
+							[formField]="rule.managerLevel"
+							[maxlength]="10"
+							type="Number"
+							[valueState]="
+								fieldError('approvalRules.' + i + '.candidateRule.managerLevel')
+									? 'Negative'
+									: 'None'
+							"></ui5-input>
+						<ui5-text>
+							{{ fieldError('approvalRules.' + i + '.candidateRule.managerLevel') }}
+						</ui5-text>
+					</ui5-form-item>
+				}
+				@if (model().approvalRules[i].source === 'Function') {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Function code</ui5-label>
+						<ui5-input
+							accessibleName="Function code"
+							[formField]="rule.functionCode"
+							[maxlength]="120"
+							[valueState]="
+								fieldError('approvalRules.' + i + '.candidateRule.functionCode')
+									? 'Negative'
+									: 'None'
+							"></ui5-input>
+						<ui5-text>
+							{{ fieldError('approvalRules.' + i + '.candidateRule.functionCode') }}
+						</ui5-text>
+					</ui5-form-item>
+				}
+				@if (model().approvalRules[i].source === 'NamedUser') {
+					<ui5-form-item>
+						<ui5-label slot="labelContent">Named account</ui5-label>
+						<ui5-select
+							accessibleName="Named account"
+							[formField]="rule.accountId"
+							[valueState]="
+								fieldError('approvalRules.' + i + '.candidateRule.accountId') ? 'Negative' : 'None'
+							">
+							<ui5-option value="">Choose named account</ui5-option>
+							@for (account of accounts(); track account.id) {
+								<ui5-option [value]="account.id">{{ account.name }} — {{ account.id }}</ui5-option>
+							}
+							@if (
+								model().approvalRules[i].accountId &&
+								!hasAccount(model().approvalRules[i].accountId)
+							) {
+								<ui5-option [value]="model().approvalRules[i].accountId">
+									Existing selected account — {{ model().approvalRules[i].accountId }}
+								</ui5-option>
+							}
+						</ui5-select>
+						<ui5-text>{{ fieldError('approvalRules.' + i + '.candidateRule.accountId') }}</ui5-text>
+					</ui5-form-item>
+				}
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Actions</ui5-label>
+					<ui5-button
+						[disabled]="draft.saving()"
+						(click)="removeRule(i)">
+						Remove rule {{ i + 1 }}
+					</ui5-button>
+				</ui5-form-item>
+			</ui5-form>
+		}
+		<ui5-form
+			accessibleName="Find named approval accounts"
+			accessibleMode="Edit"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Account search</ui5-label>
+				<ui5-input
+					#accountQuery
+					accessibleName="Account search"
+					[maxlength]="120"
+					(ui5Input)="accountSearch.set(accountQuery.value() ?? '')"></ui5-input>
+				<ui5-button
+					(click)="findAccounts()"
+					[disabled]="draft.saving()">
+					Search accounts
+				</ui5-button>
+				<ui5-text>{{ accountMessage() }}</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+	}
+	<ui5-button
+		hcmFooter
+		design="Emphasized"
+		[disabled]="draft.saving() || state() !== 'content'"
+		(click)="save()">
+		{{ draft.saving() ? 'Saving...' : 'Save draft' }}
+	</ui5-button>
+	<ui5-button
+		hcmFooter
+		[disabled]="draft.saving()"
+		(click)="cancel()">
+		Cancel
+	</ui5-button>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

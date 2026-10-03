@@ -16,9 +16,10 @@ import type {
 	AttendanceConfigurationInputPort,
 } from './configuration-inputs'
 import { workdayLocation, workdayZone } from './workday-location'
+import type { AttendanceResolvedPattern, WorkdaySourceReferences } from './dated-pattern'
 
 interface ResolutionDependency {
-	family: 'Schedule' | 'Policy' | 'Holiday'
+	family: 'Schedule' | 'Policy' | 'Holiday' | 'Roster' | 'Override'
 	date: string
 	digest: string
 	versionId: string
@@ -30,10 +31,12 @@ interface ResolutionDependency {
 
 /** Retain exact selected source identities and revisions alongside the digest of all eligible assignments and Workforce facts. */
 function dependency(
-	input: Extract<
-		AttendanceConfigurationInput<'Schedule' | 'Policy' | 'Holiday'>,
-		{ state: 'Available' }
-	>,
+	input:
+		| AttendanceResolvedPattern
+		| Extract<
+			AttendanceConfigurationInput<'Schedule' | 'Policy' | 'Holiday'>,
+			{ state: 'Available' }
+		>,
 	date: string,
 ): ResolutionDependency {
 	return {
@@ -60,7 +63,8 @@ export type AssignedWorkdayResult =
 	| {
 		state: 'Available'
 		employmentId: string
-		scheduleVersionId: string
+		scheduleVersionId: string | null
+		datedSources?: WorkdaySourceReferences
 		policyVersionId: string
 		holidayCalendarVersionIds: string[]
 		inputDigest: string
@@ -75,7 +79,7 @@ export type AssignedWorkdayResult =
 		rest?: WorkdayRestEvidence
 	}
 
-type ScheduleInput = Extract<AttendanceConfigurationInput<'Schedule'>, { state: 'Available' }>
+type ScheduleInput = AttendanceResolvedPattern
 
 /** Resolve the currently assigned path from source-owned dated inputs; this class neither grants authority nor writes successful-looking fallback workdays. */
 export class AssignedWorkdayResolver {
@@ -86,6 +90,28 @@ export class AssignedWorkdayResolver {
 	) {
 		if (!Number.isSafeInteger(historyBudget) || historyBudget < 1 || historyBudget > 3660)
 			throw new Error('Invalid workday history budget')
+	}
+	/** Prefer exact approved dated sources while retaining a distinct ordinary-assignment fallback. */
+	private async pattern(
+		employmentId: string,
+		workDate: string,
+	): Promise<
+		| AttendanceResolvedPattern
+		| Extract<AttendanceConfigurationInput<'Schedule'>, { state: 'Unavailable' }>
+	> {
+		const dated = await this.inputs.datedPattern?.(employmentId, workDate)
+		if (dated && dated.state !== 'Absent') return dated
+		const input = await this.inputs.read('Schedule', employmentId, workDate)
+		if (input.state === 'Unavailable') return input
+		return {
+			...input,
+			sources: {
+				scheduleVersionId: input.version.versionId,
+				shiftVersionId: null,
+				rosterEntryId: null,
+				overrideId: null,
+			},
+		}
 	}
 
 	/** Return explicit expected resolution conflicts; unexpected adapter failures escape for durable retry rather than becoming false business outcomes. */
@@ -107,7 +133,7 @@ export class AssignedWorkdayResolver {
 		employmentId: string,
 		workDate: string,
 	): Promise<AssignedWorkdayResult> {
-		const schedule = await this.inputs.read('Schedule', employmentId, workDate)
+		const schedule = await this.pattern(employmentId, workDate)
 		if (schedule.state === 'Unavailable')
 			return {
 				state: 'Unavailable',
@@ -181,7 +207,7 @@ export class AssignedWorkdayResolver {
 		)
 		const scheduleRule = {
 			source: 'Schedule' as const,
-			versionId: schedule.version.versionId,
+			versionId: schedule.restSourceVersionId ?? schedule.version.versionId,
 			minutes: schedule.version.minimumRestMinutes ?? null,
 			...(schedule.version.minimumRestMode ? { mode: schedule.version.minimumRestMode } : {}),
 		}
@@ -213,7 +239,8 @@ export class AssignedWorkdayResolver {
 		return {
 			state: 'Available',
 			employmentId,
-			scheduleVersionId: schedule.version.versionId,
+			scheduleVersionId: schedule.sources.scheduleVersionId,
+			...(schedule.family === 'Schedule' ? {} : { datedSources: schedule.sources }),
 			policyVersionId: policy.version.versionId,
 			holidayCalendarVersionIds,
 			inputDigest,
@@ -242,11 +269,7 @@ export class AssignedWorkdayResolver {
 			if (date.toString() <= schedule.workforce.hireDate)
 				return { state: 'NoPriorEmploymentWork', rules }
 			date = date.subtract({ days: 1 })
-			const previous = await this.inputs.read(
-				'Schedule',
-				schedule.workforce.employmentId,
-				date.toString(),
-			)
+			const previous = await this.pattern(schedule.workforce.employmentId, date.toString())
 			if (previous.state === 'Unavailable')
 				return {
 					state: 'Unavailable',

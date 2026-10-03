@@ -1,0 +1,205 @@
+import type { HcmScopeSubject } from '@empflowyee/hcm-api-access-control-application'
+import { randomUUID } from 'node:crypto'
+import { sql, type Kysely } from 'kysely'
+import {
+	HcmAccessDatabase,
+	TransactionalAccessPolicy,
+} from '@empflowyee/hcm-api-access-control-infrastructure'
+import { classifyConstraint } from '@empflowyee/hcm-api-database-kysely'
+import {
+	requireAuthenticatedTenant,
+	type AuthenticatedHcmContext,
+	type FieldCipher,
+} from '@empflowyee/hcm-api-runtime-application'
+import { HcmDomainError } from '@empflowyee/hcm-runtime-contract'
+import { wallMilliseconds, type AttendanceOverrideView } from '@empflowyee/hcm-attendance-contract'
+import {
+	AttendanceOverrideUnit,
+	type AttendanceOverrideTarget,
+	type AttendanceOverrideWork,
+} from '@empflowyee/hcm-api-attendance-application'
+import type { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
+import { KyselyAttendanceConfigurationInputBinder } from './configuration-inputs'
+import { KyselyAttendancePeriodFenceBinder } from './period-fences'
+import { SqlAttendanceCommandReceipts } from './command-receipts'
+
+/** Project only dated intervals and source lifecycle; encrypted receipt narrative never enters this read representation. */
+async function readOverride(
+	tx: Kysely<unknown>,
+	tenant: string,
+	id: string,
+): Promise<AttendanceOverrideView | null> {
+	const result = await sql<{ view: AttendanceOverrideView }>`
+SELECT jsonb_build_object('id',o.id,'revision',o.revision,'state',o.state,'employmentId',o.employment_id,'workDate',o.work_date::text,'workdayRevision',w.revision,'zone',o.zone,
+'segments',(SELECT coalesce(jsonb_agg(jsonb_strip_nulls(jsonb_build_object('kind',s.kind,'startTime',s.start_time::text,'endTime',s.end_time::text,'endDayOffset',s.end_day_offset,'overlapOffset',CASE WHEN s.start_overlap_choice IS NOT NULL OR s.end_overlap_choice IS NOT NULL THEN jsonb_strip_nulls(jsonb_build_object('start',s.start_overlap_choice,'end',s.end_overlap_choice)) ELSE NULL END)) ORDER BY s.ordinal),'[]'::jsonb) FROM hcm.schedule_override_segment s WHERE s.tenant_id=o.tenant_id AND s.override_id=o.id)) AS view
+FROM hcm.schedule_override o JOIN hcm.published_workday w ON w.tenant_id=o.tenant_id AND w.id=o.basis_workday_id WHERE o.tenant_id=${tenant} AND o.id=${id}`.execute(
+	tx,
+)
+	return result.rows[0]?.view ?? null
+}
+
+/** Bind override draft/review commands to current Access scope, SQL constraints and encrypted Attendance receipts. */
+export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
+	/** Reuse the existing tenant transaction and dated Workforce owner port. */
+	constructor(
+		private readonly database: HcmAccessDatabase | null,
+		private readonly cipher: FieldCipher,
+		private readonly workforce: WorkforceTimeContextBinder,
+	) {
+		super()
+	}
+	/** Authorize one complete grant over the actual dated employment before exposing any source fields. */
+	async execute<T>(
+		context: AuthenticatedHcmContext,
+		target: AttendanceOverrideTarget,
+		operation: 'read' | 'manage' | 'preview',
+		work: (scope: AttendanceOverrideWork) => Promise<T>,
+	): Promise<T> {
+		if (!this.database) throw new HcmDomainError('record-incomplete')
+		const tenant = requireAuthenticatedTenant(context)
+		let dated: { employmentId: string; workDate: string } | undefined
+		let missingFacts = false
+		let scopes: HcmScopeSubject[] = []
+		try {
+			return await this.database.execute(
+				context,
+				{ permission: 'hcm.attendance.work-schedules.' + operation, entitlement: 'hcm.attendance' },
+				operation !== 'read',
+				/** Source storage and command effects share the current-authority transaction. */ async (
+					access,
+				) => {
+					if (!dated) throw new HcmDomainError('not-found')
+					if (missingFacts) throw new HcmDomainError('record-incomplete')
+					const tx = access.transaction as unknown as Kysely<unknown>
+					const { accountId } = access.actor
+					return work({
+						inputs: new KyselyAttendanceConfigurationInputBinder(this.workforce).bind(tx, tenant),
+						periods: new KyselyAttendancePeriodFenceBinder().bind(tx, tenant),
+						receipts: new SqlAttendanceCommandReceipts(
+							tx,
+							tenant,
+							accountId,
+							this.cipher.bind(tx, tenant),
+						),
+						audit: access.audit,
+						read: /** Read safe fields only after the full dated scope check. */ (id) =>
+							readOverride(tx, tenant, id),
+						requireRead:
+						/** Recovery does not reuse a formerly valid operation grant. */ async () => {
+							await new TransactionalAccessPolicy(access.transaction, context).require({
+								permission: 'hcm.attendance.work-schedules.read',
+								entitlement: 'hcm.attendance',
+								subjects: scopes,
+							})
+						},
+						requireBasis:
+						/** Serialize against dated publication and reject a stale immutable workday revision. */ async (
+							employmentId,
+							date,
+							revision,
+						) => {
+							await sql`SELECT pg_advisory_xact_lock(hashtextextended(${tenant + ':dated-source:' + employmentId + ':' + date},0))`.execute(
+								tx,
+							)
+							await sql`SELECT pg_advisory_xact_lock(hashtextextended(${tenant + ':workday:' + employmentId + ':' + date},0))`.execute(
+								tx,
+							)
+							const rows = await sql<{
+								id: string
+								revision: number
+							}>`SELECT id,revision FROM hcm.published_workday WHERE tenant_id=${tenant} AND employment_id=${employmentId} AND work_date=${date}::date ORDER BY revision DESC LIMIT 1`.execute(
+								tx,
+							)
+							const row = rows.rows[0]
+							if (!row) throw new HcmDomainError('record-incomplete')
+							if (row.revision !== revision) throw new HcmDomainError('revision-conflict')
+							return row.id
+						},
+						insert:
+						/** Persist actual wall intervals with their derived start offsets; no workday row is updated. */ async (
+							id,
+							basis,
+							draft,
+						) => {
+							await sql`INSERT INTO hcm.schedule_override(tenant_id,id,employment_id,work_date,basis_workday_id,zone,kind,created_by_account_id) VALUES(${tenant},${id},${draft.employmentId},${draft.workDate}::date,${basis},${draft.zone},${draft.segments.length ? 'Work' : 'Rest'},${accountId})`.execute(
+								tx,
+							)
+							let previousEnd = 0
+							for (const [index, segment] of draft.segments.entries()) {
+								const startOffset = index ? Math.floor(previousEnd / 86400000) : 0
+								await sql`INSERT INTO hcm.schedule_override_segment(tenant_id,id,override_id,ordinal,kind,start_time,end_time,start_day_offset,end_day_offset,start_overlap_choice,end_overlap_choice) VALUES(${tenant},${randomUUID()},${id},${index + 1},${segment.kind},${segment.startTime}::time,${segment.endTime}::time,${startOffset},${segment.endDayOffset},${segment.overlapOffset?.start ?? null},${segment.overlapOffset?.end ?? null})`.execute(
+									tx,
+								)
+								previousEnd = wallMilliseconds(segment.endTime) + segment.endDayOffset * 86400000
+							}
+						},
+						attachEvidence:
+						/** Never accept ungoverned IDs while the required Documents consumer-purpose adapter is unavailable. */ async (
+							_id,
+							draft,
+						) => {
+							if (draft.evidenceIds.length) throw new HcmDomainError('record-incomplete')
+						},
+						/** Roll back the proposed lifecycle state even on resolver failure, leaving no approval or outbox intent. */
+						async simulate<T>(id: string, revision: number, review: () => Promise<T>): Promise<T> {
+							await sql`SAVEPOINT attendance_override_review`.execute(tx)
+							try {
+								const changed = await sql<{
+									id: string
+								}>`UPDATE hcm.schedule_override SET state='Approved',revision=revision+1,approval_digest=repeat('0',64),approved_at=clock_timestamp(),approved_by_account_id=${accountId} WHERE tenant_id=${tenant} AND id=${id} AND state='Draft' AND revision=${revision} RETURNING id`.execute(
+									tx,
+								)
+								if (!changed.rows.length) throw new HcmDomainError('revision-conflict')
+								return await review()
+							} finally {
+								await sql`ROLLBACK TO SAVEPOINT attendance_override_review`.execute(tx)
+								await sql`RELEASE SAVEPOINT attendance_override_review`.execute(tx)
+							}
+						},
+					})
+				},
+				/** Resolve private source coordinates only after Access verifies the independent operation and entitlement. */ async (
+					transaction,
+				) => {
+					const tx = transaction as unknown as Kysely<unknown>
+					if ('id' in target) {
+						const rows = await sql<{
+							employmentId: string
+							workDate: string
+						}>`SELECT employment_id AS "employmentId",work_date::text AS "workDate" FROM hcm.schedule_override WHERE tenant_id=${tenant} AND id=${target.id}`.execute(
+							tx,
+						)
+						dated = rows.rows[0]
+					} else dated = target
+					if (!dated) return (scopes = [{}])
+					const facts = await this.workforce
+						.bind(tx, tenant)
+						.read(dated.employmentId, dated.workDate)
+					if (facts.state !== 'Available') {
+						missingFacts = true
+						return (scopes = [{ employmentId: dated.employmentId }])
+					}
+					const base = {
+						employmentId: dated.employmentId,
+						legalEntityId: facts.context.legalEntityId,
+					}
+					return (scopes = facts.context.assignments.length
+						? facts.context.assignments.map(
+							/** Each assignment supplies its own full scope dimensions; partial grants cannot be combined. */ (
+								assignment,
+							) => ({
+								...base,
+								assignmentId: assignment.id,
+								orgUnitId: assignment.orgUnitId,
+								locationId: assignment.locationId,
+								...(assignment.departmentId ? { departmentId: assignment.departmentId } : {}),
+							}),
+						)
+						: [base])
+				},
+			)
+		} catch (error) {
+			return classifyConstraint(error)
+		}
+	}
+}

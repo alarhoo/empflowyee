@@ -226,3 +226,238 @@ current dated Workforce assignment/location facts; never use display preferences
 or first-row selection. The source resolver returns unavailable for missing or
 ambiguous authority facts. The approval update records the product owner's two
 explicit Step-2 answers and Codex's technical integration review.
+
+## DELIVERY-INTEGRATION
+
+The ordinary schedule Draft routes reuse `AttendanceScheduleDrafts` and its exact
+version repository. `GET /api/v1/attendance/work-schedules/defaults` reads the same
+persisted incomplete proposal as Templates under `work-schedules.read`; it never
+supplies a timezone or break placement. Shift and policy commands reuse the
+existing typed tables, universal validators, encrypted receipts and audit events.
+Their list cursors extend the existing Attendance cache with tenant-composite
+shift/policy references in forward migration 48.
+
+Policy publication reviews complete explicit rules of an unassigned Draft. The
+source transaction verifies that no assignment references that Draft, so this
+operation has no affected live workdays or Leave calculations. It does not apply
+the policy to an employment. Assignment is a separate dated operation and must
+evaluate the actual selected schedule, holiday calendar and independent rest rules.
+
+Schedule and shift previews add required `employmentId` to ConfigurationPreview.
+The preview is a proposed use in that real employment, not a new assignment.
+Timezone follows the source mode and dated Workforce facts. Schedule review uses
+the proposed weekly pattern within source validity and actual prior history
+outside it; a reusable shift substitutes only the reviewed date. The production
+resolver supplies exact intervals, holiday matching and independent rest checks.
+Missing policy/calendar/history remains unavailable. No proposed projection is
+written to `published_workday`.
+
+Forward migration 49 stores immutable employment context with typed source family
+and tenant references. The `attendance.configuration.preview` schema-1 handler
+runs on the existing AttendanceResolve lane. Source revision, dated dependencies
+and period evidence bind the result. Publication recomputes and compares that
+evidence before consuming it. The source-specific status endpoint is
+`GET /api/v1/attendance/{work-schedules|shifts}/{id}/versions/{version}/previews/{preview}`;
+it requires the originating app's current read grant and original actor identity.
+
+Schedule/policy assignments use the existing seven typed targets, exact source
+revision, optional exact predecessor revision and explicit `resolutionFrom` /
+`resolutionTo` (at most 366 inclusive days within assignment coverage). The bounded
+execution window does not shorten business coverage. Reads at
+`GET /api/v1/attendance/{schedule-assignments|policy-assignments}` require exact
+`kind`, non-Tenant `id`, and `asOf`. Shared preparation retains one complete grant
+for the target and all dated subjects, period fences and atomic supersession.
+Available workdays enqueue the existing exact-digest resolver intent; incomplete
+prerequisites are counted as unavailable rather than stored as zero work.
+Leave integration and override acceptance remain part of the full app delivery;
+these implemented commands alone do not satisfy them.
+
+The Attendance-owned `hcm-web-attendance-ui-schedule-pattern` library has tags
+`product:hcm,runtime:web,domain:attendance,type:ui`. It extracts the existing
+Templates form conversion, Signal Form state and maintained native controls.
+It owns no page, HTTP query, route or runtime session. Features retain those
+responsibilities and supply date/time formats and their form state. Shared
+`HcmDateField` preserves native DatePicker change semantics. No feature imports
+another feature implementation, and no new architectural type is introduced.
+
+## EDITOR-INTEGRATION
+
+The FCL collection selects Schedule, Shift or Policy through the closed `family`
+query parameter. Root/version identity remains explicit. Ordinary schedule draft
+routes retain `/new` and `/:id/edit`; reusable shifts use `/shift/new` and
+`/:id/shift-edit`, and Attendance policies use `/policy/new` and `/:id/policy-edit`.
+All complex editors are dedicated Dynamic Pages with footer actions and the same
+dirty-navigation protection. List queries remain server-owned per family.
+
+The shared pattern controls support a single reusable shift without a weekly
+pattern. The Shift parser receives only shift fields; temporary interval-group
+indexing is UI state, never a persisted weekly schedule. Templates retain the
+existing seven-day editor. Source-specific publication dialogs distinguish a
+durable proposed-employment preview from an unassigned policy rule review.
+
+Minimal Workforce references reuse the existing owner projection through
+`GET /api/v1/attendance/work-schedules/references/{kind}` and
+`GET /api/v1/attendance/work-schedules/references/workers/{worker}/context`.
+Closed kinds are workers, locations, legal-entities, units and departments;
+`q` is optional with maximum 120 characters and `asOf` is required. A current
+tenant-wide Work Schedules read grant precedes every selector read. No calendar
+permission, private HR fields or implicit primary employment is used.
+
+All policy field restrictions are the existing `parseAttendancePolicyDraft`
+contract, applied in Signal Forms and again on the API. Code is required, at most
+40 characters, matching `[A-Z][A-Z0-9_-]*`; name is required nonblank text, at most
+120 characters. Effective dates are ISO calendar dates; optional end cannot precede
+start. Grace values are explicit nonnegative safe integers. Configured rounding
+requires a positive safe-integer increment and Down/Up/Nearest direction. Optional
+minimum rest is inactive until configured, then requires a nonnegative safe-integer
+minute value and Warn/Block mode. Overtime enabled/disabled is an explicit choice;
+enabled overtime requires qualification, nonnegative safe-integer cap and explicit
+preapproval behavior. Numeric editing accepts whole decimal digits; blank input
+never becomes zero. No value is silently truncated or sanitized.
+
+Approval rules require an admitted subject, positive stage through 2,147,483,647,
+explicit independence and a closed candidate source. ManagerLevel requires a
+positive level through 2,147,483,647; Function requires nonblank text through 120
+characters; NamedUser requires an existing tenant account. Duplicate/stage and
+mandatory independent-manager restrictions remain in the universal contract.
+The current named-account picker consumes the existing Identity account API and
+its independent read permission, projecting only ID/name into the control. Denial
+is explicit and does not enable free-text account IDs. Existing loaded references
+remain distinguishable when outside the current search page.
+
+These editor integrations do not establish full application acceptance. Leave
+impact, override command/approval acceptance and browser journeys remain required by the FDD before
+catalogue availability changes to Complete.
+
+## ASSIGNMENT-REVIEW-AND-INSPECTION
+
+The unreleased schedule/policy assignment commands complete their review contract
+with `previewId` and a 64-character lowercase SHA-256 `digest`. The original closed
+assignment fields are the input to
+`POST /api/v1/attendance/{schedule-assignments|policy-assignments}/preview`, protected
+by current `hcm.attendance.work-schedules.preview` and the complete dated scope.
+The caller supplies a stable UUID idempotency key. The API evaluates the explicit
+bounded resolution window and coverage boundaries with the existing SQL constraints,
+period fences, selection and exact resolver. A transaction savepoint rolls back
+all proposed coverage, including predecessor shortening. Preview creates no durable
+assignment, workday or outbox intent. Existing Attendance command receipts retain
+the actor-bound result, source reference and encrypted reason; no new infrastructure
+framework or persistence owner is introduced.
+
+The result contains preview identity, digest, 15-minute expiry, affected employment
+and date-check counts, resolvable workdays and unavailable workdays. It binds the
+source, parsed command, dated Workforce facts, all selected family inputs, period
+evidence and resolution results. Commit rechecks current manage authority, actor,
+exact input hash, expiry and the recomputed digest under the tenant write lock.
+Only then can coverage, receipt, audit and exact workday intents commit together.
+Missing prerequisites remain explicit; time conflicts and locked periods reject
+review or commit. The review does not yet claim Leave calculation impact or future
+dates outside its explicit execution window. Those full-FDD requirements remain
+delivery work. The native assignment form clears review eligibility on every edit,
+protects dirty navigation, and retains an uncertain submission's retry identity.
+
+`GET /api/v1/attendance/workdays` accepts only required `employmentId`, `from` and
+`to`, with one value each and at most 366 inclusive dates. It returns a server-owned
+date-ascending `{items,nextCursor:null}` projection. Current Work Schedules read
+authority must cover every dated subject through one complete grant before any
+row/count is returned. Each date is Published or explicitly Unavailable, including
+pending/failed resolution and missing materialization. Published rows expose exact
+stored revision, source versions, timezone, start-date ownership, source-local and
+UTC intervals, offset seconds, exact elapsed-millisecond strings and safe rest
+evidence. Narrative receipt data and persistence rows are never returned. The native
+ObjectPage inspector requires explicit employment and range and never resolves or
+queues work as a side effect of reading.
+
+## DATED-SOURCE-INTEGRATION
+
+Forward migrations 50 and 51 materialize the approved Attendance-owned roster,
+entry and override sources and their typed immutable workday references. Roster
+entry lifecycle derives from its parent. A published roster cannot change its
+payload or children; an approved override retains its exact prior workday basis,
+zone and intervals. Tenant-composite references bind employment, work date,
+source version and creator. Forced RLS and restricted runtime grants apply to
+every new table. Publication takes the existing monthly and dated-employment
+fences; locked dates cannot acquire ordinary new workday revisions.
+
+The private dated-pattern projection normalizes one actual date for the existing
+exact interval/rest resolver. It is not a public ScheduleVersion DTO and does not
+create a synthetic schedule row. Approved override precedes published roster;
+only absent dated sources fall through to the ordinary seven-scope selector.
+Equal winning precedence is unavailable. Roster shifts retain their actual shift
+version, timezone mode and rest rule. Custom overrides retain the exact prior
+workday's schedule-side rule; the current dated Attendance policy rule still
+applies independently. Previous-shift rest search uses the same dated precedence.
+Missing Workforce, current shift, calendar or policy facts remain unavailable.
+
+Immutable workdays now store typed shift/roster-entry/override references in
+addition to their applicable schedule reference. Existing ordinary workday digests
+and intervals are preserved. A nonworking override is explicitly classified as
+`NonWorkingOverride`; it is never presented as missing configuration. Inspection
+adds safe dated source references and the source revision captured by the workday
+receipt, without returning private override reasons. Internal roster publication
+commands and override approval/command producers still require delivery; disposable
+SQL fixtures prove storage/resolution only, not production approval acceptance.
+
+## OVERRIDE-DRAFT-AND-REVIEW
+
+The admitted override draft and preview routes now reuse Attendance transactions,
+command receipts, period fences and the exact dated resolver. The additive
+`GET /api/v1/attendance/overrides/{id}` route supplies a safe reload representation
+under current `hcm.attendance.work-schedules.read` and the complete dated subject
+scope. It accepts no query fields. Its response contains ID, revision, lifecycle,
+employment/date, prior workday revision, zone and configured intervals; reasons and
+evidence identities are excluded. Creation uses `manage`; review uses `preview`.
+Each command requires a trusted write origin and actor-bound UUID retry key.
+
+The draft parser requires all declared fields. IDs are opaque validated identities;
+work date is an ISO calendar date and workday revision is a positive integer. Zone
+is a validated named timezone of at most 100 characters. Reason is nonblank text
+of at most 2,000 characters, preserved exactly. Evidence IDs are explicit and
+unique. Segments reuse the universal exact wall-time, contiguous-shift, day-offset,
+break and independent overlap-choice restrictions. Explicit `[]` means nonworking;
+a missing segments field is invalid. Supplied evidence is rejected as unavailable
+until Documents' purpose-bound admission adapter is delivered; no arbitrary ID is
+silently accepted or discarded.
+
+Migration 52 adds a typed override reference to existing immutable Attendance
+receipts and keeps their at-most-one-source invariant. Reasons use the existing
+row-bound cipher. Creation checks the latest stored workday under monthly,
+dated-source and workday fences; current whole-grant scope covers all actual dated
+assignment dimensions. No stored workday changes. Review temporarily evaluates
+Approved selection in an always-rolled-back savepoint, retaining Draft state and
+creating no workday or outbox row. Its actor-bound result expires after 15 minutes
+and binds source, exact prior workday revision, period, policy and resolution.
+It reports exact scheduled/expected milliseconds and whether policy has an
+Override approval route. This is dated resolution review only; Leave and subsequent
+workday impact, evidence upload/admission, submit/approval and native override UI
+remain acceptance requirements.
+
+The pure source decision evaluator implements the existing Attendance ApprovalCase
+state model: current source authority and candidates, session/revision/generation
+checks, configured independence/distinct actors, all required slots in each stage,
+and rejection terminating the case. It does not provide a persistence adapter,
+Workflow dispatch or an authorized HTTP decision route. No Workflow task or static
+candidate snapshot can manufacture source authority.
+
+## OVERRIDE-SOURCE-CASE-STORAGE
+
+Migration 53 adds Attendance-owned case, required slot and immutable decision
+storage for the first admitted subject, Override. Each case binds the exact Draft
+revision, employment/date, published dated policy, monotonically increasing
+generation, review/routing digests and requester. Every configured Override rule
+must have one typed same-policy slot before the creation transaction can commit.
+Slots retain their configured stage and ordinal. Decisions advance one case
+revision and the exact slot atomically; all-required/any-reject stage semantics,
+maker/requester exclusion and configured distinct actors are enforced structurally
+in SQL as well as in the pure source evaluator. Current candidate, beneficiary,
+session, permission and whole-grant scope checks remain owning application duties;
+SQL storage and Workflow assignment never confer that authority.
+
+Pending case payload, override parent and interval children cannot be edited.
+Terminal cases and decided slots cannot be rewritten, required slots cannot be
+deleted, and runtime grants provide no decision update/delete operation. Forced RLS
+and tenant-composite subject/policy/rule/actor references cover every new table.
+Configured Override approval independence is mandatory under the already approved
+owning TDD OverrideDraft contract; the parser and a forward SQL constraint enforce
+it without rewriting any existing policy. These storage guards do not themselves
+implement submit, source decision transport or Workflow coordination.

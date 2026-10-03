@@ -31,7 +31,7 @@ export class SqlAttendanceCommandReceipts implements AttendanceCommandReceiptSto
 	/** Retain only validated source identity and a bounded reason, without placing its plaintext in shared audit. */
 	setEvidence(evidence: AttendanceConfigurationEvidence): void {
 		if (this.evidence) throw new Error('Command evidence already established')
-		if (!['Schedule', 'Shift', 'Policy', 'Holiday'].includes(evidence.owner))
+		if (!['Schedule', 'Shift', 'Policy', 'Holiday', 'Override'].includes(evidence.owner))
 			throw new Error('Unsupported configuration owner')
 		idValue(evidence.versionId, 'versionId')
 		revisionValue(evidence.revision, 'revision')
@@ -72,11 +72,12 @@ WHERE tenant_id=${this.tenantId} AND actor_kind='Human' AND actor_account_id=${t
 		const shift = evidence.owner === 'Shift' ? evidence.versionId : null
 		const policy = evidence.owner === 'Policy' ? evidence.versionId : null
 		const holiday = evidence.owner === 'Holiday' ? evidence.versionId : null
+		const override = evidence.owner === 'Override' ? evidence.versionId : null
 		await sql`
 INSERT INTO hcm.attendance_command_receipt(tenant_id,id,actor_account_id,operation,idempotency_key,request_hash,response,source_revision,
-  work_schedule_version_id,shift_version_id,attendance_policy_version_id,holiday_calendar_version_id,encrypted_reason,reason_key_version)
+  work_schedule_version_id,shift_version_id,attendance_policy_version_id,holiday_calendar_version_id,schedule_override_id,encrypted_reason,reason_key_version)
 VALUES(${this.tenantId},${id},${this.accountId},${operation},${key}::uuid,${receipt.requestHash},${JSON.stringify(receipt.response)}::jsonb,${evidence.revision},
-  ${schedule},${shift},${policy},${holiday},${sealed?.ciphertext ?? null},${sealed?.keyVersion ?? null})
+  ${schedule},${shift},${policy},${holiday},${override},${sealed?.ciphertext ?? null},${sealed?.keyVersion ?? null})
 `.execute(this.transaction)
 	}
 }

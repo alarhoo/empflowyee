@@ -1,0 +1,13 @@
+{
+	"name": "hcm-web-attendance-ui-schedule-pattern",
+	"$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "libs/hcm/web/attendance/ui-schedule-pattern/src",
+	"prefix": "ef-hcm",
+	"projectType": "library",
+	"tags": ["product:hcm", "runtime:web", "domain:attendance", "type:ui"],
+	"targets": {
+		"lint": {
+			"executor": "@nx/eslint:lint"
+		}
+	}
+}

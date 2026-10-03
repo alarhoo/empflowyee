@@ -1,0 +1,222 @@
+<ui5-text>
+	Select one scope and an effective date to inspect its persisted configuration assignment.
+</ui5-text>
+@if (lookupError()) {
+	<ui5-message-strip
+		design="Negative"
+		[hideCloseButton]="true">
+		{{ lookupError() }}
+	</ui5-message-strip>
+}
+@if (commandError()) {
+	<ui5-message-strip
+		design="Negative"
+		[hideCloseButton]="true">
+		{{ commandError() }}
+	</ui5-message-strip>
+}
+@if (notice()) {
+	<ui5-message-strip
+		design="Positive"
+		[hideCloseButton]="true">
+		{{ notice() }}
+	</ui5-message-strip>
+}
+<ui5-form
+	accessibleName="Configuration assignment"
+	accessibleMode="Edit"
+	layout="S1 M2 L2 XL2"
+	labelSpan="S12 M12 L12 XL12">
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Scope</ui5-label>
+		<ui5-select
+			accessibleName="Assignment scope"
+			[disabled]="draft.saving()"
+			(ui5Change)="resetContext($event.detail.selectedOption.value ?? '')">
+			@for (kind of kinds; track kind.id) {
+				<ui5-option
+					[value]="kind.id"
+					[selected]="model().kind === kind.id">
+					{{ kind.name }}
+				</ui5-option>
+			}
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Assignment from / inspect date</ui5-label>
+		<ui5-date-picker
+			hcmDateField
+			accessibleName="Assignment from"
+			[formField]="fields.effectiveFrom"
+			[valueState]="fieldError('effectiveFrom') ? 'Negative' : 'None'"
+			valueFormat="yyyy-MM-dd"
+			[displayFormat]="runtime.preferences().dateFormat"
+			(ui5Change)="resetContext()"></ui5-date-picker>
+		<ui5-text>{{ fieldError('effectiveFrom') }}</ui5-text>
+	</ui5-form-item>
+	@if (model().kind !== 'Tenant') {
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Find scope target</ui5-label>
+			<ui5-input
+				#searchInput
+				accessibleName="Find assignment target"
+				[maxlength]="120"
+				[disabled]="draft.saving()"
+				(ui5Input)="search.set(searchInput.value() ?? '')"></ui5-input>
+			<ui5-button
+				[disabled]="pending() || draft.saving()"
+				(click)="findOptions()">
+				Search assignment targets
+			</ui5-button>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">
+				{{ model().kind === 'Employment' || model().kind === 'Assignment' ? 'Worker' : 'Target' }}
+			</ui5-label>
+			<ui5-select
+				#targetControl
+				accessibleName="Assignment target"
+				[disabled]="pending() || draft.saving()"
+				(ui5Change)="selectOption($event.detail.selectedOption.value ?? '')">
+				<ui5-option
+					value=""
+					[selected]="!selectedOption()">
+					Choose a target
+				</ui5-option>
+				@for (option of options(); track option.id) {
+					<ui5-option
+						[value]="option.id"
+						[selected]="selectedOption() === option.id">
+						{{ option.name }} ({{ option.code }})
+					</ui5-option>
+				}
+			</ui5-select>
+			<ui5-text>{{ fieldError('targetId') }}</ui5-text>
+			@if (hasMore()) {
+				<ui5-text>More than 100 matches. Narrow the search by name or code.</ui5-text>
+			}
+		</ui5-form-item>
+	}
+	@if ((model().kind === 'Employment' || model().kind === 'Assignment') && context()) {
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Employment</ui5-label>
+			<ui5-select
+				accessibleName="Assignment employment"
+				[formField]="fields.employmentId"
+				[valueState]="fieldError('employmentId') ? 'Negative' : 'None'"
+				(ui5Change)="employmentChanged()">
+				<ui5-option
+					value=""
+					[selected]="!model().employmentId">
+					Choose employment
+				</ui5-option>
+				@for (employment of context()?.employments ?? []; track employment.employmentId) {
+					<ui5-option
+						[value]="employment.employmentId"
+						[selected]="model().employmentId === employment.employmentId">
+						{{ employment.legalEntityName ?? 'Employment' }} — {{ employment.employmentId }}
+					</ui5-option>
+				}
+			</ui5-select>
+			<ui5-text>{{ fieldError('employmentId') }}</ui5-text>
+		</ui5-form-item>
+	}
+	@if (model().kind === 'Assignment' && context() && model().employmentId) {
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Workforce assignment</ui5-label>
+			<ui5-select
+				accessibleName="Workforce assignment"
+				[formField]="fields.targetId"
+				[valueState]="fieldError('targetId') ? 'Negative' : 'None'">
+				<ui5-option value="">Choose workforce assignment</ui5-option>
+				@for (assignment of context()?.assignments ?? []; track assignment.id) {
+					@if (assignment.employmentId === model().employmentId) {
+						<ui5-option [value]="assignment.id">{{ assignment.name }}</ui5-option>
+					}
+				}
+			</ui5-select>
+			<ui5-text>{{ fieldError('targetId') }}</ui5-text>
+		</ui5-form-item>
+	}
+	@if (editable() && source().state === 'Published') {
+		@for (date of dates; track date.id) {
+			@if (date.id !== 'effectiveFrom') {
+				<ui5-form-item>
+					<ui5-label slot="labelContent">{{ date.label }}</ui5-label>
+					<ui5-date-picker
+						hcmDateField
+						[accessibleName]="date.label"
+						[formField]="fields[date.id]"
+						[valueState]="fieldError(date.id) ? 'Negative' : 'None'"
+						valueFormat="yyyy-MM-dd"
+						[displayFormat]="runtime.preferences().dateFormat"></ui5-date-picker>
+					<ui5-text>{{ fieldError(date.id) }}</ui5-text>
+				</ui5-form-item>
+			}
+		}
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Reason</ui5-label>
+			<ui5-textarea
+				accessibleName="Assignment reason"
+				[formField]="fields.reason"
+				[maxlength]="2000"
+				[valueState]="fieldError('reason') ? 'Negative' : 'None'"></ui5-textarea>
+			<ui5-text>{{ fieldError('reason') }}</ui5-text>
+		</ui5-form-item>
+	}
+</ui5-form>
+<ui5-button
+	[disabled]="pending() || draft.saving()"
+	(click)="checkCurrent()">
+	Check current assignment
+</ui5-button>
+@if (pending()) {
+	<ui5-text>Loading assignment choices…</ui5-text>
+}
+@if (checked()) {
+	@if (current(); as assignment) {
+		<ui5-text>
+			Assigned configuration: {{ assignment.configurationName }}.
+			{{ assignment.effectiveFrom | hcmDate: 'date' }} through
+			{{ assignment.effectiveTo ? (assignment.effectiveTo | hcmDate: 'date') : 'no end date' }}.
+			Revision {{ assignment.revision }}.
+		</ui5-text>
+		@if (editable() && source().state === 'Published') {
+			<ui5-checkbox
+				text="Supersede this assignment from the selected start date"
+				[formField]="fields.replace"></ui5-checkbox>
+		}
+	} @else {
+		<ui5-text>No configuration is assigned to this exact scope on the selected date.</ui5-text>
+	}
+}
+@if (editable() && source().state === 'Published') {
+	<ui5-text>
+		Only the explicit resolution window is queued. Missing schedule or policy inputs remain
+		unavailable. Previously published workdays stay in history.
+	</ui5-text>
+	<ui5-button
+		[disabled]="pending() || draft.saving() || !previewable()"
+		(click)="preview()">
+		Review assignment impact
+	</ui5-button>
+	@if (reviewCurrent()) {
+		@if (review(); as impact) {
+			<ui5-text>
+				{{ impact.affectedEmploymentCount }} employments and {{ impact.affectedWorkdayCount }} dated
+				checks reviewed. {{ impact.queuedWorkdays }} workdays can be resolved;
+				{{ impact.unavailableWorkdays }} remain unavailable. Review expires
+				{{ impact.expiresAt | hcmDate }}.
+			</ui5-text>
+		}
+	}
+	<ui5-button
+		design="Emphasized"
+		[disabled]="pending() || draft.saving() || !reviewCurrent() || !review()"
+		(click)="assign()">
+		Assign configuration
+	</ui5-button>
+}
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

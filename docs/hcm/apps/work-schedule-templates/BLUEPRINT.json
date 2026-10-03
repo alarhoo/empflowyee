@@ -281,6 +281,16 @@
 				"domain:attendance",
 				"type:module"
 			]
+		},
+		{
+			"name": "hcm-web-attendance-ui-schedule-pattern",
+			"root": "libs/hcm/web/attendance/ui-schedule-pattern",
+			"tags": [
+				"product:hcm",
+				"runtime:web",
+				"domain:attendance",
+				"type:ui"
+			]
 		}
 	],
 	"prerequisites": [

@@ -10,9 +10,21 @@ import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
+	AttendanceOverrideUnit,
+	AttendanceOverrides,
 	AttendancePeriodFenceBinder,
 	AttendanceConfigurationInputBinder,
 	AttendanceScheduleUnitOfWork,
+	WorkConfigurationUnitOfWork,
+	AttendanceWorkConfigurationDrafts,
+	AttendanceWorkReferences,
+	AttendanceWorkdayReadPort,
+	AttendanceWorkdayQueries,
+	AttendanceWorkAssignmentUnit,
+	AttendanceWorkAssignments,
+	AttendanceDatedPublicationUnit,
+	AttendanceDatedPublication,
+	AttendancePolicyPublication,
 	AttendanceHolidayUnitOfWork,
 	AttendanceHolidayAssignmentUnit,
 	AttendanceHolidayAssignments,
@@ -25,14 +37,26 @@ import {
 	AttendanceTemplatePublication,
 } from '@empflowyee/hcm-api-attendance-application'
 import {
+	KyselyAttendanceOverrideUnit,
 	KyselyAttendancePeriodFenceBinder,
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
+	KyselyWorkConfigurationUnit,
+	KyselyAttendanceWorkdayQueries,
+	KyselyWorkAssignmentUnit,
+	KyselyDatedPublicationUnit,
 	KyselyAttendanceHolidayUnit,
 	KyselyHolidayAssignmentUnit,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import {
+	AttendanceOverridesController,
 	ScheduleTemplatesController,
+	WorkConfigurationsController,
+	WorkSchedulesController,
+	AttendanceWorkdaysController,
+	WorkAssignmentsController,
+	DatedPublicationController,
+	PolicyPublicationController,
 	HolidayCalendarsController,
 	HolidayAssignmentsController,
 } from '@empflowyee/hcm-api-attendance-transport'
@@ -41,12 +65,123 @@ import {
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
 	controllers: [
+		AttendanceOverridesController,
+		AttendanceWorkdaysController,
+		DatedPublicationController,
+		WorkAssignmentsController,
+		PolicyPublicationController,
+		WorkSchedulesController,
+		WorkConfigurationsController,
 		ScheduleTemplatesController,
 		HolidayCalendarsController,
 		HolidayAssignmentsController,
 	],
 	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
 	providers: [
+		{
+			provide: AttendanceOverrideUnit,
+			inject: [HcmAccessDatabase, FieldCipher, WorkforceTimeContextBinder],
+			useFactory: /** Compose current-authority override storage with existing owner ports. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				workforce: WorkforceTimeContextBinder,
+			) => new KyselyAttendanceOverrideUnit(database, cipher, workforce),
+		},
+		{
+			provide: AttendanceOverrides,
+			inject: [AttendanceOverrideUnit],
+			useFactory: /** Keep dated override commands in their application layer. */ (
+				unit: AttendanceOverrideUnit,
+			) => new AttendanceOverrides(unit),
+		},
+		{
+			provide: AttendanceWorkdayReadPort,
+			inject: [HcmAccessDatabase, WorkforceTimeContextBinder],
+			useFactory: /** Reuse dated Workforce scope authorization before stored evidence is read. */ (
+				database: HcmAccessDatabase | null,
+				workforce: WorkforceTimeContextBinder,
+			) => new KyselyAttendanceWorkdayQueries(database, workforce),
+		},
+		{
+			provide: AttendanceWorkdayQueries,
+			inject: [AttendanceWorkdayReadPort],
+			useFactory: /** Keep query validation in the owning application layer. */ (
+				reads: AttendanceWorkdayReadPort,
+			) => new AttendanceWorkdayQueries(reads),
+		},
+		{
+			provide: AttendanceDatedPublicationUnit,
+			inject: [HcmAccessDatabase, FieldCipher, WorkforceTimeContextBinder],
+			useFactory:
+			/** Compose dated source validation on the existing transaction and workforce ports. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				workforce: WorkforceTimeContextBinder,
+			) => new KyselyDatedPublicationUnit(database, cipher, workforce),
+		},
+		{
+			provide: AttendanceDatedPublication,
+			inject: [AttendanceDatedPublicationUnit],
+			useFactory:
+			/** Bind source lifecycle behavior to current-authority evidence and receipts. */ (
+				unit: AttendanceDatedPublicationUnit,
+			) => new AttendanceDatedPublication(unit),
+		},
+		{
+			provide: AttendanceWorkAssignmentUnit,
+			inject: [
+				HcmAccessDatabase,
+				FieldCipher,
+				WorkforceTimeContextBinder,
+				WorkforceTimeSubjectsBinder,
+			],
+			useFactory:
+			/** Compose dated scope, period fences and durable producers through existing owner ports. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				workforce: WorkforceTimeContextBinder,
+				subjects: WorkforceTimeSubjectsBinder,
+			) => new KyselyWorkAssignmentUnit(database, cipher, workforce, subjects),
+		},
+		{
+			provide: AttendanceWorkAssignments,
+			inject: [AttendanceWorkAssignmentUnit],
+			useFactory:
+			/** Bind scoped assignment commands without putting business behavior in the module. */ (
+				unit: AttendanceWorkAssignmentUnit,
+			) => new AttendanceWorkAssignments(unit),
+		},
+		{
+			provide: AttendancePolicyPublication,
+			inject: [WorkConfigurationUnitOfWork],
+			useFactory: /** Bind immutable policy publication to source-owned rule evidence. */ (
+				unit: WorkConfigurationUnitOfWork,
+			) => new AttendancePolicyPublication(unit),
+		},
+		{
+			provide: WorkConfigurationUnitOfWork,
+			inject: [HcmAccessDatabase, FieldCipher, WorkforcePortBinder],
+			useFactory: /** Reuse current-authority transactions and encrypted source receipts. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				references: WorkforcePortBinder,
+			) => new KyselyWorkConfigurationUnit(database, cipher, references),
+		},
+		{
+			provide: AttendanceWorkReferences,
+			inject: [WorkConfigurationUnitOfWork],
+			useFactory: /** Bind minimal selectors to current Work Schedules read authority. */ (
+				unit: WorkConfigurationUnitOfWork,
+			) => new AttendanceWorkReferences(unit),
+		},
+		{
+			provide: AttendanceWorkConfigurationDrafts,
+			inject: [WorkConfigurationUnitOfWork],
+			useFactory:
+			/** Bind the policy and shift source commands to their owning transaction port. */ (
+				unit: WorkConfigurationUnitOfWork,
+			) => new AttendanceWorkConfigurationDrafts(unit),
+		},
 		{
 			provide: AttendanceHolidayAssignmentUnit,
 			inject: [

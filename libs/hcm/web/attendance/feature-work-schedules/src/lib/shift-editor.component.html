@@ -1,0 +1,38 @@
+<ef-hcm-dynamic-page
+	[title]="id ? 'Edit shift' : 'Create shift'"
+	summary="Complete one continuous reusable shift; all times are local to the selected timezone policy"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true"
+	(retry)="load()">
+	@if (draft.error()) {
+		<ui5-message-strip
+			design="Negative"
+			[hideCloseButton]="true">
+			{{ draft.error() }}
+		</ui5-message-strip>
+	}
+	@if (state() === 'content') {
+		<ef-hcm-schedule-pattern-fields
+			[editor]="this"
+			[dateFormat]="runtime.preferences().dateFormat"
+			[timeFormat]="timeFormat()"
+			propertiesLabel="Shift properties"></ef-hcm-schedule-pattern-fields>
+	}
+	<ui5-button
+		hcmFooter
+		design="Emphasized"
+		[disabled]="draft.saving() || state() !== 'content'"
+		(click)="save()">
+		{{ draft.saving() ? 'Saving...' : 'Save draft' }}
+	</ui5-button>
+	<ui5-button
+		hcmFooter
+		[disabled]="draft.saving()"
+		(click)="cancel()">
+		Cancel
+	</ui5-button>
+</ef-hcm-dynamic-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

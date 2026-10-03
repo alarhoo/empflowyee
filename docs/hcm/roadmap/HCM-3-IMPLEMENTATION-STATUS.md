@@ -55,6 +55,18 @@ explicit unavailable outcomes; see [worker validation](../testing/HCM-3-RESOLVE-
 Remaining configuration producers/APIs/seeds, other domain handlers and the other
 app UIs remain pending.
 
+Work Schedules implementation now includes native schedule/shift/policy editors,
+dated publication, reviewed schedule/policy assignments, stored-workday inspection
+and typed roster/override resolution. Override Draft/read/preview commands now
+retain encrypted reasons and exact reviewed workday bases; independent approval
+evaluation and required case/slot/decision storage have focused tests; production
+source-case commands and Workflow integration remain pending. See its
+[integration record](../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) for executed
+tests and remaining command, approval, Leave-impact and browser work. It has not
+passed complete-app acceptance and its tile remains unavailable. Local PostgreSQL
+has migrations through 49 and Attendance seed version 4; migrations 50–51 have
+been verified in disposable PostgreSQL and require explicit local application.
+
 | Slice                                             | State                                | Evidence                                                           |
 | ------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
 | Scoped access grants and decision-time checks     | Implemented                          | [Validation](../testing/HCM-3-ACCESS-FOUNDATION-VALIDATION.md)     |
