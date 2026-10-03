@@ -1,7 +1,8 @@
 import type { HcmScopeSubject } from '@empflowyee/hcm-api-access-control-application'
 import { randomUUID } from 'node:crypto'
 import { Temporal } from '@js-temporal/polyfill'
-import { sql, type Kysely } from 'kysely'
+import { sql, type Kysely, type Transaction } from 'kysely'
+import { enqueueHcmWork } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
 	HcmAccessDatabase,
 	TransactionalAccessPolicy,
@@ -117,6 +118,30 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 						})
 					}
 					return work({
+						approve:
+						/** Record the source decision only after the application has consumed its current no-required-slot review. */ async (
+							source,
+							digest,
+						) => {
+							const updated =
+								await sql`UPDATE hcm.schedule_override SET state='Approved',revision=revision+1,approval_digest=${digest},approved_at=clock_timestamp(),approved_by_account_id=${accountId},updated_at=clock_timestamp() WHERE tenant_id=${tenant} AND id=${source.id} AND revision=${source.revision} AND state='Draft' RETURNING id`.execute(
+									tx,
+								)
+							if (!updated.rows.length) throw new HcmDomainError('revision-conflict')
+						},
+						enqueue:
+						/** Keep every affected date's exact resolution intent atomic with the source lifecycle and receipt. */ (
+							employmentId,
+							workDate,
+							inputDigest,
+						) =>
+							enqueueHcmWork(tx as Transaction<unknown>, tenant, {
+								workload: 'AttendanceResolve',
+								kind: 'attendance.workday.resolve',
+								schemaVersion: 1,
+								businessKey: `${employmentId}:${workDate}:${inputDigest}`,
+								payload: { employmentId, workDate, inputDigest },
+							}),
 						leaveImpact: this.leaveImpact.bind(tx, tenant),
 						requireImpactDate: /** Keep resolver reads behind complete dated operation scope. */ (
 							date,

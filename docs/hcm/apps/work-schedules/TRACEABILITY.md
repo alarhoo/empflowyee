@@ -49,6 +49,13 @@ requests: retained quantities, exact hourly validation, safe counts, tenant-boun
 reads and stale review after a new request. This covers the currently admitted
 Draft lifecycle only (003/005/007, partial); full lifecycle impact remains open.
 
+The same real API suite exercises no-required-slot override application: denial,
+identical concurrent submission, atomic approval/outbox rollback on enqueue failure,
+Pending workday inspection, real leased-worker publication, immutable Leave history
+and original-key recovery after materialization (002/003/004/005/007, partial).
+Configured independent approvals still remain pending; their final decisions are
+not covered by this path. Browser acceptance remains outstanding.
+
 | Requirement                                             | Design                          | Planned test                                        |
 | ------------------------------------------------------- | ------------------------------- | --------------------------------------------------- |
 | [REQ-WORK-SCHEDULES-001](FDD.md#req-work-schedules-001) | [DESIGN-001](TDD.md#design-001) | [TEST-WORK-SCHEDULES-001](#test-work-schedules-001) |

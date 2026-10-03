@@ -96,7 +96,7 @@ export class AttendanceOverridesController {
 			},
 		)
 	}
-	/** Consume the current review and persist required approval work without approving the override. */
+	/** Consume current impact and persist either required approval work or an explicitly permitted approval with dated resolution intents. */
 	@Post(':id/submit')
 	@HttpCode(200)
 	submit(

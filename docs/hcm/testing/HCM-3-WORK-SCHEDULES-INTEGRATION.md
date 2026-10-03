@@ -271,3 +271,31 @@ documentation/catalogue and Work Schedules readiness checks passed.
 This covers the admitted Draft lifecycle;
 full pending/approved impact, other configuration producers and final application
 are still required. No additional app or browser journey is accepted by this work.
+
+## Override application review
+
+On 2026-10-03 Codex reviewed the no-required-slot application path under the
+existing technical delegation. Current actor-bound impact, dated authority,
+period fences and the actual resolver precede atomic approval and durable work.
+Any existing approval case prevents this path. Required independent slots still
+create Pending obligations. Source approval is explicitly separate from background
+workday publication. The dated-source digest now orders fields before hashing so
+equivalent private proposals and PostgreSQL JSONB sources have identical evidence;
+old stored digests are preserved and require fresh review/resolution.
+No business default, schema change or new human approval is claimed.
+
+All 22 real PostgreSQL/API tests passed across the Attendance work configuration
+and Leave request suites. Coverage includes denied employee submission, identical
+concurrent retries, injected queue failure rolling back source approval and its
+receipt, Pending inspection, real leased-worker publication of both the override
+date and following Work date, retained historical workdays and unchanged Leave
+quantities. Original-key recovery remains stable after materialization; changed
+input conflicts. Seventy-four focused pure tests passed, along with affected lint,
+API TypeScript, strict Angular compilation and production API/web builds.
+Independent source decisions, governed evidence admission, complete Leave lifecycle
+impact, other configuration producers and Work Schedules browser acceptance remain
+outstanding. No additional app or milestone is accepted by these checks.
+
+Architecture, documentation, catalogue, page structure and target Work Schedules
+readiness checks passed. The fresh broader admitted-app gate remains 59/61:
+My Profile and Org Chart retain unrelated stale design approvals.

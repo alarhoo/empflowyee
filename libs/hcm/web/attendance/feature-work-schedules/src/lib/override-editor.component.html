@@ -192,8 +192,8 @@
 				<ui5-message-strip
 					design="Information"
 					[hideCloseButton]="true">
-					The selected policy requires no independent override approval. Applying this proposal is
-					not available yet.
+					The selected policy requires no independent override approval. Applying this reviewed
+					proposal will approve the override and queue the affected workdays for resolution.
 				</ui5-message-strip>
 			}
 		} @else {
@@ -211,6 +211,14 @@
 				{{ approval.pendingSlots }} of {{ approval.requiredSlots }} required approval slots remain
 				pending. Source changes are not applied while approval is pending.
 			</ui5-text>
+		}
+		@if (source()?.state === 'Approved') {
+			<ui5-message-strip
+				design="Information"
+				[hideCloseButton]="true">
+				This override is approved. The background worker resolves affected workdays separately. Use
+				the Work Schedules inspector to check their current resolution status.
+			</ui5-message-strip>
 		}
 		@if (source()) {
 			<ui5-button
@@ -239,12 +247,7 @@
 			Review override
 		</ui5-button>
 	}
-	@if (
-		source()?.state === 'Draft' &&
-		!source()?.approval &&
-		review()?.approvalRequired &&
-		allowed('manage')
-	) {
+	@if (source()?.state === 'Draft' && !source()?.approval && review() && allowed('manage')) {
 		<ui5-button
 			hcmFooter
 			design="Emphasized"
@@ -252,7 +255,9 @@
 				draft.saving() || state() !== 'content' || (uncertain() && retryOperation() !== 'submit')
 			"
 			(click)="act('submit')">
-			Submit for independent approval
+			{{
+				review()?.approvalRequired ? 'Submit for independent approval' : 'Apply reviewed override'
+			}}
 		</ui5-button>
 	}
 	<ui5-button

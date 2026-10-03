@@ -59,8 +59,9 @@ Publication requires explicit employment/timezone context. David Wallace opens
 see [acceptance and reproduction](docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md).
 Work Schedules, My Schedule and the requested Leave apps remain in progress.
 The [Work Schedules integration record](docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md)
-distinguishes implemented editors, assignment review and workday inspection from
-remaining approval, Leave-impact and browser acceptance. Its tile is not yet Available.
+distinguishes implemented editors, assignment review, Leave Draft impact and
+no-required-slot override application from remaining independent decisions,
+full Leave impact and browser acceptance. Its tile is not yet Available.
 The internal [Workflow integration record](docs/hcm/testing/HCM-3-WORKFLOW-INTEGRATION.md)
 tracks tested source submission/intake/planning separately from pending decisions
 and dispatch. Local preparation now applies migrations through 64; the worker can

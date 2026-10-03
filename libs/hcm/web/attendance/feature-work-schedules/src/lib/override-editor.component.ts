@@ -365,8 +365,8 @@ export class AttendanceOverrideEditor {
 					review = this.review()
 				if (!source && !basis)
 					return { kind: 'source', message: 'Reload current workday evidence.' }
-				if (operation === 'submit' && (!source || !review?.approvalRequired || source.approval))
-					return { kind: 'source', message: 'Review a draft that requires independent approval.' }
+				if (operation === 'submit' && (!source || !review || source.approval))
+					return { kind: 'source', message: 'Review the current draft before submitting.' }
 				const body = source
 					? {
 						expectedRevision: source.revision,

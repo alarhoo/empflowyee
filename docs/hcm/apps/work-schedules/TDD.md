@@ -184,7 +184,7 @@ after the existing current dated read checks; fresh review recomputes impact.
 Unavailable calculations are displayed and prevent submission. Only the currently
 admitted Draft lifecycle is supported; a later non-Draft lifecycle requires its
 own disposition before this adapter can report available impact. Full pending/
-approved Leave handling, other configuration producers and final application
+approved Leave handling, other configuration producers and independent final decisions
 remain separate acceptance obligations.
 
 ## PROJECTS
@@ -528,9 +528,10 @@ stable body-bound retry keys. Unconfirmed writes freeze input and permit only
 the original operation's recovery. Dirty navigation uses the shared native discard
 dialog; verified tenant/persona changes cancel requests and clear private state.
 Review displays the real horizon, exact durations and separate rest warnings.
-Submit displays persisted Pending progress and does not claim workday application.
-No-approval application and document admission remain explicitly unavailable until
-their owning backend dependencies are complete. The catalogue remains Planned;
+Required-approval submit displays persisted Pending progress. The no-required-slot
+path below distinguishes source approval from background workday application.
+Document admission remains explicitly unavailable until its owning backend
+dependency is complete. The catalogue remains Planned;
 this editor implementation is not complete-app browser acceptance.
 
 ## OVERRIDE-SOURCE-CASE-STORAGE
@@ -575,9 +576,34 @@ Attendance's source adapter. WorkflowPlan rereads this adapter and creates the
 required staged coordination work under Runtime's lease fence. Missing candidates
 remain explicit exceptions. See the [internal integration record](../../testing/HCM-3-WORKFLOW-INTEGRATION.md).
 
-This is pending-approval admission, not complete override delivery. The
-no-approval publication path still returns unavailable pending full impact and
-publication delivery. Source decisions, dispatch/timer/reconciliation, evidence,
+This is pending-approval admission, not complete override delivery.
+Independent source decisions, dispatch/timer/reconciliation, evidence,
 full Leave impact and complete native override browser acceptance remain
 required. Migration 55 corrects Workflow identity storage to the already approved
 opaque text mapping without editing migration 54 or discarding rows.
+
+## OVERRIDE-NO-REQUIRED-SLOT-APPLICATION
+
+Submit consumes the original actor-bound review under current manage authority.
+When the selected published policy has no required Override slot, and Leave
+impact is available, the source advances Draft to Approved once. Any existing
+source approval case prevents this path; a required slot always creates pending
+Workflow obligations instead. Both outcomes retain the reviewed-through date so
+receipt recovery requires current read authority over the original complete range.
+
+After the source transition, the actual assigned resolver must reproduce every
+reviewed dated result before commit. Each reviewed date receives its real current
+AttendanceResolve input digest and durable work identity, atomically with encrypted
+reason, safe audit and response receipt. Failure rolls back approval and every
+intent. `Approved` describes the source only; the additive result variant exposes
+`resolutionState: Pending` and operation IDs. The existing workday inspector
+reports resolution Pending/Failed/Published independently, and historical rows
+are never overwritten. The editor labels this action Apply reviewed override and
+explains the separate background resolution after reload.
+
+Dated source digests use `DatedWorkPattern:2` with explicitly ordered fields. This
+makes a private in-memory proposal and the identical PostgreSQL JSONB source
+produce equal evidence despite JSONB key ordering. Old dated-source reviews and
+materialized evidence need fresh review/resolution; no stored digest is rewritten.
+This application path is limited by the currently admitted Leave lifecycle impact
+adapter. It does not implement independent source decisions or evidence admission.
