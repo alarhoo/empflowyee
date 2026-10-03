@@ -50,11 +50,12 @@ pnpm hcm:db:test libs/hcm/api/workflow/infrastructure/src/lib/intake.database.sp
 
 ## Remaining delivery
 
-Source adapter composition and submit commands,
-action authority/dispatch, immutable source receipt reconciliation, timer execution
+Action authority/dispatch, immutable source receipt reconciliation, timer execution
 and notifications remain required. This initial planner schema does not grant
-runtime transition or delete privileges. It is not registered in the running local
-worker yet. Migration 54 has been applied only to disposable test databases.
+runtime transition or delete privileges. The worker root now registers WorkflowPlan
+for Attendance source intake, and required-approval Override submit produces real
+intake atomically with its case. Local PostgreSQL was explicitly migrated through
+55 after a verified backup on 2026-10-03; the rebuilt API and worker are running.
 Work Schedules remains incomplete and no requested milestone is complete.
 
 ## Attendance source and candidate review
@@ -86,9 +87,35 @@ ports and leased Workflow planner. That scenario verifies missing decision grant
 account revocation, tenant isolation, safe projection, exact slots and a ready first
 task with a blocked second stage. Source-case insertion and temporary decision
 grants are explicit test fixtures; production submission and browser acceptance are
-still pending. No applied migration or canonical seed was rewritten.
+were still pending at that checkpoint. Required-approval submission is subsequently
+covered by the [submission review](HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-submission-technical-review).
+No applied migration or canonical seed was rewritten. Forward migration 55 aligns
+Workflow identities with the approved opaque text mapping while retaining rows,
+unique keys and tenant-composite foreign keys.
 
 ```sh
 pnpm hcm:db:test libs/hcm/api/access-control/infrastructure/src/lib/grant-scope.database.spec.ts libs/hcm/api/workforce-foundation/module/src/lib/workforce-time-context.database.spec.ts
 pnpm hcm:db:test libs/hcm/api/attendance/module/src/lib/work-configurations.database.spec.ts
 ```
+
+## Local runtime verification
+
+On 2026-10-03 a new custom-format backup of the persistent local database was
+created and its restore inventory checked before explicitly running `pnpm hcm:db:up`.
+The backup contained 1,238,337 bytes; prior backups and the existing field-encryption
+key were retained. Six forward migrations applied, leaving 55 total and no changed
+seed version. The rebuilt API reports readiness HTTP 200 on port 4402, the tenant
+web root responds HTTP 200 on port 4302, and the restarted worker polls the explicit
+AttendanceResolve/WorkflowPlan allowlist with no tenant failures. These checks do
+not constitute Work Schedules browser acceptance.
+
+The latest combined Attendance/Workflow PostgreSQL run passed 19 tests, including
+HTTP-created source case intake executed by the leased planner. The Work Schedules
+readiness gate passes. Broader admitted-app readiness is 59/61; My Profile and Org
+Chart retain unrelated stale FDD/TDD/traceability approval hashes. Those ledgers
+were not changed to clear the broader gate.
+
+The fresh production-web regression on 2026-10-03 passed 7 suites / 62 tests,
+including the existing Work Schedule Templates and Holiday Calendars browser
+journeys (`tools/milestones/hcm-3/browser.config.mts`). This is regression
+evidence for those apps, not Work Schedules browser acceptance.

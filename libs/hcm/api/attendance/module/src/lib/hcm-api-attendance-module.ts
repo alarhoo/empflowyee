@@ -1,6 +1,7 @@
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
 import {
 	WorkforceTimeContextBinder,
+	WorkforceApprovalRoutingBinder,
 	WorkforceTimeSubjectsBinder,
 	WorkforcePortBinder,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
@@ -9,6 +10,9 @@ import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
+import { ApprovalCandidateBinder } from '@empflowyee/hcm-api-access-control-application'
+import { WorkflowIntakeBinder } from '@empflowyee/hcm-api-workflow-application'
+import { KyselyWorkflowIntakeBinder } from '@empflowyee/hcm-api-workflow-infrastructure'
 import {
 	AttendanceOverrideUnit,
 	AttendanceOverrides,
@@ -38,6 +42,7 @@ import {
 } from '@empflowyee/hcm-api-attendance-application'
 import {
 	KyselyAttendanceOverrideUnit,
+	KyselyAttendanceWorkflowSourceBinder,
 	KyselyAttendancePeriodFenceBinder,
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
@@ -79,13 +84,38 @@ import {
 	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
 	providers: [
 		{
+			provide: WorkflowIntakeBinder,
+			useFactory:
+			/** Bind durable coordination intake without starting scheduler loops in HTTP. */ () =>
+				new KyselyWorkflowIntakeBinder(),
+		},
+		{
+			provide: KyselyAttendanceWorkflowSourceBinder,
+			inject: [WorkforceTimeContextBinder, WorkforceApprovalRoutingBinder, ApprovalCandidateBinder],
+			useFactory: /** Compose the fixed Attendance source through owner-owned current facts. */ (
+				workforce: WorkforceTimeContextBinder,
+				routing: WorkforceApprovalRoutingBinder,
+				access: ApprovalCandidateBinder,
+			) => new KyselyAttendanceWorkflowSourceBinder(workforce, routing, access),
+		},
+		{
 			provide: AttendanceOverrideUnit,
-			inject: [HcmAccessDatabase, FieldCipher, WorkforceTimeContextBinder],
+			inject: [
+				HcmAccessDatabase,
+				FieldCipher,
+				WorkforceTimeContextBinder,
+				WorkforceApprovalRoutingBinder,
+				KyselyAttendanceWorkflowSourceBinder,
+				WorkflowIntakeBinder,
+			],
 			useFactory: /** Compose current-authority override storage with existing owner ports. */ (
 				database: HcmAccessDatabase | null,
 				cipher: FieldCipher,
 				workforce: WorkforceTimeContextBinder,
-			) => new KyselyAttendanceOverrideUnit(database, cipher, workforce),
+				routing: WorkforceApprovalRoutingBinder,
+				sources: KyselyAttendanceWorkflowSourceBinder,
+				intake: WorkflowIntakeBinder,
+			) => new KyselyAttendanceOverrideUnit(database, cipher, workforce, routing, sources, intake),
 		},
 		{
 			provide: AttendanceOverrides,

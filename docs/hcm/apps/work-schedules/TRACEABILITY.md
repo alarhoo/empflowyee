@@ -14,13 +14,16 @@ evidence, durable workday production, safe inspection, authorization and tenant
 isolation (requirements 001, 003, 004, 005 and 007, partial). It also exercises typed
 roster/override storage and actual worker precedence using explicit disposable
 fixtures. Real override Draft creation/read/preview now covers receipt recovery,
-encrypted reasons, stale workdays and rolled-back proposed resolution; submit,
-evidence admission and approval acceptance remain open (002).
+encrypted reasons, stale workdays and rolled-back proposed resolution. Reviewed
+required-approval submission now covers concurrent duplicate recovery, persisted
+case/slots/intake, encrypted reason, safe reload progress and current manage denial.
+Evidence admission, decisions and full override acceptance remain open (002).
 The [source decision evaluator tests](../../../../libs/hcm/api/attendance/domain/src/lib/source-approval.spec.ts)
 cover staged all-required/any-reject rules and current-authority guards in isolation;
 SQL fixture tests additionally cover complete source-case storage, stage guards,
-immutable decisions and restricted runtime access. Production source-case commands
-and Workflow integration remain required.
+immutable decisions and restricted runtime access. Required-case submission and
+source-owned Workflow planning are implemented; dispatch, timers, receipt
+reconciliation and completed source decisions remain required.
 The [dated selection tests](../../../../libs/hcm/api/attendance/domain/src/lib/dated-source-selection.spec.ts)
 cover precedence, ties and inactive sources. Existing exact-time/rest tests remain
 the calculation evidence. Shared schedule/shift and policy form conversion tests

@@ -60,15 +60,17 @@ dated publication, reviewed schedule/policy assignments, stored-workday inspecti
 and typed roster/override resolution. Override Draft/read/preview commands now
 retain encrypted reasons and exact reviewed workday bases; independent approval
 evaluation and required case/slot/decision storage have focused tests; production
-source-case commands and production Workflow composition remain pending. Internal
+source decisions remain pending. Required-approval Override submission now creates
+its case, slots and real Workflow intake atomically and returns safe reload progress. Internal
 [Workflow intake and initial DomainManifest planning](../testing/HCM-3-WORKFLOW-INTEGRATION.md)
-now have real leased-worker/PostgreSQL tests; source adapters, dispatch, timers and
+now have real leased-worker/PostgreSQL tests with Attendance source adapters; dispatch, timers and
 receipt reconciliation still require delivery. See the Work Schedules
 [integration record](../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) for executed
 tests and remaining command, approval, Leave-impact and browser work. It has not
-passed complete-app acceptance and its tile remains unavailable. Local PostgreSQL
-has migrations through 49 and Attendance seed version 4; migrations 50–54 have
-been verified in disposable PostgreSQL and require explicit local application.
+passed complete-app acceptance and its tile remains unavailable. After a verified
+backup, local PostgreSQL has migrations through 55 and Attendance seed version 4.
+The rebuilt API is ready and the worker runs AttendanceResolve and WorkflowPlan;
+source decisions and the remaining Workflow lanes are still unavailable.
 
 | Slice                                             | State                                     | Evidence                                                           |
 | ------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |

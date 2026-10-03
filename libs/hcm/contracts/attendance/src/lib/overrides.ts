@@ -31,6 +31,14 @@ export interface AttendanceOverrideView {
 	workdayRevision: number
 	segments: ScheduleSegment[]
 	zone: string
+	approval?: {
+		caseId: string
+		revision: number
+		generation: number
+		state: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Invalidated'
+		requiredSlots: number
+		pendingSlots: number
+	}
 }
 export interface AttendanceOverrideReview {
 	previewId: string
@@ -41,6 +49,16 @@ export interface AttendanceOverrideReview {
 	scheduledMilliseconds: string
 	expectedMilliseconds: string
 	approvalRequired: boolean
+}
+/** Submission acknowledges persisted independent approval work; it never reports an unexecuted approval as successful. */
+export interface AttendanceOverrideSubmission {
+	id: string
+	revision: number
+	state: 'PendingApproval'
+	caseId: string
+	caseRevision: number
+	generation: number
+	operationId: string
 }
 
 /** Parse a complete dated override; an explicitly empty segment list means nonworking, never missing configuration. */

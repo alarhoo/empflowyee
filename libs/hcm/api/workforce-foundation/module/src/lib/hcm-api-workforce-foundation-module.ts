@@ -10,12 +10,14 @@ import {
 	OrganisationStructure,
 	WorkforcePortBinder,
 	WorkforceTimeContextBinder,
+	WorkforceApprovalRoutingBinder,
 	WorkforceTimeSubjectsBinder,
 	WorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
 	KyselyWorkforcePortBinder,
 	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceApprovalRoutingBinder,
 	KyselyWorkforceTimeSubjectsBinder,
 	KyselyWorkforceUnitOfWork,
 } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
@@ -35,6 +37,12 @@ import {
 		OrgChartController,
 	],
 	providers: [
+		{
+			provide: WorkforceApprovalRoutingBinder,
+			useFactory:
+			/** Export minimal source-owned reporting facts to approved approval consumers. */ () =>
+				new KyselyWorkforceApprovalRoutingBinder(),
+		},
 		{
 			provide: WorkforceTimeSubjectsBinder,
 			useFactory:
@@ -88,6 +96,7 @@ import {
 		},
 	],
 	exports: [
+		WorkforceApprovalRoutingBinder,
 		WorkforceTimeSubjectsBinder,
 		WorkforceTimeContextBinder,
 		WorkforceUnitOfWork,

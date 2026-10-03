@@ -7,8 +7,14 @@ import {
 	KyselyHolidayPreviewHandler,
 	KyselyDatedConfigurationPreviewHandler,
 	KyselyAttendanceConfigurationInputBinder,
+	KyselyAttendanceWorkflowSourceBinder,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
-import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import {
+	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceApprovalRoutingBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import { KyselyApprovalCandidateBinder } from '@empflowyee/hcm-api-access-control-infrastructure'
+import { KyselyWorkflowPlanHandler } from '@empflowyee/hcm-api-workflow-infrastructure'
 
 const shutdown = new AbortController()
 /** Stop new claims; current fenced transactions settle before their pools close. */
@@ -23,6 +29,15 @@ void runHcmWorker(
 	{
 		/** Compose workday resolution and dated holiday, schedule and shift preview handlers. */
 		lanes: (_database, store) => [
+			new HcmTransactionalWorkerLane('WorkflowPlan', store, [
+				new KyselyWorkflowPlanHandler(
+					new KyselyAttendanceWorkflowSourceBinder(
+						new KyselyWorkforceTimeContextBinder(),
+						new KyselyWorkforceApprovalRoutingBinder(),
+						new KyselyApprovalCandidateBinder(),
+					),
+				),
+			]),
 			new HcmTransactionalWorkerLane('AttendanceResolve', store, [
 				new KyselyDatedConfigurationPreviewHandler(new KyselyWorkforceTimeContextBinder()),
 				new KyselyHolidayPreviewHandler(new KyselyWorkforceTimeContextBinder()),

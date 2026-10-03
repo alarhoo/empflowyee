@@ -234,6 +234,16 @@ it('rolls intake back with the producing source transaction and rejects tenant r
 })
 
 it('plans exact source stages through a leased worker and retains elapsed UTC timers', /** Coordination persists required tasks without completing source decisions. */ async () => {
+	const identities = await admin.query(
+		"SELECT data_type FROM information_schema.columns WHERE table_schema='hcm' AND table_name IN ('workflow_instance','workflow_stage_instance','workflow_task','workflow_task_candidate','workflow_task_timer','workflow_reconciliation_exception','workflow_planning_receipt') AND column_name IN ('id','instance_id','task_id','outbox_id')",
+	)
+	expect(identities.rows.length).toBeGreaterThan(0)
+	expect(
+		identities.rows.every(
+			/** Domain identities retain the repository's opaque text mapping. */ (row) =>
+				row.data_type === 'text',
+		),
+	).toBe(true)
 	const source = manifest()
 	source.caseId = 'staged-case'
 	source.slots.push({ ...source.slots[0], id: 'stage-two-slot', stage: 2 })
@@ -318,7 +328,7 @@ it('plans exact source stages through a leased worker and retains elapsed UTC ti
 				tx,
 			) => {
 				await sql`SELECT set_config('hcm.tenant_id',${tenant},true)`.execute(tx)
-				await sql`UPDATE hcm.workflow_task SET state='Completed' WHERE id=${tasks[0].id}::uuid`.execute(
+				await sql`UPDATE hcm.workflow_task SET state='Completed' WHERE id=${tasks[0].id}`.execute(
 					tx,
 				)
 			},

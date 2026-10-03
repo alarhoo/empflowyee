@@ -98,13 +98,13 @@ export class KyselyWorkflowPlanHandler implements HcmWorkHandler<WorkloadAuditTa
 					outcome = 'ReconciliationRequired'
 				else {
 					instanceId = randomUUID()
-					await sql`INSERT INTO hcm.workflow_instance(tenant_id,id,source,subject_type,definition_mode,registry_version,source_case_id,source_case_revision,subject_id,subject_revision,generation,manifest_digest) VALUES(${tenantId},${instanceId}::uuid,${source},${manifest.safeFacts.subjectType},${WORKFLOW_DEFINITION_MODE},1,${caseId},${caseRevision},${manifest.subjectId},${subjectRevision},${generation},${digest})`.execute(
+					await sql`INSERT INTO hcm.workflow_instance(tenant_id,id,source,subject_type,definition_mode,registry_version,source_case_id,source_case_revision,subject_id,subject_revision,generation,manifest_digest) VALUES(${tenantId},${instanceId},${source},${manifest.safeFacts.subjectType},${WORKFLOW_DEFINITION_MODE},1,${caseId},${caseRevision},${manifest.subjectId},${subjectRevision},${generation},${digest})`.execute(
 						transaction,
 					)
 					const openedAt = (
 						await sql<{
 							opened_at: Date
-						}>`SELECT opened_at FROM hcm.workflow_instance WHERE tenant_id=${tenantId} AND id=${instanceId}::uuid`.execute(
+						}>`SELECT opened_at FROM hcm.workflow_instance WHERE tenant_id=${tenantId} AND id=${instanceId}`.execute(
 							transaction,
 						)
 					).rows[0].opened_at
@@ -115,7 +115,7 @@ export class KyselyWorkflowPlanHandler implements HcmWorkHandler<WorkloadAuditTa
 							/** Group the source graph without weakening its obligations. */ (slot) =>
 								slot.stage === stage,
 						)
-						await sql`INSERT INTO hcm.workflow_stage_instance(tenant_id,instance_id,stage,required_count,completion_mode,state,activated_at) VALUES(${tenantId},${instanceId}::uuid,${stage},${members.length},'All',${stage === 1 ? 'Active' : 'Blocked'},${stage === 1 ? openedAt : null})`.execute(
+						await sql`INSERT INTO hcm.workflow_stage_instance(tenant_id,instance_id,stage,required_count,completion_mode,state,activated_at) VALUES(${tenantId},${instanceId},${stage},${members.length},'All',${stage === 1 ? 'Active' : 'Blocked'},${stage === 1 ? openedAt : null})`.execute(
 							transaction,
 						)
 						for (const slot of members) {
@@ -135,15 +135,15 @@ export class KyselyWorkflowPlanHandler implements HcmWorkHandler<WorkloadAuditTa
 								candidates?.accountIds.length === 1 ? 'Direct' : 'OfferToCandidates'
 							const activeState = ready ? 'Ready' : 'Failed'
 							const dueAt = ready ? new Date(openedAt.getTime() + 48 * 3600000) : null
-							await sql`INSERT INTO hcm.workflow_task(tenant_id,id,instance_id,stage,ordinal,source_slot_id,source_slot_revision,expected_case_revision,independent,distinct_actors,candidate_rule_code,candidate_digest,assignment_mode,state,available_at,due_at) VALUES(${tenantId},${taskId}::uuid,${instanceId}::uuid,${stage},${slot.ordinal},${slot.id},${slot.revision},${caseRevision},${slot.independent},${slot.distinctActors},${slot.candidateRuleCode},${candidates?.digest ?? null},${ready ? assignment : null},${stage !== 1 ? 'Blocked' : activeState},${ready ? openedAt : null},${dueAt})`.execute(
+							await sql`INSERT INTO hcm.workflow_task(tenant_id,id,instance_id,stage,ordinal,source_slot_id,source_slot_revision,expected_case_revision,independent,distinct_actors,candidate_rule_code,candidate_digest,assignment_mode,state,available_at,due_at) VALUES(${tenantId},${taskId},${instanceId},${stage},${slot.ordinal},${slot.id},${slot.revision},${caseRevision},${slot.independent},${slot.distinctActors},${slot.candidateRuleCode},${candidates?.digest ?? null},${ready ? assignment : null},${stage !== 1 ? 'Blocked' : activeState},${ready ? openedAt : null},${dueAt})`.execute(
 								transaction,
 							)
 							for (const accountId of candidates?.accountIds ?? [])
-								await sql`INSERT INTO hcm.workflow_task_candidate(tenant_id,task_id,account_id) VALUES(${tenantId},${taskId}::uuid,${accountId})`.execute(
+								await sql`INSERT INTO hcm.workflow_task_candidate(tenant_id,task_id,account_id) VALUES(${tenantId},${taskId},${accountId})`.execute(
 									transaction,
 								)
 							if (candidates && !ready)
-								await sql`INSERT INTO hcm.workflow_reconciliation_exception(tenant_id,id,task_id,code) VALUES(${tenantId},${randomUUID()}::uuid,${taskId}::uuid,'NoCandidates')`.execute(
+								await sql`INSERT INTO hcm.workflow_reconciliation_exception(tenant_id,id,task_id,code) VALUES(${tenantId},${randomUUID()},${taskId},'NoCandidates')`.execute(
 									transaction,
 								)
 							if (ready) {
@@ -155,7 +155,7 @@ export class KyselyWorkflowPlanHandler implements HcmWorkHandler<WorkloadAuditTa
 									{ kind: 'Escalation', fire: 1, hours: 72 },
 								]
 								for (const timer of timers)
-									await sql`INSERT INTO hcm.workflow_task_timer(tenant_id,id,task_id,kind,fire_number,due_at) VALUES(${tenantId},${randomUUID()}::uuid,${taskId}::uuid,${timer.kind},${timer.fire},${new Date(openedAt.getTime() + timer.hours * 3600000)})`.execute(
+									await sql`INSERT INTO hcm.workflow_task_timer(tenant_id,id,task_id,kind,fire_number,due_at) VALUES(${tenantId},${randomUUID()},${taskId},${timer.kind},${timer.fire},${new Date(openedAt.getTime() + timer.hours * 3600000)})`.execute(
 										transaction,
 									)
 							}
@@ -165,7 +165,7 @@ export class KyselyWorkflowPlanHandler implements HcmWorkHandler<WorkloadAuditTa
 				}
 			}
 		}
-		await sql`INSERT INTO hcm.workflow_planning_receipt(tenant_id,outbox_id,instance_id,outcome,manifest_digest) VALUES(${tenantId},${work.id},${instanceId}::uuid,${outcome},${expected})`.execute(
+		await sql`INSERT INTO hcm.workflow_planning_receipt(tenant_id,outbox_id,instance_id,outcome,manifest_digest) VALUES(${tenantId},${work.id},${instanceId},${outcome},${expected})`.execute(
 			transaction,
 		)
 		requireWorkloadScope(context, 'WorkflowPlan')

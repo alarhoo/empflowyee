@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "64d8c55cd03d73ed1111f6687e03c612b34ffd4fa10eb30c32994827dfe6477b",
+			"sha256": "c05d503b1603fca88f0a692e4120ee59d548c15b86b54e55dd1a65517d490596",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-case-storage-technical-review; reviewed required slot, structural decision and traceability integration under existing delegation; no independent human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-submission-technical-review; reviewed pending source submission, owner ports, atomic Workflow intake and traceability under existing delegation; no independent human approval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "95555820a7ce2782b7dba98dde1dd5d6fb140016a5b7569e99e709f54f182f06",
+			"sha256": "527642f3e3cce236b30c8dfda4532509e5a70783b479ca163ae89bc2a09d4c2c",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-case-storage-technical-review; reviewed required slot, structural decision and traceability integration under existing delegation; no independent human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-submission-technical-review; reviewed pending source submission, owner ports, atomic Workflow intake and traceability under existing delegation; no independent human approval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",
