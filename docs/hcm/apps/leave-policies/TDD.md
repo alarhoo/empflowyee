@@ -93,6 +93,72 @@ infrastructure or delegation creation is required/introduced in this release.
 
 ## DATA
 
+### Policy field implementation contract
+
+The universal Leave contract implements the owning domain schemas and these
+technical refinements of REQ-LEAVE-POLICIES-001. Drafts may retain incomplete
+enabled rules; publication returns named missing-field errors. No omitted
+parameter receives an entitlement, date window, accrual timing or proration default.
+Optional values are omitted, not coerced from null or empty strings. Text retains
+the submitted whitespace after validation. Codes use the common 40-character
+pattern, names 120, descriptions/reasons 2000 and opaque IDs 200. All nested
+objects reject unknown fields. Quantities use exact numeric(18,6) decimal strings;
+integer counters use 0..2147483647, with strictly positive intervals where stated.
+Dates are valid ISO local dates; inclusive ends cannot precede starts. Each typed
+rule/assignment collection is bounded to 100 entries for command safety, blackout
+dates to 366, and approval graphs to five stages with five slots per stage.
+Duplicate IDs, dates and slot identities are rejected; none are silently truncated.
+
+Alongside the domain's base draft fields, explicit `allowHalfDay`, `allowHourly`,
+`maximumBackdatedDays` and `maximumAdvanceDays` are required before publication.
+`minimumRequestUnits` and `maximumRequestUnits`, when present, are positive and
+ordered. Hourly admission requires a positive `hourlyIncrementMinutes`; an
+optional standard-day fallback is positive and never repairs an unavailable resolver.
+Rounding uses scale 0..6 and Up/Down/Nearest (nearest ties round up for nonnegative
+request quantities). This arithmetic definition does not resolve the separate
+half-day/full-day rounding conflict in the domain documents.
+
+Accrual adds the logical model's explicit `frequency` (OnJoin/Monthly/Quarterly/
+Annual/ServiceAnniversary), `timing` (Advance/Arrears), `proration` (None/
+CalendarDays/WorkingDays), positive `unitsPerOccurrence`, `waitingPeriodDays`
+and optional positive `maximumAccruedBalanceUnits`. `unitsPerYear`/`unitsPerMonth`
+remain explicit baseline configuration rather than an independent posting source.
+Carry-forward requires a positive cap/expiry interval and explicit `expiryBasis`
+(PeriodStart/PeriodEnd/GrantDate). No negative balance carry is supported.
+
+Eligibility rules contain an opaque `id`, integer `priority`, Include/Exclude
+`effect`, effective range and optional exact `legalEntityId`, `orgUnitId`,
+`departmentId`, `locationId`, `workerTypeId`, `employmentType`, `genderCode`,
+`minimumServiceDays`, `statutoryFloorReference`. Employment type/gender values
+are bounded opaque codes resolved against current Workforce options, not invented
+country enumerations. Dated assignments contain id/employmentId/effect/effective
+range. An explicit published statutory floor must resolve to an admitted source;
+an unknown reference blocks publication and is never treated as a new statutory pack.
+
+Approval rules retain stage/roleCode/minimumUnits/independent and add opaque `id`,
+`subjectType` (Leave/Cancellation/Adjustment), `source` (LineManager/ManagerLevel/
+Function/NamedUser), optional `managerLevel`, `functionCode`, `accountId` and
+`maximumUnits`. Source-specific routing is required before publication and rejects
+unrelated selectors. Function routing uses the admitted `LEAVE_APPROVAL_ACT`
+function; roleCode names a configured slot and is never itself a permission.
+Adjustment slots are independent. All selected slots are required, and there is
+no delegation or elapsed-time approval. The existing Workflow intake owns graph
+admission; policy validation prevents a graph it cannot represent.
+
+Unpaid rejects enabled accrual, carry-forward, comp-off or encashment. Disabled
+rule objects may retain explicitly entered configuration but cannot activate
+funding. Comp-off needs the owning schema's complete positive conversion/window
+parameters before publication. Encashment remains configuration only, even with
+complete positive maxUnits and nonnegative minimumRetainedUnits. `annualOnly`
+must be true; consumer admission is not a writable field. `allowOverlap` and
+`negativeBalanceAllowed` must be false and `postingPoint` must be OnApproval.
+
+Technical review (2026-10-03): these fields reconcile the app FDD's mandatory
+timing/proration/windows and the existing logical typed rules with the owning
+DTO summary. They add no implicit business defaults, statutory entitlement,
+authority or optional-capability activation. Review is under the existing
+product-owner technical finalization delegation, not separate human approval.
+
 Owning tables/read projections: leave_type, leave_policy/version, typed leave rules, leave_policy_impact_preview.
 Use physical names and admitted table exclusions in
 [SQL TABLES](../../architecture/TDD-HCM-3-DATA-MODEL.md#tables), plus the owning

@@ -65,6 +65,9 @@ The internal [Workflow integration record](docs/hcm/testing/HCM-3-WORKFLOW-INTEG
 tracks tested source submission/intake/planning separately from pending decisions
 and dispatch. Local preparation now applies migrations through 55; the worker can
 run AttendanceResolve and WorkflowPlan using the explicit allowlist in its runbook.
+The [Leave prerequisite record](docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md) covers
+exact quantity validation and typed policy persistence tested in disposable
+PostgreSQL. Leave application APIs, publication and browser journeys remain pending.
 
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with
