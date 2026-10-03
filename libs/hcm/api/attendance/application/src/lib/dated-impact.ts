@@ -14,9 +14,15 @@ import type {
 } from './configuration-inputs'
 import type { AttendancePeriodFencePort } from './period-fences'
 import { AssignedWorkdayResolver } from './assigned-workday'
+import {
+	leaveImpactProposal,
+	type AttendanceLeaveImpactPort,
+	type AttendanceLeaveImpact,
+} from './leave-impact'
 
 export type DatedConfigurationVersion = ScheduleVersionView | ShiftVersionView
 export interface DatedConfigurationImpact {
+	leaveImpact: AttendanceLeaveImpact
 	digest: string
 	conflicts: number
 	lockedImpact: boolean
@@ -103,6 +109,7 @@ export async function evaluateDatedConfigurationImpact(
 	actual: AttendanceConfigurationInputPort,
 	workforce: WorkforceTimeContextPort,
 	periods: AttendancePeriodFencePort,
+	leave: AttendanceLeaveImpactPort,
 ): Promise<DatedConfigurationImpact> {
 	const period = await periods.fence(input.effectiveFrom, input.effectiveTo)
 	const lockedImpact = period.months.some(
@@ -128,8 +135,18 @@ export async function evaluateDatedConfigurationImpact(
 			failureCode ??= result.reason
 		}
 	}
+	const leaveImpact = await leave.review(leaveImpactProposal(input.employmentId, results))
+	if (leaveImpact.unavailableRequestCount) failureCode ??= 'LeaveImpactUnavailable'
 	return {
-		digest: commandHash('DatedConfigurationImpact', { family, source, input, period, results }),
+		leaveImpact,
+		digest: commandHash('DatedConfigurationImpact', {
+			family,
+			source,
+			input,
+			period,
+			results,
+			leaveImpact,
+		}),
 		conflicts,
 		lockedImpact,
 		failureCode,

@@ -77,11 +77,18 @@ export class KyselyLeaveWorkdayImpactBinder extends AttendanceLeaveImpactBinder 
 				}>`SELECT hcm.current_tenant_id() AS tenant`.execute(tx)
 				if (current.rows[0]?.tenant !== tenantId) throw new HcmDomainError('forbidden')
 				idValue(proposal.employmentId, 'employmentId')
-				if (!proposal.days.length || proposal.days.length > 366) invalidField('days')
-				const dates = proposal.days.map(
-					/** Validate every explicit local date before SQL. */ (day) =>
-						dateValue(day.workDate, 'workDate'),
-				)
+				const dates = [
+					...proposal.days.map(
+						/** Validate every explicit local date before SQL. */ (day) =>
+							dateValue(day.workDate, 'workDate'),
+					),
+					...(proposal.unavailableDates ?? []).map(
+						/** Validate explicitly unavailable dates before private request lookup. */ (date) =>
+							dateValue(date, 'workDate'),
+					),
+				]
+				// A 366-day production window can additionally review two assignment boundaries.
+				if (!dates.length || dates.length > 368) invalidField('days')
 				if (new Set(dates).size !== dates.length) invalidField('days', 'duplicate')
 				const rows = (
 					await sql<ImpactRow>`
@@ -106,9 +113,9 @@ ORDER BY r.id,d.work_date FOR SHARE OF p`.execute(tx)
 						/** Match this request's exact dated candidate. */ (day) =>
 							day.workDate === row.workDate,
 					)
-					if (!proposed) throw new HcmDomainError('record-incomplete')
 					let result: unknown = { state: 'Unavailable' }
 					try {
+						if (!proposed) throw new HcmDomainError('record-incomplete')
 						// Only Draft storage is currently admitted. Future lifecycle storage must supply its own impact disposition before publication.
 						if (row.state !== 'Draft') throw new HcmDomainError('record-incomplete')
 						const input =

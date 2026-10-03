@@ -18,6 +18,7 @@ import {
 	evaluateDatedConfigurationImpact,
 	type DatedConfigurationPublicationPort,
 	type DatedConfigurationVersion,
+	type AttendanceLeaveImpactBinder,
 } from '@empflowyee/hcm-api-attendance-application'
 import type { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { KyselyAttendanceConfigurationInputBinder } from './configuration-inputs'
@@ -45,8 +46,9 @@ async function previewRow(
 	const rows =
 		await sql<PreviewRow>`SELECT p.id,c.family,p.actor_account_id AS actor,coalesce(s.schedule_id,v.shift_id) AS "rootId",coalesce(p.work_schedule_version_id,p.shift_version_id) AS "versionId",p.source_revision AS revision,p.source_digest AS "sourceDigest",
 jsonb_build_object('expectedRevision',p.source_revision,'effectiveFrom',p.from_date::text,'effectiveTo',p.to_date::text,'employmentId',c.employment_id) AS input,
-jsonb_build_object('previewId',p.id,'state',CASE WHEN p.expires_at<=clock_timestamp() AND p.state IN ('Running','Ready') THEN 'Expired' ELSE p.state END,'digest',p.result_digest,'affectedEmploymentCount',p.affected_employment_count,'affectedWorkdayCount',p.affected_workday_count,'conflicts',p.conflict_count,'lockedImpact',p.locked_impact,'failureCode',p.safe_failure_code,'expiresAt',to_char(p.expires_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')) AS view
+(CASE WHEN l.preview_id IS NULL THEN '{}'::jsonb ELSE jsonb_build_object('leaveImpact',jsonb_build_object('digest',l.digest,'affectedRequestCount',l.affected_request_count,'changedRequestCount',l.changed_request_count,'unavailableRequestCount',l.unavailable_request_count)) END || jsonb_build_object('previewId',p.id,'state',CASE WHEN p.expires_at<=clock_timestamp() AND p.state IN ('Running','Ready') THEN 'Expired' ELSE p.state END,'digest',p.result_digest,'affectedEmploymentCount',p.affected_employment_count,'affectedWorkdayCount',p.affected_workday_count,'conflicts',p.conflict_count,'lockedImpact',p.locked_impact,'failureCode',p.safe_failure_code,'expiresAt',to_char(p.expires_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))) AS view
 FROM hcm.time_configuration_impact_preview p JOIN hcm.dated_configuration_publication_context c ON c.tenant_id=p.tenant_id AND c.preview_id=p.id LEFT JOIN hcm.work_schedule_version s ON s.tenant_id=p.tenant_id AND s.id=p.work_schedule_version_id LEFT JOIN hcm.shift_version v ON v.tenant_id=p.tenant_id AND v.id=p.shift_version_id
+LEFT JOIN hcm.attendance_configuration_leave_impact l ON l.tenant_id=p.tenant_id AND l.preview_id=p.id
 WHERE p.tenant_id=${tenant} AND p.id=${id}`.execute(transaction)
 	const row = rows.rows[0]
 	if (!row) return null
@@ -69,6 +71,7 @@ export class KyselyDatedConfigurationPreviews implements DatedConfigurationPubli
 		private readonly actor: string,
 		private readonly workforce: WorkforceTimeContextBinder,
 		private readonly family: DatedConfigurationFamily,
+		private readonly leave: AttendanceLeaveImpactBinder,
 	) {}
 	/** Admit one durable explicit-context review with stable source evidence and expiry. */
 	async start(
@@ -133,6 +136,7 @@ VALUES(${this.tenant},${id},${this.actor},${source.versionId},${source.revision}
 			),
 			this.workforce.bind(this.transaction, this.tenant),
 			new KyselyAttendancePeriodFenceBinder().bind(this.transaction, this.tenant),
+			this.leave.bind(this.transaction, this.tenant),
 		)
 		if (result.digest !== digest || result.conflicts || result.failureCode || result.lockedImpact)
 			throw new HcmDomainError('preview-stale')
@@ -150,7 +154,10 @@ export class KyselyDatedConfigurationPreviewHandler implements HcmWorkHandler<Wo
 	readonly kind = 'attendance.configuration.preview'
 	readonly schemaVersion = 1
 	/** Keep Workforce reads behind their owner binder. */
-	constructor(private readonly workforce: WorkforceTimeContextBinder) {}
+	constructor(
+		private readonly workforce: WorkforceTimeContextBinder,
+		private readonly leave: AttendanceLeaveImpactBinder,
+	) {}
 	/** Complete a durable review or retain a named failure; no worker can publish a calendar. */
 	async execute(
 		transaction: Transaction<WorkloadAuditTables>,
@@ -199,8 +206,13 @@ export class KyselyDatedConfigurationPreviewHandler implements HcmWorkHandler<Wo
 			),
 			this.workforce.bind(transaction, scope.tenantId),
 			new KyselyAttendancePeriodFenceBinder().bind(transaction, scope.tenantId),
+			this.leave.bind(transaction, scope.tenantId),
 		)
 		requireWorkloadScope(context, 'AttendanceResolve')
+		await sql`INSERT INTO hcm.attendance_configuration_leave_impact(tenant_id,preview_id,digest,affected_request_count,changed_request_count,unavailable_request_count)
+VALUES(${scope.tenantId},${id},${result.leaveImpact.digest},${result.leaveImpact.affectedRequestCount},${result.leaveImpact.changedRequestCount},${result.leaveImpact.unavailableRequestCount})`.execute(
+	transaction,
+)
 		await sql`UPDATE hcm.time_configuration_impact_preview SET state=${result.failureCode ? 'Failed' : 'Ready'},revision=revision+1,result_digest=${result.digest},affected_employment_count=${result.affectedEmploymentCount},affected_workday_count=${result.affectedWorkdayCount},conflict_count=${result.conflicts},locked_impact=${result.lockedImpact},safe_failure_code=${result.failureCode} WHERE tenant_id=${scope.tenantId} AND id=${id} AND state='Running'`.execute(
 			transaction,
 		)

@@ -261,7 +261,13 @@ import {
 				database: HcmAccessDatabase | null,
 				cipher: FieldCipher,
 				workforce: WorkforceTimeContextBinder,
-			) => new KyselyDatedPublicationUnit(database, cipher, workforce),
+			) =>
+				new KyselyDatedPublicationUnit(
+					database,
+					cipher,
+					workforce,
+					new KyselyLeaveWorkdayImpactBinder(),
+				),
 		},
 		{
 			provide: AttendanceDatedPublication,
@@ -285,7 +291,14 @@ import {
 				cipher: FieldCipher,
 				workforce: WorkforceTimeContextBinder,
 				subjects: WorkforceTimeSubjectsBinder,
-			) => new KyselyWorkAssignmentUnit(database, cipher, workforce, subjects),
+			) =>
+				new KyselyWorkAssignmentUnit(
+					database,
+					cipher,
+					workforce,
+					subjects,
+					new KyselyLeaveWorkdayImpactBinder(),
+				),
 		},
 		{
 			provide: AttendanceWorkAssignments,

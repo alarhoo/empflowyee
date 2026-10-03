@@ -10,7 +10,15 @@ import { idValue, readBody, invalidField } from '@empflowyee/hcm-runtime-contrac
 export type WorkAssignmentFamily = 'Schedule' | 'Policy'
 export type WorkAssignmentCommand = HolidayAssignmentCommand
 export type ParsedWorkAssignment = ParsedHolidayAssignment
+export interface WorkAssignmentLeaveImpact {
+	digest: string
+	affectedRequestCount: number
+	changedRequestCount: number
+	unavailableRequestCount: number
+}
 export interface WorkAssignmentReview {
+	/** Safe source-owned recalculation evidence; historical receipts may predate this projection. */
+	leaveImpact?: WorkAssignmentLeaveImpact
 	previewId: string
 	digest: string
 	expiresAt: string
@@ -67,6 +75,7 @@ export interface WorkAssignmentView {
 	effectiveTo: string | null
 }
 export interface WorkAssignmentResult extends WorkAssignmentView {
+	leaveImpact?: WorkAssignmentLeaveImpact
 	resolutionFrom: string
 	resolutionTo: string
 	queuedWorkdays: number

@@ -16,6 +16,7 @@ import {
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceResolveHandler,
 	KyselyScheduleRepository,
+	KyselyDatedConfigurationPreviewHandler,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import type {
@@ -33,6 +34,9 @@ import { HcmLeaveModule } from './hcm-api-leave-module'
 import type {
 	AttendanceOverrideView,
 	AttendanceOverrideReview,
+	ScheduleVersionView,
+	DatedConfigurationPreviewView,
+	WorkAssignmentReview,
 } from '@empflowyee/hcm-attendance-contract'
 import { KyselyLeaveWorkdayImpactBinder } from '@empflowyee/hcm-api-leave-infrastructure'
 
@@ -699,6 +703,224 @@ it('applies an explicitly no-approval override once and resolves its affected da
 			)
 		).status,
 	).toBe(409)
+})
+
+/** Execute bounded source review and resolution jobs with the same handlers as the worker. */
+async function drainImpactWork(): Promise<void> {
+	const context = await new HcmWorkloadIssuer(directory, ['AttendanceResolve']).issue(
+		tenant,
+		'AttendanceResolve',
+		randomUUID(),
+		600000,
+	)
+	const workforce = new KyselyWorkforceTimeContextBinder()
+	const lane = new HcmTransactionalWorkerLane(
+		'AttendanceResolve',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[
+			new KyselyDatedConfigurationPreviewHandler(workforce, new KyselyLeaveWorkdayImpactBinder()),
+			new KyselyAttendanceResolveHandler(new KyselyAttendanceConfigurationInputBinder(workforce)),
+		],
+	)
+	for (let count = 0; count < 20; count++) {
+		const work = await lane.claim(context)
+		if (!work) return
+		await lane.complete(context, work)
+	}
+	throw new Error('Unbounded impact test work')
+}
+
+it('binds real Leave quantities to publication and assignment reviews and rejects changed requests', /** Real HTTP, SQL and worker evidence must agree without mutating Leave history. */ async () => {
+	const schedule = await api.send<ScheduleVersionView>(
+		'david',
+		'POST',
+		'attendance/work-schedules',
+		{
+			code: 'LEAVE_IMPACT_REST',
+			name: 'Explicit proposed rest',
+			isTemplate: false,
+			effectiveFrom: '2026-10-05',
+			timezoneMode: 'Fixed',
+			fixedZone: 'UTC',
+			weekStartsOn: 1,
+			days: [1, 2, 3, 4, 5, 6, 7].map(
+				/** This test deliberately proposes nonworking dates. */ (weekday) => ({
+					weekday,
+					kind: 'Rest',
+					segments: [],
+				}),
+			),
+		},
+	)
+	expect(schedule.status, JSON.stringify(schedule.body)).toBe(201)
+	const path = `attendance/work-schedules/${schedule.body.id}/versions/${schedule.body.versionId}`
+	const context = {
+		expectedRevision: 1,
+		employmentId: employment,
+		effectiveFrom: '2026-10-05',
+		effectiveTo: '2026-10-05',
+	}
+	const pending = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'POST',
+		path + '/preview',
+		context,
+	)
+	expect(pending.status).toBe(200)
+	await drainImpactWork()
+	const review = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'GET',
+		path + '/previews/' + pending.body.previewId,
+	)
+	expect(review.body.state, JSON.stringify(review.body)).toBe('Ready')
+	expect(review.body.leaveImpact?.affectedRequestCount).toBeGreaterThan(0)
+	expect(review.body.leaveImpact?.changedRequestCount).toBeGreaterThan(0)
+	expect(review.body.leaveImpact?.unavailableRequestCount).toBe(0)
+	expect(JSON.stringify(review.body)).not.toMatch(
+		/Private family|requestId|enrollmentId|policyVersionId/,
+	)
+	const assignment = {
+		versionId: 'request-attendance-v1',
+		expectedRevision: 2,
+		employmentId: employment,
+		effectiveFrom: '2026-10-05',
+		effectiveTo: '2026-10-05',
+		resolutionFrom: '2026-10-05',
+		resolutionTo: '2026-10-05',
+		reason: 'Review actual downstream requests',
+	}
+	const assignmentPath = 'attendance/policy-assignments'
+	const before = await api.send<WorkAssignmentReview>(
+		'david',
+		'POST',
+		assignmentPath + '/preview',
+		assignment,
+	)
+	expect(before.status, JSON.stringify(before.body)).toBe(200)
+	expect(before.body.leaveImpact).toMatchObject({
+		affectedRequestCount: review.body.leaveImpact?.affectedRequestCount,
+		changedRequestCount: 0,
+		unavailableRequestCount: 0,
+	})
+	const added = await api.send('jim', 'POST', 'leave/me/requests', input())
+	expect(added.status).toBe(201)
+	expect(
+		(
+			await api.send('david', 'POST', path + '/publish', {
+				expectedRevision: 1,
+				previewId: review.body.previewId,
+				digest: review.body.digest,
+				reason: 'Attempt stale review',
+			})
+		).status,
+	).toBe(409)
+	expect(
+		(
+			await api.send('david', 'POST', assignmentPath, {
+				...assignment,
+				previewId: before.body.previewId,
+				digest: before.body.digest,
+			})
+		).status,
+	).toBe(409)
+	expect(
+		(
+			await api.admin.query(
+				'SELECT id FROM hcm.attendance_policy_assignment WHERE tenant_id=$1 AND id=$2',
+				[tenant, before.body.previewId],
+			)
+		).rows,
+	).toEqual([])
+	const after = await api.send<WorkAssignmentReview>(
+		'david',
+		'POST',
+		assignmentPath + '/preview',
+		assignment,
+	)
+	expect(after.status).toBe(200)
+	expect(after.body.leaveImpact?.affectedRequestCount).toBe(
+		(before.body.leaveImpact?.affectedRequestCount ?? 0) + 1,
+	)
+	expect(after.body.digest).not.toBe(before.body.digest)
+	const retained = (
+		await api.admin.query(
+			'SELECT id,revision,total_units::text,calculation_digest FROM hcm.leave_request ORDER BY id',
+		)
+	).rows
+	const command = { ...assignment, previewId: after.body.previewId, digest: after.body.digest }
+	const key = randomUUID()
+	const [left, right] = await Promise.all([
+		api.send('david', 'POST', assignmentPath, command, { 'idempotency-key': key }),
+		api.send('david', 'POST', assignmentPath, command, { 'idempotency-key': key }),
+	])
+	expect(left.status, JSON.stringify(left.body)).toBe(201)
+	expect(right.body).toEqual(left.body)
+	await drainImpactWork()
+	expect(
+		(
+			await api.admin.query(
+				'SELECT id,revision,total_units::text,calculation_digest FROM hcm.leave_request ORDER BY id',
+			)
+		).rows,
+	).toEqual(retained)
+	await expect(
+		api.admin.query(
+			'UPDATE hcm.attendance_configuration_leave_impact SET changed_request_count=0 WHERE preview_id=$1',
+			[review.body.previewId],
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		api.admin.query('DELETE FROM hcm.attendance_configuration_leave_impact WHERE preview_id=$1', [
+			review.body.previewId,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	const runtime = new Client({ connectionString: process.env['HCM_TEST_RUNTIME'] })
+	await runtime.connect()
+	try {
+		expect(
+			(await runtime.query('SELECT * FROM hcm.attendance_configuration_leave_impact')).rows,
+		).toEqual([])
+		await runtime.query("SELECT set_config('hcm.tenant_id','foreign',false)")
+		expect(
+			(
+				await runtime.query(
+					'SELECT * FROM hcm.attendance_configuration_leave_impact WHERE preview_id=$1',
+					[review.body.previewId],
+				)
+			).rows,
+		).toEqual([])
+		await expect(
+			runtime.query(
+				'INSERT INTO hcm.attendance_configuration_leave_impact(tenant_id,preview_id,digest,affected_request_count,changed_request_count,unavailable_request_count) VALUES($1,$2,$3,0,0,0)',
+				[tenant, randomUUID(), 'a'.repeat(64)],
+			),
+		).rejects.toMatchObject({ code: '23514' })
+	} finally {
+		await runtime.end()
+	}
+	const workload = await new HcmWorkloadIssuer(directory, ['AttendanceResolve']).issue(
+		tenant,
+		'AttendanceResolve',
+		randomUUID(),
+		600000,
+	)
+	await database.workloadTransaction(
+		workload,
+		'AttendanceResolve',
+		/** Missing source configuration must discover affected private requests without disclosing their identities. */ async (
+			tx,
+		) => {
+			const unavailable = await new KyselyLeaveWorkdayImpactBinder()
+				.bind(tx, tenant)
+				.review({ employmentId: employment, days: [], unavailableDates: ['2026-10-05'] })
+			expect(unavailable).toMatchObject({
+				affectedRequestCount: after.body.leaveImpact?.affectedRequestCount,
+				changedRequestCount: 0,
+				unavailableRequestCount: after.body.leaveImpact?.affectedRequestCount,
+			})
+		},
+	)
 })
 
 it('denies duplicate recovery after read revocation and refuses changed workday inputs', /** Neither the original key nor an old published row overrides current authority and source revision. */ async () => {

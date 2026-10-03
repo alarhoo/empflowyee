@@ -12,6 +12,7 @@ import {
 import {
 	AttendanceDatedPublicationUnit,
 	type DatedPublicationWork,
+	type AttendanceLeaveImpactBinder,
 } from '@empflowyee/hcm-api-attendance-application'
 import type { DatedConfigurationFamily } from '@empflowyee/hcm-attendance-contract'
 import type { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
@@ -26,6 +27,7 @@ export class KyselyDatedPublicationUnit extends AttendanceDatedPublicationUnit {
 		private readonly database: HcmAccessDatabase | null,
 		private readonly cipher: FieldCipher,
 		private readonly workforce: WorkforceTimeContextBinder,
+		private readonly leave: AttendanceLeaveImpactBinder,
 	) {
 		super()
 	}
@@ -63,6 +65,7 @@ export class KyselyDatedPublicationUnit extends AttendanceDatedPublicationUnit {
 							accountId,
 							this.workforce,
 							family,
+							this.leave,
 						),
 						configurations: new KyselyDatedSource(transaction, tenantId, accountId, family),
 						receipts: new SqlAttendanceCommandReceipts(

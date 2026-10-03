@@ -23,6 +23,11 @@ import { AssignedWorkdayResolver, type AssignedWorkdayResult } from './assigned-
 import { resolveScheduleSegments, AttendanceTimeError } from '@empflowyee/hcm-api-attendance-domain'
 import { workdayZone } from './workday-location'
 import { replaySafe } from './schedule-commands'
+import {
+	leaveImpactProposal,
+	type AttendanceLeaveImpactPort,
+	type AttendanceLeaveImpact,
+} from './leave-impact'
 
 export interface WorkAssignmentWork
 	extends
@@ -31,6 +36,7 @@ export interface WorkAssignmentWork
 		HolidayAssignmentWork,
 			'inputs' | 'receipts' | 'audit' | 'requireRead' | 'requireNoTies' | 'enqueue'
 	> {
+	leaveImpact: AttendanceLeaveImpactPort
 	/** Evaluate proposed writes in an always-rolled-back savepoint; previews never leave assignments or outbox rows. */
 	simulate<T>(review: () => Promise<T>): Promise<T>
 	/** Read the exact source from this selected family without changing its state. */
@@ -145,11 +151,58 @@ async function evaluateAssignment(
 		})
 		queuedWorkdays++
 	}
+	const impacts: AttendanceLeaveImpact[] = []
+	for (const employmentId of [
+		...new Set(
+			contexts.map(
+				/** Review each request only once across its employment's candidate dates. */ (facts) =>
+					facts.employmentId,
+			),
+		),
+	].sort()) {
+		impacts.push(
+			await work.leaveImpact.review(
+				leaveImpactProposal(
+					employmentId,
+					evidence
+						.filter(
+							/** Keep the exact authorized employment context. */ (day) =>
+								day.facts.employmentId === employmentId,
+						)
+						.map(
+							/** Supply both available and unavailable candidate dates. */ (day) => ({
+								workDate: day.facts.workDate,
+								result: day.resolved,
+							}),
+						),
+				),
+			),
+		)
+	}
+	const leaveImpact = {
+		digest: commandHash('AssignmentLeaveImpact:1', impacts),
+		affectedRequestCount: impacts.reduce(
+			/** Requests belong to one employment, so counts do not overlap. */ (total, impact) =>
+				total + impact.affectedRequestCount,
+			0,
+		),
+		changedRequestCount: impacts.reduce(
+			/** Sum distinct changed requests across employments. */ (total, impact) =>
+				total + impact.changedRequestCount,
+			0,
+		),
+		unavailableRequestCount: impacts.reduce(
+			/** Preserve every unavailable downstream calculation. */ (total, impact) =>
+				total + impact.unavailableRequestCount,
+			0,
+		),
+	}
 	return {
 		source,
 		result,
 		resolutions,
-		digest: commandHash('WorkAssignmentImpact', { family, source, input, evidence }),
+		leaveImpact,
+		digest: commandHash('WorkAssignmentImpact', { family, source, input, evidence, leaveImpact }),
 		queuedWorkdays,
 		unavailableWorkdays,
 		affectedEmploymentCount: new Set(
@@ -234,6 +287,7 @@ export class AttendanceWorkAssignments {
 							affectedWorkdayCount: result.affectedWorkdayCount,
 							queuedWorkdays: result.queuedWorkdays,
 							unavailableWorkdays: result.unavailableWorkdays,
+							leaveImpact: result.leaveImpact,
 						}
 					},
 				),
@@ -270,6 +324,8 @@ export class AttendanceWorkAssignments {
 							throw new HcmDomainError('preview-stale')
 						const evaluated = await evaluateAssignment(work, family, input, previewId)
 						if (evaluated.digest !== digest) throw new HcmDomainError('preview-stale')
+						if (evaluated.leaveImpact.unavailableRequestCount)
+							throw new HcmDomainError('record-incomplete')
 						const { source, result, queuedWorkdays, unavailableWorkdays } = evaluated
 						for (const day of evaluated.resolutions) {
 							if (day.result.state === 'Available')
@@ -301,6 +357,7 @@ export class AttendanceWorkAssignments {
 							...result,
 							resolutionFrom: input.resolutionFrom,
 							resolutionTo: input.resolutionTo,
+							leaveImpact: evaluated.leaveImpact,
 							queuedWorkdays,
 							unavailableWorkdays,
 						}

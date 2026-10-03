@@ -20,6 +20,7 @@ import {
 	AttendanceWorkAssignmentUnit,
 	holidayTargetSubject,
 	type WorkAssignmentWork,
+	type AttendanceLeaveImpactBinder,
 } from '@empflowyee/hcm-api-attendance-application'
 import type {
 	WorkforceTimeContextBinder,
@@ -62,6 +63,7 @@ export class KyselyWorkAssignmentUnit extends AttendanceWorkAssignmentUnit {
 		private readonly cipher: FieldCipher,
 		private readonly workforce: WorkforceTimeContextBinder,
 		private readonly subjects: WorkforceTimeSubjectsBinder,
+		private readonly leave: AttendanceLeaveImpactBinder,
 	) {
 		super()
 	}
@@ -100,6 +102,7 @@ export class KyselyWorkAssignmentUnit extends AttendanceWorkAssignmentUnit {
 					)
 					const owner = sql.ref(family === 'Schedule' ? 'schedule_id' : 'policy_id')
 					const result = await work({
+						leaveImpact: this.leave.bind(tx, tenantId),
 						/** SQL constraints and owner readers see the proposed state, then all candidate writes are rolled back. */
 						async simulate<T>(review: () => Promise<T>): Promise<T> {
 							await sql`SAVEPOINT attendance_assignment_review`.execute(tx)

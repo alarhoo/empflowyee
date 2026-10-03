@@ -208,11 +208,32 @@
 				{{ impact.unavailableWorkdays }} remain unavailable. Review expires
 				{{ impact.expiresAt | hcmDate }}.
 			</ui5-text>
+			@if (impact.leaveImpact; as leave) {
+				<ui5-text>
+					Leave impact: {{ leave.affectedRequestCount }} requests reviewed;
+					{{ leave.changedRequestCount }} have changed calculations;
+					{{ leave.unavailableRequestCount }} cannot be calculated. Existing request calculations
+					remain in their history.
+				</ui5-text>
+				@if (leave.unavailableRequestCount) {
+					<ui5-message-strip
+						design="Critical"
+						[hideCloseButton]="true">
+						Resolve unavailable Leave calculations and review again before assigning.
+					</ui5-message-strip>
+				}
+			}
 		}
 	}
 	<ui5-button
 		design="Emphasized"
-		[disabled]="pending() || draft.saving() || !reviewCurrent() || !review()"
+		[disabled]="
+			pending() ||
+			draft.saving() ||
+			!reviewCurrent() ||
+			!review() ||
+			!!review()?.leaveImpact?.unavailableRequestCount
+		"
 		(click)="assign()">
 		Assign configuration
 	</ui5-button>

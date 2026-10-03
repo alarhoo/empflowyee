@@ -71,7 +71,10 @@ void runHcmWorker(
 					new KyselyWorkflowReconcileHandler(sources),
 				]),
 				new HcmTransactionalWorkerLane('AttendanceResolve', store, [
-					new KyselyDatedConfigurationPreviewHandler(workforce),
+					new KyselyDatedConfigurationPreviewHandler(
+						workforce,
+						new KyselyLeaveWorkdayImpactBinder(),
+					),
 					new KyselyHolidayPreviewHandler(workforce),
 					new KyselyAttendanceResolveHandler(
 						new KyselyAttendanceConfigurationInputBinder(workforce),
