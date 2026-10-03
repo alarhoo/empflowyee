@@ -43,6 +43,12 @@ cover explicit Work/Rest, reason/timezone boundaries, exact overnight precision,
 overlap selection and incomplete intervals. This is partial 002/006 implementation;
 it is not browser acceptance. The Planned catalogue guard remains enforced.
 
+The [Leave request API suite](../../../../libs/hcm/api/leave/module/src/lib/requests.database.spec.ts)
+also exercises the real override impact route against stored Balance/Unpaid
+requests: retained quantities, exact hourly validation, safe counts, tenant-bound
+reads and stale review after a new request. This covers the currently admitted
+Draft lifecycle only (003/005/007, partial); full lifecycle impact remains open.
+
 | Requirement                                             | Design                          | Planned test                                        |
 | ------------------------------------------------------- | ------------------------------- | --------------------------------------------------- |
 | [REQ-WORK-SCHEDULES-001](FDD.md#req-work-schedules-001) | [DESIGN-001](TDD.md#design-001) | [TEST-WORK-SCHEDULES-001](#test-work-schedules-001) |

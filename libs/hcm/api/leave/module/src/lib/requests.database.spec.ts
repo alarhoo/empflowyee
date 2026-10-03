@@ -30,6 +30,11 @@ import {
 	type HcmTestApi,
 } from '@empflowyee/hcm-api-attendance-module/testing'
 import { HcmLeaveModule } from './hcm-api-leave-module'
+import type {
+	AttendanceOverrideView,
+	AttendanceOverrideReview,
+} from '@empflowyee/hcm-attendance-contract'
+import { KyselyLeaveWorkdayImpactBinder } from '@empflowyee/hcm-api-leave-infrastructure'
 
 let api: HcmTestApi, database: HcmTenantDatabase<WorkloadAuditTables>, directory: HcmRuntimeStore
 let enrollmentId: string
@@ -403,6 +408,125 @@ it('protects immutable evidence, deferred completeness and negative tenant reads
 		await runtime.end()
 	}
 })
+it('reviews real Leave impact without rewriting requests and rejects a stale preview after a new request', /** Attendance delegates private quantity work to Leave and binds concurrent source changes into its real API digest. */ async () => {
+	const before = (
+		await api.admin.query(
+			'SELECT id,total_units::text,calculation_digest FROM hcm.leave_request ORDER BY id',
+		)
+	).rows
+	const draft = await api.send<AttendanceOverrideView>('david', 'POST', 'attendance/overrides', {
+		employmentId: employment,
+		workDate: '2026-10-05',
+		workdayRevision: 1,
+		zone: 'UTC',
+		segments: [],
+		reason: 'Review a nonworking proposal',
+		evidenceIds: [],
+	})
+	expect(draft.status, JSON.stringify(draft.body)).toBe(201)
+	const path = 'attendance/overrides/' + draft.body.id
+	const review = await api.send<AttendanceOverrideReview>('david', 'POST', path + '/preview', {
+		expectedRevision: 1,
+		reason: 'Review downstream quantities',
+	})
+	expect(review.status, JSON.stringify(review.body)).toBe(200)
+	expect(review.body.leaveImpact).toMatchObject({
+		affectedRequestCount: 3,
+		changedRequestCount: 2,
+		unavailableRequestCount: 0,
+	})
+	expect(JSON.stringify(review.body)).not.toMatch(
+		/Private family|requestId|enrollmentId|policyVersionId/,
+	)
+	expect(
+		(
+			await api.admin.query(
+				'SELECT id,total_units::text,calculation_digest FROM hcm.leave_request ORDER BY id',
+			)
+		).rows,
+	).toEqual(before)
+	const context = await new HcmWorkloadIssuer(directory, ['AttendanceResolve']).issue(
+		tenant,
+		'AttendanceResolve',
+		randomUUID(),
+		600000,
+	)
+	await database.workloadTransaction(
+		context,
+		'AttendanceResolve',
+		/** A mismatched tenant binding cannot read or count another tenant's private requests. */ async (
+			tx,
+		) => {
+			await expect(
+				new KyselyLeaveWorkdayImpactBinder().bind(tx, 'foreign').review({
+					employmentId: employment,
+					days: [
+						{
+							workDate: '2026-10-05',
+							zone: 'UTC',
+							basis: {
+								kind: 'Rest',
+								scheduledMilliseconds: '0',
+								elapsedMilliseconds: '0',
+								segments: [],
+							},
+						},
+					],
+				}),
+			).rejects.toMatchObject({ code: 'forbidden' })
+			const shortDay = await new KyselyLeaveWorkdayImpactBinder().bind(tx, tenant).review({
+				employmentId: employment,
+				days: [
+					{
+						workDate: '2026-10-06',
+						zone: 'UTC',
+						basis: {
+							kind: 'Work',
+							scheduledMilliseconds: '900000',
+							elapsedMilliseconds: '900000',
+							segments: ['Work', 'ExpectedWork'].map(
+								/** An actual fifteen-minute candidate violates the stored request's explicit thirty-minute increment. */ (
+									kind,
+								) => ({
+									kind: kind as 'Work' | 'ExpectedWork',
+									startInstant: '2026-10-06T09:00:00.000Z',
+									endInstant: '2026-10-06T09:15:00.000Z',
+									elapsedMilliseconds: '900000',
+								}),
+							),
+						},
+					},
+				],
+			})
+			expect(shortDay).toMatchObject({
+				affectedRequestCount: 1,
+				changedRequestCount: 0,
+				unavailableRequestCount: 1,
+			})
+		},
+	)
+	const added = await api.send('jim', 'POST', 'leave/me/requests', input())
+	expect(added.status).toBe(201)
+	const stale = await api.send('david', 'POST', path + '/submit', {
+		expectedRevision: 1,
+		previewId: review.body.previewId,
+		digest: review.body.digest,
+		reason: 'Consume the prior impact',
+	})
+	expect(stale.status, JSON.stringify(stale.body)).toBe(409)
+	const refreshed = await api.send<AttendanceOverrideReview>('david', 'POST', path + '/preview', {
+		expectedRevision: 1,
+		reason: 'Review current Leave inputs',
+	})
+	expect(refreshed.status, JSON.stringify(refreshed.body)).toBe(200)
+	expect(refreshed.body.leaveImpact).toMatchObject({
+		affectedRequestCount: 4,
+		changedRequestCount: 3,
+		unavailableRequestCount: 0,
+	})
+	expect(refreshed.body.digest).not.toBe(review.body.digest)
+})
+
 it('denies duplicate recovery after read revocation and refuses changed workday inputs', /** Neither the original key nor an old published row overrides current authority and source revision. */ async () => {
 	const key = randomUUID(),
 		saved = await api.send('jim', 'POST', 'leave/me/requests', input(), { 'idempotency-key': key })

@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "b2111eec3e4e75fd2cc30a7643de76df92d0ac6f8ff50388267dff01f668c16a",
+			"sha256": "140c7b883dda02861584957278948477ec8725ae5e6bc147be35e5759411beac",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#native-override-editor-review; reviewed routed native composition, exact shared fields, current source reload, retry isolation and honest pending approval; no new human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-leave-impact-review; reviewed Leave-owned exact proposal calculation, private request isolation, unchanged history and stale preview detection; no new human approval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "2a2cb77b33df01a4ce15433bd424972a8514b9c335d96dde8910fc810569cdd6",
+			"sha256": "5460c0696ac5f4852bd30776c1032d1e17389c9ee29b120cc2dfa3564e168888",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#native-override-editor-review; reviewed routed native composition, exact shared fields, current source reload, retry isolation and honest pending approval; no new human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-leave-impact-review; reviewed Leave-owned exact proposal calculation, private request isolation, unchanged history and stale preview detection; no new human approval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

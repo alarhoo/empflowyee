@@ -41,6 +41,12 @@ export interface AttendanceOverrideView {
 	}
 }
 export interface AttendanceOverrideReview {
+	leaveImpact?: {
+		digest: string
+		affectedRequestCount: number
+		changedRequestCount: number
+		unavailableRequestCount: number
+	}
 	/** Last date whose following-shift rest and period inputs were included in this review. */
 	reviewedThrough?: string
 	/** Configured Warn outcomes from the changed and following workdays; both rule sources remain distinct. */

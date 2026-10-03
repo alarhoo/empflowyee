@@ -17,12 +17,14 @@ import type { AttendanceConfigurationInputPort } from './configuration-inputs'
 import type { AttendancePeriodFencePort } from './period-fences'
 import { evaluateOverrideWorkdayImpact } from './override-impact'
 import { replaySafe } from './schedule-commands'
+import { leaveImpactProposal, type AttendanceLeaveImpactPort } from './leave-impact'
 
 export interface AttendanceOverrideWork {
 	inputs: AttendanceConfigurationInputPort
 	periods: AttendancePeriodFencePort
 	receipts: AttendanceCommandReceiptStore
 	audit: AppendAudit
+	leaveImpact: AttendanceLeaveImpactPort
 	/** Read a safe source projection under the already verified dated subject scope. */
 	read(id: string): Promise<AttendanceOverrideView | null>
 	/** Require the exact most recent immutable workday and serialize its date against other producers. */
@@ -151,7 +153,7 @@ export class AttendanceOverrides {
 					id,
 					input,
 					/** Proposed approval exists only inside the rollback boundary and creates no work intent. */ async () => {
-						const { source, policy, resolved, digest, reviewedThrough, restWarnings } =
+						const { source, policy, resolved, digest, reviewedThrough, restWarnings, leaveImpact } =
 							await this.review(work, id, input.expectedRevision)
 						const result: AttendanceOverrideReview = {
 							previewId: key.toLowerCase(),
@@ -159,6 +161,7 @@ export class AttendanceOverrides {
 							workdayRevision: source.workdayRevision,
 							reviewedThrough,
 							restWarnings,
+							leaveImpact,
 							digest,
 							expiresAt: new Date(Date.now() + 900000).toISOString(),
 							scheduledMilliseconds: resolved.resolution.scheduledWorkMilliseconds,
@@ -214,8 +217,13 @@ export class AttendanceOverrides {
 							Date.parse(prior.expiresAt) <= Date.now()
 						)
 							throw new HcmDomainError('revision-conflict')
-						const { source, policy, digest } = await this.review(work, id, input.expectedRevision)
+						const { source, policy, digest, leaveImpact } = await this.review(
+							work,
+							id,
+							input.expectedRevision,
+						)
 						if (digest !== input.digest) throw new HcmDomainError('revision-conflict')
+						if (leaveImpact.unavailableRequestCount) throw new HcmDomainError('record-incomplete')
 						if (
 							!policy.version.approvalRules.some(
 								/** Never substitute a fabricated approval route when no policy requirement exists. */ (
@@ -262,6 +270,9 @@ export class AttendanceOverrides {
 		const period = await requireOpen(work, source.workDate, reviewedThrough)
 		await work.requireBasis(source.employmentId, source.workDate, source.workdayRevision)
 		const resolved = days[0].result
+		const leaveImpact = await work.leaveImpact.review(
+			leaveImpactProposal(source.employmentId, days),
+		)
 		const restWarnings: NonNullable<AttendanceOverrideReview['restWarnings']> = []
 		for (const day of days)
 			if (day.result.rest.state === 'Compared') {
@@ -280,7 +291,8 @@ export class AttendanceOverrides {
 			resolved,
 			reviewedThrough,
 			restWarnings,
-			digest: commandHash('OverrideImpact:3', {
+			leaveImpact,
+			digest: commandHash('OverrideImpact:4', {
 				source: {
 					id: source.id,
 					revision: source.revision,
@@ -294,6 +306,7 @@ export class AttendanceOverrides {
 				period,
 				policy,
 				days,
+				leaveImpact,
 			}),
 		}
 	}

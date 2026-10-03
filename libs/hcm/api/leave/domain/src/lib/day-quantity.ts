@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill'
-import type { WorkdayView } from '@empflowyee/hcm-attendance-contract'
+import type { WorkdayView, WorkdayQuantityBasis } from '@empflowyee/hcm-attendance-contract'
 import type { LeavePolicyDraft, LeaveUnits } from '@empflowyee/hcm-leave-contract'
 import { invalidField } from '@empflowyee/hcm-runtime-contract'
 import { roundLeaveRatio } from './hcm-api-leave-domain'
@@ -44,10 +44,7 @@ function duration(intervals: readonly Interval[]): bigint {
 	)
 }
 /** Read one authoritative interval kind and reject reversed, overlapping or inconsistent source evidence. */
-function intervals(
-	day: Extract<WorkdayView, { state: 'Published' }>,
-	kind: 'Work' | 'ExpectedWork',
-): Interval[] {
+function intervals(day: WorkdayQuantityBasis, kind: 'Work' | 'ExpectedWork'): Interval[] {
 	const result = day.segments
 		.filter(/** Select the owner-defined interval set. */ (segment) => segment.kind === kind)
 		.map(
@@ -88,6 +85,15 @@ export function calculateLeaveDayQuantity(
 	rule: Rule,
 ): LeaveDayQuantity {
 	if (day.state !== 'Published') return { state: 'Unavailable', reason: 'WorkdayUnavailable' }
+	return calculateLeaveDayBasis(day, request, rule)
+}
+
+/** Calculate a proposed workday's quantity without inventing a published ID, revision or successful persistence state. */
+export function calculateLeaveDayBasis(
+	day: WorkdayQuantityBasis,
+	request: LeaveResolvedPortion,
+	rule: Rule,
+): LeaveDayQuantity {
 	let window: Interval | undefined
 	let increment: bigint | undefined
 	if (request.portion === 'Hourly') {

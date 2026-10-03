@@ -6,6 +6,7 @@ import {
 	WorkforcePortBinder,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { Module } from '@nestjs/common'
+import { KyselyLeaveWorkdayImpactBinder } from '@empflowyee/hcm-api-leave-infrastructure'
 import { HcmRuntimeModule } from '@empflowyee/hcm-api-runtime-module'
 import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
@@ -121,7 +122,16 @@ import {
 				routing: WorkforceApprovalRoutingBinder,
 				sources: KyselyAttendanceWorkflowSourceBinder,
 				intake: WorkflowIntakeBinder,
-			) => new KyselyAttendanceOverrideUnit(database, cipher, workforce, routing, sources, intake),
+			) =>
+				new KyselyAttendanceOverrideUnit(
+					database,
+					cipher,
+					workforce,
+					routing,
+					sources,
+					intake,
+					new KyselyLeaveWorkdayImpactBinder(),
+				),
 		},
 		{
 			provide: AttendanceOverrides,
