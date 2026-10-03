@@ -36,11 +36,12 @@ export class AttendanceScheduleQueries {
 	defaults(
 		context: AuthenticatedHcmContext,
 		params: URLSearchParams,
+		app: ScheduleApplication = 'Templates',
 	): Promise<ScheduleSeedDefaults> {
 		for (const field of params.keys()) invalidField(field, 'unknown')
 		return this.unit.execute(
 			context,
-			'Templates',
+			app,
 			'read',
 			false,
 			/** Read and validate the authorized proposal's seven explicit weekdays. */ async (work) => {

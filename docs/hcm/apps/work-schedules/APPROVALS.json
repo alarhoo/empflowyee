@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "24fdc0e24f9c2bf8c432e4bb8508fadcd2f90867b14e61670379fa19f4b8a2c2",
+			"sha256": "71939bc971ac81e32e623c70f6df4af3f6b29ea9a5f5adb191f75f33296fdd42",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md; reviewed source-family, typed preview context, shared UI boundary and editor integration; no fresh human approval or full Work Schedules acceptance claimed."
 		},
 		{
 			"document": "TRACE",
@@ -164,11 +164,11 @@
 		},
 		{
 			"document": "BLUEPRINT",
-			"sha256": "d33b74472fb595f4a0ae583f548d9b5cc93fb4e5c29c95cf998043ba8784e0dc",
+			"sha256": "644db3d8214c569ac993d9c0244f4580cbcf64f7d64e5e7a4b7379a11566e109",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md; reviewed source-family, typed preview context, shared UI boundary and editor integration; no fresh human approval or full Work Schedules acceptance claimed."
 		}
 	]
 }

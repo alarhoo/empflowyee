@@ -289,6 +289,15 @@
 			"requiresMigrations": ["000038_attendance_policy_holidays.sql"],
 			"apply": "access.attendance.3.apply.sql",
 			"reset": "access.attendance.3.reset.sql"
+		},
+		{
+			"id": "access.attendance",
+			"domain": "access-control",
+			"version": 4,
+			"dependsOn": ["access.attendance@3"],
+			"requiresMigrations": ["000048_attendance_work_configuration_cursors.sql"],
+			"apply": "access.attendance.4.apply.sql",
+			"reset": "access.attendance.4.reset.sql"
 		}
 	]
 }

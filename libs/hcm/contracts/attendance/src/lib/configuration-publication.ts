@@ -20,16 +20,20 @@ export interface ConfigurationPublishCommand extends ConfigurationReasonCommand 
 	previewId: string
 	digest: string
 }
-export interface ConfigurationInputRevision {
-	sourceType: 'Schedule'
+export interface ConfigurationInputRevision<
+	Source extends 'Schedule' | 'Policy' | 'Shift' = 'Schedule',
+> {
+	sourceType: Source
 	id: string
 	revision: number
 }
-export interface ConfigurationPreviewView {
+export interface ConfigurationPreviewView<
+	Source extends 'Schedule' | 'Policy' | 'Shift' = 'Schedule',
+> {
 	previewId: string
 	digest: string
 	state: 'Ready'
-	inputRevisions: ConfigurationInputRevision[]
+	inputRevisions: ConfigurationInputRevision<Source>[]
 	affectedEmploymentCount: number
 	affectedWorkdayCount: number
 	conflicts: number

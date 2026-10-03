@@ -226,3 +226,105 @@ current dated Workforce assignment/location facts; never use display preferences
 or first-row selection. The source resolver returns unavailable for missing or
 ambiguous authority facts. The approval update records the product owner's two
 explicit Step-2 answers and Codex's technical integration review.
+
+## DELIVERY-INTEGRATION
+
+The ordinary schedule Draft routes reuse `AttendanceScheduleDrafts` and its exact
+version repository. `GET /api/v1/attendance/work-schedules/defaults` reads the same
+persisted incomplete proposal as Templates under `work-schedules.read`; it never
+supplies a timezone or break placement. Shift and policy commands reuse the
+existing typed tables, universal validators, encrypted receipts and audit events.
+Their list cursors extend the existing Attendance cache with tenant-composite
+shift/policy references in forward migration 48.
+
+Policy publication reviews complete explicit rules of an unassigned Draft. The
+source transaction verifies that no assignment references that Draft, so this
+operation has no affected live workdays or Leave calculations. It does not apply
+the policy to an employment. Assignment is a separate dated operation and must
+evaluate the actual selected schedule, holiday calendar and independent rest rules.
+
+Schedule and shift previews add required `employmentId` to ConfigurationPreview.
+The preview is a proposed use in that real employment, not a new assignment.
+Timezone follows the source mode and dated Workforce facts. Schedule review uses
+the proposed weekly pattern within source validity and actual prior history
+outside it; a reusable shift substitutes only the reviewed date. The production
+resolver supplies exact intervals, holiday matching and independent rest checks.
+Missing policy/calendar/history remains unavailable. No proposed projection is
+written to `published_workday`.
+
+Forward migration 49 stores immutable employment context with typed source family
+and tenant references. The `attendance.configuration.preview` schema-1 handler
+runs on the existing AttendanceResolve lane. Source revision, dated dependencies
+and period evidence bind the result. Publication recomputes and compares that
+evidence before consuming it. The source-specific status endpoint is
+`GET /api/v1/attendance/{work-schedules|shifts}/{id}/versions/{version}/previews/{preview}`;
+it requires the originating app's current read grant and original actor identity.
+
+Schedule/policy assignments use the existing seven typed targets, exact source
+revision, optional exact predecessor revision and explicit `resolutionFrom` /
+`resolutionTo` (at most 366 inclusive days within assignment coverage). The bounded
+execution window does not shorten business coverage. Reads at
+`GET /api/v1/attendance/{schedule-assignments|policy-assignments}` require exact
+`kind`, non-Tenant `id`, and `asOf`. Shared preparation retains one complete grant
+for the target and all dated subjects, period fences and atomic supersession.
+Available workdays enqueue the existing exact-digest resolver intent; incomplete
+prerequisites are counted as unavailable rather than stored as zero work.
+Assignment impact review, Leave integration and override acceptance remain part
+of the full app delivery; these implemented commands alone do not satisfy them.
+
+The Attendance-owned `hcm-web-attendance-ui-schedule-pattern` library has tags
+`product:hcm,runtime:web,domain:attendance,type:ui`. It extracts the existing
+Templates form conversion, Signal Form state and maintained native controls.
+It owns no page, HTTP query, route or runtime session. Features retain those
+responsibilities and supply date/time formats and their form state. Shared
+`HcmDateField` preserves native DatePicker change semantics. No feature imports
+another feature implementation, and no new architectural type is introduced.
+
+## EDITOR-INTEGRATION
+
+The FCL collection selects Schedule, Shift or Policy through the closed `family`
+query parameter. Root/version identity remains explicit. Ordinary schedule draft
+routes retain `/new` and `/:id/edit`; reusable shifts use `/shift/new` and
+`/:id/shift-edit`, and Attendance policies use `/policy/new` and `/:id/policy-edit`.
+All complex editors are dedicated Dynamic Pages with footer actions and the same
+dirty-navigation protection. List queries remain server-owned per family.
+
+The shared pattern controls support a single reusable shift without a weekly
+pattern. The Shift parser receives only shift fields; temporary interval-group
+indexing is UI state, never a persisted weekly schedule. Templates retain the
+existing seven-day editor. Source-specific publication dialogs distinguish a
+durable proposed-employment preview from an unassigned policy rule review.
+
+Minimal Workforce references reuse the existing owner projection through
+`GET /api/v1/attendance/work-schedules/references/{kind}` and
+`GET /api/v1/attendance/work-schedules/references/workers/{worker}/context`.
+Closed kinds are workers, locations, legal-entities, units and departments;
+`q` is optional with maximum 120 characters and `asOf` is required. A current
+tenant-wide Work Schedules read grant precedes every selector read. No calendar
+permission, private HR fields or implicit primary employment is used.
+
+All policy field restrictions are the existing `parseAttendancePolicyDraft`
+contract, applied in Signal Forms and again on the API. Code is required, at most
+40 characters, matching `[A-Z][A-Z0-9_-]*`; name is required nonblank text, at most
+120 characters. Effective dates are ISO calendar dates; optional end cannot precede
+start. Grace values are explicit nonnegative safe integers. Configured rounding
+requires a positive safe-integer increment and Down/Up/Nearest direction. Optional
+minimum rest is inactive until configured, then requires a nonnegative safe-integer
+minute value and Warn/Block mode. Overtime enabled/disabled is an explicit choice;
+enabled overtime requires qualification, nonnegative safe-integer cap and explicit
+preapproval behavior. Numeric editing accepts whole decimal digits; blank input
+never becomes zero. No value is silently truncated or sanitized.
+
+Approval rules require an admitted subject, positive stage through 2,147,483,647,
+explicit independence and a closed candidate source. ManagerLevel requires a
+positive level through 2,147,483,647; Function requires nonblank text through 120
+characters; NamedUser requires an existing tenant account. Duplicate/stage and
+mandatory independent-manager restrictions remain in the universal contract.
+The current named-account picker consumes the existing Identity account API and
+its independent read permission, projecting only ID/name into the control. Denial
+is explicit and does not enable free-text account IDs. Existing loaded references
+remain distinguishable when outside the current search page.
+
+These editor integrations do not establish full application acceptance. Assignment
+impact review, override precedence, workday inspection and browser journeys remain
+required by the FDD before catalogue availability changes to Complete.

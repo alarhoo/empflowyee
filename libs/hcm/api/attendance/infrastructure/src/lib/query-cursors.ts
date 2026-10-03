@@ -2,7 +2,12 @@ import { createHash, randomBytes } from 'node:crypto'
 import { sql, type Kysely } from 'kysely'
 import { invalidField } from '@empflowyee/hcm-runtime-contract'
 
-export type AttendanceCursorApp = 'WORK_SCHEDULE_TEMPLATES' | 'WORK_SCHEDULES' | 'HOLIDAY_CALENDARS'
+export type AttendanceCursorApp =
+	| 'WORK_SCHEDULE_TEMPLATES'
+	| 'WORK_SCHEDULES'
+	| 'HOLIDAY_CALENDARS'
+	| 'SHIFTS'
+	| 'ATTENDANCE_POLICIES'
 export interface AttendanceCursorPosition {
 	value: string
 	id: string

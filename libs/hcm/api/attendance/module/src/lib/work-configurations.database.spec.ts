@@ -1,0 +1,976 @@
+import { afterAll, beforeAll, expect, it } from 'vitest'
+import { randomUUID } from 'node:crypto'
+import { Client } from 'pg'
+import { HcmTenantDatabase } from '@empflowyee/hcm-api-database-kysely'
+import type { WorkloadAuditTables } from '@empflowyee/hcm-api-audit-infrastructure'
+import { HcmWorkloadIssuer } from '@empflowyee/hcm-api-runtime-application'
+import {
+	HcmRuntimeStore,
+	HcmDurableWorkStore,
+	HcmTransactionalWorkerLane,
+} from '@empflowyee/hcm-api-runtime-infrastructure'
+import {
+	KyselyDatedConfigurationPreviewHandler,
+	KyselyAttendanceResolveHandler,
+	KyselyAttendanceConfigurationInputBinder,
+} from '@empflowyee/hcm-api-attendance-infrastructure'
+import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import type {
+	DatedConfigurationPreviewView,
+	WorkAssignmentResult,
+} from '@empflowyee/hcm-attendance-contract'
+import type {
+	ConfigurationPreviewView,
+	ConfigurationCommandResult,
+	ScheduleVersionView,
+} from '@empflowyee/hcm-attendance-contract'
+import type { HcmPage } from '@empflowyee/hcm-runtime-contract'
+import type {
+	AttendancePolicyDraft,
+	AttendancePolicyVersionView,
+	ShiftDraft,
+	ShiftVersionView,
+} from '@empflowyee/hcm-attendance-contract'
+import { HcmAttendanceModule } from './hcm-api-attendance-module'
+import {
+	startHcmTestApi,
+	HCM_TEST_TENANT as tenant,
+	type HcmTestApi,
+} from './attendance-test-harness'
+
+let api: HcmTestApi
+
+it('exposes only minimal authorized dated Workforce references under Work Schedules read authority', /** Calendar access is not an implicit dependency of this picker. */ async () => {
+	const response = await api.send<{ items: { id: string; code: string; name: string }[] }>(
+		'david',
+		'GET',
+		'attendance/work-schedules/references/workers?q=Jim&asOf=2026-10-05',
+	)
+	expect(response.status).toBe(200)
+	expect(response.body.items.length).toBeGreaterThan(0)
+	const item = response.body.items[0]
+	expect(Object.keys(item).sort()).toEqual(['code', 'id', 'name'])
+	const context = await api.send<{
+		employments: { employmentId: string; legalEntityName: string | null }[]
+	}>(
+		'david',
+		'GET',
+		`attendance/work-schedules/references/workers/${encodeURIComponent(item.id)}/context?asOf=2026-10-05`,
+	)
+	expect(context.status).toBe(200)
+	expect(context.body.employments.length).toBeGreaterThan(0)
+	expect(
+		(
+			await api.send(
+				'jim',
+				'GET',
+				'attendance/work-schedules/references/workers?q=Jim&asOf=2026-10-05',
+			)
+		).status,
+	).toBe(403)
+	expect(
+		(
+			await api.send(
+				'david',
+				'GET',
+				'attendance/work-schedules/references/workers?q=Jim&asOf=2026-10-05&salary=true',
+			)
+		).status,
+	).toBe(400)
+})
+
+/** Drain only actual AttendanceResolve intents using the same lease, handler and completion protocol as the worker. */
+async function resolveAssignedDays(): Promise<void> {
+	const connectionString = process.env['HCM_TEST_RUNTIME']
+	if (!connectionString) throw new Error('Disposable database required')
+	const database = new HcmTenantDatabase<WorkloadAuditTables>({
+		connectionString,
+		maxConnections: 3,
+	})
+	const directory = new HcmRuntimeStore(connectionString)
+	try {
+		const context = await new HcmWorkloadIssuer(directory, ['AttendanceResolve']).issue(
+			tenant,
+			'AttendanceResolve',
+			randomUUID(),
+			600000,
+		)
+		const lane = new HcmTransactionalWorkerLane(
+			'AttendanceResolve',
+			new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+			[
+				new KyselyDatedConfigurationPreviewHandler(new KyselyWorkforceTimeContextBinder()),
+				new KyselyAttendanceResolveHandler(
+					new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder()),
+				),
+			],
+		)
+		for (let count = 0; count < 20; count++) {
+			const work = await lane.claim(context)
+			if (!work) return
+			await lane.complete(context, work)
+		}
+		throw new Error('Unexpected unbounded test work')
+	} finally {
+		await database.destroy()
+		await directory.onApplicationShutdown()
+	}
+}
+/** Provide explicit test policy parameters without introducing runtime defaults. */
+function policy(code: string): AttendancePolicyDraft {
+	return {
+		code,
+		name: 'Policy ' + code,
+		effectiveFrom: '2026-01-01',
+		graceInMinutes: 0,
+		graceOutMinutes: 0,
+		rounding: 'None',
+		overtime: { enabled: false },
+		approvalRules: [],
+	}
+}
+/** Provide a precise cross-midnight shift whose break position is explicitly supplied. */
+function shift(code: string): ShiftDraft {
+	return {
+		code,
+		name: 'Shift ' + code,
+		effectiveFrom: '2026-01-01',
+		timezoneMode: 'Fixed',
+		fixedZone: 'Europe/London',
+		segments: [
+			{ kind: 'Work', startTime: '22:00:00.125', endTime: '23:00:00.250', endDayOffset: 0 },
+			{ kind: 'UnpaidBreak', startTime: '23:00:00.250', endTime: '00:00:00.375', endDayOffset: 1 },
+			{ kind: 'Work', startTime: '00:00:00.375', endTime: '06:00:00.500', endDayOffset: 1 },
+		],
+	}
+}
+beforeAll(
+	/** Start real Nest HTTP on a disposable migrated and canonically seeded PostgreSQL database. */ async () => {
+		api = await startHcmTestApi(HcmAttendanceModule)
+	},
+)
+afterAll(
+	/** Drain only this suite's application and database connections. */ async () => {
+		await api?.close()
+	},
+)
+
+it('publishes only the actor-bound current policy preview and preserves encrypted lifecycle receipts', /** Stale, consumed and wrong-source review handles cannot authorize a different immutable version. */ async () => {
+	const base = 'attendance/policies',
+		input = policy('PUBLISH_POLICY')
+	const source = (await api.send<AttendancePolicyVersionView>('david', 'POST', base, input)).body
+	const path = `${base}/${source.id}/versions/${source.versionId}`
+	const preview = await api.send<ConfigurationPreviewView<'Policy'>>(
+		'david',
+		'POST',
+		path + '/preview',
+		{ expectedRevision: 1, effectiveFrom: '2026-01-01', effectiveTo: '2026-12-31' },
+	)
+	expect(preview.status).toBe(200)
+	expect(preview.body).toMatchObject({
+		state: 'Ready',
+		affectedEmploymentCount: 0,
+		affectedWorkdayCount: 0,
+		inputRevisions: [{ sourceType: 'Policy', id: source.versionId, revision: 1 }],
+	})
+	expect(
+		(
+			await api.send('david', 'PATCH', path, {
+				...input,
+				name: 'Revised before publication',
+				expectedRevision: 1,
+			})
+		).status,
+	).toBe(200)
+	expect(
+		(
+			await api.send('david', 'POST', path + '/publish', {
+				expectedRevision: 2,
+				previewId: preview.body.previewId,
+				digest: preview.body.digest,
+				reason: 'Stale preview',
+			})
+		).status,
+	).toBe(409)
+	const ready = (
+		await api.send<ConfigurationPreviewView<'Policy'>>('david', 'POST', path + '/preview', {
+			expectedRevision: 2,
+			effectiveFrom: '2026-01-01',
+		})
+	).body
+	const command = {
+			expectedRevision: 2,
+			previewId: ready.previewId,
+			digest: ready.digest,
+			reason: 'Private rule publication explanation',
+		},
+		key = randomUUID()
+	expect((await api.send('jim', 'POST', path + '/publish', command)).status).toBe(403)
+	const published = await api.send<ConfigurationCommandResult>(
+		'david',
+		'POST',
+		path + '/publish',
+		command,
+		{ 'idempotency-key': key },
+	)
+	expect(published.status).toBe(200)
+	expect(published.body).toMatchObject({ state: 'Published', revision: 3 })
+	expect(
+		(await api.send('david', 'POST', path + '/publish', command, { 'idempotency-key': key })).body,
+	).toEqual(published.body)
+	expect((await api.send('david', 'PATCH', path, { ...input, expectedRevision: 3 })).status).toBe(
+		409,
+	)
+	const successor = await api.send<AttendancePolicyVersionView>(
+		'david',
+		'POST',
+		`${base}/${source.id}/versions`,
+		{
+			sourceVersionId: source.versionId,
+			expectedRevision: 3,
+			reason: 'Revise rules independently',
+		},
+	)
+	expect(successor.status).toBe(201)
+	expect(successor.body).toMatchObject({
+		versionNumber: 2,
+		state: 'Draft',
+		name: 'Revised before publication',
+	})
+	expect(
+		(
+			await api.send('david', 'POST', path + '/retire', {
+				expectedRevision: 3,
+				reason: 'Retain history',
+			})
+		).status,
+	).toBe(200)
+	const retired = await api.send<AttendancePolicyVersionView>('david', 'GET', path)
+	expect(retired.body).toMatchObject({
+		state: 'Retired',
+		revision: 4,
+		overtime: { enabled: false },
+	})
+	expect(JSON.stringify(retired.body)).not.toContain(command.reason)
+})
+
+it('exposes ordinary schedules through the existing exact-version draft service without template authority', /** Reusing storage does not merge schedule and template route families or permissions. */ async () => {
+	const input = {
+		code: 'ORDINARY_API',
+		name: 'Ordinary weekly pattern',
+		isTemplate: false,
+		effectiveFrom: '2026-01-01',
+		timezoneMode: 'Fixed',
+		fixedZone: 'UTC',
+		weekStartsOn: 1,
+		days: Array.from(
+			{ length: 7 },
+			/** Explicit isolated test pattern includes configured weekend rest. */ (_, i) => ({
+				weekday: i + 1,
+				kind: i < 5 ? 'Work' : 'Rest',
+				segments:
+					i < 5 ? [{ kind: 'Work', startTime: '09:00', endTime: '17:00', endDayOffset: 0 }] : [],
+			}),
+		),
+	}
+	const base = 'attendance/work-schedules'
+	expect((await api.send('david', 'GET', base + '/defaults')).status).toBe(200)
+	expect((await api.send('jim', 'GET', base + '/defaults')).status).toBe(403)
+	const made = await api.send<ScheduleVersionView>('david', 'POST', base, input)
+	expect(made.status).toBe(201)
+	const path = `${base}/${made.body.id}/versions/${made.body.versionId}`
+	expect((await api.send('david', 'GET', path)).body).toEqual(made.body)
+	expect(
+		(await api.send('david', 'POST', base, { ...input, code: 'WRONG_TYPE', isTemplate: true }))
+			.status,
+	).toBe(400)
+	expect(
+		(
+			await api.send(
+				'david',
+				'GET',
+				`attendance/schedule-templates/${made.body.id}?version=${made.body.versionId}`,
+			)
+		).status,
+	).toBe(404)
+	expect(
+		(
+			await api.send('david', 'PATCH', path, {
+				...input,
+				expectedRevision: 1,
+				name: 'Changed ordinary schedule',
+			})
+		).status,
+	).toBe(200)
+	expect(
+		(await api.send<HcmPage<ScheduleVersionView>>('david', 'GET', base + '?id=' + made.body.id))
+			.body.items[0].name,
+	).toBe('Changed ordinary schedule')
+})
+
+it('persists explicit policy rules with replay, optimistic concurrency and same-tenant typed candidates', /** Every request crosses real HTTP, source authority, RLS and receipt storage. */ async () => {
+	const base = 'attendance/policies',
+		input = policy('POLICY_API'),
+		key = randomUUID()
+	const made = await api.send<AttendancePolicyVersionView>('david', 'POST', base, input, {
+		'idempotency-key': key,
+	})
+	expect(made.status).toBe(201)
+	expect(made.body).toMatchObject({ ...input, revision: 1, state: 'Draft' })
+	expect((await api.send('david', 'POST', base, input, { 'idempotency-key': key })).body).toEqual(
+		made.body,
+	)
+	expect(
+		(await api.send('david', 'POST', base, { ...input, name: 'Other' }, { 'idempotency-key': key }))
+			.status,
+	).toBe(409)
+	const path = `${base}/${made.body.id}/versions/${made.body.versionId}`
+	expect((await api.send('david', 'GET', path)).body).toEqual(made.body)
+	const changed = {
+		...input,
+		expectedRevision: 1,
+		minimumRestMinutes: 660,
+		minimumRestMode: 'Warn',
+		rounding: 'Configured',
+		roundingIncrementMinutes: 15,
+		roundingDirection: 'Nearest',
+		overtime: {
+			enabled: true,
+			qualification: 'ScheduledExcess',
+			capMinutes: 120,
+			preapprovalRequired: true,
+		},
+		approvalRules: [
+			{
+				subjectType: 'Overtime',
+				stage: 1,
+				independent: true,
+				candidateRule: { source: 'LineManager' },
+			},
+			{
+				subjectType: 'Override',
+				stage: 1,
+				independent: true,
+				candidateRule: { source: 'NamedUser', accountId: 'dunder-mifflin/account/michael' },
+			},
+		],
+	}
+	const edited = await api.send<AttendancePolicyVersionView>('david', 'PATCH', path, changed)
+	expect(edited.status).toBe(200)
+	expect(edited.body).toMatchObject({
+		revision: 2,
+		minimumRestMinutes: 660,
+		approvalRules: changed.approvalRules,
+		overtime: changed.overtime,
+	})
+	expect((await api.send('david', 'PATCH', path, changed)).status).toBe(409)
+	expect(
+		(
+			await api.send('david', 'PATCH', path, {
+				...input,
+				code: 'CHANGED_CODE',
+				expectedRevision: 2,
+			})
+		).status,
+	).toBe(400)
+	expect(
+		(
+			await api.send('david', 'PATCH', path, {
+				...input,
+				expectedRevision: 2,
+				approvalRules: [
+					{
+						subjectType: 'Override',
+						stage: 1,
+						independent: true,
+						candidateRule: { source: 'NamedUser', accountId: 'foreign-actor' },
+					},
+				],
+			})
+		).status,
+	).toBe(400)
+	expect((await api.send('david', 'GET', path)).body).toEqual(edited.body)
+	expect(
+		(await api.send('david', 'POST', base, { ...policy('INVALID'), overtime: { enabled: true } }))
+			.status,
+	).toBe(400)
+	expect(
+		(
+			await api.send('david', 'POST', base, {
+				...policy('INDEPENDENCE'),
+				approvalRules: [
+					{
+						subjectType: 'Adjustment',
+						stage: 1,
+						independent: false,
+						candidateRule: { source: 'LineManager' },
+					},
+				],
+			})
+		).status,
+	).toBe(400)
+})
+
+it('retains millisecond shift endpoints and immutable successor lineage', /** SQL lifecycle triggers enforce the same invariants as command revision checks. */ async () => {
+	const base = 'attendance/shifts',
+		input = shift('SHIFT_API')
+	const made = await api.send<ShiftVersionView>('david', 'POST', base, input)
+	expect(made.status).toBe(201)
+	expect(made.body.segments[0].startTime).toBe('22:00:00.125')
+	expect(made.body.segments[1].endTime).toBe('00:00:00.375')
+	const path = `${base}/${made.body.id}/versions/${made.body.versionId}`
+	const results = await Promise.all([
+		api.send('david', 'PATCH', path, { ...input, name: 'Edit one', expectedRevision: 1 }),
+		api.send('david', 'PATCH', path, { ...input, name: 'Edit two', expectedRevision: 1 }),
+	])
+	expect(
+		results
+			.map(/** Compare competing responses independently of arrival order. */ (r) => r.status)
+			.sort(),
+	).toEqual([200, 409])
+	// The isolated arrangement exercises immutable-source draft commands independently
+	// of publication acceptance; this is not evidence for the publication journey.
+	await api.admin.query(
+		"UPDATE hcm.shift_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id='dunder-mifflin/account/david',publication_digest=repeat('a',64) WHERE tenant_id=$1 AND id=$2",
+		[tenant, made.body.versionId],
+	)
+	expect((await api.send('david', 'PATCH', path, { ...input, expectedRevision: 3 })).status).toBe(
+		409,
+	)
+	const successor = await api.send<ShiftVersionView>(
+		'david',
+		'POST',
+		`${base}/${made.body.id}/versions`,
+		{
+			sourceVersionId: made.body.versionId,
+			expectedRevision: 3,
+			reason: 'Private successor explanation',
+		},
+	)
+	expect(successor.status).toBe(201)
+	expect(successor.body).toMatchObject({
+		versionNumber: 2,
+		revision: 1,
+		state: 'Draft',
+		segments: made.body.segments,
+	})
+	expect(JSON.stringify(successor.body)).not.toMatch(
+		/Private successor|tenantId|publicationDigest|createdBy/,
+	)
+	expect(
+		(
+			await api.send<HcmPage<ShiftVersionView>>(
+				'david',
+				'GET',
+				`${base}?id=${made.body.id}&state=Published`,
+			)
+		).body.items,
+	).toEqual([])
+	expect((await api.send('david', 'GET', path + '?unknown=1')).status).toBe(400)
+})
+
+it('binds policy and shift cursors to their resource, current source revision and exact filters', /** Real generated foreign keys and persisted hash-only handles protect paging. */ async () => {
+	for (const code of ['PAGE_A', 'PAGE_B', 'PAGE_C']) {
+		expect((await api.send('david', 'POST', 'attendance/policies', policy(code))).status).toBe(201)
+		expect((await api.send('david', 'POST', 'attendance/shifts', shift(code))).status).toBe(201)
+	}
+	const query = 'attendance/policies?code=PAGE_&limit=1&sort=name:desc'
+	const page = await api.send<HcmPage<AttendancePolicyVersionView>>('david', 'GET', query)
+	expect(page.body.items[0].code).toBe('PAGE_C')
+	expect(page.body.nextCursor).toBeTruthy()
+	expect(
+		(
+			await api.send<HcmPage<AttendancePolicyVersionView>>(
+				'david',
+				'GET',
+				query + '&cursor=' + page.body.nextCursor,
+			)
+		).body.items[0].code,
+	).toBe('PAGE_B')
+	expect(
+		(
+			await api.send(
+				'david',
+				'GET',
+				query.replace('policies', 'shifts') + '&cursor=' + page.body.nextCursor,
+			)
+		).status,
+	).toBe(400)
+	expect(
+		(
+			await api.send(
+				'david',
+				'GET',
+				query.replace('PAGE_', 'PAGE_A') + '&cursor=' + page.body.nextCursor,
+			)
+		).status,
+	).toBe(400)
+	const shiftPage = await api.send<HcmPage<ShiftVersionView>>(
+		'david',
+		'GET',
+		query.replace('policies', 'shifts'),
+	)
+	expect(shiftPage.body.nextCursor).toBeTruthy()
+	expect(
+		(
+			await api.send<HcmPage<ShiftVersionView>>(
+				'david',
+				'GET',
+				query.replace('policies', 'shifts') + '&cursor=' + shiftPage.body.nextCursor,
+			)
+		).body.items[0].code,
+	).toBe('PAGE_B')
+	await api.send('david', 'POST', 'attendance/policies', policy('PAGE_D'))
+	expect((await api.send('david', 'GET', query + '&cursor=' + page.body.nextCursor)).status).toBe(
+		400,
+	)
+})
+
+it('denies unauthorized actors and rechecks revoked read authority before receipt replay', /** A stored successful reply never manufactures current permission. */ async () => {
+	const base = 'attendance/policies',
+		input = policy('REVOKE'),
+		key = randomUUID()
+	expect((await api.send('jim', 'GET', base)).status).toBe(403)
+	expect((await api.send('jim', 'POST', base, input)).status).toBe(403)
+	expect((await api.send('david', 'POST', base, input, { 'idempotency-key': key })).status).toBe(
+		201,
+	)
+	await api.admin.query(
+		"DELETE FROM hcm.role_permission WHERE tenant_id=$1 AND role_id='tenant-administrator' AND permission_code='hcm.attendance.work-schedules.read'",
+		[tenant],
+	)
+	try {
+		expect((await api.send('david', 'GET', base)).status).toBe(403)
+		expect((await api.send('david', 'POST', base, input, { 'idempotency-key': key })).status).toBe(
+			403,
+		)
+	} finally {
+		await api.admin.query(
+			"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator','hcm.attendance.work-schedules.read')",
+			[tenant],
+		)
+	}
+})
+
+it('hides foreign configuration and candidate identities through HTTP and forced runtime RLS', /** Tenant-composite references reject a real foreign actor and roll back every attempted draft change. */ async () => {
+	const foreign = 'work-config-foreign'
+	await api.admin.query('BEGIN')
+	try {
+		await api.admin.query("SELECT set_config('hcm.tenant_id',$1,true)", [foreign])
+		await api.admin.query(
+			"INSERT INTO hcm.tenant(id,slug,display_name,status) VALUES($1,$1,'Other tenant','active')",
+			[foreign],
+		)
+		await api.admin.query(
+			"INSERT INTO hcm.person(tenant_id,id,given_name,family_name,display_name) VALUES($1,'other-person','Other','Actor','Other Actor')",
+			[foreign],
+		)
+		await api.admin.query(
+			"INSERT INTO hcm.user_account(tenant_id,id,person_id,email) VALUES($1,'other-actor','other-person','other@example.test')",
+			[foreign],
+		)
+		await api.admin.query(
+			"INSERT INTO hcm.attendance_policy(tenant_id,id,code,created_by_account_id) VALUES($1,'other-policy','OTHER_POLICY','other-actor')",
+			[foreign],
+		)
+		await api.admin.query(
+			"INSERT INTO hcm.attendance_policy_version(tenant_id,id,policy_id,version_number,name,effective_from,grace_in_minutes,grace_out_minutes,rounding,overtime_enabled,created_by_account_id) VALUES($1,'other-version','other-policy',1,'Other policy','2026-01-01',0,0,'None',false,'other-actor')",
+			[foreign],
+		)
+		await api.admin.query('COMMIT')
+	} catch (error) {
+		await api.admin.query('ROLLBACK')
+		throw error
+	}
+	expect(
+		(await api.send('david', 'GET', 'attendance/policies/other-policy/versions/other-version'))
+			.status,
+	).toBe(404)
+	expect(
+		(
+			await api.send<HcmPage<AttendancePolicyVersionView>>(
+				'david',
+				'GET',
+				'attendance/policies?id=other-policy',
+			)
+		).body.items,
+	).toEqual([])
+	expect(
+		(
+			await api.send('david', 'PATCH', 'attendance/policies/other-policy/versions/other-version', {
+				...policy('OTHER_POLICY'),
+				expectedRevision: 1,
+			})
+		).status,
+	).toBe(404)
+	expect(
+		(
+			await api.send('david', 'POST', 'attendance/policies', {
+				...policy('FOREIGN_CANDIDATE'),
+				approvalRules: [
+					{
+						subjectType: 'Override',
+						stage: 1,
+						independent: true,
+						candidateRule: { source: 'NamedUser', accountId: 'other-actor' },
+					},
+				],
+			})
+		).status,
+	).toBe(400)
+	expect(
+		(
+			await api.send<HcmPage<AttendancePolicyVersionView>>(
+				'david',
+				'GET',
+				'attendance/policies?code=FOREIGN_CANDIDATE',
+			)
+		).body.items,
+	).toEqual([])
+	const runtime = new Client({ connectionString: process.env['HCM_TEST_RUNTIME'] })
+	await runtime.connect()
+	try {
+		await runtime.query('BEGIN')
+		await runtime.query("SELECT set_config('hcm.tenant_id',$1,true)", [tenant])
+		expect(
+			(
+				await runtime.query('SELECT id FROM hcm.attendance_policy_version WHERE tenant_id=$1', [
+					foreign,
+				])
+			).rows,
+		).toEqual([])
+		await expect(
+			runtime.query(
+				"INSERT INTO hcm.shift(tenant_id,id,code,created_by_account_id) VALUES($1,'cross-tenant-shift','CROSS_TENANT','other-actor')",
+				[foreign],
+			),
+		).rejects.toMatchObject({ code: '42501' })
+	} finally {
+		await runtime.query('ROLLBACK')
+		await runtime.end()
+	}
+})
+
+it('assigns explicit policies and ordinary schedules and commits real durable workday production', /** Missing prerequisites remain unavailable; current source inputs produce immutable workdays through the real worker. */ async () => {
+	const employmentId = 'dunder-mifflin/employment/jim'
+	const source = (
+		await api.send<AttendancePolicyVersionView>(
+			'david',
+			'POST',
+			'attendance/policies',
+			policy('ASSIGNED_POLICY'),
+		)
+	).body
+	const path = `attendance/policies/${source.id}/versions/${source.versionId}`
+	const ready = (
+		await api.send<ConfigurationPreviewView<'Policy'>>('david', 'POST', path + '/preview', {
+			expectedRevision: 1,
+			effectiveFrom: '2027-02-01',
+		})
+	).body
+	expect(
+		(
+			await api.send('david', 'POST', path + '/publish', {
+				expectedRevision: 1,
+				previewId: ready.previewId,
+				digest: ready.digest,
+				reason: 'Configure explicit policy inputs',
+			})
+		).status,
+	).toBe(200)
+	const command = {
+		versionId: source.versionId,
+		expectedRevision: 2,
+		employmentId,
+		effectiveFrom: '2027-02-01',
+		effectiveTo: '2027-02-28',
+		resolutionFrom: '2027-02-01',
+		resolutionTo: '2027-02-03',
+		reason: 'Assign policy before completing schedule configuration',
+	}
+	const key = randomUUID()
+	const assigned = await api.send<WorkAssignmentResult>(
+		'david',
+		'POST',
+		'attendance/policy-assignments',
+		command,
+		{ 'idempotency-key': key },
+	)
+	expect(assigned.status).toBe(201)
+	expect(assigned.body).toMatchObject({
+		family: 'Policy',
+		configurationId: source.id,
+		queuedWorkdays: 0,
+		unavailableWorkdays: 3,
+	})
+	expect(
+		(
+			await api.send('david', 'POST', 'attendance/policy-assignments', command, {
+				'idempotency-key': key,
+			})
+		).body,
+	).toEqual(assigned.body)
+	expect((await api.send('david', 'POST', 'attendance/policy-assignments', command)).status).toBe(
+		409,
+	)
+	expect((await api.send('jim', 'POST', 'attendance/policy-assignments', command)).status).toBe(403)
+	// Arrange independent published prerequisites only in this disposable test. Their
+	// publication UI and preview acceptance are exercised by their own suites.
+	await api.admin.query(
+		"INSERT INTO hcm.holiday_calendar(tenant_id,id,code,created_by_account_id) VALUES($1,'assignment-calendar','ASSIGNMENT_CALENDAR','dunder-mifflin/account/david')",
+		[tenant],
+	)
+	await api.admin.query(
+		"INSERT INTO hcm.holiday_calendar_version(tenant_id,id,calendar_id,version_number,name,effective_from,created_by_account_id) VALUES($1,'assignment-calendar-version','assignment-calendar',1,'No holidays in test range','2027-02-01','dunder-mifflin/account/david')",
+		[tenant],
+	)
+	await api.admin.query(
+		"UPDATE hcm.holiday_calendar_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id='dunder-mifflin/account/david',publication_digest=repeat('b',64) WHERE tenant_id=$1 AND id='assignment-calendar-version'",
+		[tenant],
+	)
+	await api.admin.query(
+		"INSERT INTO hcm.holiday_calendar_assignment(tenant_id,id,version_id,scope_kind,employment_id,effective_from,effective_to,created_by_account_id) VALUES($1,'assignment-calendar-coverage','assignment-calendar-version','Employment',$2,'2027-02-01','2027-02-28','dunder-mifflin/account/david')",
+		[tenant, employmentId],
+	)
+	const schedule = await api.send<ScheduleVersionView>(
+		'david',
+		'POST',
+		'attendance/work-schedules',
+		{
+			code: 'ASSIGNED_SCHEDULE',
+			name: 'Dated weekly schedule',
+			isTemplate: false,
+			effectiveFrom: '2027-02-01',
+			timezoneMode: 'Employment',
+			weekStartsOn: 1,
+			days: Array.from(
+				{ length: 7 },
+				/** Explicit test pattern deliberately defines weekends as rest. */ (_, i) => ({
+					weekday: i + 1,
+					kind: i < 5 ? 'Work' : 'Rest',
+					segments:
+						i < 5 ? [{ kind: 'Work', startTime: '09:00', endTime: '17:00', endDayOffset: 0 }] : [],
+				}),
+			),
+		},
+	)
+	expect(schedule.status).toBe(201)
+	const schedulePath = `attendance/work-schedules/${schedule.body.id}/versions/${schedule.body.versionId}`
+	const pending = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'POST',
+		schedulePath + '/preview',
+		{ expectedRevision: 1, employmentId, effectiveFrom: '2027-02-01', effectiveTo: '2027-02-03' },
+	)
+	expect(pending.status).toBe(200)
+	expect(pending.body.state).toBe('Running')
+	await resolveAssignedDays()
+	const reviewed = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'GET',
+		schedulePath + '/previews/' + pending.body.previewId,
+	)
+	expect(reviewed.status).toBe(200)
+	expect(reviewed.body).toMatchObject({
+		state: 'Ready',
+		conflicts: 0,
+		affectedEmploymentCount: 1,
+		affectedWorkdayCount: 3,
+	})
+	expect(
+		(
+			await api.send('david', 'POST', schedulePath + '/publish', {
+				expectedRevision: 1,
+				previewId: reviewed.body.previewId,
+				digest: reviewed.body.digest,
+				reason: 'Publish after real dated worker validation',
+			})
+		).status,
+	).toBe(200)
+	const production = await api.send<WorkAssignmentResult>(
+		'david',
+		'POST',
+		'attendance/schedule-assignments',
+		{
+			...command,
+			versionId: schedule.body.versionId,
+			reason: 'Produce the explicit three day window',
+		},
+	)
+	expect(production.status).toBe(201)
+	expect(production.body).toMatchObject({
+		family: 'Schedule',
+		queuedWorkdays: 3,
+		unavailableWorkdays: 0,
+	})
+	await resolveAssignedDays()
+	const days = await api.admin.query(
+		'SELECT work_date::text AS date,zone,scheduled_work_milliseconds::text AS planned FROM hcm.published_workday WHERE tenant_id=$1 AND employment_id=$2 ORDER BY work_date',
+		[tenant, employmentId],
+	)
+	expect(days.rows).toEqual([
+		{ date: '2027-02-01', zone: 'America/New_York', planned: '28800000' },
+		{ date: '2027-02-02', zone: 'America/New_York', planned: '28800000' },
+		{ date: '2027-02-03', zone: 'America/New_York', planned: '28800000' },
+	])
+	const next = {
+		...command,
+		effectiveFrom: '2027-02-15',
+		resolutionFrom: '2027-02-15',
+		resolutionTo: '2027-02-16',
+		supersedes: { id: assigned.body.id, expectedRevision: 99 },
+	}
+	expect((await api.send('david', 'POST', 'attendance/policy-assignments', next)).status).toBe(409)
+	expect(
+		(
+			await api.send<WorkAssignmentResult>(
+				'david',
+				'GET',
+				'attendance/policy-assignments?kind=Employment&id=' +
+					encodeURIComponent(employmentId) +
+					'&asOf=2027-02-16',
+			)
+		).body.id,
+	).toBe(assigned.body.id)
+	expect(
+		(
+			await api.send('david', 'POST', 'attendance/policy-assignments', {
+				...next,
+				supersedes: { id: assigned.body.id, expectedRevision: 1 },
+			})
+		).status,
+	).toBe(201)
+})
+
+it('validates shifts in the real worker and invalidates reviewed publication when policy inputs change', /** A ready response is evidence to recheck, never permission to publish against retired inputs. */ async () => {
+	const employmentId = 'dunder-mifflin/employment/jim'
+	const input = shift('DATED_SHIFT')
+	const created = await api.send<ShiftVersionView>('david', 'POST', 'attendance/shifts', input)
+	expect(created.status).toBe(201)
+	const path = `attendance/shifts/${created.body.id}/versions/${created.body.versionId}`
+	const pending = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'POST',
+		path + '/preview',
+		{ expectedRevision: 1, employmentId, effectiveFrom: '2027-02-02' },
+	)
+	expect(pending.status).toBe(200)
+	expect(
+		(
+			await api.send('david', 'POST', path + '/publish', {
+				expectedRevision: 1,
+				previewId: pending.body.previewId,
+				digest: 'a'.repeat(64),
+				reason: 'Still running',
+			})
+		).status,
+	).toBe(409)
+	await resolveAssignedDays()
+	const ready = (
+		await api.send<DatedConfigurationPreviewView>(
+			'david',
+			'GET',
+			path + '/previews/' + pending.body.previewId,
+		)
+	).body
+	expect(ready).toMatchObject({ state: 'Ready', conflicts: 0, lockedImpact: false })
+	expect((await api.send('jim', 'GET', path + '/previews/' + ready.previewId)).status).toBe(403)
+	const command = {
+			expectedRevision: 1,
+			previewId: ready.previewId,
+			digest: ready.digest,
+			reason: 'Reviewed exact dated shift',
+		},
+		key = randomUUID()
+	const published = await api.send<ShiftVersionView>('david', 'POST', path + '/publish', command, {
+		'idempotency-key': key,
+	})
+	expect(published.status).toBe(200)
+	expect(published.body).toMatchObject({
+		state: 'Published',
+		revision: 2,
+		segments: created.body.segments,
+	})
+	expect(
+		(await api.send('david', 'POST', path + '/publish', command, { 'idempotency-key': key })).body,
+	).toEqual(published.body)
+	const next = await api.send<ShiftVersionView>(
+		'david',
+		'POST',
+		`attendance/shifts/${created.body.id}/versions`,
+		{
+			sourceVersionId: created.body.versionId,
+			expectedRevision: 2,
+			reason: 'Prepare next version',
+		},
+	)
+	expect(next.status).toBe(201)
+	const nextPath = `attendance/shifts/${created.body.id}/versions/${next.body.versionId}`
+	const nextPending = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'POST',
+		nextPath + '/preview',
+		{ expectedRevision: 1, employmentId, effectiveFrom: '2027-02-02' },
+	)
+	await resolveAssignedDays()
+	const nextReady = (
+		await api.send<DatedConfigurationPreviewView>(
+			'david',
+			'GET',
+			nextPath + '/previews/' + nextPending.body.previewId,
+		)
+	).body
+	expect(nextReady.state).toBe('Ready')
+	const policies = await api.send<HcmPage<AttendancePolicyVersionView>>(
+		'david',
+		'GET',
+		'attendance/policies?code=ASSIGNED_POLICY',
+	)
+	const assignedPolicy = policies.body.items[0]
+	expect(
+		(
+			await api.send(
+				'david',
+				'POST',
+				`attendance/policies/${assignedPolicy.id}/versions/${assignedPolicy.versionId}/retire`,
+				{ expectedRevision: 2, reason: 'Change a reviewed dated dependency' },
+			)
+		).status,
+	).toBe(200)
+	expect(
+		(
+			await api.send('david', 'POST', nextPath + '/publish', {
+				expectedRevision: 1,
+				previewId: nextReady.previewId,
+				digest: nextReady.digest,
+				reason: 'Stale dependent policy',
+			})
+		).status,
+	).toBe(409)
+	expect((await api.send<ShiftVersionView>('david', 'GET', nextPath)).body.state).toBe('Draft')
+	const changed = await api.send<DatedConfigurationPreviewView>(
+		'david',
+		'POST',
+		nextPath + '/preview',
+		{ expectedRevision: 1, employmentId, effectiveFrom: '2027-02-02' },
+	)
+	expect(
+		(
+			await api.send('david', 'PATCH', nextPath, {
+				...input,
+				name: 'Changed before worker review',
+				expectedRevision: 1,
+			})
+		).status,
+	).toBe(200)
+	await resolveAssignedDays()
+	expect(
+		(
+			await api.send<DatedConfigurationPreviewView>(
+				'david',
+				'GET',
+				nextPath + '/previews/' + changed.body.previewId,
+			)
+		).body,
+	).toMatchObject({ state: 'Failed', failureCode: 'SourceChanged' })
+})

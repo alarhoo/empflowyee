@@ -16,6 +16,8 @@ import {
 	HolidayCollisionError,
 } from '@empflowyee/hcm-api-attendance-domain'
 import type { HcmScopeSubject } from '@empflowyee/hcm-api-access-control-application'
+import { prepareAttendanceAssignment } from './assignment-preparation'
+export { attendanceTargetSubject as holidayTargetSubject } from './assignment-preparation'
 import type { AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import type {
 	WorkforceTimeContext,
@@ -68,19 +70,6 @@ export abstract class AttendanceHolidayAssignmentUnit {
 	): Promise<T>
 }
 
-/** Preserve the scope predicate itself so a narrow employment grant cannot authorize a broad future assignment. */
-export function holidayTargetSubject(target: AttendanceScopeTarget): HcmScopeSubject {
-	const fields = {
-		LegalEntity: 'legalEntityId',
-		OrgUnit: 'orgUnitId',
-		Department: 'departmentId',
-		Location: 'locationId',
-		Assignment: 'assignmentId',
-		Employment: 'employmentId',
-	} as const
-	return target.kind === 'Tenant' ? {} : { [fields[target.kind]]: target.id }
-}
-
 /** Select explicit execution dates plus declared holidays without inventing an open-ended materialization horizon. */
 export function holidayAssignmentDates(
 	source: HolidayVersionView,
@@ -101,24 +90,6 @@ export function holidayAssignmentDates(
 	)
 		dates.add(date.toString())
 	return [...dates].sort()
-}
-
-/** Project dated source facts per assignment; no cross-employment or cross-assignment dimension mixing. */
-function scopeSubjects(facts: WorkforceTimeContext): HcmScopeSubject[] {
-	const base = { employmentId: facts.employmentId, legalEntityId: facts.legalEntityId }
-	return facts.assignments.length
-		? facts.assignments.map(
-			/** Retain the complete predicate of each effective Workforce assignment. */ (
-				assignment,
-			) => ({
-				...base,
-				assignmentId: assignment.id,
-				orgUnitId: assignment.orgUnitId,
-				locationId: assignment.locationId,
-				...(assignment.departmentId ? { departmentId: assignment.departmentId } : {}),
-			}),
-		)
-		: [base]
 }
 
 /** Assign real published calendars and explicitly supersede dated coverage with atomic durable resolution intents. */
@@ -168,60 +139,11 @@ export class AttendanceHolidayAssignments {
 							(source.effectiveTo && (!input.effectiveTo || input.effectiveTo > source.effectiveTo))
 						)
 							throw new HcmDomainError('effective-date-out-of-range')
-						await work.guardPeriods(input.effectiveFrom, input.effectiveTo)
-						const dates = holidayAssignmentDates(source, input)
-						const contexts: WorkforceTimeContext[] = [],
-							scopes: HcmScopeSubject[] = [holidayTargetSubject(input.target)]
-						let unavailableFacts = false
-						for (const date of dates) {
-							let after: string | undefined
-							do {
-								const page = await work.subjects.page(date, input.target, after, 100)
-								for (const subject of page.items) {
-									const facts = await work.workforce.read(subject.employmentId, date)
-									if (facts.state !== 'Available') {
-										unavailableFacts = true
-										scopes.push({ employmentId: subject.employmentId })
-										continue
-									}
-									contexts.push(facts.context)
-									scopes.push(...scopeSubjects(facts.context))
-								}
-								after = page.nextAfterEmploymentId ?? undefined
-							} while (after)
-						}
-						await work.authorize(scopes)
-						if (unavailableFacts) throw new HcmDomainError('record-incomplete')
-						for (const date of dates) {
-							const basis = await work.periods.fence(date, date)
-							if (
-								basis.months.some(
-									/** Ordinary assignments cannot rewrite locked period inputs. */ (month) =>
-										month.period && ['Closing', 'Locked', 'Reopened'].includes(month.period.state),
-								)
-							)
-								throw new HcmDomainError('invalid-state')
-						}
-						if (input.supersedes) {
-							const previous = await work.read(input.supersedes.id)
-							if (!previous) throw new HcmDomainError('not-found')
-							if (previous.revision !== input.supersedes.expectedRevision)
-								throw new HcmDomainError('revision-conflict')
-							if (
-								previous.target.kind !== input.target.kind ||
-								(previous.target.kind !== 'Tenant' &&
-									input.target.kind !== 'Tenant' &&
-									previous.target.id !== input.target.id) ||
-								previous.effectiveFrom >= input.effectiveFrom ||
-								(previous.effectiveTo && previous.effectiveTo < input.effectiveFrom)
-							)
-								throw new HcmDomainError('invalid-state')
-							await work.end(
-								previous.id,
-								previous.revision,
-								Temporal.PlainDate.from(input.effectiveFrom).subtract({ days: 1 }).toString(),
-							)
-						}
+						const contexts = await prepareAttendanceAssignment(
+							work,
+							input,
+							holidayAssignmentDates(source, input),
+						)
 						const result = await work.insert(randomUUID(), input)
 						const resolver = new AssignedWorkdayResolver(work.inputs, 366)
 						let queuedWorkdays = 0,
