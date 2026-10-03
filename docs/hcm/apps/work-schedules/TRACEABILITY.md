@@ -36,6 +36,13 @@ the calculation evidence. Shared schedule/shift and policy form conversion tests
 cover approved input restrictions. A production build confirms template typing;
 requirement 006 still needs the Work Schedules real-browser journeys.
 
+The routed override editor now reuses native interval controls and the existing
+create/read/preview/required-approval submit APIs. Its
+[pure form tests](../../../../libs/hcm/web/attendance/feature-work-schedules/src/lib/override-form.spec.ts)
+cover explicit Work/Rest, reason/timezone boundaries, exact overnight precision,
+overlap selection and incomplete intervals. This is partial 002/006 implementation;
+it is not browser acceptance. The Planned catalogue guard remains enforced.
+
 | Requirement                                             | Design                          | Planned test                                        |
 | ------------------------------------------------------- | ------------------------------- | --------------------------------------------------- |
 | [REQ-WORK-SCHEDULES-001](FDD.md#req-work-schedules-001) | [DESIGN-001](TDD.md#design-001) | [TEST-WORK-SCHEDULES-001](#test-work-schedules-001) |

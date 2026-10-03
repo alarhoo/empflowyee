@@ -187,83 +187,14 @@
 	{{ editor().fieldError('days.' + d + '.segments') }}
 </ui5-message-strip>
 } @for (segment of day.segments; track $index; let i = $index) {
-<ui5-form
-	[accessibleName]="(editor().singleShift() ? 'Shift' : weekdays[editor().model().days[d].weekday - 1]) + ' segment ' + (i + 1)"
-	accessibleMode="Edit"
-	layout="S1 M2 L3 XL3"
-	labelSpan="S12 M12 L12 XL12">
-	<ui5-form-item>
-		<ui5-label slot="labelContent">Interval type</ui5-label>
-		<ui5-select
-			accessibleName="Interval type"
-			[formField]="segment.kind">
-			<ui5-option value="Work">Work</ui5-option>
-			<ui5-option value="UnpaidBreak">Unpaid break</ui5-option>
-		</ui5-select>
-	</ui5-form-item>
-	<ui5-form-item>
-		<ui5-label slot="labelContent">Start time</ui5-label>
-		<ui5-time-picker
-			accessibleName="Start time"
-			[formField]="segment.startTime"
-			valueFormat="HH:mm:ss.SSS"
-			[displayFormat]="timeFormat()"
-			[valueState]="
-								editor().fieldError('days.' + d + '.segments.' + i + '.startTime') ? 'Negative' : 'None'
-							"></ui5-time-picker>
-		<ui5-text>{{ editor().fieldError('days.' + d + '.segments.' + i + '.startTime') }}</ui5-text>
-	</ui5-form-item>
-	<ui5-form-item>
-		<ui5-label slot="labelContent">End time</ui5-label>
-		<ui5-time-picker
-			accessibleName="End time"
-			[formField]="segment.endTime"
-			valueFormat="HH:mm:ss.SSS"
-			[displayFormat]="timeFormat()"
-			[valueState]="
-								editor().fieldError('days.' + d + '.segments.' + i + '.endTime') ? 'Negative' : 'None'
-							"></ui5-time-picker>
-		<ui5-text>{{ editor().fieldError('days.' + d + '.segments.' + i + '.endTime') }}</ui5-text>
-	</ui5-form-item>
-	<ui5-form-item>
-		<ui5-label slot="labelContent">End day</ui5-label>
-		<ui5-select
-			accessibleName="End day"
-			[formField]="segment.endDayOffset">
-			<ui5-option value="0">Start work date</ui5-option>
-			<ui5-option value="1">Following date</ui5-option>
-		</ui5-select>
-	</ui5-form-item>
-	<ui5-form-item>
-		<ui5-label slot="labelContent">Ambiguous start</ui5-label>
-		<ui5-select
-			accessibleName="Ambiguous start"
-			[formField]="segment.startOverlap">
-			<ui5-option value="">Require an unambiguous time</ui5-option>
-			<ui5-option value="Earlier">Earlier occurrence</ui5-option>
-			<ui5-option value="Later">Later occurrence</ui5-option>
-		</ui5-select>
-	</ui5-form-item>
-	<ui5-form-item>
-		<ui5-label slot="labelContent">Ambiguous end</ui5-label>
-		<ui5-select
-			accessibleName="Ambiguous end"
-			[formField]="segment.endOverlap">
-			<ui5-option value="">Require an unambiguous time</ui5-option>
-			<ui5-option value="Earlier">Earlier occurrence</ui5-option>
-			<ui5-option value="Later">Later occurrence</ui5-option>
-		</ui5-select>
-	</ui5-form-item>
-	<ui5-form-item>
-		<ui5-label slot="labelContent">Interval actions</ui5-label>
-		<ui5-button
-			design="Transparent"
-			(click)="editor().removeSegment(d, i)"
-			[disabled]="editor().draft.saving()">
-			Remove interval {{ i + 1 }}
-		</ui5-button>
-	</ui5-form-item>
-</ui5-form>
+<ef-hcm-attendance-segment-fields
+	[removeLabel]="'Remove interval ' + (i + 1)"
+	[fields]="segment"
+	[label]="(editor().singleShift() ? 'Shift' : weekdays[editor().model().days[d].weekday - 1]) + ' segment ' + (i + 1)"
+	[timeFormat]="timeFormat()"
+	[errors]="segmentErrors(d, i)"
+	[disabled]="editor().draft.saving()"
+	(removed)="editor().removeSegment(d, i)"></ef-hcm-attendance-segment-fields>
 }
 <ui5-button
 	(click)="editor().addSegment(d)"

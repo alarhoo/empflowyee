@@ -1,0 +1,91 @@
+<ui5-form
+	[accessibleName]="label()"
+	accessibleMode="Edit"
+	layout="S1 M2 L3 XL3"
+	labelSpan="S12 M12 L12 XL12">
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Interval type</ui5-label>
+		<ui5-select
+			accessibleName="Interval type"
+			[accessibleDescription]="errors().kind ?? ''"
+			[valueState]="errors().kind ? 'Negative' : 'None'"
+			[formField]="fields().kind">
+			<ui5-option value="Work">Work</ui5-option>
+			<ui5-option value="UnpaidBreak">Unpaid break</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ errors().kind }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Start time</ui5-label>
+		<ui5-time-picker
+			accessibleName="Start time"
+			[formField]="fields().startTime"
+			[accessibleDescription]="errors().startTime ?? ''"
+			valueFormat="HH:mm:ss.SSS"
+			[displayFormat]="timeFormat()"
+			[valueState]="
+								errors().startTime ? 'Negative' : 'None'
+							"></ui5-time-picker>
+		<ui5-text>{{ errors().startTime }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">End time</ui5-label>
+		<ui5-time-picker
+			accessibleName="End time"
+			[formField]="fields().endTime"
+			[accessibleDescription]="errors().endTime ?? ''"
+			valueFormat="HH:mm:ss.SSS"
+			[displayFormat]="timeFormat()"
+			[valueState]="
+								errors().endTime ? 'Negative' : 'None'
+							"></ui5-time-picker>
+		<ui5-text>{{ errors().endTime }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">End day</ui5-label>
+		<ui5-select
+			accessibleName="End day"
+			[accessibleDescription]="errors().endDayOffset ?? ''"
+			[valueState]="errors().endDayOffset ? 'Negative' : 'None'"
+			[formField]="fields().endDayOffset">
+			<ui5-option value="0">Start work date</ui5-option>
+			<ui5-option value="1">Following date</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ errors().endDayOffset }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Ambiguous start</ui5-label>
+		<ui5-select
+			accessibleName="Ambiguous start"
+			[accessibleDescription]="errors().startOverlap ?? ''"
+			[valueState]="errors().startOverlap ? 'Negative' : 'None'"
+			[formField]="fields().startOverlap">
+			<ui5-option value="">Require an unambiguous time</ui5-option>
+			<ui5-option value="Earlier">Earlier occurrence</ui5-option>
+			<ui5-option value="Later">Later occurrence</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ errors().startOverlap }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Ambiguous end</ui5-label>
+		<ui5-select
+			accessibleName="Ambiguous end"
+			[accessibleDescription]="errors().endOverlap ?? ''"
+			[valueState]="errors().endOverlap ? 'Negative' : 'None'"
+			[formField]="fields().endOverlap">
+			<ui5-option value="">Require an unambiguous time</ui5-option>
+			<ui5-option value="Earlier">Earlier occurrence</ui5-option>
+			<ui5-option value="Later">Later occurrence</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ errors().endOverlap }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Interval actions</ui5-label>
+		<ui5-button
+			design="Transparent"
+			(click)="removed.emit()"
+			[disabled]="disabled()">
+			{{ removeLabel() }}
+		</ui5-button>
+	</ui5-form-item>
+</ui5-form>

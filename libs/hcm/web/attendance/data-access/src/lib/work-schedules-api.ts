@@ -28,6 +28,10 @@ import type {
 	WorkAssignmentView,
 	AttendanceWorkdayQuery,
 	WorkdayPage,
+	AttendanceOverrideDraft,
+	AttendanceOverrideView,
+	AttendanceOverrideReview,
+	AttendanceOverrideSubmission,
 } from '@empflowyee/hcm-attendance-contract'
 
 export interface WorkConfigurationViews {
@@ -48,6 +52,40 @@ const paths = { Schedule: 'work-schedules', Shift: 'shifts', Policy: 'policies' 
 @Injectable({ providedIn: 'root' })
 export class WorkSchedulesApi {
 	private readonly http = inject(HttpClient)
+	/** Create a source-bound dated override Draft with the caller's retained retry key. */
+	createOverride(body: AttendanceOverrideDraft, key: string) {
+		return this.http
+			.post<AttendanceOverrideView>('/api/v1/attendance/overrides', body, {
+				headers: { 'Idempotency-Key': key },
+			})
+			.pipe(timeout(30000))
+	}
+	/** Reload safe persisted source and independent approval progress after current server authorization. */
+	override(id: string) {
+		return this.http
+			.get<AttendanceOverrideView>(`/api/v1/attendance/overrides/${encodeURIComponent(id)}`)
+			.pipe(timeout(15000))
+	}
+	/** Review the exact source and following-workday evidence without changing workday state. */
+	previewOverride(id: string, body: ConfigurationReasonCommand, key: string) {
+		return this.http
+			.post<AttendanceOverrideReview>(
+				`/api/v1/attendance/overrides/${encodeURIComponent(id)}/preview`,
+				body,
+				{ headers: { 'Idempotency-Key': key } },
+			)
+			.pipe(timeout(30000))
+	}
+	/** Request the configured independent source approval using its actor-bound current review. */
+	submitOverride(id: string, body: ConfigurationPublishCommand, key: string) {
+		return this.http
+			.post<AttendanceOverrideSubmission>(
+				`/api/v1/attendance/overrides/${encodeURIComponent(id)}/submit`,
+				body,
+				{ headers: { 'Idempotency-Key': key } },
+			)
+			.pipe(timeout(30000))
+	}
 	/** Inspect only stored dated evidence; this GET never starts resolution. */
 	workdays(query: AttendanceWorkdayQuery) {
 		return this.http

@@ -105,6 +105,11 @@
 				label="Unavailable"></span>
 			<ui5-text>{{ unavailable(day.unavailableCode) }}</ui5-text>
 		} @else {
+			@if (
+				runtime.context()?.access?.permissions?.includes('hcm.attendance.work-schedules.manage')
+			) {
+				<ui5-button (click)="createOverride(day)">Create dated override</ui5-button>
+			}
 			<ui5-form
 				[accessibleName]="'Published workday ' + day.workDate"
 				layout="S1 M2 L3 XL3"

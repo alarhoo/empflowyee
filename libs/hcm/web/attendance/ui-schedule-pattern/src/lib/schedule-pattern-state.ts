@@ -107,6 +107,8 @@ export class SchedulePatternState {
 				if (!i) result.set(`days.${d}.segments`, segment.startTime)
 				for (const field of ['startTime', 'endTime', 'endDayOffset', 'kind'] as const)
 					result.set(`days.${d}.segments.${i}.${field}`, segment[field])
+				result.set(`days.${d}.segments.${i}.overlapOffset.start`, segment.startOverlap)
+				result.set(`days.${d}.segments.${i}.overlapOffset.end`, segment.endOverlap)
 			}
 		}
 		return result

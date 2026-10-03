@@ -61,7 +61,9 @@ and typed roster/override resolution. Override Draft/read/preview commands now
 retain encrypted reasons and exact reviewed workday bases; independent approval
 evaluation and required case/slot/decision storage have focused tests; production
 source decisions remain pending. Required-approval Override submission now creates
-its case, slots and real Workflow intake atomically and returns safe reload progress. Internal
+its case, slots and real Workflow intake atomically and returns safe reload progress.
+The routed override editor reuses native interval fields for Draft/review/submission;
+it has form and compile checks but no complete-app browser acceptance. Internal
 [Workflow intake and initial DomainManifest planning](../testing/HCM-3-WORKFLOW-INTEGRATION.md)
 now have real leased-worker/PostgreSQL tests with Attendance source adapters; dispatch, timers and
 receipt reconciliation still require delivery. See the Work Schedules

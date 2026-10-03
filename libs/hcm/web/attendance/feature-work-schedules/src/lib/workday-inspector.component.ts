@@ -8,6 +8,7 @@ import {
 	signal,
 } from '@angular/core'
 import { form, FormField, validate, submit } from '@angular/forms/signals'
+import { Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import type { Subscription } from 'rxjs'
 import { Button } from '@fundamental-ngx/ui5-webcomponents/button'
@@ -70,6 +71,14 @@ import { HcmDomainError } from '@empflowyee/hcm-runtime-contract'
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkdayInspector {
+	private readonly router = inject(Router)
+	/** Start a dated override from explicit published evidence; the editor reloads its current server basis. */
+	createOverride(day: WorkdayView): void {
+		if (day.state !== 'Published') return
+		void this.router.navigate(['/attendance/work-schedules/override/new'], {
+			queryParams: { employmentId: day.employmentId, workDate: day.workDate },
+		})
+	}
 	readonly from = input.required<string>()
 	readonly runtime = inject(HcmRuntimeStore)
 	private readonly api = inject(WorkSchedulesApi)
