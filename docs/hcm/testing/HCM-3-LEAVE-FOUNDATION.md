@@ -162,3 +162,26 @@ The seed-projection check (`pnpm hcm:db:seed:check`) failed at the unchanged
 its generator nor its catalogue inputs changed in this slice; forward Leave seed
 apply/reset tests passed. The projection check is not reported as passing and
 the historical seed was not rewritten.
+
+## Current workday calculation
+
+On 2026-10-03 the Full and resolved Hourly calculation prerequisite passed 24
+Leave domain/application tests across five suites. Eight real PostgreSQL worker
+tests also passed, now including Leave consumption of an actual 28,800,250 ms
+published overnight workday as exactly one day and refusal after its Workforce
+source revision changes. Pure cases cover lunch/partial holidays, DST repeated
+hours, fractional milliseconds, per-row rounding, hourly increments, nonworking
+versus unavailable days, changed source fingerprints, explicit period/version
+bounds and Unpaid units without an account. No production fixture or SQL balance
+edit was introduced. The worker/database test proves persisted source compatibility,
+not Leave submission or a browser journey.
+
+Codex reviewed the private owner-port calculation against the owning Leave
+algorithm and Attendance projection under existing delegated technical authority.
+The caller retains current authorization and transaction/lock duties; the calculator
+does not admit eligibility, evidence, overlap, notice or funding. Half-day rounding
+and initial local period configuration remain unanswered. Apply Leave remains
+Planned; its full API, reservations, approvals and native UI still require delivery.
+Affected ESLint, Leave/Attendance module TypeScript, hcm-api build, architecture,
+documentation/catalogue and Apply Leave readiness passed. No SQL migration or
+seed changed in this calculation slice, and the local running UI is unchanged.

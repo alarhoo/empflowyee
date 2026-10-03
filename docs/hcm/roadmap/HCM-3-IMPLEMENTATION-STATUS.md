@@ -78,6 +78,10 @@ version, list, type-option and dated enrollment APIs, verified against disposabl
 PostgreSQL/HTTP. Balance enrollment creates an empty account; Unpaid creates none.
 Internal grant ledger, accrual quantity and current Workforce/Attendance source
 ports are tested prerequisites, not complete entitlement or request journeys.
+Full/resolved Hourly quantities now consume current published workday intervals,
+with exact per-row totals, period/version bounds and source fingerprints; half-day
+rounding and full request admission remain pending. These internal calculations
+do not expose a Leave preview or submit UI.
 See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
 This does not complete a Leave app or milestone; publication, entitlement funding,
 source journeys and the native UIs remain pending. Local PostgreSQL remains at

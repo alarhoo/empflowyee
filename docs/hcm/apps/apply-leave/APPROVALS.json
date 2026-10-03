@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "e1793bfc28c8ffa2b120887b6cb74ce54092c9f4985c405b1f004e7519c23f6b",
+			"sha256": "1ee00cd8b19592c81734532cda18c6a132e74257da538984b82e4d8281040233",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md#current-workday-calculation; reviewed exact Full/resolved Hourly arithmetic, private current owner port, bounded period/version admission and partial traceability under existing delegation; no human reapproval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "fa9e0b9b16950854d1e27e9bf3f1e5b7cb306b46c8778855ce01ab9aac34e9dd",
+			"sha256": "76aac92e8b23104b8397632dfec5280a163f02724236b5e1a06a7baec1c1568a",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md#current-workday-calculation; reviewed exact Full/resolved Hourly arithmetic, private current owner port, bounded period/version admission and partial traceability under existing delegation; no human reapproval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",
