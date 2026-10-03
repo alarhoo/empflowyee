@@ -1,3 +1,5 @@
+import type { AttendanceEvidenceStage } from '@empflowyee/hcm-attendance-contract'
+import type { StagedEvidence, EvidenceFileView } from '@empflowyee/hcm-documents-contract'
 import { Injectable, inject } from '@angular/core'
 import { HttpClient, HttpParams } from '@angular/common/http'
 import { map, switchMap, timeout, type Observable } from 'rxjs'
@@ -52,6 +54,32 @@ const paths = { Schedule: 'work-schedules', Shift: 'shifts', Policy: 'policies' 
 @Injectable({ providedIn: 'root' })
 export class WorkSchedulesApi {
 	private readonly http = inject(HttpClient)
+	/** Stage one native upload through the owning source route with a stable retry key. */
+	stageEvidence(input: AttendanceEvidenceStage, file: File, key: string) {
+		const body = new FormData()
+		body.append('metadata', JSON.stringify(input))
+		body.append('file', file, file.name)
+		return this.http
+			.post<StagedEvidence>('/api/v1/attendance/evidence/staged', body, {
+				headers: { 'Idempotency-Key': key },
+			})
+			.pipe(timeout(30000))
+	}
+	/** Reload only field-authorized evidence metadata for one exact source. */
+	evidence(id: string) {
+		return this.http
+			.get<EvidenceFileView[]>('/api/v1/attendance/evidence/overrides/' + encodeURIComponent(id))
+			.pipe(timeout(15000))
+	}
+	/** Download private bytes through fresh server authority; no durable public file URL exists. */
+	evidenceContent(id: string) {
+		return this.http
+			.get('/api/v1/attendance/evidence/' + encodeURIComponent(id) + '/content', {
+				responseType: 'blob',
+			})
+			.pipe(timeout(30000))
+	}
+
 	/** Create a source-bound dated override Draft with the caller's retained retry key. */
 	createOverride(body: AttendanceOverrideDraft, key: string) {
 		return this.http

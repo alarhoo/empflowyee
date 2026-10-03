@@ -1,3 +1,4 @@
+import { DocumentFiles } from '@empflowyee/hcm-api-documents-application'
 import 'reflect-metadata'
 import { Test } from '@nestjs/testing'
 import type { INestApplication } from '@nestjs/common'
@@ -61,6 +62,7 @@ export interface HcmTestApi {
 export async function startHcmTestApi(
 	module: unknown,
 	writeOrigin = HCM_TEST_ORIGIN,
+	documentFiles?: DocumentFiles,
 ): Promise<HcmTestApi> {
 	const migrator = process.env['HCM_TEST_MIGRATOR'],
 		runtime = process.env['HCM_TEST_RUNTIME']
@@ -78,7 +80,7 @@ export async function startHcmTestApi(
 	await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [HCM_TEST_TENANT])
 	const store = new HcmRuntimeStore(runtime)
 	const cipher = new LocalFieldCipher(randomBytes(32))
-	const compiled = await Test.createTestingModule({ imports: [module as never] })
+	const builder = Test.createTestingModule({ imports: [module as never] })
 		.overrideProvider(FieldCipher)
 		.useValue(cipher)
 		.overrideProvider(HcmRuntimeStore)
@@ -91,7 +93,8 @@ export async function startHcmTestApi(
 		.useValue(new HcmAccessDatabase(runtime))
 		.overrideProvider(HCM_ROLE_WRITE_ORIGIN)
 		.useValue(writeOrigin)
-		.compile()
+	if (documentFiles) builder.overrideProvider(DocumentFiles).useValue(documentFiles)
+	const compiled = await builder.compile()
 	const app: INestApplication = compiled.createNestApplication({ logger: false })
 	app.setGlobalPrefix('api')
 	await app.listen(0, '127.0.0.1')

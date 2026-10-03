@@ -464,9 +464,8 @@ is a validated named timezone of at most 100 characters. Reason is nonblank text
 of at most 2,000 characters, preserved exactly. Evidence IDs are explicit and
 unique. Segments reuse the universal exact wall-time, contiguous-shift, day-offset,
 break and independent overlap-choice restrictions. Explicit `[]` means nonworking;
-a missing segments field is invalid. Supplied evidence is rejected as unavailable
-until Documents' purpose-bound admission adapter is delivered; no arbitrary ID is
-silently accepted or discarded.
+a missing segments field is invalid. Evidence uses Documents' purpose-bound
+admission adapter described in OVERRIDE-EVIDENCE; arbitrary IDs are rejected.
 
 Migration 52 adds a typed override reference to existing immutable Attendance
 receipts and keeps their at-most-one-source invariant. Reasons use the existing
@@ -605,7 +604,7 @@ makes a private in-memory proposal and the identical PostgreSQL JSONB source
 produce equal evidence despite JSONB key ordering. Old dated-source reviews and
 materialized evidence need fresh review/resolution; no stored digest is rewritten.
 This application path is limited by the currently admitted Leave lifecycle impact
-adapter. It does not implement independent source decisions or evidence admission.
+adapter. Independent source decisions and evidence admission are specified below.
 
 ## OVERRIDE-INDEPENDENT-DECISIONS
 
@@ -653,3 +652,56 @@ transactions retain their existing shared authority lock. No tenant policy or
 database ownership changes. The shared worker now composes real Attendance dispatch
 and source-driven reconciliation; dispatch requires the API's existing local field
 key. Timers and other source adapters remain separate delivery obligations.
+
+
+## OVERRIDE-EVIDENCE
+
+Documents owns `AttendanceEvidence` bytes, immutable purpose/subject/classification,
+uploader and original upload key. The staging subject is the explicit dated
+employment (the canonical JSON tuple `["Override", employmentId, workDate]`); source attachment binds once to
+the subsequently created Override ID. This allows draft creation with already
+validated evidence without guessing a future source ID. The dated subject never
+changes and an attached reference cannot move to a different override. The source
+constructs this subject; a client cannot supply an arbitrary Documents subject.
+
+The existing private Documents format/signature, size and integrity checks admit
+PDF/PNG/JPEG up to 10 MiB as Clean. This does not claim malware scanning. Pending
+and Blocked evidence cannot attach or open. Classification must be explicit
+General/Confidential/Restricted and is immutable; no update or downgrade endpoint
+exists. Separate classification-specific Work Schedules evidence operations are
+required in addition to current manage/read over the full dated employment.
+Canonical grants are explicit seed records, never inferred from role names.
+Source list/read projections continue to omit filenames, IDs and content.
+
+POST /attendance/evidence/staged accepts one metadata-first multipart upload with
+employmentId, workDate, purpose AttendanceEvidence and classification. It checks
+current manage and field authority before consuming bytes and retains the original
+upload key for recovery. Draft creation attaches only the uploader's exact clean
+references in the same transaction as source creation. GET
+/attendance/evidence/{id}/content rechecks source read and classification field
+permission against the original dated subject, plus source attachment or original
+uploader for an unattached staged reference. Content streams use the existing
+Documents attachment headers and authorized/completed/failed audit protocol.
+File storage failure never returns a clean reference; SQL rollback can leave
+unreferenced private bytes but cannot expose a business attachment.
+
+
+The technical request bound is 100 distinct attachment references per Override
+Draft, enforced by the universal parser and native uploader. Documents source
+metadata is bounded by the same limit. GET /attendance/evidence/overrides/{id}
+reloads only clean source attachments under current source read scope and each
+classification's explicit field permission; hidden classes contribute no rows,
+filenames or counts. This does not grant medical Leave content access. Attendance
+access seed 6 grants all three classification operations only to the canonical
+local time policy administrator; other personas receive no content grant.
+
+The native Object Page Evidence section consumes installed UI5 FileUploader
+(`files`, `ui5Change`, `ui5FileSizeExceed`, `maxFileSize`, `valueStateMessage`) and
+Signal Forms Select for explicit classification. File bytes stay transient; only
+server-admitted references enter the dirty source model. Filename length/type and
+1-byte–10-MiB limits have reactive feedback, and invalid file selection blocks the
+source save until uploaded or cleared. Unknown upload outcomes retain the same
+file, class and key and require recovery. Account/source changes cancel reads and
+clear private file state. Reloaded references use separately authorized download
+requests; the browser's temporary Blob download primitive follows the existing
+Documents implementation. No custom business CSS or public file URL is introduced.

@@ -1,3 +1,4 @@
+import { EVIDENCE_MAX_ATTACHMENTS } from '@empflowyee/hcm-documents-contract'
 import {
 	dateValue,
 	idValue,
@@ -101,7 +102,11 @@ export function parseAttendanceOverrideDraft(value: unknown): AttendanceOverride
 		'evidenceIds',
 	])
 	if (!Array.isArray(input['segments'])) invalidField('segments')
-	if (!Array.isArray(input['evidenceIds'])) invalidField('evidenceIds')
+	if (
+		!Array.isArray(input['evidenceIds']) ||
+		input['evidenceIds'].length > EVIDENCE_MAX_ATTACHMENTS
+	)
+		invalidField('evidenceIds')
 	const evidenceIds = input['evidenceIds'].map(
 		/** Validate each opaque evidence identity without accepting a storage path or coercing a number. */ (
 			id,

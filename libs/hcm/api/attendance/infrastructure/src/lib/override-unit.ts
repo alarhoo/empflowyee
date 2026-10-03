@@ -1,3 +1,4 @@
+import type { DocumentEvidenceBinder } from '@empflowyee/hcm-api-documents-application'
 import type { HcmScopeSubject } from '@empflowyee/hcm-api-access-control-application'
 import { randomUUID } from 'node:crypto'
 import { Temporal } from '@js-temporal/polyfill'
@@ -10,6 +11,7 @@ import {
 import { classifyConstraint } from '@empflowyee/hcm-api-database-kysely'
 import {
 	requireAuthenticatedTenant,
+	requireAuthenticatedAccount,
 	type AuthenticatedHcmContext,
 	type FieldCipher,
 } from '@empflowyee/hcm-api-runtime-application'
@@ -61,6 +63,7 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 		private readonly workflowSources: WorkflowSourceBinder,
 		private readonly workflowIntake: WorkflowIntakeBinder,
 		private readonly leaveImpact: AttendanceLeaveImpactBinder,
+		private readonly documents: DocumentEvidenceBinder,
 	) {
 		super()
 	}
@@ -117,7 +120,20 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 							subjects: scopes,
 						})
 					}
+					const evidence = this.documents.bind(tx, access.actor)
+					/** Require the exact evidence classification under the same complete dated scope. */
+					const requireEvidence = async (
+						classification: import('@empflowyee/hcm-documents-contract').EvidenceClassification,
+					) => {
+						await new TransactionalAccessPolicy(access.transaction, context).require({
+							permission: 'hcm.attendance.work-schedules.evidence.' + classification.toLowerCase(),
+							entitlement: 'hcm.attendance',
+							subjects: scopes,
+						})
+					}
 					return work({
+						evidence,
+						requireEvidence,
 						approve:
 						/** Record the source decision only after the application has consumed its current no-required-slot review. */ async (
 							source,
@@ -243,11 +259,23 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 							}
 						},
 						attachEvidence:
-						/** Never accept ungoverned IDs while the required Documents consumer-purpose adapter is unavailable. */ async (
-							_id,
+						/** Attach only clean uploader-owned references after classification authority is independently checked. */ async (
+							id,
 							draft,
 						) => {
-							if (draft.evidenceIds.length) throw new HcmDomainError('record-incomplete')
+							for (const evidenceId of draft.evidenceIds) {
+								const binding = await evidence.inspect(evidenceId)
+								await requireEvidence(binding.classification)
+								await evidence.attach(
+									{
+										purpose: 'AttendanceEvidence',
+										subject: JSON.stringify(['Override', draft.employmentId, draft.workDate]),
+										classification: binding.classification,
+									},
+									evidenceId,
+									id,
+								)
+							}
 						},
 						proposedInputs:
 						/** Preserve production tie detection and exact stored intervals without writing temporary approval state. */ (
@@ -272,6 +300,36 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 							tx,
 						)
 						dated = rows.rows[0]
+					} else if ('evidenceId' in target) {
+						const binding = await this.documents
+							.bind(tx, { tenantId: tenant, accountId: requireAuthenticatedAccount(context) })
+							.inspect(target.evidenceId)
+						if (binding.purpose !== 'AttendanceEvidence') throw new HcmDomainError('not-found')
+						let subject: unknown
+						try {
+							subject = JSON.parse(binding.subject)
+						} catch {
+							throw new HcmDomainError('not-found')
+						}
+						if (
+							!Array.isArray(subject) ||
+							subject.length !== 3 ||
+							subject[0] !== 'Override' ||
+							typeof subject[1] !== 'string'
+						)
+							throw new HcmDomainError('not-found')
+						dated = { employmentId: subject[1], workDate: dateValue(subject[2], 'workDate') }
+						if (!binding.sourceId && binding.uploaderId !== requireAuthenticatedAccount(context))
+							throw new HcmDomainError('not-found')
+						if (binding.sourceId) {
+							const source = await readOverride(tx, tenant, binding.sourceId)
+							if (
+								!source ||
+								source.employmentId !== dated.employmentId ||
+								source.workDate !== dated.workDate
+							)
+								throw new HcmDomainError('not-found')
+						}
 					} else dated = target
 					if (!dated) return (scopes = [{}])
 					const facts = await this.workforce

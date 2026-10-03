@@ -2,3 +2,5 @@ export * from './lib/hcm-documents-contract'
 export * from './lib/document-templates'
 export * from './lib/worker-documents'
 export * from './lib/document-requests'
+
+export * from './lib/evidence'

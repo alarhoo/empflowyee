@@ -1,3 +1,5 @@
+import { DocumentEvidenceBinder } from '@empflowyee/hcm-api-documents-application'
+import { KyselyDocumentEvidenceBinder } from '@empflowyee/hcm-api-documents-infrastructure'
 import {
 	DocumentRequests,
 	DocumentRequestUnit,
@@ -59,7 +61,7 @@ class UnconfiguredFiles extends DocumentFiles {
 
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule],
-	exports: [DocumentStoragePort],
+	exports: [DocumentStoragePort, DocumentEvidenceBinder],
 	controllers: [
 		DocumentRequestController,
 		DocumentTypesController,
@@ -68,6 +70,13 @@ class UnconfiguredFiles extends DocumentFiles {
 		SelfDocumentController,
 	],
 	providers: [
+		{
+			provide: DocumentEvidenceBinder,
+			inject: [DocumentFiles],
+			useFactory: /** Share verified private storage with purpose-bound business evidence. */ (
+				files: DocumentFiles,
+			) => new KyselyDocumentEvidenceBinder(files),
+		},
 		{
 			provide: DocumentRequestUnit,
 			inject: [HcmAccessDatabase, TemplateFileUnitOfWork],

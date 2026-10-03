@@ -9,3 +9,5 @@ export * from './lib/workdays.controller'
 export * from './lib/dated-publication.controller'
 export * from './lib/overrides.controller'
 export * from './lib/approval-decisions.controller'
+
+export * from './lib/evidence.controller'

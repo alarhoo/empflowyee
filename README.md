@@ -60,12 +60,12 @@ see [acceptance and reproduction](docs/hcm/testing/HCM-3-HOLIDAY-PUBLICATION-VAL
 Work Schedules, My Schedule and the requested Leave apps remain in progress.
 The [Work Schedules integration record](docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md)
 distinguishes implemented editors, assignment review, Leave Draft impact and
-override application and independent source decisions from remaining governed
-evidence, full Leave impact and browser acceptance. Its tile is not yet Available.
+override application, independent source decisions and governed evidence from
+remaining full Leave impact and browser acceptance. Its tile is not yet Available.
 The internal [Workflow integration record](docs/hcm/testing/HCM-3-WORKFLOW-INTEGRATION.md)
 tracks tested source submission, planning, Attendance decisions, dispatch and
 receipt reconciliation. Notification timers and Leave decisions remain pending.
-Local preparation includes migrations through 66; the worker supports
+Local preparation includes migrations through 67; the worker supports
 AttendanceResolve, WorkflowPlan, WorkflowDispatch and WorkflowReconcile using the
 explicit allowlist and existing field key documented in its runbook.
 The [Leave prerequisite record](docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md) covers

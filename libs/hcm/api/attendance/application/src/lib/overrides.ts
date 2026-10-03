@@ -1,3 +1,5 @@
+import type { DocumentEvidenceStore } from '@empflowyee/hcm-api-documents-application'
+import type { EvidenceClassification } from '@empflowyee/hcm-documents-contract'
 import { randomUUID } from 'node:crypto'
 import { HcmDomainError, idValue } from '@empflowyee/hcm-runtime-contract'
 import {
@@ -21,6 +23,10 @@ import { replaySafe } from './schedule-commands'
 import { leaveImpactProposal, type AttendanceLeaveImpactPort } from './leave-impact'
 
 export interface AttendanceOverrideWork {
+	evidence: DocumentEvidenceStore
+	/** Check explicit classification field authority separately from business read/manage permission. */
+	requireEvidence(classification: EvidenceClassification): Promise<void>
+
 	inputs: AttendanceConfigurationInputPort
 	periods: AttendancePeriodFencePort
 	receipts: AttendanceCommandReceiptStore
@@ -52,7 +58,8 @@ export interface AttendanceOverrideWork {
 	/** Require current read permission even when a command result is recovered by its original key. */
 	requireRead(response?: unknown): Promise<void>
 }
-export type AttendanceOverrideTarget = { id: string } | { employmentId: string; workDate: string }
+export type AttendanceOverrideTarget =
+	{ id: string } | { evidenceId: string } | { employmentId: string; workDate: string }
 export abstract class AttendanceOverrideUnit {
 	/** Bind one complete current grant and the exact dated subject before reading or changing private records. */
 	abstract execute<T>(

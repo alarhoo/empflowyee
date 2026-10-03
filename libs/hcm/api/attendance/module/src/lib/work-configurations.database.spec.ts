@@ -1,3 +1,11 @@
+import { uploadEvidence } from './evidence-http-test'
+import {
+	LocalDocumentFiles,
+	provisionDocumentRoot,
+} from '@empflowyee/hcm-api-documents-infrastructure'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { join, resolve, sep } from 'node:path'
+import { tmpdir } from 'node:os'
 import { verifyOverrideDecisions } from './override-decision-test'
 import { AssignedWorkdayResolver } from '@empflowyee/hcm-api-attendance-application'
 import { afterAll, beforeAll, expect, it } from 'vitest'
@@ -51,6 +59,7 @@ import {
 } from './attendance-test-harness'
 
 let api: HcmTestApi
+let documentHome = ''
 
 /** Consume one HTTP-produced source intake using the production owner adapters and Runtime lease boundary. */
 async function completeWorkflowPlan(operationId: string) {
@@ -327,12 +336,24 @@ function shift(code: string): ShiftDraft {
 }
 beforeAll(
 	/** Start real Nest HTTP on a disposable migrated and canonically seeded PostgreSQL database. */ async () => {
-		api = await startHcmTestApi(HcmAttendanceModule)
+		documentHome = await mkdtemp(join(tmpdir(), 'hcm-work-evidence-'))
+		await provisionDocumentRoot(join(documentHome, 'private'))
+		api = await startHcmTestApi(
+			HcmAttendanceModule,
+			undefined,
+			new LocalDocumentFiles(join(documentHome, 'private')),
+		)
 	},
 )
 afterAll(
 	/** Drain only this suite's application and database connections. */ async () => {
 		await api?.close()
+		if (
+			documentHome &&
+			resolve(documentHome).startsWith(resolve(tmpdir()) + sep) &&
+			documentHome.includes('hcm-work-evidence-')
+		)
+			await rm(documentHome, { recursive: true, force: true })
 	},
 )
 
@@ -1176,7 +1197,7 @@ it('creates and previews real override drafts without approving or materializing
 		workdayRevision: 1,
 		zone: 'America/New_York',
 		segments: [],
-		evidenceIds: [],
+		evidenceIds: [] as string[],
 		reason: 'Private override reason retained encrypted',
 	}
 	const key = randomUUID(),
@@ -1188,7 +1209,16 @@ it('creates and previews real override drafts without approving or materializing
 	expect(
 		(await api.send('david', 'POST', base, { ...input, evidenceIds: ['unvalidated-evidence'] }))
 			.status,
-	).toBe(409)
+	).toBe(404)
+
+	const evidence = await uploadEvidence(api, {
+		employmentId: input.employmentId,
+		workDate: input.workDate,
+		purpose: 'AttendanceEvidence',
+		classification: 'Restricted',
+	})
+	expect(evidence.status, JSON.stringify(evidence.body)).toBe(201)
+	input.evidenceIds = [evidence.body.id]
 	const created = await api.send<
 		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideView
 	>('david', 'POST', base, input, { 'idempotency-key': key })
@@ -1199,6 +1229,17 @@ it('creates and previews real override drafts without approving or materializing
 		workdayRevision: 1,
 		segments: [],
 	})
+
+	const privateEvidence = await api.send(
+		'david',
+		'GET',
+		'attendance/evidence/overrides/' + created.body.id,
+	)
+	expect(privateEvidence.status).toBe(200)
+	expect(privateEvidence.body).toEqual([
+		{ ...evidence.body, filename: 'evidence.pdf', sizeBytes: expect.any(Number) },
+	])
+	expect((await api.send('david', 'POST', base, input)).status).toBe(409)
 	expect(created.body).not.toHaveProperty('reason')
 	expect(created.body).not.toHaveProperty('evidenceIds')
 	expect((await api.send('david', 'POST', base, input, { 'idempotency-key': key })).body).toEqual(
@@ -1260,6 +1301,7 @@ it('creates and previews real override drafts without approving or materializing
 		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideView
 	>('david', 'POST', base, {
 		...input,
+		evidenceIds: [],
 		segments: [
 			{ kind: 'Work', startTime: '22:00:00.125', endTime: '02:00:00.375', endDayOffset: 1 },
 		],
