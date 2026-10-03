@@ -84,6 +84,12 @@ retains its existing Notifications composition.
 
 ## Reproduction
 
+The 2026-10-03 combined Templates/Holiday regression passed 62 tests across seven
+suites. Native-control setup and active finite transitions now settle before axe
+measurement; the existing exact native exceptions remain unchanged. See the
+[readiness investigation](HCM-3-HOLIDAY-PUBLICATION-VALIDATION.md#native-control-readiness-regression-2026-10-03)
+for the observed failures, correction and scope of this evidence.
+
 Prerequisites: repository pnpm dependencies, Docker and Playwright Chromium.
 
 ```sh
