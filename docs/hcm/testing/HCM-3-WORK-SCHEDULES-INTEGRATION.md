@@ -182,3 +182,26 @@ The worker registers WorkflowPlan for the implemented Attendance source. There i
 no source approval, workday publication or end-user browser acceptance claim here.
 The no-approval publication path, full impact, source decisions, dispatch, timers,
 evidence and UI are still incomplete.
+
+## Pending override review
+
+On 2026-10-03 Codex reviewed the private proposal adapter under the existing
+technical delegation. It replaces temporary SQL approval with an exact Draft
+candidate passed to the existing resolver. Stored source/date/revision checks,
+competing-source selection and current tenant/Access boundaries remain intact.
+Approval progress is excluded from the calculation digest so opening required
+slots does not itself invalidate unchanged workday evidence. This introduces no
+new authority, schema, public contract or business default.
+
+The focused real PostgreSQL/API suite passed 14 tests, including review before
+and after submission with equal calculation digests, an unchanged Pending case,
+and unchanged workday/resolution-intent counts. This verifies a decision-path
+prerequisite; it does not claim source decisions or application completion.
+
+The attempted Work Schedules browser draft could not enter its route: the
+production catalogue guard correctly denies Planned apps, including for David.
+The two draft browser journeys therefore failed and are not acceptance evidence.
+They remain local test drafts until the app's remaining dependencies are delivered;
+the catalogue and guard were not weakened. No additional app or milestone is
+complete. Persistent local migration state remains 55; migrations through 63 have
+only been exercised by the disposable database harness at this point.

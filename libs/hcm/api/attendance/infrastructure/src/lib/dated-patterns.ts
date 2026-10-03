@@ -6,6 +6,7 @@ import type {
 	AttendanceDatedPatternPort,
 	AttendanceDatedPatternResult,
 	AttendanceResolvedPattern,
+	AttendanceOverrideProposal,
 } from '@empflowyee/hcm-api-attendance-application'
 import type { WorkforceTimeContextPort } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { commandHash } from '@empflowyee/hcm-api-runtime-application'
@@ -18,28 +19,52 @@ export class KyselyAttendanceDatedPatterns implements AttendanceDatedPatternPort
 		private readonly transaction: Kysely<unknown>,
 		private readonly tenant: string,
 		private readonly workforce: WorkforceTimeContextPort,
+		private readonly proposal?: AttendanceOverrideProposal,
 	) {}
 	/** Resolve only Approved overrides or Published roster entries before falling back to ordinary scope selection. */
 	async read(employmentId: string, workDate: string): Promise<AttendanceDatedPatternResult> {
+		const proposed =
+			this.proposal?.employmentId === employmentId && this.proposal.workDate === workDate
+				? this.proposal
+				: undefined
+		if (proposed) {
+			const draft =
+				await sql`SELECT id FROM hcm.schedule_override WHERE tenant_id=${this.tenant} AND id=${proposed.id} AND employment_id=${employmentId} AND work_date=${workDate}::date AND revision=${proposed.revision} AND state='Draft'`.execute(
+					this.transaction,
+				)
+			if (!draft.rows.length)
+				return { state: 'Unavailable', family: 'Schedule', reason: 'ConfigurationUnavailable' }
+		}
 		const rows = await sql<{ source: DatedWorkSource }>`
 SELECT jsonb_build_object('kind','Override','id',id,'employmentId',employment_id,'workDate',work_date::text,'state',state,'revision',revision) AS source FROM hcm.schedule_override WHERE tenant_id=${this.tenant} AND employment_id=${employmentId} AND work_date=${workDate}::date AND state='Approved'
 UNION ALL
 SELECT jsonb_build_object('kind','Roster','id',e.id,'employmentId',e.employment_id,'workDate',e.work_date::text,'state','Published','rosterState',r.state,'revision',r.revision) FROM hcm.shift_roster_entry e JOIN hcm.shift_roster r ON r.tenant_id=e.tenant_id AND r.id=e.roster_id WHERE e.tenant_id=${this.tenant} AND e.employment_id=${employmentId} AND e.work_date=${workDate}::date AND r.state='Published'`.execute(
 	this.transaction,
 )
-		const sources = rows.rows
-			.map(/** Preserve every matching source for explicit tie rejection. */ (row) => row.source)
-			.sort(
-				/** Keep source evidence stable independently of SQL row order or process locale. */ (
-					left,
-					right,
-				) => {
-					const a = left.kind + left.id,
-						b = right.kind + right.id
-					if (a === b) return 0
-					return a < b ? -1 : 1
-				},
-			)
+		const sources = rows.rows.map(
+			/** Preserve every matching source for explicit tie rejection. */ (row) => row.source,
+		)
+		// This candidate exists only in resolver input. Existing approvals remain present so ties still fail.
+		if (proposed)
+			sources.push({
+				kind: 'Override',
+				id: proposed.id,
+				employmentId,
+				workDate,
+				state: 'Approved',
+				revision: proposed.revision + 1,
+			})
+		sources.sort(
+			/** Keep source evidence stable independently of SQL row order or process locale. */ (
+				left,
+				right,
+			) => {
+				const a = left.kind + left.id,
+					b = right.kind + right.id
+				if (a === b) return 0
+				return a < b ? -1 : 1
+			},
+		)
 		const selected = selectDatedWorkSource(employmentId, workDate, sources)
 		if (selected.state === 'AssignedSchedule') return { state: 'Absent' }
 		if (selected.state === 'Unavailable')
