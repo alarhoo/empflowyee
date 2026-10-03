@@ -1,7 +1,7 @@
 # Apply Leave — requirement traceability
 
-Status: partial calculation prerequisite, 2026-10-03. Full/Hourly quantity and
-owner-port orchestration tests have run; the API and native app remain Planned.
+Status: partial calculated Draft API, 2026-10-03. Full/Hourly quantity,
+owner-port orchestration and real Draft API tests have run; the app remains Planned.
 Each scenario below remains an implementation acceptance obligation.
 
 REQ-APPLY-LEAVE-001 now maps to the internal
@@ -12,6 +12,15 @@ is exercised in `resolve-worker.database.spec.ts`. See the
 [executed evidence and limits](../../testing/HCM-3-LEAVE-FOUNDATION.md#current-workday-calculation).
 This covers only the current workday quantity prerequisite; it does not satisfy
 the full preview, submit or UI acceptance requirement.
+
+REQ-APPLY-LEAVE-001/005/007 partially map to the
+[request commands](../../../../libs/hcm/api/leave/application/src/lib/request-drafts.ts),
+[migration 65](../../../../libs/hcm/api/database/migrations/sql/000065_leave_request_drafts.sql)
+and [real API suite](../../../../libs/hcm/api/leave/module/src/lib/requests.database.spec.ts).
+These cover exact local/UTC admission, encrypted immutable Drafts, complete self
+scope, concurrent recovery, current source/revocation checks and Unpaid without
+an account. See [executed evidence](../../testing/HCM-3-LEAVE-FOUNDATION.md#calculated-request-drafts).
+They do not satisfy submission, approvals or browser acceptance.
 
 | Requirement                                       | Design                          | Planned test                                  |
 | ------------------------------------------------- | ------------------------------- | --------------------------------------------- |

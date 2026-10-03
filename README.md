@@ -67,7 +67,9 @@ and dispatch. Local preparation now applies migrations through 64; the worker ca
 run AttendanceResolve and WorkflowPlan using the explicit allowlist in its runbook.
 The [Leave prerequisite record](docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md) covers
 exact quantities, typed policy persistence, authenticated policy draft and dated
-enrollment APIs, and internal ledger/accrual work tested in disposable PostgreSQL.
+enrollment APIs, calculated self request Draft create/read, and internal
+ledger/accrual work tested in disposable PostgreSQL. Drafts retain encrypted
+reasons and exact workday evidence; they do not submit or reserve Leave.
 Enrollment creates no entitlement funding. Leave publication, remaining business
 commands and browser journeys remain pending. Versioned Leave access seed 1 gives
 David policy draft/enrollment operations and Toby enrollment operations; existing

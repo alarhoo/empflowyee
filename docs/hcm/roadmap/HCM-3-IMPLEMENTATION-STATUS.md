@@ -80,7 +80,10 @@ Internal grant ledger, accrual quantity and current Workforce/Attendance source
 ports are tested prerequisites, not complete entitlement or request journeys.
 Full/resolved Hourly quantities now consume current published workday intervals,
 with exact per-row totals, period/version bounds and source fingerprints; half-day
-rounding and full request admission remain pending. These internal calculations
+rounding and full request admission remain pending. Calculated self Draft create/read
+APIs now persist encrypted evidence and immutable day/interval rows with current
+scope and source checks. Unpaid records units without an account. Migration 65 and
+Leave access seed 2 are verified only in disposable PostgreSQL so far. These APIs
 do not expose a Leave preview or submit UI.
 See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
 This does not complete a Leave app or milestone; publication, entitlement funding,

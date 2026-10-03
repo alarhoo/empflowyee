@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "1ee00cd8b19592c81734532cda18c6a132e74257da538984b82e4d8281040233",
+			"sha256": "76654fdca572b56539909f424d44cf76ab97f51cc1193204c2662150f9d0a707",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md#current-workday-calculation; reviewed exact Full/resolved Hourly arithmetic, private current owner port, bounded period/version admission and partial traceability under existing delegation; no human reapproval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md#calculated-request-drafts; reviewed explicit local endpoint fields, current self/datetime scope, owner-port source admission, encrypted immutable SQL evidence, complete transactions and partial API traceability under existing delegation; no human reapproval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "76aac92e8b23104b8397632dfec5280a163f02724236b5e1a06a7baec1c1568a",
+			"sha256": "fe566055ff4dc231f30290acf35ed38d390fa559bdcc2013f5bba3f1b325568e",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md#current-workday-calculation; reviewed exact Full/resolved Hourly arithmetic, private current owner port, bounded period/version admission and partial traceability under existing delegation; no human reapproval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md#calculated-request-drafts; reviewed explicit local endpoint fields, current self/datetime scope, owner-port source admission, encrypted immutable SQL evidence, complete transactions and partial API traceability under existing delegation; no human reapproval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

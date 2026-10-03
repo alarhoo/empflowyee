@@ -184,6 +184,48 @@ Acceptance target: Keyboard and responsive flows, field validation, empty/error/
 Requirement [REQ-APPLY-LEAVE-007](FDD.md#req-apply-leave-007). Enforce the DATA and CONSISTENCY transaction boundaries; inject failure before/after commit and replay the same key. Read-only surfaces expose no write route.
 Acceptance target: Commands retain durable result/audit/receipt and required outbox atomically; concurrency, replay and rollback tests pass. Read-only apps expose no mutations. COMMON-PRIVACY applies to every projection.
 
+## REQUEST-DRAFT-FIELDS
+
+The unreleased `LeaveRequestDraft` uses explicit employment/enrollment IDs, 1–366
+distinct local-date rows within 366 dates, preserved nonblank reason through 2,000
+characters, and unique governed evidence IDs. Full/FirstHalf/SecondHalf rows accept
+only workDate and portion. Hourly rows additionally require startTime/endTime
+(HH:mm with optional seconds and 1–3 fractional digits) and explicit
+startDayOffset/endDayOffset (0 or 1 relative to the owning work date). This permits
+an after-midnight hourly window without changing its start-date ownership.
+The optional `offset` object has start/end numeric UTC offset strings in
+±HH:mm[:ss] form. Each repeated local endpoint requires its own matching offset;
+gaps and mismatched offsets reject. Unambiguous endpoints derive their real zone
+offset from the current published workday. No machine timezone or automatic
+earlier/later choice supplies missing evidence. These are concrete transport
+fields for the already approved wall-time/offset behavior, not new Leave rules.
+
+## REQUEST-DRAFT-STORAGE
+
+The create/read endpoints at `/api/v1/leave/me/requests` consume those fields
+through current operation grants, a complete dated employment scope and verified
+Workforce self ownership. Broad administrator/HR grants do not waive self ownership.
+The command locks the explicit period, policy and enrollment, rechecks private
+eligibility for each selected date and consumes current published Attendance
+workdays through the owner port. It does not accept caller quantities or sources.
+
+Migration 65 retains a Draft root, dated source rows and consumed UTC intervals.
+Tenant-composite references bind enrollment/policy/period and published workday
+revision/digest/zone. Forced RLS, immutable evidence, same-transaction child
+insertion and deferred row/interval/total reconciliation prevent partial evidence.
+Hourly local endpoints and supplied numeric offsets must match their actual UTC
+occurrences. Reasons and calculation/eligibility bases use row-bound encryption;
+safe GET and receipts omit private narrative/evidence/eligibility facts. Draft,
+audit and actor-bound idempotency receipt commit together. Replay rechecks read
+authority. Draft creation creates no reservation, ledger entry or Workflow intake.
+
+Canonical `access.leave@2` supplies only implemented self read/draft operations.
+Governed document admission is still pending, so nonempty evidence IDs reject.
+Half-day requests remain unavailable pending the recorded rounding decision.
+Submission-only notice, overlap, bridge, funding and approval checks are not
+represented as completed by Draft persistence. Edits and state transitions require
+subsequent guarded commands; no generic mutable status endpoint is exposed.
+
 ## DELIVERY
 
 ### Current workday calculation prerequisite
@@ -206,11 +248,11 @@ each row once. Exact totals sum those rows. Read evidence binds policy, enrollme
 period and actual workday revisions/digests, even when replacement sources yield
 the same units. No caller-submitted source projection enters a public endpoint.
 
-Hourly local-time/offset admission, half-day apportionment, legitimate-unscheduled
-fallback, bridge rules, notice/evidence/overlap validation, request persistence and
-submission remain required. Half-day rounding awaits the already raised product
-decision. This private prerequisite exposes no preview endpoint, grants no
-entitlement and does not constitute app acceptance.
+Hourly local-time/offset admission and calculated Draft persistence now use the
+commands above. Half-day apportionment, legitimate-unscheduled fallback, bridge
+rules, notice/evidence/overlap validation and submission remain required. Half-day
+rounding awaits the already raised product decision. There is no public preview
+endpoint or native Apply Leave UI yet; this does not constitute app acceptance.
 
 Branch `codex/hcm-3-apply-leave`. Prerequisite foundations must be merged before app
 delivery; follow the [ordered foundation plan](../../roadmap/HCM-3-FOUNDATION-DESIGN.md#order).

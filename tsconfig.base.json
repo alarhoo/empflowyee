@@ -341,6 +341,9 @@
 				"./libs/hcm/api/attendance/transport/src/index.ts"
 			],
 			"@empflowyee/hcm-api-attendance-module": ["./libs/hcm/api/attendance/module/src/index.ts"],
+			"@empflowyee/hcm-api-attendance-module/testing": [
+				"./libs/hcm/api/attendance/module/src/testing.ts"
+			],
 			"@empflowyee/hcm-web-attendance-data-access": [
 				"./libs/hcm/web/attendance/data-access/src/index.ts"
 			],
