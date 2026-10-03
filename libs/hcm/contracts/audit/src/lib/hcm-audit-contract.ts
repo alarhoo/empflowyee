@@ -10,6 +10,7 @@ export const HCM3_AUDIT_ACTIONS = [
 	'attendance.override-submitted',
 	'workflow.action-requested',
 	'leave.policy-created',
+	'leave.enrollment-created',
 	'leave.policy-updated',
 	'leave.policy-versioned',
 ] as const

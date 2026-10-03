@@ -28,6 +28,7 @@ import type { LeavePolicyRepository } from './hcm-api-leave-application'
 
 export interface LeavePolicyEvidence {
 	versionId: string
+	enrollmentId?: string
 	revision: number
 	reason: string | null
 }
