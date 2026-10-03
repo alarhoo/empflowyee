@@ -13,6 +13,8 @@ export default mergeConfig(
 				'libs/hcm/web/attendance/**/holiday-form.spec.ts',
 				'libs/hcm/api/audit/application/**/*.spec.ts',
 				'libs/hcm/contracts/attendance/**/*.spec.ts',
+				'libs/hcm/contracts/workflow/**/*.spec.ts',
+				'libs/hcm/api/workflow/application/**/*.spec.ts',
 				'libs/hcm/api/attendance/domain/**/*.spec.ts',
 				'libs/hcm/api/attendance/application/**/*.spec.ts',
 			],

@@ -461,3 +461,29 @@ Configured Override approval independence is mandatory under the already approve
 owning TDD OverrideDraft contract; the parser and a forward SQL constraint enforce
 it without rewriting any existing policy. These storage guards do not themselves
 implement submit, source decision transport or Workflow coordination.
+
+## OVERRIDE-SUBMISSION-INTEGRATION
+
+The declared Override submit route now consumes the authenticated actor's exact
+preview receipt, original UUID, source revision, digest and expiry, then recomputes
+the same current dated resolution. Period fences precede dated workday locks in
+both review and consumption. An unchanged review with configured required Override
+rules atomically creates its source case and every required slot, encrypted reason,
+safe audit/result receipt and real Workflow intake. It returns PendingApproval and
+does not approve the override or alter a published workday. GET Override adds a
+safe latest-case progress projection for reload recovery.
+
+Configured independence excludes maker/requester/beneficiary. Current policy has
+no additional pairwise distinct-actor setting; generated slots do not invent one.
+The stored predicate and evaluator still enforce it whenever a source slot carries
+it. Current Workforce routing and Access candidate ports are composed through
+Attendance's source adapter. WorkflowPlan rereads this adapter and creates the
+required staged coordination work under Runtime's lease fence. Missing candidates
+remain explicit exceptions. See the [internal integration record](../../testing/HCM-3-WORKFLOW-INTEGRATION.md).
+
+This is pending-approval admission, not complete override delivery. The
+no-approval publication path still returns unavailable pending full impact and
+publication delivery. Source decisions, dispatch/timer/reconciliation, evidence,
+Leave/subsequent-workday impact and native override UI/browser acceptance remain
+required. Migration 55 corrects Workflow identity storage to the already approved
+opaque text mapping without editing migration 54 or discarding rows.

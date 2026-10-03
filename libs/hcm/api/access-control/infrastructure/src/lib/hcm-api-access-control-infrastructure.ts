@@ -14,6 +14,8 @@ import {
 	requireAuthenticatedTenant,
 	requireAuthenticatedAccount,
 	type AuthenticatedHcmContext,
+	requireHcmActionAuthority,
+	type HcmActionAuthority,
 } from '@empflowyee/hcm-api-runtime-application'
 import { TransactionalAudit, type AuditTables } from '@empflowyee/hcm-api-audit-infrastructure'
 import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
@@ -65,11 +67,14 @@ export interface AuthorizedAccessWork {
 	audit: AppendAudit
 	invariant: AccountAccessInvariant
 }
-export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInvariant {
+class CurrentActorAccessPolicy implements AccessPolicy, AccountAccessInvariant {
 	/** Bind verified authority to tenant-scoped SQL; no browser claims are accepted as grants. */
 	constructor(
 		private readonly transaction: Transaction<AccessTables>,
-		private readonly context: AuthenticatedHcmContext,
+		private readonly authority: (requirement: HcmAccessRequirement) => {
+			tenantId: string
+			accountId: string
+		},
 	) {}
 	/** Reload account, tenant, grants and entitlement; stale public session claims cannot authorize work. */
 	async require(
@@ -77,8 +82,12 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 		resolveSubjects?: () => Promise<readonly Readonly<HcmScopeSubject>[]>,
 	): Promise<HcmBusinessActor> {
 		if (requirement.subject && requirement.subjects) throw new HcmAccessError('forbidden')
-		const tenantId = requireAuthenticatedTenant(this.context)
-		const accountId = requireAuthenticatedAccount(this.context)
+		const { tenantId, accountId } = this.authority(requirement)
+		const bound = await sql<{
+			tenant: string | null
+		}>`SELECT hcm.current_tenant_id() AS tenant`.execute(this.transaction)
+		if (!this.transaction.isTransaction || bound.rows[0]?.tenant !== tenantId)
+			throw new HcmAccessError('forbidden')
 		const tenant = await this.transaction
 			.selectFrom('hcm.tenant')
 			.select('status')
@@ -169,13 +178,15 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 						subject,
 					) => grantCoversSubject(grantScopes, tenantId, subject),
 				)
-			)
+			) {
+				this.authority(requirement)
 				return Object.freeze({
 					tenantId,
 					accountId,
 					personId: account.person_id,
 					grantId: permission.grant_id,
 				})
+			}
 		}
 		throw new HcmAccessError('forbidden')
 	}
@@ -204,6 +215,42 @@ export class TransactionalAccessPolicy implements AccessPolicy, AccountAccessInv
 		if (!remaining) throw new HcmAccessError('protected-access')
 	}
 }
+/** Preserve online authorization using only the Runtime-verified private human context. */
+export class TransactionalAccessPolicy extends CurrentActorAccessPolicy {
+	/** Reuse identical current-grant evaluation for every online source operation. */
+	constructor(transaction: Transaction<AccessTables>, context: AuthenticatedHcmContext) {
+		super(
+			transaction,
+			/** Recheck private session validity whenever the policy is evaluated. */ () => ({
+				tenantId: requireAuthenticatedTenant(context),
+				accountId: requireAuthenticatedAccount(context),
+			}),
+		)
+	}
+}
+
+/** Reauthorize a durable human action without constructing an online session or using workload grants. */
+export class TransactionalActionAccessPolicy extends CurrentActorAccessPolicy {
+	/** The source supplies its freshly derived scope binding; the stored reference cannot broaden it. */
+	constructor(
+		transaction: Transaction<AccessTables>,
+		authority: HcmActionAuthority,
+		scopeReference: string,
+	) {
+		super(
+			transaction,
+			/** Require the exact bound operation and source scope before reading current grants. */ (
+				requirement,
+			) => {
+				const actor = requireHcmActionAuthority(authority)
+				if (actor.permission !== requirement.permission || actor.scopeReference !== scopeReference)
+					throw new HcmAccessError('forbidden')
+				return actor
+			},
+		)
+	}
+}
+
 export class HcmAccessDatabase {
 	private readonly database: HcmTenantDatabase<AccessTables>
 	/** Reuse the verified database boundary with a small bounded runtime pool. */

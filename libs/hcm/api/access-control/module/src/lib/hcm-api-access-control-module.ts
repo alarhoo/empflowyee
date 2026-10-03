@@ -12,6 +12,7 @@ import {
 	RoleManagement,
 	RoleUnitOfWork,
 	RoleContext,
+	ApprovalCandidateBinder,
 } from '@empflowyee/hcm-api-access-control-application'
 import {
 	KyselyReviewUnitOfWork,
@@ -20,6 +21,7 @@ import {
 	HcmAccessDatabase,
 	KyselyRoleUnitOfWork,
 	KyselyRoleContext,
+	KyselyApprovalCandidateBinder,
 } from '@empflowyee/hcm-api-access-control-infrastructure'
 import {
 	AccessReviewController,
@@ -80,8 +82,14 @@ function writeOrigin(): string | null {
 		CatalogueInspectionController,
 		AccessReviewController,
 	],
-	exports: [HcmAccessDatabase, HCM_ROLE_WRITE_ORIGIN],
+	exports: [HcmAccessDatabase, HCM_ROLE_WRITE_ORIGIN, ApprovalCandidateBinder],
 	providers: [
+		{
+			provide: ApprovalCandidateBinder,
+			useFactory:
+			/** Share current grant discovery without issuing background human sessions. */ () =>
+				new KyselyApprovalCandidateBinder(),
+		},
 		{
 			provide: ReviewUnitOfWork,
 			inject: [HcmAccessDatabase],

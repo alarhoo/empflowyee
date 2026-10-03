@@ -4,6 +4,7 @@ import { Pool } from 'pg'
 import {
 	KyselyWorkforceTimeContextBinder,
 	KyselyWorkforceTimeSubjectsBinder,
+	KyselyWorkforceApprovalRoutingBinder,
 } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import type {
 	WorkforceTimeContextPort,
@@ -66,6 +67,40 @@ afterAll(
 		await api?.close()
 	},
 )
+
+it('resolves exact employment manager levels without identity profiles or hierarchy fallback', /** Routing is owner-owned dated evidence and cannot substitute another employment or manager level. */ async () => {
+	await readWithin(
+		/** Compare seeded routing and fail-closed tenant and missing-level cases. */ async (
+			_port,
+			tx,
+		) => {
+			const binder = new KyselyWorkforceApprovalRoutingBinder(),
+				routing = binder.bind(tx, HCM_TEST_TENANT)
+			const first = await routing.read(employmentId, workDate, 1)
+			expect(first).toMatchObject({
+				beneficiaryPersonId: 'dunder-mifflin/person/jim',
+				managerPersonId: 'dunder-mifflin/person/michael',
+			})
+			expect(await routing.read(employmentId, workDate, 1)).toEqual(first)
+			expect(await routing.read(employmentId, workDate, 2147483647)).toMatchObject({
+				managerPersonId: null,
+			})
+			expect(await routing.read(employmentId, workDate, null)).toMatchObject({
+				beneficiaryPersonId: 'dunder-mifflin/person/jim',
+				managerPersonId: null,
+			})
+			expect(JSON.stringify(first)).not.toMatch(/displayName|birthDate|email|reason/)
+			expect(await binder.bind(tx, 'foreign').read(employmentId, workDate, 1)).toBeNull()
+			expect(await routing.read('missing-employment', workDate, 1)).toBeNull()
+			await expect(routing.read(employmentId, workDate, 0)).rejects.toThrow()
+			const time = available(await _port.read(employmentId, workDate))
+			await sql`UPDATE hcm.assignment SET revision=revision+1 WHERE tenant_id=${HCM_TEST_TENANT} AND id=${time.assignments[0].id}`.execute(
+				tx,
+			)
+			expect((await routing.read(employmentId, workDate, 1))?.digest).not.toBe(first?.digest)
+		},
+	)
+})
 
 it('returns a minimal deterministic employment-specific basis and detects reference drift', /** A location edit invalidates the input digest even when the employment revision is unchanged. */ async () => {
 	await readWithin(

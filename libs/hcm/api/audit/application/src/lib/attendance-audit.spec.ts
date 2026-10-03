@@ -23,6 +23,14 @@ it('admits only the explicit Attendance configuration actions and safe envelope'
 		/** The configured action is safe for shared audit queries. */ () =>
 			validateAccessAudit(event()),
 	).not.toThrow()
+	expect(
+		/** Submission records pending coordination without private narrative or invented approval. */ () =>
+			validateAccessAudit({
+				...event(),
+				action: 'attendance.override-submitted',
+				targetType: 'attendance-schedule-override',
+			}),
+	).not.toThrow()
 	for (const action of [
 		'attendance.payroll-paid',
 		'attendance.script-executed',

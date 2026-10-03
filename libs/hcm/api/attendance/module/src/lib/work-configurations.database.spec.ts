@@ -15,8 +15,17 @@ import {
 	KyselyDatedConfigurationPreviewHandler,
 	KyselyAttendanceResolveHandler,
 	KyselyAttendanceConfigurationInputBinder,
+	KyselyAttendanceWorkflowSourceBinder,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
-import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import {
+	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceApprovalRoutingBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import { KyselyApprovalCandidateBinder } from '@empflowyee/hcm-api-access-control-infrastructure'
+import {
+	KyselyWorkflowIntakeBinder,
+	KyselyWorkflowPlanHandler,
+} from '@empflowyee/hcm-api-workflow-infrastructure'
 import type {
 	DatedConfigurationPreviewView,
 	WorkAssignmentResult,
@@ -41,6 +50,149 @@ import {
 } from './attendance-test-harness'
 
 let api: HcmTestApi
+
+/** Consume one HTTP-produced source intake using the production owner adapters and Runtime lease boundary. */
+async function completeWorkflowPlan(operationId: string) {
+	const connectionString = process.env['HCM_TEST_RUNTIME']
+	if (!connectionString) throw new Error('Disposable database required')
+	const database = new HcmTenantDatabase<WorkloadAuditTables>({
+			connectionString,
+			maxConnections: 2,
+		}),
+		directory = new HcmRuntimeStore(connectionString)
+	try {
+		const context = await new HcmWorkloadIssuer(directory, ['WorkflowPlan']).issue(
+			tenant,
+			'WorkflowPlan',
+			randomUUID(),
+			600000,
+		)
+		const sources = new KyselyAttendanceWorkflowSourceBinder(
+			new KyselyWorkforceTimeContextBinder(),
+			new KyselyWorkforceApprovalRoutingBinder(),
+			new KyselyApprovalCandidateBinder(),
+		)
+		const lane = new HcmTransactionalWorkerLane(
+			'WorkflowPlan',
+			new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+			[new KyselyWorkflowPlanHandler(sources)],
+		)
+		const claimed = await lane.claim(context)
+		if (!claimed) throw new Error('Expected HTTP-produced Workflow intake')
+		expect(claimed.id).toBe(operationId)
+		await lane.complete(context, claimed)
+	} finally {
+		await database.destroy()
+		await directory.onApplicationShutdown()
+	}
+}
+
+/** Test the real owner adapters and leased planner against a SQL-created pending source case; this is not production submission acceptance. */
+async function verifyOverrideCoordination() {
+	const connectionString = process.env['HCM_TEST_RUNTIME']
+	if (!connectionString) throw new Error('Disposable database required')
+	const database = new HcmTenantDatabase<WorkloadAuditTables>({
+			connectionString,
+			maxConnections: 2,
+		}),
+		directory = new HcmRuntimeStore(connectionString)
+	const sources = new KyselyAttendanceWorkflowSourceBinder(
+		new KyselyWorkforceTimeContextBinder(),
+		new KyselyWorkforceApprovalRoutingBinder(),
+		new KyselyApprovalCandidateBinder(),
+	)
+	try {
+		const context = await new HcmWorkloadIssuer(directory, ['WorkflowPlan']).issue(
+			tenant,
+			'WorkflowPlan',
+			randomUUID(),
+			600000,
+		)
+		const before = await database.workloadTransaction(
+			context,
+			'WorkflowPlan',
+			/** Read source-owned candidates before any decision grant exists. */ async (tx) =>
+				sources.bind(tx, tenant, 'Attendance').candidates('override-case', 'override-slot-1'),
+		)
+		expect(before.accountIds).toEqual([])
+		await api.admin.query(
+			"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.attendance.approve-attendance.decide','Approval test operation','business-operation')",
+			[tenant],
+		)
+		await api.admin.query(
+			"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'manager','hcm.attendance.approve-attendance.decide')",
+			[tenant],
+		)
+		const queued = await database.workloadTransaction(
+			context,
+			'WorkflowPlan',
+			/** Intake uses the exact authoritative source graph and current candidate grants. */ async (
+				tx,
+			) => {
+				const source = sources.bind(tx, tenant, 'Attendance'),
+					manifest = await source.manifest('override-case')
+				if (!manifest) throw new Error('Expected pending override manifest')
+				expect(
+					manifest.slots.map(
+						/** Each stage has its own contiguous slot ordering. */ (slot) => [
+							slot.stage,
+							slot.ordinal,
+						],
+					),
+				).toEqual([
+					[1, 1],
+					[2, 1],
+				])
+				expect(JSON.stringify(manifest)).not.toMatch(/reason|evidence|makerAccountId|personId/)
+				expect((await source.candidates('override-case', 'override-slot-1')).accountIds).toEqual([
+					'dunder-mifflin/account/michael',
+				])
+				expect(await sources.bind(tx, 'foreign', 'Attendance').manifest('override-case')).toBeNull()
+				return new KyselyWorkflowIntakeBinder().bind(tx, tenant).enqueue(manifest)
+			},
+		)
+		await api.admin.query(
+			"UPDATE hcm.user_account SET enabled=false WHERE tenant_id=$1 AND id='dunder-mifflin/account/michael'",
+			[tenant],
+		)
+		expect(
+			(
+				await database.workloadTransaction(
+					context,
+					'WorkflowPlan',
+					/** Revoked accounts disappear from current routing before any action. */ async (tx) =>
+						sources.bind(tx, tenant, 'Attendance').candidates('override-case', 'override-slot-1'),
+				)
+			).accountIds,
+		).toEqual([])
+		await api.admin.query(
+			"UPDATE hcm.user_account SET enabled=true WHERE tenant_id=$1 AND id='dunder-mifflin/account/michael'",
+			[tenant],
+		)
+		const lane = new HcmTransactionalWorkerLane(
+			'WorkflowPlan',
+			new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+			[new KyselyWorkflowPlanHandler(sources)],
+		)
+		const work = await lane.claim(context)
+		expect(work?.id).toBe(queued.operationId)
+		if (!work) throw new Error('Expected source intake claim')
+		await lane.complete(context, work)
+		const tasks = (
+			await api.admin.query(
+				'SELECT t.state,t.stage,c.account_id AS candidate FROM hcm.workflow_task t JOIN hcm.workflow_planning_receipt r ON r.tenant_id=t.tenant_id AND r.instance_id=t.instance_id LEFT JOIN hcm.workflow_task_candidate c ON c.tenant_id=t.tenant_id AND c.task_id=t.id WHERE r.outbox_id=$1 ORDER BY t.stage',
+				[queued.operationId],
+			)
+		).rows
+		expect(tasks).toEqual([
+			{ state: 'Ready', stage: 1, candidate: 'dunder-mifflin/account/michael' },
+			{ state: 'Blocked', stage: 2, candidate: null },
+		])
+	} finally {
+		await database.destroy()
+		await directory.onApplicationShutdown()
+	}
+}
 
 /** Obtain real source-owned review evidence and prove previews do not leave candidate assignments or work intents. */
 async function reviewAssignment(
@@ -1215,6 +1367,7 @@ it('persists complete independent source slots and rejects skipped or unaccompan
 	const insertDecision =
 		"INSERT INTO hcm.attendance_decision(tenant_id,id,case_id,slot_id,actor_account_id,action,case_revision,slot_revision,subject_revision,generation,command_key,input_digest,encrypted_reason,reason_key_version) VALUES($1,$2,'override-case',$3,$4,'Approve',$5,1,1,1,$6,repeat('c',64),$7,1)"
 	const reason = Buffer.alloc(48, 2)
+	await verifyOverrideCoordination()
 	await expect(
 		api.admin.query(insertDecision, [
 			tenant,
@@ -1490,6 +1643,181 @@ it('resolves published roster then approved override with typed immutable workda
 			[tenant],
 		),
 	).rejects.toMatchObject({ code: '23514' })
+})
+
+it('submits a reviewed override through HTTP with atomic source obligations and real Workflow intake', /** Duplicate submit retains one case and one job without approving or rewriting workdays. */ async () => {
+	const employmentId = 'dunder-mifflin/employment/jim',
+		date = '2027-02-17'
+	const published = (
+		await api.send<HcmPage<AttendancePolicyVersionView>>(
+			'david',
+			'GET',
+			'attendance/policies?code=OVERRIDE_CASE_POLICY',
+		)
+	).body.items[0]
+	const current = (
+		await api.send<WorkAssignmentResult>(
+			'david',
+			'GET',
+			'attendance/policy-assignments?kind=Employment&id=' +
+				encodeURIComponent(employmentId) +
+				'&asOf=' +
+				date,
+		)
+	).body
+	const assignment = await reviewAssignment('attendance/policy-assignments', {
+		versionId: published.versionId,
+		expectedRevision: published.revision,
+		employmentId,
+		effectiveFrom: date,
+		effectiveTo: '2027-02-28',
+		resolutionFrom: date,
+		resolutionTo: date,
+		reason: 'Use configured independent override approval',
+		supersedes: { id: current.id, expectedRevision: current.revision },
+	})
+	expect(
+		(await api.send('david', 'POST', 'attendance/policy-assignments', assignment)).status,
+	).toBe(201)
+	await resolveAssignedDays()
+	const basis = (
+		await api.admin.query(
+			'SELECT revision FROM hcm.published_workday WHERE tenant_id=$1 AND employment_id=$2 AND work_date=$3 ORDER BY revision DESC LIMIT 1',
+			[tenant, employmentId, date],
+		)
+	).rows[0]
+	expect(basis).toBeTruthy()
+	const draft = await api.send<
+		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideView
+	>('david', 'POST', 'attendance/overrides', {
+		employmentId,
+		workDate: date,
+		workdayRevision: basis.revision,
+		zone: 'America/New_York',
+		segments: [],
+		reason: 'Reviewed exceptional rest date',
+		evidenceIds: [],
+	})
+	expect(draft.status).toBe(201)
+	const path = 'attendance/overrides/' + draft.body.id
+	const review = await api.send<
+		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideReview
+	>('david', 'POST', path + '/preview', {
+		expectedRevision: 1,
+		reason: 'Review exact pending rest date',
+	})
+	expect(review.status).toBe(200)
+	expect(review.body.approvalRequired).toBe(true)
+	const command = {
+		expectedRevision: 1,
+		previewId: review.body.previewId,
+		digest: review.body.digest,
+		reason: 'Submit to independent required approvers',
+	}
+	const counts =
+		'SELECT (SELECT count(*) FROM hcm.published_workday WHERE tenant_id=$1)::int AS workdays,(SELECT count(*) FROM hcm.attendance_outbox WHERE tenant_id=$1)::int AS resolutions'
+	const before = (await api.admin.query(counts, [tenant])).rows
+	expect((await api.send('jim', 'POST', path + '/submit', command)).status).toBe(403)
+	expect(
+		(await api.send('david', 'POST', path + '/submit', { ...command, digest: 'f'.repeat(64) }))
+			.status,
+	).toBe(409)
+	expect(
+		(await api.send('david', 'POST', path + '/submit', { ...command, expectedRevision: 99 }))
+			.status,
+	).toBe(409)
+	const key = randomUUID()
+	const replies = await Promise.all([
+		api.send<import('@empflowyee/hcm-attendance-contract').AttendanceOverrideSubmission>(
+			'david',
+			'POST',
+			path + '/submit',
+			command,
+			{ 'idempotency-key': key },
+		),
+		api.send<import('@empflowyee/hcm-attendance-contract').AttendanceOverrideSubmission>(
+			'david',
+			'POST',
+			path + '/submit',
+			command,
+			{ 'idempotency-key': key },
+		),
+	])
+	expect(
+		replies.map(
+			/** Both concurrent retries recover the same durable result. */ (reply) => reply.status,
+		),
+	).toEqual([200, 200])
+	expect(replies[1].body).toEqual(replies[0].body)
+	const submitted = replies[0].body
+	expect(submitted.state).toBe('PendingApproval')
+	expect(
+		(
+			await api.admin.query(
+				'SELECT state,revision FROM hcm.attendance_approval_case WHERE tenant_id=$1 AND id=$2',
+				[tenant, submitted.caseId],
+			)
+		).rows,
+	).toEqual([{ state: 'Pending', revision: 1 }])
+	expect(
+		(
+			await api.admin.query(
+				'SELECT count(*)::int AS n FROM hcm.attendance_approval_slot WHERE tenant_id=$1 AND case_id=$2',
+				[tenant, submitted.caseId],
+			)
+		).rows[0].n,
+	).toBe(2)
+	expect(
+		(
+			await api.admin.query(
+				'SELECT state,kind FROM hcm.workflow_outbox WHERE tenant_id=$1 AND id=$2',
+				[tenant, submitted.operationId],
+			)
+		).rows,
+	).toEqual([{ state: 'Pending', kind: 'workflow.source.intake' }])
+	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before)
+	expect((await api.send('david', 'GET', path)).body['state']).toBe('Draft')
+	expect((await api.send('david', 'GET', path)).body['approval']).toEqual({
+		caseId: submitted.caseId,
+		revision: 1,
+		generation: 1,
+		state: 'Pending',
+		requiredSlots: 2,
+		pendingSlots: 2,
+	})
+	expect(
+		(
+			await api.send(
+				'david',
+				'POST',
+				path + '/submit',
+				{ ...command, reason: 'Changed same retry identity' },
+				{ 'idempotency-key': key },
+			)
+		).status,
+	).toBe(409)
+	const receipt = (
+		await api.admin.query(
+			"SELECT encrypted_reason IS NOT NULL AS sealed,response::text AS response FROM hcm.attendance_command_receipt WHERE tenant_id=$1 AND operation='Override.submit' AND idempotency_key=$2",
+			[tenant, key],
+		)
+	).rows[0]
+	expect(receipt.sealed).toBe(true)
+	expect(receipt.response).not.toContain(command.reason)
+	await completeWorkflowPlan(submitted.operationId)
+	expect(
+		(
+			await api.admin.query(
+				'SELECT outcome FROM hcm.workflow_planning_receipt WHERE tenant_id=$1 AND outbox_id=$2',
+				[tenant, submitted.operationId],
+			)
+		).rows,
+	).toEqual([{ outcome: 'Planned' }])
+	expect((await api.send('david', 'GET', path)).body['approval']).toMatchObject({
+		state: 'Pending',
+		pendingSlots: 2,
+	})
+	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before)
 })
 
 it('validates shifts in the real worker and invalidates reviewed publication when policy inputs change', /** A ready response is evidence to recheck, never permission to publish against retired inputs. */ async () => {

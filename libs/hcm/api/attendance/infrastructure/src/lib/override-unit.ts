@@ -18,7 +18,15 @@ import {
 	type AttendanceOverrideTarget,
 	type AttendanceOverrideWork,
 } from '@empflowyee/hcm-api-attendance-application'
-import type { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
+import type {
+	WorkforceTimeContextBinder,
+	WorkforceApprovalRoutingBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-application'
+import type {
+	WorkflowSourceBinder,
+	WorkflowIntakeBinder,
+} from '@empflowyee/hcm-api-workflow-application'
+import { SqlOverrideApprovalIntake } from './override-approval-intake'
 import { KyselyAttendanceConfigurationInputBinder } from './configuration-inputs'
 import { KyselyAttendancePeriodFenceBinder } from './period-fences'
 import { SqlAttendanceCommandReceipts } from './command-receipts'
@@ -30,8 +38,9 @@ async function readOverride(
 	id: string,
 ): Promise<AttendanceOverrideView | null> {
 	const result = await sql<{ view: AttendanceOverrideView }>`
-SELECT jsonb_build_object('id',o.id,'revision',o.revision,'state',o.state,'employmentId',o.employment_id,'workDate',o.work_date::text,'workdayRevision',w.revision,'zone',o.zone,
-'segments',(SELECT coalesce(jsonb_agg(jsonb_strip_nulls(jsonb_build_object('kind',s.kind,'startTime',s.start_time::text,'endTime',s.end_time::text,'endDayOffset',s.end_day_offset,'overlapOffset',CASE WHEN s.start_overlap_choice IS NOT NULL OR s.end_overlap_choice IS NOT NULL THEN jsonb_strip_nulls(jsonb_build_object('start',s.start_overlap_choice,'end',s.end_overlap_choice)) ELSE NULL END)) ORDER BY s.ordinal),'[]'::jsonb) FROM hcm.schedule_override_segment s WHERE s.tenant_id=o.tenant_id AND s.override_id=o.id)) AS view
+SELECT jsonb_strip_nulls(jsonb_build_object('id',o.id,'revision',o.revision,'state',o.state,'employmentId',o.employment_id,'workDate',o.work_date::text,'workdayRevision',w.revision,'zone',o.zone,
+'approval',(SELECT jsonb_build_object('caseId',c.id,'revision',c.revision,'generation',c.generation,'state',c.state,'requiredSlots',(SELECT count(*)::int FROM hcm.attendance_approval_slot s WHERE s.tenant_id=c.tenant_id AND s.case_id=c.id),'pendingSlots',(SELECT count(*)::int FROM hcm.attendance_approval_slot s WHERE s.tenant_id=c.tenant_id AND s.case_id=c.id AND s.state='Pending')) FROM hcm.attendance_approval_case c WHERE c.tenant_id=o.tenant_id AND c.schedule_override_id=o.id ORDER BY c.generation DESC LIMIT 1),
+'segments',(SELECT coalesce(jsonb_agg(jsonb_strip_nulls(jsonb_build_object('kind',s.kind,'startTime',s.start_time::text,'endTime',s.end_time::text,'endDayOffset',s.end_day_offset,'overlapOffset',CASE WHEN s.start_overlap_choice IS NOT NULL OR s.end_overlap_choice IS NOT NULL THEN jsonb_strip_nulls(jsonb_build_object('start',s.start_overlap_choice,'end',s.end_overlap_choice)) ELSE NULL END)) ORDER BY s.ordinal),'[]'::jsonb) FROM hcm.schedule_override_segment s WHERE s.tenant_id=o.tenant_id AND s.override_id=o.id))) AS view
 FROM hcm.schedule_override o JOIN hcm.published_workday w ON w.tenant_id=o.tenant_id AND w.id=o.basis_workday_id WHERE o.tenant_id=${tenant} AND o.id=${id}`.execute(
 	tx,
 )
@@ -45,6 +54,9 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 		private readonly database: HcmAccessDatabase | null,
 		private readonly cipher: FieldCipher,
 		private readonly workforce: WorkforceTimeContextBinder,
+		private readonly routing: WorkforceApprovalRoutingBinder,
+		private readonly workflowSources: WorkflowSourceBinder,
+		private readonly workflowIntake: WorkflowIntakeBinder,
 	) {
 		super()
 	}
@@ -84,6 +96,21 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 						audit: access.audit,
 						read: /** Read safe fields only after the full dated scope check. */ (id) =>
 							readOverride(tx, tenant, id),
+						requestApproval:
+						/** Source obligations and Workflow acceptance must commit or roll back together. */ (
+							source,
+							policyVersionId,
+							inputDigest,
+							workforceDigest,
+						) =>
+							new SqlOverrideApprovalIntake(
+								tx,
+								tenant,
+								accountId,
+								this.workflowSources,
+								this.workflowIntake,
+								this.routing,
+							).request(source, policyVersionId, inputDigest, workforceDigest),
 						requireRead:
 						/** Recovery does not reuse a formerly valid operation grant. */ async () => {
 							await new TransactionalAccessPolicy(access.transaction, context).require({

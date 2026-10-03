@@ -96,4 +96,30 @@ export class AttendanceOverridesController {
 			},
 		)
 	}
+	/** Consume the current review and persist required approval work without approving the override. */
+	@Post(':id/submit')
+	@HttpCode(200)
+	submit(
+		@Param('id') id: string,
+		@Body() body: unknown,
+		@Req() request: RoleRequest,
+		@Res({ passthrough: true }) response: RoleResponse,
+	) {
+		return runAccessRequest(
+			this.context,
+			this.logger,
+			response,
+			/** Retain origin, current manage permission and the caller's retry identity. */ (
+				context,
+			) => {
+				if (new URL(request.originalUrl, 'http://local.invalid').search) invalidField('query')
+				return this.overrides.submit(
+					context,
+					id,
+					accessWriteKey(request, this.origin, this.context.requestId),
+					body,
+				)
+			},
+		)
+	}
 }

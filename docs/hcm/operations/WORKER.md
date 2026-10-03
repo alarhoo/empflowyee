@@ -14,9 +14,14 @@ immutable workdays or explicit unavailable outcomes. Its receipt, workload audit
 and lease completion share the publication transaction. The same lane also runs
 `attendance.holiday.preview` (schema 1), produced by the Holiday preview API. It
 validates explicit employment/timezone context and completes Ready/Failed review
-evidence; it never publishes a calendar. Other workloads fail
-startup as unavailable. Leave accrual/expiry, Attendance calculation/reconciliation,
-Workflow processing and source producer/recovery commands are still being delivered.
+evidence; it never publishes a calendar. The lane also handles dated schedule and
+shift publication previews. WorkflowPlan now registers `workflow.source.intake`
+(schema 1) for Attendance's required-approval Override submissions. It reloads the
+source manifest and current candidates, stores all required stages/tasks and timer
+instants, and retains explicit stale/unavailable/no-candidate outcomes. Planning
+does not decide the source or execute timers. Leave accrual/expiry, Attendance
+calculation/reconciliation, Workflow dispatch/timers/reconciliation and recovery
+commands are still being delivered; unregistered workloads fail startup.
 See [worker validation](../testing/HCM-3-RESOLVE-WORKER-VALIDATION.md) and
 [implementation status](../roadmap/HCM-3-IMPLEMENTATION-STATUS.md).
 
@@ -57,7 +62,11 @@ the composition; an approved code alone is insufficient to enable processing.
 | HCM_WORKER_POLL_MS          | 5000    | 100–60000 ms; abortable idle wait                         |
 | HCM_WORKER_AFTER_TENANT     | empty   | resume from the previous finite result's nextTenantCursor |
 
-For the implemented lane set `HCM_WORKER_WORKLOADS=AttendanceResolve`. A schema-1
+For workday resolution set `HCM_WORKER_WORKLOADS=AttendanceResolve`. To additionally
+plan admitted pending Override cases after migrations through 55, set
+`HCM_WORKER_WORKLOADS=AttendanceResolve,WorkflowPlan`. This does not enable source
+decisions, notifications or timer delivery. See the [Workflow integration record](../testing/HCM-3-WORKFLOW-INTEGRATION.md).
+A schema-1
 resolution intent is source-owned evidence; do not manually insert or modify its
 payload in ordinary development. The Holiday preview API produces its own intent;
 the Holiday assignment command produces exact workday intents for its explicit

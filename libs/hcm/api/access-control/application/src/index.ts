@@ -7,3 +7,4 @@ export * from './lib/access-assignments'
 export * from './lib/catalogue-inspection'
 
 export * from './lib/access-reviews'
+export * from './lib/approval-candidates'

@@ -160,3 +160,25 @@ updates and slot deletion are denied. These are structural database tests, not a
 claim of production case submission or Workflow integration. Four pure evaluator
 tests also passed after aligning requester exclusion. Migration 53 remains limited
 to disposable PostgreSQL until explicit persistent migration orchestration.
+
+## Override submission technical review
+
+On 2026-10-03 Codex reviewed the submit-route integration under the existing
+delegation: original actor-bound preview consumption, current period/workday/
+policy resolution, complete required slots, atomic Workflow intake and safe reload
+progress. The fixed current policy requires independent maker/requester/beneficiary
+checks and has no pairwise-distinct configuration; submission does not invent that
+additional restriction. Existing explicit slot predicates remain enforced. Review
+also caught UUID-typed Workflow identities inconsistent with the physical design;
+forward migration 55 preserves rows and composite FKs while restoring text IDs.
+No new business decision, independent reviewer or human approval is claimed.
+
+The focused Attendance suite passed 14 PostgreSQL/API tests and Workflow planning
+passed five. Two audit-envelope tests passed; affected type/lint checks and the
+worker build passed. Required-approval submit persists one case/job under concurrent
+same-key retries, rejects changed input and stale review, denies an employee without
+manage authority, seals narrative and returns safe Pending progress after reload.
+The worker registers WorkflowPlan for the implemented Attendance source. There is
+no source approval, workday publication or end-user browser acceptance claim here.
+The no-approval publication path, full impact, source decisions, dispatch, timers,
+evidence and UI are still incomplete.
