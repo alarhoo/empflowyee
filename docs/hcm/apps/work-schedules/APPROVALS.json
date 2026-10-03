@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "ef6c0d5f561990137e3f3a8f1c79c79cd6ccbb09fcdb67e9e381a6dffe29fe33",
+			"sha256": "abaf048b186a992104dc64582ed8cc62615f41ec9fd6e2ca879224ebf5ca6282",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#assignment-review-and-stored-inspector-technical-review; actual scoped review; no human or full app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#dated-source-integration-technical-review; actual typed source and traceability review; no production approval or full app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "4f2a456fc9ed34291873778a06011d0d3405aeee4fcf9b4684d1e12136f4e642",
+			"sha256": "f1911f52802753c87b16dd126ec2bf99c30cdbe2cd3818e6a34192acb4b73a4b",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#dated-source-integration-technical-review; actual typed source and traceability review; no production approval or full app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

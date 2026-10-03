@@ -367,3 +367,33 @@ UTC intervals, offset seconds, exact elapsed-millisecond strings and safe rest
 evidence. Narrative receipt data and persistence rows are never returned. The native
 ObjectPage inspector requires explicit employment and range and never resolves or
 queues work as a side effect of reading.
+
+## DATED-SOURCE-INTEGRATION
+
+Forward migrations 50 and 51 materialize the approved Attendance-owned roster,
+entry and override sources and their typed immutable workday references. Roster
+entry lifecycle derives from its parent. A published roster cannot change its
+payload or children; an approved override retains its exact prior workday basis,
+zone and intervals. Tenant-composite references bind employment, work date,
+source version and creator. Forced RLS and restricted runtime grants apply to
+every new table. Publication takes the existing monthly and dated-employment
+fences; locked dates cannot acquire ordinary new workday revisions.
+
+The private dated-pattern projection normalizes one actual date for the existing
+exact interval/rest resolver. It is not a public ScheduleVersion DTO and does not
+create a synthetic schedule row. Approved override precedes published roster;
+only absent dated sources fall through to the ordinary seven-scope selector.
+Equal winning precedence is unavailable. Roster shifts retain their actual shift
+version, timezone mode and rest rule. Custom overrides retain the exact prior
+workday's schedule-side rule; the current dated Attendance policy rule still
+applies independently. Previous-shift rest search uses the same dated precedence.
+Missing Workforce, current shift, calendar or policy facts remain unavailable.
+
+Immutable workdays now store typed shift/roster-entry/override references in
+addition to their applicable schedule reference. Existing ordinary workday digests
+and intervals are preserved. A nonworking override is explicitly classified as
+`NonWorkingOverride`; it is never presented as missing configuration. Inspection
+adds safe dated source references and the source revision captured by the workday
+receipt, without returning private override reasons. Internal roster publication
+commands and override approval/command producers still require delivery; disposable
+SQL fixtures prove storage/resolution only, not production approval acceptance.

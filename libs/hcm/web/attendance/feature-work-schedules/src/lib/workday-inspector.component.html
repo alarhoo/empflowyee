@@ -115,7 +115,7 @@
 						fd-object-status
 						[inverted]="true"
 						status="informative"
-						[label]="day.kind"></span>
+						[label]="day.kind === 'NonWorkingOverride' ? 'Nonworking override' : day.kind"></span>
 				</ui5-form-item>
 				<ui5-form-item>
 					<ui5-label slot="labelContent">Timezone</ui5-label>
@@ -140,6 +140,12 @@
 					<ui5-text>{{ day.supersedesId ?? 'Initial published revision' }}</ui5-text>
 				</ui5-form-item>
 			</ui5-form>
+			@for (source of day.datedSources; track source.family + source.id) {
+				<ui5-text>
+					{{ source.family }}: {{ source.name }}. Reviewed revision
+					{{ source.revision ?? 'unavailable' }} ({{ source.id }}).
+				</ui5-text>
+			}
 			@for (source of day.sourceVersions; track source.family + source.versionId) {
 				<ui5-text>
 					{{ source.family }}: {{ source.name }}, version {{ source.versionNumber }} ({{

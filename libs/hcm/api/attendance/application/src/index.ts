@@ -21,3 +21,4 @@ export * from './lib/dated-publication'
 
 export * from './lib/work-references'
 export * from './lib/workday-queries'
+export * from './lib/dated-pattern'

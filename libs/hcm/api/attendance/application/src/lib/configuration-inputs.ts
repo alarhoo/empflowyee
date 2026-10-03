@@ -16,6 +16,7 @@ import type {
 	WorkforceTimeContextPort,
 	WorkforceTimeUnavailableReason,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
+import type { AttendanceDatedPatternPort, AttendanceDatedPatternResult } from './dated-pattern'
 
 /** Internal source projection retains entry identity for immutable workday foreign keys; public calendar views stay unchanged. */
 export interface HolidayResolutionVersion extends HolidayVersionView {
@@ -62,6 +63,8 @@ export type AttendanceConfigurationInput<Family extends AttendanceConfigurationF
 	}
 
 export interface AttendanceConfigurationInputPort {
+	/** Dated sources preserve their own typed identity and take precedence over ordinary assignments. */
+	datedPattern?(employmentId: string, workDate: string): Promise<AttendanceDatedPatternResult>
 	/** Load one family for one employment/date under caller-owned current human/workload authority. This is input evidence, not a published workday. */
 	read<Family extends AttendanceConfigurationFamily>(
 		family: Family,
@@ -86,7 +89,12 @@ export class AttendanceConfigurationInputs implements AttendanceConfigurationInp
 		private readonly tenantId: string,
 		private readonly workforce: WorkforceTimeContextPort,
 		private readonly configurations: AttendanceConfigurationInputRepository,
+		private readonly patterns?: AttendanceDatedPatternPort,
 	) {}
+	/** Delegate to typed dated source ownership without pretending an absent override means an unscheduled day. */
+	datedPattern(employmentId: string, workDate: string): Promise<AttendanceDatedPatternResult> {
+		return this.patterns?.read(employmentId, workDate) ?? Promise.resolve({ state: 'Absent' })
+	}
 
 	/** Preserve explicit missing/conflicting inputs and hash every eligible assignment plus the exact selected source. */
 	async read<Family extends AttendanceConfigurationFamily>(

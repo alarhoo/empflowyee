@@ -85,3 +85,32 @@ idempotent retry and real worker materialization. The stored inspector checks ex
 local/UTC intervals, source families, missing-day status, forbidden access, closed
 queries and unchanged queue count. The production web build passed with both native
 sections; Work Schedules browser acceptance remains outstanding.
+
+## Dated source integration technical review
+
+The [dated-source integration](../apps/work-schedules/TDD.md#dated-source-integration)
+and updated requirement traceability were reviewed by Codex on 2026-10-03 under
+the same delegated technical authorship. Migrations 50–51 retain Attendance
+ownership, tenant RLS, composite source references, monthly fences and immutable
+history. The resolver uses a private one-date pattern projection and exact typed
+source references rather than inserting fictitious schedule versions. Review
+covered winning-source selection, prior-date rest, nullable schedule references
+for real roster shifts and safe inspector projection. No new human approval or
+production override approval path is claimed.
+
+Three dated-selection tests passed. Twenty-two tests across the Work Schedules,
+resolver-worker and immutable-workday PostgreSQL suites passed after integration,
+including real worker revisions for ordinary schedule → published roster → approved
+nonworking override, preserved prior revisions, immutable source children, forced
+runtime RLS and source revision display. Roster/override sources in that test are
+explicit disposable fixtures; their production command and approval journeys are
+still required. The HCM web production build passed with the extended inspector.
+
+All four existing Templates and Holiday Calendars production-build browser journeys
+passed on 2026-10-03 after assignment review and inspector integration. This is
+regression evidence for those apps, not Work Schedules acceptance. Local migration
+48–49 and Attendance seed version 4 were applied after a verified custom-format
+database backup; the existing encryption key was preserved. API liveness and the
+tenant-host web entry point returned 200 after restarting only task-owned API and
+worker processes. Migrations 50–51 remain disposable-database verification at this
+point; ordinary API/worker startup does not apply them.

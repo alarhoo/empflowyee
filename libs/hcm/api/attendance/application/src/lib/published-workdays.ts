@@ -1,9 +1,11 @@
 import type { DatedWorkdayIntervals } from '@empflowyee/hcm-api-attendance-domain'
+import type { WorkdaySourceReferences } from './dated-pattern'
 
 /** Internal resolved source evidence; authorization and input/lease revalidation belong to the owning workload handler. */
 export interface PublishedWorkdayInput {
 	employmentId: string
-	scheduleVersionId: string
+	scheduleVersionId: string | null
+	datedSources?: WorkdaySourceReferences
 	policyVersionId: string | null
 	holidayCalendarVersionIds: readonly string[]
 	inputDigest: string

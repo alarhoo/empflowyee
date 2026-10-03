@@ -12,6 +12,7 @@ import type { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-f
 import { KyselyAttendanceAssignmentReader } from './configuration-assignments'
 import { KyselyAttendanceConfigurationReader } from './configuration-readers'
 import { KyselyScheduleReader } from './hcm-api-attendance-infrastructure'
+import { KyselyAttendanceDatedPatterns } from './dated-patterns'
 
 const families = {
 	Schedule: { table: 'work_schedule_version', owner: 'schedule_id' },
@@ -77,6 +78,11 @@ export class KyselyAttendanceConfigurationInputBinder extends AttendanceConfigur
 			tenantId,
 			this.workforce.bind(transaction, tenantId),
 			new KyselyAttendanceConfigurationInputs(executor, tenantId),
+			new KyselyAttendanceDatedPatterns(
+				executor,
+				tenantId,
+				this.workforce.bind(transaction, tenantId),
+			),
 		)
 	}
 }

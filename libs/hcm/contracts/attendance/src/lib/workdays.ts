@@ -6,11 +6,17 @@ export interface AttendanceWorkdayQuery {
 	to: string
 }
 export interface WorkdaySourceView {
-	family: 'Schedule' | 'Policy' | 'Holiday'
+	family: 'Schedule' | 'Policy' | 'Holiday' | 'Shift'
 	id: string
 	versionId: string
 	versionNumber: number
 	name: string
+}
+export interface WorkdayDatedSourceView {
+	family: 'Override' | 'Roster'
+	id: string
+	name: string
+	revision: number | null
 }
 export interface WorkdaySegmentView {
 	kind: 'Work' | 'UnpaidBreak' | 'Holiday' | 'ExpectedWork'
@@ -47,7 +53,7 @@ export type WorkdayView =
 		id: string
 		revision: number
 		digest: string
-		kind: 'Work' | 'Rest' | 'Holiday'
+		kind: 'Work' | 'Rest' | 'Holiday' | 'NonWorkingOverride'
 		zone: string
 		resolvedAt: string
 		scheduledMilliseconds: string
@@ -55,6 +61,7 @@ export type WorkdayView =
 		elapsedMilliseconds: string
 		supersedesId: string | null
 		sourceVersions: WorkdaySourceView[]
+		datedSources: WorkdayDatedSourceView[]
 		segments: WorkdaySegmentView[]
 		rest: WorkdayRestView | null
 	}

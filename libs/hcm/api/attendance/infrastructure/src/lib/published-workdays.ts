@@ -99,7 +99,7 @@ export class KyselyPublishedWorkdayWriter<Database = unknown> implements Publish
 		const scope = requireWorkloadScope(this.context, 'AttendanceResolve'),
 			tenantId = scope.tenantId
 		idValue(input.employmentId, 'employmentId')
-		idValue(input.scheduleVersionId, 'scheduleVersionId')
+		if (input.scheduleVersionId !== null) idValue(input.scheduleVersionId, 'scheduleVersionId')
 		const workDate = dateValue(input.resolution.workDate, 'workDate'),
 			month = workDate.slice(0, 7) + '-01'
 		const holidays = [...input.holidayCalendarVersionIds].sort()
@@ -109,6 +109,7 @@ export class KyselyPublishedWorkdayWriter<Database = unknown> implements Publish
 			tenantId,
 			employmentId: input.employmentId,
 			scheduleVersionId: input.scheduleVersionId,
+			...(input.datedSources ? { datedSources: input.datedSources } : {}),
 			policyVersionId: input.policyVersionId,
 			holidayCalendarVersionIds: holidays,
 			inputDigest: input.inputDigest,
@@ -134,8 +135,8 @@ export class KyselyPublishedWorkdayWriter<Database = unknown> implements Publish
 			id = randomUUID(),
 			revision = (input.previous?.revision ?? 0) + 1,
 			r = input.resolution
-		await sql`INSERT INTO hcm.published_workday(tenant_id,id,employment_id,work_date,zone,schedule_kind,work_schedule_version_id,attendance_policy_version_id,revision,input_digest,resolution_digest,scheduled_work_milliseconds,break_milliseconds,expected_work_milliseconds,supersedes_id,workload_run_id)
-   VALUES(${tenantId},${id},${input.employmentId},${workDate}::date,${r.zone},${r.scheduleKind},${input.scheduleVersionId},${input.policyVersionId},${revision},${input.inputDigest},${digest},${r.scheduledWorkMilliseconds}::bigint,${r.breakMilliseconds}::bigint,${r.expectedWorkMilliseconds}::bigint,${input.previous?.id ?? null},${scope.runId}::uuid)`.execute(
+		await sql`INSERT INTO hcm.published_workday(tenant_id,id,employment_id,work_date,zone,schedule_kind,work_schedule_version_id,attendance_policy_version_id,revision,input_digest,resolution_digest,scheduled_work_milliseconds,break_milliseconds,expected_work_milliseconds,supersedes_id,workload_run_id,shift_version_id,shift_roster_entry_id,schedule_override_id)
+   VALUES(${tenantId},${id},${input.employmentId},${workDate}::date,${r.zone},${r.scheduleKind},${input.scheduleVersionId},${input.policyVersionId},${revision},${input.inputDigest},${digest},${r.scheduledWorkMilliseconds}::bigint,${r.breakMilliseconds}::bigint,${r.expectedWorkMilliseconds}::bigint,${input.previous?.id ?? null},${scope.runId}::uuid,${input.datedSources?.shiftVersionId ?? null},${input.datedSources?.rosterEntryId ?? null},${input.datedSources?.overrideId ?? null})`.execute(
 		this.transaction,
 	)
 		for (const version of holidays)

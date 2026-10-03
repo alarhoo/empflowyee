@@ -1,3 +1,4 @@
+import { AssignedWorkdayResolver } from '@empflowyee/hcm-api-attendance-application'
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import { Client } from 'pg'
@@ -6,6 +7,7 @@ import type { WorkloadAuditTables } from '@empflowyee/hcm-api-audit-infrastructu
 import { HcmWorkloadIssuer } from '@empflowyee/hcm-api-runtime-application'
 import {
 	HcmRuntimeStore,
+	enqueueHcmWork,
 	HcmDurableWorkStore,
 	HcmTransactionalWorkerLane,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
@@ -957,6 +959,205 @@ it('assigns explicit policies and ordinary schedules and commits real durable wo
 			)
 		).status,
 	).toBe(201)
+})
+
+/** Materialize a test-arranged dated source through real typed input selection and the leased worker. */
+async function materializeDatedSource(workDate: string) {
+	const connectionString = process.env['HCM_TEST_RUNTIME']
+	if (!connectionString) throw new Error('Disposable PostgreSQL required')
+	const database = new HcmTenantDatabase<WorkloadAuditTables>({
+		connectionString,
+		maxConnections: 2,
+	})
+	const directory = new HcmRuntimeStore(connectionString)
+	try {
+		const context = await new HcmWorkloadIssuer(directory, ['AttendanceResolve']).issue(
+			tenant,
+			'AttendanceResolve',
+			randomUUID(),
+			600000,
+		)
+		const result = await database.workloadTransaction(
+			context,
+			'AttendanceResolve',
+			/** Test-only producer uses the exact same digest and durable protocol as owning commands. */ async (
+				transaction,
+			) => {
+				const employmentId = 'dunder-mifflin/employment/jim'
+				const result = await new AssignedWorkdayResolver(
+					new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder()).bind(
+						transaction,
+						tenant,
+					),
+					366,
+				).resolve(employmentId, workDate)
+				if (result.state !== 'Available')
+					throw new Error('Test dated source unavailable: ' + result.reason)
+				await enqueueHcmWork(transaction, tenant, {
+					workload: 'AttendanceResolve',
+					kind: 'attendance.workday.resolve',
+					schemaVersion: 1,
+					businessKey: randomUUID(),
+					payload: { employmentId, workDate, inputDigest: result.inputDigest },
+				})
+				return result
+			},
+		)
+		await resolveAssignedDays()
+		return result
+	} finally {
+		await database.destroy()
+		await directory.onApplicationShutdown()
+	}
+}
+
+it('resolves published roster then approved override with typed immutable workday references', /** Real SQL selection, precedence and worker publication preserve history without fabricating schedule identities. */ async () => {
+	const employment = 'dunder-mifflin/employment/jim',
+		actor = 'dunder-mifflin/account/david'
+	const source = (
+		await api.send<ShiftVersionView>('david', 'POST', 'attendance/shifts', shift('ROSTER_BASIS'))
+	).body
+	const path = `attendance/shifts/${source.id}/versions/${source.versionId}`
+	const pending = (
+		await api.send<DatedConfigurationPreviewView>('david', 'POST', path + '/preview', {
+			expectedRevision: 1,
+			employmentId: employment,
+			effectiveFrom: '2027-02-02',
+		})
+	).body
+	await resolveAssignedDays()
+	const preview = (
+		await api.send<DatedConfigurationPreviewView>(
+			'david',
+			'GET',
+			path + '/previews/' + pending.previewId,
+		)
+	).body
+	expect(preview.state).toBe('Ready')
+	expect(
+		(
+			await api.send('david', 'POST', path + '/publish', {
+				expectedRevision: 1,
+				previewId: preview.previewId,
+				digest: preview.digest,
+				reason: 'Publish real roster test source',
+			})
+		).status,
+	).toBe(200)
+	// Only this disposable test arranges a roster; no unadmitted roster UI or production fixture is introduced.
+	await api.admin.query(
+		"INSERT INTO hcm.shift_roster(tenant_id,id,code,name,from_date,to_date,created_by_account_id) VALUES($1,'dated-roster','DATED_ROSTER','Dated roster','2027-02-02','2027-02-02',$2)",
+		[tenant, actor],
+	)
+	await api.admin.query(
+		"INSERT INTO hcm.shift_roster_entry(tenant_id,id,roster_id,employment_id,work_date,shift_version_id) VALUES($1,'dated-entry','dated-roster',$2,'2027-02-02',$3)",
+		[tenant, employment, source.versionId],
+	)
+	await api.admin.query(
+		"UPDATE hcm.shift_roster SET state='Published',revision=revision+1,publication_digest=repeat('a',64),published_at=now(),published_by_account_id=$2 WHERE tenant_id=$1 AND id='dated-roster'",
+		[tenant, actor],
+	)
+	const roster = await materializeDatedSource('2027-02-02')
+	expect(roster.scheduleVersionId).toBeNull()
+	expect(roster.datedSources).toEqual({
+		scheduleVersionId: null,
+		shiftVersionId: source.versionId,
+		rosterEntryId: 'dated-entry',
+		overrideId: null,
+	})
+	expect(roster.resolution.zone).toBe('Europe/London')
+	expect(roster.resolution.scheduledWorkMilliseconds).toBe('25200250')
+	const basis = (
+		await api.admin.query(
+			"SELECT id,revision FROM hcm.published_workday WHERE tenant_id=$1 AND employment_id=$2 AND work_date='2027-02-02' ORDER BY revision DESC LIMIT 1",
+			[tenant, employment],
+		)
+	).rows[0]
+	expect(basis.revision).toBe(2)
+	await expect(
+		api.admin.query("DELETE FROM hcm.shift_roster_entry WHERE tenant_id=$1 AND id='dated-entry'", [
+			tenant,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	await api.admin.query(
+		"INSERT INTO hcm.schedule_override(tenant_id,id,employment_id,work_date,basis_workday_id,zone,kind,created_by_account_id) VALUES($1,'dated-override',$2,'2027-02-02',$3,'Europe/London','Rest',$4)",
+		[tenant, employment, basis.id, actor],
+	)
+	const draft = await materializeDatedSource('2027-02-02')
+	expect(draft.datedSources?.rosterEntryId).toBe('dated-entry')
+	await api.admin.query(
+		"UPDATE hcm.schedule_override SET state='Approved',revision=revision+1,approval_digest=repeat('b',64),approved_at=now(),approved_by_account_id=$2 WHERE tenant_id=$1 AND id='dated-override'",
+		[tenant, actor],
+	)
+	const override = await materializeDatedSource('2027-02-02')
+	expect(override.datedSources?.overrideId).toBe('dated-override')
+	expect(override.resolution).toMatchObject({
+		scheduleKind: 'Rest',
+		expectedWorkMilliseconds: '0',
+		scheduledSegments: [],
+	})
+	expect(
+		(
+			await api.admin.query(
+				'SELECT revision,shift_roster_entry_id AS "roster",schedule_override_id AS "override" FROM hcm.published_workday WHERE tenant_id=$1 AND employment_id=$2 AND work_date=\'2027-02-02\' ORDER BY revision',
+				[tenant, employment],
+			)
+		).rows,
+	).toEqual([
+		{ revision: 1, roster: null, override: null },
+		{ revision: 2, roster: 'dated-entry', override: null },
+		{ revision: 3, roster: null, override: 'dated-override' },
+	])
+	const inspected = await api.send<import('@empflowyee/hcm-attendance-contract').WorkdayPage>(
+		'david',
+		'GET',
+		'attendance/workdays?employmentId=' +
+			encodeURIComponent(employment) +
+			'&from=2027-02-02&to=2027-02-02',
+	)
+	expect(inspected.status).toBe(200)
+	expect(inspected.body.items[0]).toMatchObject({
+		kind: 'NonWorkingOverride',
+		revision: 3,
+		datedSources: [{ family: 'Override', id: 'dated-override', revision: 2 }],
+	})
+	await expect(
+		api.admin.query(
+			"INSERT INTO hcm.shift_roster(tenant_id,id,code,name,from_date,to_date,created_by_account_id) VALUES($1,'foreign-actor-roster','FOREIGN_ROSTER','Denied','2027-02-02','2027-02-02','other-actor')",
+			[tenant],
+		),
+	).rejects.toMatchObject({ code: '23503' })
+	const runtime = new Client({ connectionString: process.env['HCM_TEST_RUNTIME'] })
+	await runtime.connect()
+	try {
+		await runtime.query('BEGIN')
+		await runtime.query("SELECT set_config('hcm.tenant_id','work-config-foreign',true)")
+		for (const table of [
+			'shift_roster',
+			'shift_roster_entry',
+			'schedule_override',
+			'schedule_override_segment',
+		]) {
+			expect(
+				(await runtime.query('SELECT id FROM hcm.' + table + ' WHERE tenant_id=$1', [tenant])).rows,
+			).toEqual([])
+		}
+		await expect(
+			runtime.query(
+				"INSERT INTO hcm.shift_roster(tenant_id,id,code,name,from_date,to_date,created_by_account_id) VALUES($1,'denied-roster','DENIED','Denied','2027-02-02','2027-02-02',$2)",
+				[tenant, actor],
+			),
+		).rejects.toMatchObject({ code: '42501' })
+	} finally {
+		await runtime.query('ROLLBACK')
+		await runtime.end()
+	}
+	await expect(
+		api.admin.query(
+			"UPDATE hcm.schedule_override SET zone='Asia/Kolkata',revision=revision+1 WHERE tenant_id=$1 AND id='dated-override'",
+			[tenant],
+		),
+	).rejects.toMatchObject({ code: '23514' })
 })
 
 it('validates shifts in the real worker and invalidates reviewed publication when policy inputs change', /** A ready response is evidence to recheck, never permission to publish against retired inputs. */ async () => {
