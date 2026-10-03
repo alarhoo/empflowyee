@@ -1,4 +1,5 @@
 export const HCM3_AUDIT_ACTIONS = [
+	'attendance.evidence-staged',
 	'attendance.configuration-created',
 	'attendance.configuration-updated',
 	'attendance.configuration-versioned',

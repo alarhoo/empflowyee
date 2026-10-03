@@ -1,3 +1,4 @@
+import { OverrideEvidenceSection } from './override-evidence.component'
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -65,6 +66,7 @@ function segmentPath(key: keyof SegmentForm): string {
 @Component({
 	selector: 'ef-hcm-override-editor',
 	imports: [
+		OverrideEvidenceSection,
 		FormField,
 		Button,
 		Form,
@@ -98,6 +100,22 @@ export class AttendanceOverrideEditor {
 	private readonly addInterval = viewChild<Button>('addInterval')
 	private readonly changed = new Subject<void>()
 	private generation = 0
+	readonly evidencePending = signal(false)
+	readonly evidenceTarget = computed(
+		/** Bind file staging to the exact loaded dated employment. */ () => {
+			const source = this.source(),
+				basis = this.basis()
+			if (source)
+				return { employmentId: source.employmentId, workDate: source.workDate, sourceId: source.id }
+			return basis ? { employmentId: basis.employmentId, workDate: basis.workDate } : null
+		},
+	)
+	/** Preserve admitted server references in the same dirty source draft as its exact intervals. */
+	setEvidence(ids: string[]): void {
+		this.model.update(
+			/** Retain all other unsaved source input. */ (value) => ({ ...value, evidenceIds: ids }),
+		)
+	}
 	readonly source = signal<AttendanceOverrideView | null>(null)
 	readonly basis = signal<Extract<WorkdayView, { state: 'Published' }> | null>(null)
 	readonly review = signal<AttendanceOverrideReview | null>(null)
@@ -201,6 +219,7 @@ export class AttendanceOverrideEditor {
 	async load(): Promise<void> {
 		const generation = ++this.generation
 		this.changed.next()
+		this.evidencePending.set(false)
 		this.state.set('loading')
 		this.source.set(null)
 		this.basis.set(null)
@@ -223,6 +242,7 @@ export class AttendanceOverrideEditor {
 					zone: source.zone,
 					segments: source.segments.map(segmentForm),
 					reason: '',
+					evidenceIds: [],
 				})
 			} else {
 				const employmentId = this.route.snapshot.queryParamMap.get('employmentId') ?? '',
@@ -346,6 +366,10 @@ export class AttendanceOverrideEditor {
 	}
 	/** Save, review or submit through real commands, retaining the same key after an uncertain transport outcome. */
 	async act(operation: 'create' | 'preview' | 'submit'): Promise<void> {
+		if (this.evidencePending()) {
+			this.message.set('Upload or clear the selected evidence file before saving.')
+			return
+		}
 		if (this.draft.saving() || this.state() !== 'content') return
 		if (this.uncertain() && this.retryOperation() !== operation) return
 		this.retryOperation.set(operation)
@@ -465,10 +489,13 @@ export class AttendanceOverrideEditor {
 	}
 	/** Keep unresolved writes recoverable and use the maintained native discard dialog for unsaved input. */
 	canLeave(): Promise<boolean> {
-		return this.uncertain() ? Promise.resolve(false) : this.draft.canLeave()
+		return this.uncertain() || this.evidencePending()
+			? Promise.resolve(false)
+			: this.draft.canLeave()
 	}
 	/** Warn before browser unload loses unsaved or unconfirmed work. */
 	@HostListener('window:beforeunload', ['$event']) beforeUnload(event: BeforeUnloadEvent): void {
-		if (this.draft.dirty() || this.draft.saving() || this.uncertain()) event.preventDefault()
+		if (this.draft.dirty() || this.draft.saving() || this.uncertain() || this.evidencePending())
+			event.preventDefault()
 	}
 }

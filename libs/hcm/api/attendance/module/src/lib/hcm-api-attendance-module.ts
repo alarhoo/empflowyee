@@ -1,3 +1,7 @@
+import { HcmDocumentsModule } from '@empflowyee/hcm-api-documents-module'
+import { DocumentEvidenceBinder } from '@empflowyee/hcm-api-documents-application'
+import { AttendanceEvidence } from '@empflowyee/hcm-api-attendance-application'
+import { AttendanceEvidenceController } from '@empflowyee/hcm-api-attendance-transport'
 import { KyselyHcmActionAuthorizationBinder } from '@empflowyee/hcm-api-runtime-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
 import {
@@ -83,8 +87,14 @@ import {
 
 /** Attendance composition owns no scheduler loop or startup migration. */
 @Module({
-	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
+	imports: [
+		HcmRuntimeModule,
+		HcmAccessControlModule,
+		HcmWorkforceFoundationModule,
+		HcmDocumentsModule,
+	],
 	controllers: [
+		AttendanceEvidenceController,
 		AttendanceApprovalDecisionsController,
 		AttendanceOverridesController,
 		AttendanceWorkdaysController,
@@ -103,6 +113,13 @@ import {
 		AttendancePublishedWorkdayBinder,
 	],
 	providers: [
+		{
+			provide: AttendanceEvidence,
+			inject: [AttendanceOverrideUnit],
+			useFactory: /** Reuse the dated Override unit and its Documents owner port. */ (
+				unit: AttendanceOverrideUnit,
+			) => new AttendanceEvidence(unit),
+		},
 		{
 			provide: KyselyAttendanceWorkflowActionBinder,
 			inject: [
@@ -192,6 +209,7 @@ import {
 				WorkforceApprovalRoutingBinder,
 				KyselyAttendanceWorkflowSourceBinder,
 				WorkflowIntakeBinder,
+				DocumentEvidenceBinder,
 			],
 			useFactory: /** Compose current-authority override storage with existing owner ports. */ (
 				database: HcmAccessDatabase | null,
@@ -200,6 +218,7 @@ import {
 				routing: WorkforceApprovalRoutingBinder,
 				sources: KyselyAttendanceWorkflowSourceBinder,
 				intake: WorkflowIntakeBinder,
+				documents: DocumentEvidenceBinder,
 			) =>
 				new KyselyAttendanceOverrideUnit(
 					database,
@@ -209,6 +228,7 @@ import {
 					sources,
 					intake,
 					new KyselyLeaveWorkdayImpactBinder(),
+					documents,
 				),
 		},
 		{

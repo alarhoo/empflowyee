@@ -66,8 +66,8 @@ The routed override editor reuses native interval fields for Draft/review/submis
 it has form and compile checks but no complete-app browser acceptance.
 Override review now includes actual stored Leave Draft calculations. The explicit
 no-required-slot policy path approves once and queues real dated materialization;
-governed evidence admission, other Leave lifecycle impact and full browser
-acceptance remain outstanding. Internal
+governed evidence admission now uses real Documents storage and a native uploader.
+Other Leave lifecycle/configuration impact and full browser acceptance remain outstanding. Internal
 [Workflow intake and initial DomainManifest planning](../testing/HCM-3-WORKFLOW-INTEGRATION.md)
 now have real leased-worker/PostgreSQL tests with Attendance source adapters,
 independent decisions, dispatch and receipt reconciliation. Notification timers
@@ -75,7 +75,7 @@ and Leave source decisions still require delivery. See the Work Schedules
 [integration record](../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) for executed
 tests and remaining command, approval, Leave-impact and browser work. It has not
 passed complete-app acceptance and its tile remains unavailable. After a verified
-backup, local PostgreSQL has migrations through 66, Attendance seed version 5 and
+backup, local PostgreSQL has migrations through 67, Attendance seed version 6 and
 Leave access seed version 2. The original field-encryption key was preserved.
 The rebuilt API is ready and the worker runs AttendanceResolve, WorkflowPlan,
 WorkflowDispatch and WorkflowReconcile. Notification timers remain unavailable.
@@ -95,7 +95,7 @@ do not expose a Leave preview or submit UI.
 See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
 This does not complete a Leave app or milestone; publication, entitlement funding,
 source journeys and the native UIs remain pending. Local PostgreSQL remains at
-migration 66; liveness/readiness and the tenant-host web entry point returned 200
+migration 67; liveness/readiness and the tenant-host web entry point returned 200
 after rebuilding and restarting the task-owned API and worker on 2026-10-03.
 
 | Slice                                             | State                                     | Evidence                                                           |

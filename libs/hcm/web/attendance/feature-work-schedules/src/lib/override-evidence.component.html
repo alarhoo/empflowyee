@@ -1,0 +1,123 @@
+<ui5-text>
+	Evidence is optional. Choose its classification explicitly. Files remain private and are attached
+	when the override draft is saved.
+</ui5-text>
+@if (message()) {
+	<ui5-message-strip
+		design="Negative"
+		[hideCloseButton]="true">
+		{{ message() }}
+	</ui5-message-strip>
+}
+@if (!target().sourceId && available().length) {
+	<ui5-form
+		accessibleName="Override evidence"
+		layout="S1 M2 L2 XL2"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="override-evidence-class"
+				[required]="true">
+				Classification
+			</ui5-label>
+			<ui5-select
+				id="override-evidence-class"
+				accessibleName="Evidence classification"
+				[formField]="fields.classification"
+				[valueState]="attempted() && fields.classification().invalid() ? 'Negative' : 'None'">
+				<ui5-option value="">Choose classification</ui5-option>
+				@for (value of available(); track value) {
+					<ui5-option [value]="value">{{ value }}</ui5-option>
+				}
+			</ui5-select>
+			@if (attempted() && fields.classification().invalid()) {
+				<ui5-text>Choose an evidence classification before uploading.</ui5-text>
+			}
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label
+				slot="labelContent"
+				for="override-evidence-file">
+				Evidence file
+			</ui5-label>
+			<ui5-file-uploader
+				#uploader
+				id="override-evidence-file"
+				accessibleName="Override evidence file"
+				accessibleDescriptionRef="override-evidence-help"
+				accept=".pdf,.png,.jpg,.jpeg"
+				[maxFileSize]="10"
+				[multiple]="false"
+				[value]="file()?.name ?? ''"
+				[disabled]="inactive() || busy() || uncertain()"
+				[valueState]="fileError() ? 'Negative' : 'None'"
+				(ui5Change)="choose($event)"
+				(ui5FileSizeExceed)="reject()">
+				<ui5-text slot="valueStateMessage">{{ fileError() }}</ui5-text>
+			</ui5-file-uploader>
+			<ui5-text id="override-evidence-help">
+				PDF, PNG or JPEG, 1 byte to 10 MiB. Filename: 1–200 characters.
+			</ui5-text>
+			@if (fileError()) {
+				<ui5-text>{{ fileError() }}</ui5-text>
+			}
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-button
+		[disabled]="inactive() || busy()"
+		(click)="upload()">
+		{{ uncertain() ? 'Retry evidence upload' : 'Upload evidence' }}
+	</ui5-button>
+	<ui5-button
+		[disabled]="inactive() || busy() || uncertain()"
+		(click)="clear()">
+		Clear file selection
+	</ui5-button>
+	@if (uncertain()) {
+		<ui5-text>
+			The upload outcome is unknown. Retry with the same file and classification before leaving.
+		</ui5-text>
+	}
+}
+@if (loading()) {
+	<ui5-text>Loading visible evidence…</ui5-text>
+}
+@for (item of items(); track item.id) {
+	<ui5-form
+		accessibleName="Admitted evidence"
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">File</ui5-label>
+			<ui5-text>{{ item.filename }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Classification</ui5-label>
+			<ui5-text>{{ item.classification }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Validation</ui5-label>
+			<span
+				fd-object-status
+				[inverted]="true"
+				status="positive"
+				label="Validated"></span>
+		</ui5-form-item>
+	</ui5-form>
+	<ui5-button
+		[disabled]="busy() || inactive()"
+		(click)="download(item)">
+		Download {{ item.filename }}
+	</ui5-button>
+}
+@if (target().sourceId && !loading() && !message() && !items().length) {
+	<ui5-text>No evidence is visible under your current content permissions.</ui5-text>
+}
+@if (target().sourceId && message()) {
+	<ui5-button
+		[disabled]="loading()"
+		(click)="load()">
+		Retry evidence loading
+	</ui5-button>
+}

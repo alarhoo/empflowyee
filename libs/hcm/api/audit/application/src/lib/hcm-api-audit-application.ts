@@ -66,7 +66,10 @@ export interface DocumentDownloadAuditEvent {
 		'document.download-authorized' | 'document.download-completed' | 'document.download-failed'
 	targetId: string
 	targetType:
-		'document-template-version' | 'employee-document-version' | 'document-request-submission'
+		| 'document-template-version'
+		| 'employee-document-version'
+		| 'document-request-submission'
+		| 'document-business-evidence'
 	requestId: string
 	relatedEventId: string | null
 	summary: Record<string, never>
@@ -372,6 +375,7 @@ export function validateDocumentDownloadAudit(event: DocumentDownloadAuditEvent)
 			'document-template-version',
 			'employee-document-version',
 			'document-request-submission',
+			'document-business-evidence',
 		].includes(event.targetType) ||
 		typeof event.targetId !== 'string' ||
 		!event.targetId ||

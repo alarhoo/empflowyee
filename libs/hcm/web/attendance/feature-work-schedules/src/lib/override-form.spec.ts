@@ -62,3 +62,31 @@ it('retains exact intervals and explicit overlap choices with no implicit rollov
 		).toThrow()
 	expect(overrideFromForm({ ...model, kind: 'Rest' }, basis).segments).toEqual([])
 })
+
+it('retains admitted evidence references and rejects duplicates or an oversized collection', /** Native draft submission preserves server references without trusting client file state. */ () => {
+	const value = {
+		...emptyOverrideForm('UTC'),
+		kind: 'Rest',
+		reason: 'Changed workday',
+		evidenceIds: ['verified-a', 'verified-b'],
+	}
+	expect(overrideFromForm(value, basis).evidenceIds).toEqual(value.evidenceIds)
+	expect(
+		/** The same evidence cannot occupy two attachment slots. */ () =>
+			overrideFromForm({ ...value, evidenceIds: ['a', 'a'] }, basis),
+	).toThrow()
+	expect(
+		/** Keep source input and metadata projection within the documented technical bound. */ () =>
+			overrideFromForm(
+				{
+					...value,
+					evidenceIds: Array.from(
+						{ length: 101 },
+						/** Give each reference a distinct bounded identity. */ (_, index) =>
+							'evidence-' + index,
+					),
+				},
+				basis,
+			),
+	).toThrow()
+})

@@ -333,8 +333,48 @@ Architecture, documentation, catalogue, page structure and Work Schedules design
 readiness passed after this review. The broader admitted gate was freshly run
 before this slice at 59/61, with unrelated My Profile/Org Chart stale approvals;
 it is not complete-app acceptance. A verified 1,526,301-byte local PostgreSQL
-backup preceded explicit application of migrations 65–66 and Attendance access 5 /
+backup preceded explicit application of migrations 65â€“66 and Attendance access 5 /
 Leave access 2. The existing encryption key matched its pre-migration digest.
 The rebuilt API and four documented worker lanes were restarted; liveness,
 readiness and the tenant-host web entry point returned HTTP 200. No browser
 business journey is inferred from these operational checks.
+
+
+## Override evidence review
+
+On 2026-10-03 Codex reviewed Documents-owned evidence admission and the native
+Override section against COMMON privacy, existing private file storage and current
+source/field authority. Migration 67 extends existing blob purposes and adds
+immutable subject/classification/uploader binding and clean-only attachment.
+Access seed 6 grants explicit classification operations to the canonical local
+time policy administrator; read/manage or approval permission alone grants no
+file access. The 100-reference bound is a technical payload/projection limit.
+Native FileUploader APIs were inspected before composition. The source saves only
+server-admitted references, and separately authorized metadata survives reload.
+No malware-scanning provider, new trust boundary, human approval or app completion
+is claimed.
+
+The focused real PostgreSQL/API run passed 24 tests across evidence, Work Schedules
+and existing Documents import sources. Actual multipart upload and private download,
+concurrent same-key recovery, changed bytes/classification conflicts, revoked field
+authority, invalid/oversized files, uploader/subject/source rebinding denial,
+pending/blocked rejection and foreign tenant binding are covered. A real Override
+creation consumes validated evidence; a different source cannot reuse it. Existing
+workday, approval and import-source journeys remain green. The broader pure HCM-3
+suite passed 180 tests in 37 suites before the additional evidence form test.
+Affected API TypeScript, strict Angular compilation, API/web builds and architecture
+passed. Browser acceptance of the complete Work Schedules app remains outstanding;
+its Planned tile is unchanged. Migration 67 and seed 6 were explicitly applied to
+persistent PostgreSQL after a verified 1,563,675-byte backup. The field key is
+preserved. Three focused native form conversion tests, including the new evidence
+reference/boundary case, also passed.
+
+
+Final checks also passed affected lint with no errors or warnings, the worker
+build, documentation/catalogue/page structure and Work Schedules design readiness.
+The real PostgreSQL/API/browser regression command passed 62 tests across seven
+suites, preserving the accepted Template and Holiday journeys. It does not accept
+the new Override evidence screen or complete Work Schedules. The final evidence
+and Work Schedules database rerun passed 21 tests after adding purpose-specific
+metadata filtering. The restarted API/worker use the current build; liveness,
+readiness and the tenant-host web entry point returned HTTP 200.

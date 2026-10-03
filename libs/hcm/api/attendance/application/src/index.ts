@@ -26,3 +26,5 @@ export * from './lib/dated-pattern'
 export * from './lib/overrides'
 export * from './lib/override-impact'
 export * from './lib/approval-decisions'
+
+export * from './lib/evidence'

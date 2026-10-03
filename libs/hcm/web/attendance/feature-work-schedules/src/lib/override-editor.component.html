@@ -106,7 +106,7 @@
 			@if (!source()) {
 				<ui5-button
 					#addInterval
-					[disabled]="draft.saving() || uncertain()"
+					[disabled]="draft.saving() || uncertain() || evidencePending()"
 					(click)="addSegment()">
 					Add interval
 				</ui5-button>
@@ -133,9 +133,18 @@
 				<ui5-text>{{ error('reason') }}</ui5-text>
 			</ui5-form-item>
 		</ui5-form>
-		<ui5-text>
-			Reasons are retained privately with each command. Document attachment is not available yet.
-		</ui5-text>
+		<ui5-text>Reasons are retained privately with each command.</ui5-text>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="evidence"
+		label="Evidence">
+		@if (evidenceTarget(); as target) {
+			<ef-override-evidence
+				[target]="target"
+				[inactive]="draft.saving() || uncertain()"
+				(admitted)="setEvidence($event)"
+				(pending)="evidencePending.set($event)"></ef-override-evidence>
+		}
 	</ng-template>
 	<ng-template
 		efHcmObjectSection="review"
@@ -232,7 +241,7 @@
 		<ui5-button
 			hcmFooter
 			design="Emphasized"
-			[disabled]="draft.saving() || state() !== 'content'"
+			[disabled]="draft.saving() || evidencePending() || state() !== 'content'"
 			(click)="act('create')">
 			Save override draft
 		</ui5-button>
@@ -262,7 +271,7 @@
 	}
 	<ui5-button
 		hcmFooter
-		[disabled]="draft.saving() || uncertain()"
+		[disabled]="draft.saving() || uncertain() || evidencePending()"
 		(click)="back()">
 		Back to Work Schedules
 	</ui5-button>

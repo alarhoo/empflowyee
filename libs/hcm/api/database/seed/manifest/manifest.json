@@ -325,6 +325,15 @@
 			"requiresMigrations": ["000065_leave_request_drafts.sql"],
 			"apply": "access.leave.2.apply.sql",
 			"reset": "access.leave.2.reset.sql"
+		},
+		{
+			"id": "access.attendance",
+			"domain": "access-control",
+			"version": 6,
+			"dependsOn": ["access.attendance@5"],
+			"requiresMigrations": ["000067_document_business_evidence.sql"],
+			"apply": "access.attendance.6.apply.sql",
+			"reset": "access.attendance.6.reset.sql"
 		}
 	]
 }

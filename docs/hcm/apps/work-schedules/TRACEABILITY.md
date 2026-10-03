@@ -149,3 +149,16 @@ Assert no foreign rows/counts/private fields or partial business effects. For a
 mutation retry the same key and verify one result/audit/effect; for a read verify
 no mutation. Inspect SQL receipts/outbox where the requirement creates work.
 Planned suite: PostgreSQL/API integration plus domain boundary cases.
+
+
+## Governed Override evidence implementation
+
+REQ-WORK-SCHEDULES-005/006/007 use TDD OVERRIDE-EVIDENCE, universal Attendance and
+Documents evidence contracts, migration 67 and access seed 6. Source staging,
+attachment and downloads consume Documents-owned validation/binding; native
+FileUploader and Signal Forms expose real API outcomes. `evidence.database.spec.ts`
+covers private bytes, malformed/oversized uploads, permission revocation, immutable
+classification/uploader/subject, concurrent retry and tenant isolation. The existing
+`work-configurations.database.spec.ts` additionally creates a real Override with
+clean evidence and rejects reuse by a different source. Complete-app browser
+acceptance remains outstanding; these tests alone do not enable the app.

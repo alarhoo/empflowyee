@@ -15,3 +15,5 @@ export * from './lib/workdays'
 export * from './lib/dated-publication'
 export * from './lib/overrides'
 export * from './lib/approval-decisions'
+
+export * from './lib/evidence'

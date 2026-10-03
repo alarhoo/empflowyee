@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "e53e2f7a3ac7d0833abbf13d70caeec870a87ade0b2d5e87f1fa05b24fd91392",
+			"sha256": "00470769d610fb12376e4a4b8a6e5cea0c9d0a64e627a28b03fcca81c8770e09",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-decision-review; Codex technical review of actual source authority, independent staged decisions, immutable proofs, rollback, dispatch/reconciliation and dated materialization; no new human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-evidence-review; Codex technical review of purpose/subject/classification/uploader binding, current field permissions, native file controls, immutable source attachment and real PostgreSQL/API evidence; no new human approval or complete-app browser acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "7026ff986db0b284d7f508f8983aece4f6ab114dd9fa4153888a0b14d7099484",
+			"sha256": "91d40100937e0d807303e4d296bcd35addb892ceb3ef3c5361e86be469fcc43b",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-decision-review; Codex technical review of actual source authority, independent staged decisions, immutable proofs, rollback, dispatch/reconciliation and dated materialization; no new human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-evidence-review; Codex technical review of purpose/subject/classification/uploader binding, current field permissions, native file controls, immutable source attachment and real PostgreSQL/API evidence; no new human approval or complete-app browser acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

@@ -10,3 +10,5 @@ export * from './lib/self-documents'
 export * from './lib/document-requests'
 export * from './lib/import-source-reader'
 export * from './lib/import-source-storage'
+
+export * from './lib/evidence'

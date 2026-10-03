@@ -10,10 +10,11 @@ export interface OverrideForm {
 	zone: string
 	segments: SegmentForm[]
 	reason: string
+	evidenceIds: string[]
 }
 /** Keep initial editing state incomplete until the administrator explicitly chooses a dated replacement. */
 export function emptyOverrideForm(zone = ''): OverrideForm {
-	return { kind: '', zone, segments: [], reason: '' }
+	return { kind: '', zone, segments: [], reason: '', evidenceIds: [] }
 }
 /** Reuse authoritative override validation and exact native interval fields without accepting client source identities or quantities. */
 export function overrideFromForm(
@@ -26,7 +27,7 @@ export function overrideFromForm(
 		...basis,
 		zone: model.zone,
 		reason: model.reason,
-		evidenceIds: [],
+		evidenceIds: model.evidenceIds,
 		segments:
 			model.kind === 'Rest'
 				? []
