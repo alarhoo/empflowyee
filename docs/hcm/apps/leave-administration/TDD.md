@@ -68,6 +68,7 @@ contains id/revision/state and async operationId/statusUrl when applicable.
 | GET    | `/api/v1/leave/administration/runs`        | Query             | OperationView[]  | `hcm.leave.leave-administration.read`    |
 | GET    | `/api/v1/leave/administration/exceptions`  | Query             | OperationView[]  | `hcm.leave.leave-administration.read`    |
 | POST   | `/api/v1/leave/enrollments`                | EnrollmentCommand | CommandResult    | `hcm.leave.leave-administration.manage`  |
+| GET    | `/api/v1/leave/enrollments/{id}`           | Exact identity    | EnrollmentView   | `hcm.leave.leave-administration.read`    |
 | POST   | `/api/v1/leave/accrual-runs`               | AccrualCommand    | OperationView    | `hcm.leave.leave-administration.run`     |
 | POST   | `/api/v1/leave/adjustment-previews`        | AdjustmentInput   | Preview          | `hcm.leave.leave-administration.preview` |
 | POST   | `/api/v1/leave/adjustments`                | AdjustmentDraft   | CommandResult    | `hcm.leave.leave-administration.manage`  |
@@ -137,6 +138,30 @@ or advanced revision. Entitlements require the separately governed grant/accrual
 command; a created account alone is not a funded or completed enrollment journey.
 Runtime lifecycle and quantity mutation privileges remain withheld until the
 corresponding obligation/ledger commands are installed.
+
+The enrollment POST returns its persisted EnrollmentView, including an account
+identity only for Balance mode. The exact read route rejects all query selectors.
+The command first checks the operation/entitlement, then resolves every included
+date through Workforce's general time-context port and authorizes all complete
+assignment subjects under one grant. Private gender-bearing eligibility facts
+are read only after that scope check. Every date must be eligible; no partial
+enrollment is committed when a later date is excluded or unavailable.
+
+When effectiveTo is omitted, the bounded enrollment ends at the earlier explicit
+period end or policy-version end. A supplied end is never silently shortened.
+Synchronous admission/read supports at most 3660 inclusive dates; larger ranges
+return unavailable and require a future bounded background admission design.
+This is an execution budget, not an inferred period or entitlement rule. The
+tenant mutation lock stabilizes owner facts against concurrent configuration
+changes; period-before-policy row locks preserve close/publication ordering.
+
+Migration 64 extends existing actor/operation/key receipts with a composite
+tenant/enrollment/policy-version FK. Enrollment receipts require an encrypted
+reason and retain their safe original response. Concurrent same-key retries
+recover one enrollment/account; altered input conflicts, and current read scope
+is rechecked on replay. Safe human-attributed audit contains the enrollment
+identity/lifecycle, never eligibility facts or narrative. No grant, accrual job,
+period creation or entitlement funding is implied by successful enrollment.
 
 The grant ledger adapter is an internal port for already-authorized source
 commands, not a public funding API. Each positive exact grant retains its

@@ -24,7 +24,7 @@ import { KyselyLeavePolicyRepository } from './hcm-api-leave-infrastructure'
 import { KyselyLeavePolicyQueries } from './policy-queries'
 
 /** Retain actor-scoped policy retries and encrypted narrative in the command's own transaction. */
-class SqlLeavePolicyReceipts implements LeavePolicyReceipts {
+export class SqlLeavePolicyReceipts implements LeavePolicyReceipts {
 	private evidence: LeavePolicyEvidence | undefined
 	/** Receive only the current unit's verified tenant, actor and bound cipher. */
 	constructor(
@@ -38,6 +38,7 @@ class SqlLeavePolicyReceipts implements LeavePolicyReceipts {
 	setEvidence(evidence: LeavePolicyEvidence): void {
 		if (this.evidence) throw new Error('Leave command evidence already established')
 		idValue(evidence.versionId, 'versionId')
+		if (evidence.enrollmentId !== undefined) idValue(evidence.enrollmentId, 'enrollmentId')
 		revisionValue(evidence.revision, 'revision')
 		if (evidence.reason !== null) preservedTextValue(evidence.reason, 'reason', 2000)
 		this.evidence = { ...evidence }
@@ -68,8 +69,8 @@ class SqlLeavePolicyReceipts implements LeavePolicyReceipts {
 					{ table: 'leave_command_receipt', column: 'encrypted_reason', rowId: id },
 					evidence.reason,
 				)
-		await sql`INSERT INTO hcm.leave_command_receipt(tenant_id,id,actor_account_id,operation,idempotency_key,request_hash,policy_version_id,source_revision,response,encrypted_reason,reason_key_version)
-VALUES(${this.tenantId},${id},${this.accountId},${operation},${key}::uuid,${receipt.requestHash},${evidence.versionId},${evidence.revision},${JSON.stringify(receipt.response)}::jsonb,${sealed?.ciphertext ?? null},${sealed?.keyVersion ?? null})`.execute(
+		await sql`INSERT INTO hcm.leave_command_receipt(tenant_id,id,actor_account_id,operation,idempotency_key,request_hash,policy_version_id,enrollment_id,source_revision,response,encrypted_reason,reason_key_version)
+VALUES(${this.tenantId},${id},${this.accountId},${operation},${key}::uuid,${receipt.requestHash},${evidence.versionId},${evidence.enrollmentId ?? null},${evidence.revision},${JSON.stringify(receipt.response)}::jsonb,${sealed?.ciphertext ?? null},${sealed?.keyVersion ?? null})`.execute(
 	this.transaction,
 )
 	}

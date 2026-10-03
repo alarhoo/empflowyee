@@ -94,7 +94,7 @@ libs/hcm/api/leave/domain libs/hcm/contracts/workflow/src/lib/actions.spec.ts`.
 ## Remaining
 
 Further owner reference checks, policy impact review and publication,
-authorized enrollment commands and ledger posting, accrual/expiry handlers,
+authorized entitlement posting, accrual/expiry handlers,
 source approvals and all requested Leave native UI/browser journeys remain to be
 delivered. No balance has been manufactured by this foundation.
 
@@ -105,6 +105,27 @@ decision. The exact quantity implementation does not choose either behavior.
 Initial local Leave period dates have been raised for product configuration; no
 calendar-year or financial-year default has been silently seeded.
 
-Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–63
+Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–64
 have been exercised only in disposable test databases. Back up the persistent
 database and preserve its encryption key before explicit migration.
+
+## Enrollment command integration
+
+On 2026-10-03 Codex reviewed the actual enrollment command design under the
+existing delegated technical authority. The command uses the existing Access
+transaction, Workforce owner ports, eligibility engine, immutable policy/period
+references and enrollment/account repository. Review covered whole-grant scope
+across all dates, private eligibility after authorization, period/policy locking,
+bounded omitted-end semantics, encrypted receipts and the Unpaid exclusion. No
+new business defaults, architecture boundary or independent human approval is
+claimed. The app remains Planned.
+
+The Leave PostgreSQL/API run passed 23 tests in two suites. New HTTP cases cover
+missing/Planned/Closing periods, explicit eligibility across every date, a later
+Exclude rollback, concurrent replay, changed-key payload rejection, encrypted
+reason, reload, revoked read permission, selected-employment scope and Unpaid
+without accounts. Balance enrollment starts at exactly zero with no ledger rows.
+Published policies and period dates in these tests are explicit disposable
+prerequisite fixtures, not evidence of policy publication or seeded local UI.
+The audit regression passed two tests; affected lint and the Leave module type
+check passed. No native UI/browser acceptance is established by these tests.

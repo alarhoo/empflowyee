@@ -46,7 +46,7 @@ async function send(
 	path: string,
 	body?: unknown,
 	headers: Record<string, string> = {},
-	resource: 'policies' | 'policy-options' = 'policies',
+	resource: 'policies' | 'policy-options' | 'enrollments' = 'policies',
 ) {
 	const payload = body === undefined ? '' : JSON.stringify(body)
 	return new Promise<{
@@ -253,4 +253,274 @@ it('loads policy type options from the tenant database under source read authori
 	expect(
 		(await send('david', 'GET', '?tenantId=foreign', undefined, {}, 'policy-options')).status,
 	).toBe(400)
+})
+
+/** Create complete policy and period prerequisites as disposable fixtures; publication and period UI remain separate acceptance work. */
+async function enrollmentPolicy(unpaid = false, excludeLater = false) {
+	const created = await send('david', 'POST', '', {
+		...input(),
+		trackingMode: unpaid ? 'Unpaid' : 'Balance',
+		effectiveTo: '2026-10-10',
+		allowHalfDay: false,
+		allowHourly: false,
+		maximumBackdatedDays: 0,
+		maximumAdvanceDays: 365,
+		minimumRequestUnits: '0.000001',
+		maximumRequestUnits: '30',
+		accrual: { enabled: false },
+		eligibilityRules: [
+			{ id: 'all', priority: 1, effect: 'Include', effectiveFrom: '2026-01-01' },
+			...(excludeLater
+				? [{ id: 'later', priority: 2, effect: 'Exclude', effectiveFrom: '2026-10-06' }]
+				: []),
+		],
+		approvalRules: [
+			{
+				id: 'manager',
+				stage: 1,
+				roleCode: 'MANAGER',
+				subjectType: 'Leave',
+				independent: true,
+				source: 'LineManager',
+			},
+		],
+	})
+	expect(created.status, JSON.stringify(created.body)).toBe(201)
+	expect(created.body.validation).toEqual([])
+	await admin.query(
+		"UPDATE hcm.leave_policy_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id=$2,publication_digest=repeat('a',64) WHERE tenant_id=$3 AND id=$1",
+		[created.body.versionId, 'dunder-mifflin/account/david', tenant],
+	)
+	return created.body
+}
+
+it('enrolls through real HTTP with complete eligibility, encrypted receipts and no fabricated funding', /** Assert persisted effects, concurrent replay, current authority and whole-range eligibility rather than status alone. */ async () => {
+	await admin.query(
+		"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.leave.leave-administration.read','Read enrollments','business-operation'),($1,'hcm.leave.leave-administration.manage','Manage enrollments','business-operation')",
+		[tenant],
+	)
+	await admin.query(
+		"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator','hcm.leave.leave-administration.read'),($1,'tenant-administrator','hcm.leave.leave-administration.manage')",
+		[tenant],
+	)
+	const policy = await enrollmentPolicy(),
+		key = randomUUID()
+	const body = {
+		employmentId: 'dunder-mifflin/employment/jim',
+		policyVersionId: policy.versionId,
+		effectiveFrom: '2026-10-05',
+		effectiveTo: '2026-10-07',
+		reason: '  Private eligibility admission reason  ',
+	}
+	expect((await send('david', 'POST', '', body, {}, 'enrollments')).status).toBe(409)
+	await admin.query(
+		"INSERT INTO hcm.leave_period(tenant_id,id,code,name,start_date,end_date,created_by_account_id) VALUES($1,'http-period','HTTP_PERIOD','Explicit test period','2026-10-01','2026-10-31','dunder-mifflin/account/david')",
+		[tenant],
+	)
+	expect((await send('david', 'POST', '', body, {}, 'enrollments')).status).toBe(409)
+	await admin.query(
+		"UPDATE hcm.leave_period SET state='Open',revision=revision+1 WHERE tenant_id=$1 AND id='http-period'",
+		[tenant],
+	)
+	expect((await send('jim', 'POST', '', body, {}, 'enrollments')).status).toBe(403)
+	expect(
+		(await send('david', 'POST', '', { ...body, availableUnits: '24' }, {}, 'enrollments')).status,
+	).toBe(400)
+	const replies = await Promise.all([
+		send('david', 'POST', '', body, { 'idempotency-key': key }, 'enrollments'),
+		send('david', 'POST', '', body, { 'idempotency-key': key }, 'enrollments'),
+	])
+	for (const result of replies) expect(result.status, JSON.stringify(result.body)).toBe(201)
+	expect(replies[1].body).toEqual(replies[0].body)
+	const created = replies[0].body
+	expect(created).toMatchObject({
+		state: 'Active',
+		revision: 1,
+		trackingMode: 'Balance',
+		effectiveFrom: body.effectiveFrom,
+		effectiveTo: body.effectiveTo,
+	})
+	expect(created.accountId).toBeTruthy()
+	expect((await send('david', 'GET', '/' + created.id, undefined, {}, 'enrollments')).body).toEqual(
+		created,
+	)
+	expect((await send('jim', 'GET', '/' + created.id, undefined, {}, 'enrollments')).status).toBe(
+		403,
+	)
+	expect((await send('david', 'GET', '/foreign', undefined, {}, 'enrollments')).status).toBe(404)
+	expect((await send('david', 'POST', '', body, {}, 'enrollments')).status).toBe(409)
+	expect(
+		(
+			await send(
+				'david',
+				'POST',
+				'',
+				{ ...body, reason: 'Different retry' },
+				{ 'idempotency-key': key },
+				'enrollments',
+			)
+		).status,
+	).toBe(409)
+	const account = (
+		await admin.query(
+			'SELECT posted_units::text,reserved_units::text,available_units::text FROM hcm.leave_balance_account WHERE tenant_id=$1 AND enrollment_id=$2',
+			[tenant, created.id],
+		)
+	).rows
+	expect(account).toEqual([
+		{
+			['posted_units']: '0.000000',
+			['reserved_units']: '0.000000',
+			['available_units']: '0.000000',
+		},
+	])
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_balance_transaction WHERE tenant_id=$1', [tenant]))
+			.rows,
+	).toHaveLength(0)
+	const receipt = (
+		await admin.query(
+			'SELECT enrollment_id, encrypted_reason, response::text FROM hcm.leave_command_receipt WHERE tenant_id=$1 AND idempotency_key=$2',
+			[tenant, key],
+		)
+	).rows[0]
+	expect(receipt.enrollment_id).toBe(created.id)
+	expect(Buffer.isBuffer(receipt.encrypted_reason)).toBe(true)
+	expect(receipt.encrypted_reason.toString('utf8')).not.toContain(body.reason)
+	expect(receipt.response).not.toContain(body.reason)
+	const isolated = new Client({ connectionString: connection('RUNTIME') })
+	await isolated.connect()
+	try {
+		await isolated.query("SELECT set_config('hcm.tenant_id','foreign-enrollment-tenant',false)")
+		for (const table of ['leave_enrollment', 'leave_balance_account', 'leave_command_receipt']) {
+			// Table names are this fixed test allowlist, never request input.
+			expect((await isolated.query('SELECT id FROM hcm.' + table)).rows).toHaveLength(0)
+		}
+	} finally {
+		await isolated.end()
+	}
+	await admin.query(
+		"DELETE FROM hcm.role_permission WHERE tenant_id=$1 AND role_id='tenant-administrator' AND permission_code='hcm.leave.leave-administration.read'",
+		[tenant],
+	)
+	expect(
+		(await send('david', 'POST', '', body, { 'idempotency-key': key }, 'enrollments')).status,
+	).toBe(403)
+	await admin.query(
+		"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator','hcm.leave.leave-administration.read')",
+		[tenant],
+	)
+	const excluded = await enrollmentPolicy(false, true)
+	expect(
+		(
+			await send(
+				'david',
+				'POST',
+				'',
+				{ ...body, policyVersionId: excluded.versionId },
+				{},
+				'enrollments',
+			)
+		).status,
+	).toBe(409)
+	expect(
+		(
+			await admin.query(
+				'SELECT id FROM hcm.leave_enrollment WHERE tenant_id=$1 AND policy_version_id=$2',
+				[tenant, excluded.versionId],
+			)
+		).rows,
+	).toHaveLength(0)
+})
+
+it('admits Unpaid enrollment without accounts and bounds omitted end dates by explicit configuration', /** Unpaid is a distinct tracked mode, never a zero-balance account or implicit entitlement. */ async () => {
+	const policy = await enrollmentPolicy(true)
+	const body = {
+		employmentId: 'dunder-mifflin/employment/jim',
+		policyVersionId: policy.versionId,
+		effectiveFrom: '2026-10-05',
+		reason: 'Explicit Unpaid eligibility',
+	}
+	const created = await send('david', 'POST', '', body, {}, 'enrollments')
+	expect(created.status, JSON.stringify(created.body)).toBe(201)
+	expect(created.body).toMatchObject({
+		state: 'Active',
+		trackingMode: 'Unpaid',
+		effectiveTo: '2026-10-10',
+	})
+	expect(created.body).not.toHaveProperty('accountId')
+	expect(
+		(
+			await admin.query(
+				'SELECT id FROM hcm.leave_balance_account WHERE tenant_id=$1 AND enrollment_id=$2',
+				[tenant, created.body.id],
+			)
+		).rows,
+	).toHaveLength(0)
+	expect(
+		(
+			await send(
+				'david',
+				'POST',
+				'',
+				{ ...body, effectiveFrom: '2026-10-11', effectiveTo: '2026-10-12' },
+				{},
+				'enrollments',
+			)
+		).status,
+	).toBe(409)
+})
+
+it('requires the selected employment scope even when the actor has the correct operation', /** A grant for a different employment cannot authorize enrollment or disclosure of another person. */ async () => {
+	const policy = await enrollmentPolicy(true)
+	await admin.query(
+		"INSERT INTO hcm.access_role(tenant_id,id,label) VALUES($1,'enrollment-scoped','Enrollment test scope')",
+		[tenant],
+	)
+	await admin.query(
+		"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'enrollment-scoped','hcm.leave.leave-administration.manage'),($1,'enrollment-scoped','hcm.leave.leave-administration.read')",
+		[tenant],
+	)
+	await admin.query(
+		"INSERT INTO hcm.account_role(tenant_id,account_id,role_id,grant_id) VALUES($1,'dunder-mifflin/account/jim','enrollment-scoped','enrollment-scoped')",
+		[tenant],
+	)
+	await admin.query(
+		"INSERT INTO hcm.account_role_scope(tenant_id,id,grant_id,scope_kind,employment_id) VALUES($1,'enrollment-employment','enrollment-scoped','Employment','dunder-mifflin/employment/dwight')",
+		[tenant],
+	)
+	const body = {
+		employmentId: 'dunder-mifflin/employment/jim',
+		policyVersionId: policy.versionId,
+		effectiveFrom: '2026-10-05',
+		effectiveTo: '2026-10-05',
+		reason: 'Verify whole employment scope',
+	}
+	expect((await send('jim', 'POST', '', body, {}, 'enrollments')).status).toBe(403)
+	const allowed = await send(
+		'jim',
+		'POST',
+		'',
+		{ ...body, employmentId: 'dunder-mifflin/employment/dwight' },
+		{},
+		'enrollments',
+	)
+	expect(allowed.status, JSON.stringify(allowed.body)).toBe(201)
+	expect(
+		(await send('jim', 'GET', '/' + allowed.body.id, undefined, {}, 'enrollments')).status,
+	).toBe(200)
+	const existing = (
+		await admin.query(
+			"SELECT id FROM hcm.leave_enrollment WHERE tenant_id=$1 AND employment_id='dunder-mifflin/employment/jim' LIMIT 1",
+			[tenant],
+		)
+	).rows[0]
+	expect((await send('jim', 'GET', '/' + existing.id, undefined, {}, 'enrollments')).status).toBe(
+		403,
+	)
+	await admin.query(
+		"UPDATE hcm.leave_period SET state='Closing',revision=revision+1 WHERE tenant_id=$1 AND id='http-period'",
+		[tenant],
+	)
+	expect((await send('david', 'POST', '', body, {}, 'enrollments')).status).toBe(409)
 })

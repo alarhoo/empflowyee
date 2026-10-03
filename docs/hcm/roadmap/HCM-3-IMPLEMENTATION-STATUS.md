@@ -73,9 +73,12 @@ The rebuilt API is ready and the worker runs AttendanceResolve and WorkflowPlan;
 source decisions and the remaining Workflow lanes are still unavailable.
 
 Leave now has exact quantities, typed policy persistence and authenticated draft,
-version, list and type-option APIs, verified against disposable PostgreSQL/HTTP.
+version, list, type-option and dated enrollment APIs, verified against disposable
+PostgreSQL/HTTP. Balance enrollment creates an empty account; Unpaid creates none.
+Internal grant ledger, accrual quantity and current Workforce/Attendance source
+ports are tested prerequisites, not complete entitlement or request journeys.
 See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
-This does not complete a Leave app or milestone; publication, accounts/ledger,
+This does not complete a Leave app or milestone; publication, entitlement funding,
 source journeys and the native UIs remain pending. Local PostgreSQL remains at
 migration 55; the new migrations have not been applied to the persistent database.
 

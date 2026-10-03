@@ -1,8 +1,12 @@
 # Leave Administration — requirement traceability
 
-Status: reviewed design/test plan, 2026-09-28. No business tests have run because
-implementation has not begun. Each scenario below is an implementation acceptance
-obligation linked to the approved FDD and concrete technical design.
+Status: partial implementation evidence, 2026-10-03. The acceptance scenarios
+below remain obligations; this is not UI or app completion. The
+[enrollment integration record](../../testing/HCM-3-LEAVE-FOUNDATION.md#enrollment-command-integration)
+records actual PostgreSQL/API checks for REQ-001/005/007: whole-date eligibility,
+scoped access, concurrent retries, private evidence and empty-account/Unpaid
+invariants. Internal ledger tests also exist; accrual operations, independent
+adjustment approval, close and native UI acceptance remain outstanding.
 
 | Requirement                                                         | Design                          | Planned test                                                    |
 | ------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------- |
