@@ -10,3 +10,7 @@ See the [shell maintainer guide](../../../../../docs/hcm/architecture/shell/READ
 Provision with `pnpm hcm:db:up`, then run `pnpm dev:hcm-api`. Neither adapter runs
 migrations or seeds. See [database operations](../../../../../docs/hcm/engineering/DATABASE-OPERATIONS.md)
 and the [persistent runtime design](../../../../../docs/hcm/tdd/TDD-HCM-PERSISTENT-RUNTIME.md).
+
+Internal durable human-action references preserve the original verified session
+expiry and exact intent/permission/scope binding. They do not authorize an action
+without current source and Access checks. See the [integration evidence](../../../../../docs/hcm/testing/HCM-3-WORKFLOW-INTEGRATION.md#durable-action-authority-review).

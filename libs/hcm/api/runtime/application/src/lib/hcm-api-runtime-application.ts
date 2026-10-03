@@ -37,8 +37,18 @@ export function requireAuthenticatedTenant(context: AuthenticatedHcmContext): st
 
 /** Resolve actor authority from the verified private scope, never mutable public session fields. */
 export function requireAuthenticatedAccount(context: AuthenticatedHcmContext): string {
-	requireAuthenticatedTenant(context)
-	return authenticatedScopes.get(context)!.accountId
+	return requireAuthenticatedScope(context).accountId
+}
+
+/** Capture immutable server-verified actor and expiry for durable action admission, never public session claims. */
+export function requireAuthenticatedScope(context: AuthenticatedHcmContext): Readonly<{
+	tenantId: string
+	accountId: string
+	expiresAt: number
+}> {
+	const scope = authenticatedScopes.get(context)
+	if (!scope || scope.expiresAt <= Date.now()) throw new HcmRuntimeError('unauthenticated')
+	return Object.freeze({ ...scope })
 }
 
 export class HcmRuntimeApplication {

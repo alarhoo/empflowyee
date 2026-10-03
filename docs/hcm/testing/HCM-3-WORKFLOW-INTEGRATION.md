@@ -119,3 +119,30 @@ The fresh production-web regression on 2026-10-03 passed 7 suites / 62 tests,
 including the existing Work Schedule Templates and Holiday Calendars browser
 journeys (`tools/milestones/hcm-3/browser.config.mts`). This is regression
 evidence for those apps, not Work Schedules browser acceptance.
+
+## Durable action authority review
+
+Codex reviewed the implementation against TDD-HCM-3-COMMON WORKLOAD on
+2026-10-03. Runtime captures tenant, actor and expiry from its private verified
+context into immutable `runtime_action_authorization` rows (migration 56).
+The internal reference binds permission, source scope digest and canonical intent
+digest. Replaying an intent preserves its original expiry. It is neither a browser
+token nor a new authentication trust boundary.
+
+Only verified WorkflowDispatch execution can restore a non-serializable action
+capability. Sources must independently derive the exact scope binding, call
+Access Control's current whole-grant evaluator, and recheck the action capability
+before committing a new decision. Current online and dispatched operations share
+that evaluator without constructing a synthetic authenticated human session.
+Previously committed result queries remain a separate source-receipt operation;
+restoring an expired capability is not permitted for a new decision.
+
+The focused disposable PostgreSQL run passed 3 suites / 19 tests (action authority,
+grant scope and workload context). It exercises forged and copied contexts,
+mutable public session claims, exact binding, wrong workload, tenant isolation,
+missing actor FK, immutable expiry, producer rollback, current permission and
+entitlement revocation, account disablement, and expiry-before-commit rollback.
+Affected lint, TypeScript (`--allowImportingTsExtensions` for existing seed imports)
+and architecture checks pass. This adds no UI or source decision endpoint.
+Migration 56 is verified on disposable SQL; the persistent local database remains
+at 55 until the next explicit backed-up migration operation.
