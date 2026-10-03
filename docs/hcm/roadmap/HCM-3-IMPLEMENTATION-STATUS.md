@@ -72,6 +72,13 @@ backup, local PostgreSQL has migrations through 55 and Attendance seed version 4
 The rebuilt API is ready and the worker runs AttendanceResolve and WorkflowPlan;
 source decisions and the remaining Workflow lanes are still unavailable.
 
+Leave now has exact quantities, typed policy persistence and authenticated draft,
+version, list and type-option APIs, verified against disposable PostgreSQL/HTTP.
+See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
+This does not complete a Leave app or milestone; publication, accounts/ledger,
+source journeys and the native UIs remain pending. Local PostgreSQL remains at
+migration 55; the new migrations have not been applied to the persistent database.
+
 | Slice                                             | State                                     | Evidence                                                           |
 | ------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
 | Scoped access grants and decision-time checks     | Implemented                               | [Validation](../testing/HCM-3-ACCESS-FOUNDATION-VALIDATION.md)     |

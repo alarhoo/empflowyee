@@ -369,7 +369,9 @@
 			"@empflowyee/hcm-api-leave-application": ["./libs/hcm/api/leave/application/src/index.ts"],
 			"@empflowyee/hcm-api-leave-infrastructure": [
 				"./libs/hcm/api/leave/infrastructure/src/index.ts"
-			]
+			],
+			"@empflowyee/hcm-api-leave-transport": ["./libs/hcm/api/leave/transport/src/index.ts"],
+			"@empflowyee/hcm-api-leave-module": ["./libs/hcm/api/leave/module/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp", "dist"]

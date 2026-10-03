@@ -76,6 +76,27 @@ Every response has a purpose-built projection; private narrative/evidence requir
 additional current field permission. No persistence row serialization. Disabled
 encashment/device/pool/delegation/payment routes are absent, not successful stubs.
 
+Policy listing accepts `limit` (default 25, 1..100), `sort` (code/name/state/id,
+optional :asc/:desc), exact `id`, bounded code/name substring filters, state and
+opaque cursor. It selects the latest version before filtering, then orders using
+PostgreSQL C collation and same-direction root-ID tie-break. Cursor records retain
+only the token hash, current actor/grant/query/source-generation binding and
+last sort value/ID; they expire after fifteen minutes. Configuration changes
+invalidate continuation rather than silently mixing versions.
+
+The policy-options type picker accepts q (0..200), limit (1..100), exact id and
+cursor, returning `{leaveTypes,nextCursor}`. Each type has id/label/code/unit/
+category/revision/state Active or Inactive; no pay flag, sensitivity flag or
+persistence metadata is exposed. Further owner-reference pickers remain subject
+to their approved owner contracts; this type projection does not imply their
+implementation. Policies are global configuration roots and currently require
+one tenant-wide operation grant; references do not manufacture narrower authority.
+Draft writes, source revision evidence, encrypted version reason, human-attributed
+safe audit and actor/operation/key response receipt commit in one transaction.
+Recovery requires current source read permission in addition to the original
+operation permission. Successor ordinal allocation uses a Leave-owned advisory
+lock without granting UPDATE on the immutable policy root.
+
 ## AUTHORIZATION
 
 Entitlement `hcm.leave` and each endpoint's explicit

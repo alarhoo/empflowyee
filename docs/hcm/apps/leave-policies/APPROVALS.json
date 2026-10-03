@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "8996ac9e0c22e0c7a673f825b8d51e46fcc2e0a17e2ea820aaeb15f2e7b8aeea",
+			"sha256": "8f848ba29ad78bd711ffdb58255fc64e85ce1e239b5055bebb14256d64a02d2b",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/apps/leave-policies/TDD.md#policy-field-implementation-contract; reviewed against app FDD requirement 001 and Leave logical model under existing product-owner technical delegation; no new human approval or implementation acceptance."
+			"reviewEvidence": "docs/hcm/apps/leave-policies/TDD.md#policy-field-implementation-contract and #api; reviewed explicit typed fields, actor/grant/query-bound continuation and atomic draft receipts against approved FDD/common contracts under existing product-owner technical delegation. No separate human review or full application acceptance claimed."
 		},
 		{
 			"document": "TRACE",

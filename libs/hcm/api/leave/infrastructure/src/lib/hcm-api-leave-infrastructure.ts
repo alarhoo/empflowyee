@@ -231,11 +231,14 @@ WHERE v.tenant_id=${this.tenantId} AND v.policy_id=${policyId} AND v.id=${versio
 		})
 	}
 
-	/** Lock the policy root so concurrent successor creation cannot allocate the same ordinal. */
+	/** Serialize successor ordinals without granting UPDATE on immutable policy identity. */
 	async nextVersion(policyId: string): Promise<number> {
 		await this.requireTenant()
+		await sql`SELECT pg_advisory_xact_lock(hashtextextended(${JSON.stringify([this.tenantId, policyId])},59))`.execute(
+			this.transaction,
+		)
 		const root =
-			await sql`SELECT id FROM hcm.leave_policy WHERE tenant_id=${this.tenantId} AND id=${policyId} FOR UPDATE`.execute(
+			await sql`SELECT id FROM hcm.leave_policy WHERE tenant_id=${this.tenantId} AND id=${policyId}`.execute(
 				this.transaction,
 			)
 		if (!root.rows.length) throw new HcmDomainError('not-found')
