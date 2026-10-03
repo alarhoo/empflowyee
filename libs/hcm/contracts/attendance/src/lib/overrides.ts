@@ -67,6 +67,7 @@ export interface AttendanceOverrideReview {
 }
 /** Submission acknowledges persisted independent approval work; it never reports an unexecuted approval as successful. */
 export interface AttendanceOverrideSubmission {
+	reviewedThrough?: string
 	id: string
 	revision: number
 	state: 'PendingApproval'
@@ -75,6 +76,18 @@ export interface AttendanceOverrideSubmission {
 	generation: number
 	operationId: string
 }
+
+/** The override is approved under an explicit no-required-slot policy; dated materialization is durable pending work. */
+export interface AttendanceOverrideApplied {
+	id: string
+	revision: number
+	state: 'Approved'
+	reviewedThrough: string
+	resolutionState: 'Pending'
+	operationIds: string[]
+}
+export type AttendanceOverrideSubmitResult =
+	AttendanceOverrideSubmission | AttendanceOverrideApplied
 
 /** Parse a complete dated override; an explicitly empty segment list means nonworking, never missing configuration. */
 export function parseAttendanceOverrideDraft(value: unknown): AttendanceOverrideDraft {

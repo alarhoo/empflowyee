@@ -31,7 +31,7 @@ import type {
 	AttendanceOverrideDraft,
 	AttendanceOverrideView,
 	AttendanceOverrideReview,
-	AttendanceOverrideSubmission,
+	AttendanceOverrideSubmitResult,
 } from '@empflowyee/hcm-attendance-contract'
 
 export interface WorkConfigurationViews {
@@ -76,10 +76,10 @@ export class WorkSchedulesApi {
 			)
 			.pipe(timeout(30000))
 	}
-	/** Request the configured independent source approval using its actor-bound current review. */
+	/** Apply the current policy's required approval or no-required-slot path using the exact retained review. */
 	submitOverride(id: string, body: ConfigurationPublishCommand, key: string) {
 		return this.http
-			.post<AttendanceOverrideSubmission>(
+			.post<AttendanceOverrideSubmitResult>(
 				`/api/v1/attendance/overrides/${encodeURIComponent(id)}/submit`,
 				body,
 				{ headers: { 'Idempotency-Key': key } },

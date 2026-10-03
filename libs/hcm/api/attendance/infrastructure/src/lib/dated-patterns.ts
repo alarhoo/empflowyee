@@ -82,9 +82,21 @@ SELECT jsonb_build_object('kind','Roster','id',e.id,'employmentId',e.employment_
 			...pattern,
 			state: 'Available',
 			workforce: facts.context,
-			digest: commandHash('DatedWorkPattern', {
+			digest: commandHash('DatedWorkPattern:2', {
 				tenant: this.tenant,
-				sources,
+				sources: sources.map(
+					/** Canonicalize keys so an in-memory proposal and its persisted JSONB source have identical evidence. */ (
+						source,
+					) => ({
+						kind: source.kind,
+						id: source.id,
+						employmentId: source.employmentId,
+						workDate: source.workDate,
+						state: source.state,
+						revision: source.revision,
+						...(source.kind === 'Roster' ? { rosterState: source.rosterState } : {}),
+					}),
+				),
 				pattern,
 				workforce: facts.context.inputDigest,
 			}),

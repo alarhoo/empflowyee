@@ -527,6 +527,180 @@ it('reviews real Leave impact without rewriting requests and rejects a stale pre
 	expect(refreshed.body.digest).not.toBe(review.body.digest)
 })
 
+it('applies an explicitly no-approval override once and resolves its affected dates through the real worker', /** A reviewed source transition, durable intents and safe receipt commit together; materialization remains separate from approval. */ async () => {
+	const before = (
+		await api.admin.query(
+			'SELECT id,total_units::text,calculation_digest FROM hcm.leave_request ORDER BY id',
+		)
+	).rows
+	const draft = await api.send<AttendanceOverrideView>('david', 'POST', 'attendance/overrides', {
+		employmentId: employment,
+		workDate: '2026-10-06',
+		workdayRevision: 1,
+		zone: 'UTC',
+		segments: [],
+		evidenceIds: [],
+		reason: 'Explicit exceptional rest',
+	})
+	expect(draft.status).toBe(201)
+	const path = 'attendance/overrides/' + draft.body.id
+	const reviewed = await api.send<AttendanceOverrideReview>('david', 'POST', path + '/preview', {
+		expectedRevision: 1,
+		reason: 'Review complete current impact',
+	})
+	expect(reviewed.status).toBe(200)
+	expect(reviewed.body).toMatchObject({
+		approvalRequired: false,
+		reviewedThrough: '2026-10-07',
+		leaveImpact: { affectedRequestCount: 1, changedRequestCount: 1, unavailableRequestCount: 0 },
+	})
+	const command = {
+			expectedRevision: 1,
+			previewId: reviewed.body.previewId,
+			digest: reviewed.body.digest,
+			reason: 'Apply under current policy',
+		},
+		key = randomUUID()
+	expect((await api.send('jim', 'POST', path + '/submit', command)).status).toBe(403)
+	const jobsBefore = (
+		await api.admin.query('SELECT count(*)::int AS count FROM hcm.attendance_outbox')
+	).rows[0].count
+	await api.admin.query(
+		"CREATE FUNCTION hcm.test_override_enqueue_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Injected enqueue failure'; END $$; CREATE TRIGGER test_override_enqueue_failure BEFORE INSERT ON hcm.attendance_outbox FOR EACH ROW EXECUTE FUNCTION hcm.test_override_enqueue_failure()",
+	)
+	try {
+		expect(
+			(await api.send('david', 'POST', path + '/submit', command, { 'idempotency-key': key }))
+				.status,
+		).toBe(503)
+		expect((await api.send('david', 'GET', path)).body).toMatchObject({
+			state: 'Draft',
+			revision: 1,
+		})
+		expect(
+			(await api.admin.query('SELECT count(*)::int AS count FROM hcm.attendance_outbox')).rows[0]
+				.count,
+		).toBe(jobsBefore)
+		expect(
+			(
+				await api.admin.query(
+					'SELECT id FROM hcm.attendance_command_receipt WHERE idempotency_key=$1',
+					[key],
+				)
+			).rows,
+		).toEqual([])
+	} finally {
+		await api.admin.query(
+			'DROP TRIGGER test_override_enqueue_failure ON hcm.attendance_outbox; DROP FUNCTION hcm.test_override_enqueue_failure()',
+		)
+	}
+	const [left, right] = await Promise.all([
+		api.send<import('@empflowyee/hcm-attendance-contract').AttendanceOverrideApplied>(
+			'david',
+			'POST',
+			path + '/submit',
+			command,
+			{ 'idempotency-key': key },
+		),
+		api.send('david', 'POST', path + '/submit', command, { 'idempotency-key': key }),
+	])
+	expect(left.status, JSON.stringify(left.body)).toBe(200)
+	expect(right.body).toEqual(left.body)
+	expect(left.body).toMatchObject({
+		id: draft.body.id,
+		revision: 2,
+		state: 'Approved',
+		resolutionState: 'Pending',
+		reviewedThrough: '2026-10-07',
+	})
+	expect(left.body.operationIds).toHaveLength(2)
+	const pending = await api.send<import('@empflowyee/hcm-attendance-contract').WorkdayPage>(
+		'david',
+		'GET',
+		'attendance/workdays?employmentId=' +
+			encodeURIComponent(employment) +
+			'&from=2026-10-06&to=2026-10-07',
+	)
+	expect(pending.body.items).toMatchObject([
+		{ state: 'Unavailable', unavailableCode: 'ResolutionPending' },
+		{ state: 'Unavailable', unavailableCode: 'ResolutionPending' },
+	])
+	expect((await api.send('david', 'GET', path)).body).toMatchObject({
+		state: 'Approved',
+		revision: 2,
+	})
+	expect(
+		(
+			await api.admin.query(
+				'SELECT revision FROM hcm.published_workday WHERE tenant_id=$1 AND employment_id=$2 AND work_date=$3 ORDER BY revision',
+				[tenant, employment, '2026-10-06'],
+			)
+		).rows,
+	).toEqual([{ revision: 1 }])
+	expect(
+		(
+			await api.admin.query(
+				'SELECT count(*)::int AS count FROM hcm.attendance_approval_case WHERE schedule_override_id=$1',
+				[draft.body.id],
+			)
+		).rows[0].count,
+	).toBe(0)
+	const context = await new HcmWorkloadIssuer(directory, ['AttendanceResolve']).issue(
+		tenant,
+		'AttendanceResolve',
+		randomUUID(),
+		600000,
+	)
+	const lane = new HcmTransactionalWorkerLane(
+		'AttendanceResolve',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[
+			new KyselyAttendanceResolveHandler(
+				new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder()),
+			),
+		],
+	)
+	for (let index = 0; index < 2; index++) {
+		const claimed = await lane.claim(context)
+		expect(claimed).toBeTruthy()
+		if (claimed) await lane.complete(context, claimed)
+	}
+	expect(await lane.claim(context)).toBeNull()
+	const days = await api.send<import('@empflowyee/hcm-attendance-contract').WorkdayPage>(
+		'david',
+		'GET',
+		'attendance/workdays?employmentId=' +
+			encodeURIComponent(employment) +
+			'&from=2026-10-06&to=2026-10-07',
+	)
+	expect(days.status).toBe(200)
+	expect(days.body.items).toMatchObject([
+		{ state: 'Published', workDate: '2026-10-06', revision: 2, kind: 'NonWorkingOverride' },
+		{ state: 'Published', workDate: '2026-10-07', kind: 'Work' },
+	])
+	expect(
+		(
+			await api.admin.query(
+				'SELECT id,total_units::text,calculation_digest FROM hcm.leave_request ORDER BY id',
+			)
+		).rows,
+	).toEqual(before)
+	expect(
+		(await api.send('david', 'POST', path + '/submit', command, { 'idempotency-key': key })).body,
+	).toEqual(left.body)
+	expect(
+		(
+			await api.send(
+				'david',
+				'POST',
+				path + '/submit',
+				{ ...command, reason: 'Changed retry' },
+				{ 'idempotency-key': key },
+			)
+		).status,
+	).toBe(409)
+})
+
 it('denies duplicate recovery after read revocation and refuses changed workday inputs', /** Neither the original key nor an old published row overrides current authority and source revision. */ async () => {
 	const key = randomUUID(),
 		saved = await api.send('jim', 'POST', 'leave/me/requests', input(), { 'idempotency-key': key })

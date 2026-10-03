@@ -8,6 +8,7 @@ import {
 	type AttendanceOverrideView,
 	type AttendanceOverrideReview,
 	type AttendanceOverrideSubmission,
+	type AttendanceOverrideSubmitResult,
 } from '@empflowyee/hcm-attendance-contract'
 import { commandHash, type AuthenticatedHcmContext } from '@empflowyee/hcm-api-runtime-application'
 import { requireIdempotencyKey } from '@empflowyee/hcm-api-runtime-application'
@@ -40,6 +41,10 @@ export interface AttendanceOverrideWork {
 		inputDigest: string,
 		workforceDigest: string,
 	): Promise<AttendanceOverrideSubmission>
+	/** Approve only after current policy has no required slots and the complete review is revalidated. */
+	approve(source: AttendanceOverrideView, digest: string): Promise<void>
+	/** Enqueue actual current dated input evidence in the same transaction as source approval and receipt. */
+	enqueue(employmentId: string, workDate: string, inputDigest: string): Promise<string>
 	/** Supply a private candidate to the normal resolver without mutating approval state or hiding competing sources. */
 	proposedInputs(source: AttendanceOverrideView): AttendanceConfigurationInputPort
 	/** Require one complete current operation grant over every reviewed date before its resolver inputs are read. */
@@ -185,13 +190,13 @@ export class AttendanceOverrides {
 		)
 	}
 
-	/** Revalidate the actor-bound review and create a pending independent source case with actual durable intake. */
+	/** Revalidate the actor-bound review, then honor required approval or apply the explicit no-required-slot policy. */
 	submit(
 		context: AuthenticatedHcmContext,
 		id: string,
 		key: string,
 		value: unknown,
-	): Promise<AttendanceOverrideSubmission> {
+	): Promise<AttendanceOverrideSubmitResult> {
 		idValue(id, 'id')
 		const input = parseConfigurationPublish(value)
 		requireIdempotencyKey(input.previewId)
@@ -217,21 +222,57 @@ export class AttendanceOverrides {
 							Date.parse(prior.expiresAt) <= Date.now()
 						)
 							throw new HcmDomainError('revision-conflict')
-						const { source, policy, digest, leaveImpact } = await this.review(
-							work,
-							id,
-							input.expectedRevision,
-						)
+						const { source, policy, digest, leaveImpact, reviewedThrough, days } =
+							await this.review(work, id, input.expectedRevision)
 						if (digest !== input.digest) throw new HcmDomainError('revision-conflict')
 						if (leaveImpact.unavailableRequestCount) throw new HcmDomainError('record-incomplete')
+						if (source.approval) throw new HcmDomainError('invalid-state')
 						if (
 							!policy.version.approvalRules.some(
 								/** Never substitute a fabricated approval route when no policy requirement exists. */ (
 									rule,
 								) => rule.subjectType === 'Override',
 							)
-						)
-							throw new HcmDomainError('record-incomplete')
+						) {
+							await work.approve(source, digest)
+							const applied = await evaluateOverrideWorkdayImpact(
+								work.inputs,
+								source.employmentId,
+								source.workDate,
+								/** Retain current complete dated authority through final materialization admission. */ (
+									date,
+								) => work.requireImpactDate(date),
+							)
+							if (
+								commandHash('OverrideResolvedDays:1', applied) !==
+								commandHash('OverrideResolvedDays:1', days)
+							)
+								throw new HcmDomainError('revision-conflict')
+							const operationIds: string[] = []
+							for (const day of applied)
+								operationIds.push(
+									await work.enqueue(source.employmentId, day.workDate, day.result.inputDigest),
+								)
+							const current = await work.read(id)
+							if (!current || current.state !== 'Approved')
+								throw new HcmDomainError('record-incomplete')
+							await this.record(
+								work,
+								current,
+								key,
+								'attendance.override-submitted',
+								input.reason,
+								'Draft',
+							)
+							return {
+								id,
+								revision: current.revision,
+								state: 'Approved' as const,
+								reviewedThrough,
+								resolutionState: 'Pending' as const,
+								operationIds,
+							}
+						}
 						const result = await work.requestApproval(
 							source,
 							policy.version.versionId,
@@ -246,7 +287,7 @@ export class AttendanceOverrides {
 							input.reason,
 							'Draft',
 						)
-						return result
+						return { ...result, reviewedThrough }
 					},
 				),
 		)
@@ -289,6 +330,7 @@ export class AttendanceOverrides {
 			source,
 			policy,
 			resolved,
+			days,
 			reviewedThrough,
 			restWarnings,
 			leaveImpact,
