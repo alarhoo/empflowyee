@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "56d019d54bff00fc3cd8f36c5d42346375faa33bd456067448e6eb0b79052f2f",
+			"sha256": "016fa107f6f999d5776faa1cf90b5eda9d5141fdc150ee301c5d171c3ac60769",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; Codex technical review of actual enrollment admission/persistence refinement in TDD#data: explicit period configuration, eligibility precedence, encrypted evidence, atomic empty Balance accounts, no Unpaid account or implicit grant. Existing delegated finalization, not a new human approval; implementation checks are recorded in docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md. Further reviewed internal Grant ledger refinement: source matching, immutable postings, period/account locks, exact projection, same-key recovery and no public funding or worker impersonation."
 		},
 		{
 			"document": "TRACE",

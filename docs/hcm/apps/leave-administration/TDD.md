@@ -96,6 +96,68 @@ infrastructure or delegation creation is required/introduced in this release.
 
 ## DATA
 
+### Enrollment admission and persistence
+
+The enrollment command accepts only employmentId, policyVersionId, effectiveFrom,
+optional effectiveTo and a required preserved reason of at most 2000 characters.
+IDs use the common 200-character limit and dates are valid ordered ISO local dates.
+No account, quantity, tenant or actor override is accepted. The command authorizes
+the whole dated employment under one current grant before reading its owner facts.
+
+An explicit tenant Leave period contains the admission range; absence is unavailable,
+not an inferred financial/calendar year. Periods are nonoverlapping, revisioned
+Planned/Open/Closing/Closed records. Period dates are immutable after creation.
+The initial local period dates need product configuration before seed admission.
+Ordinary runtime persistence has no period lifecycle command until reconciled
+close and explicit configuration paths exist.
+
+Eligibility evaluates published-version range and configured base worker-type,
+legal-entity and service constraints, then the exact dated employment assignment,
+then typed rules by descending numeric priority. Empty base selector lists impose
+no filter but grant no inclusion: an assignment or typed Include must match.
+At equal priority Exclude wins. Assignment dimensions must match one actual dated
+assignment; two assignments cannot be pooled. Missing facts that can alter the
+winning outcome return Unavailable, including an unknown gender predicate.
+Unknown statutory-floor references remain unavailable and cannot be overridden.
+Service days use completed local calendar days from the known continuous-service
+start, or the actual hire date when that optional date is absent.
+
+Enrollment stores the immutable policy, period, employment, mode/unit and bounded
+inclusive effective range. Policy/period revisions and dated Workforce digests
+form the encrypted, row-bound eligibility snapshot and canonical digest. Read
+DTOs omit that private snapshot. Same-employment/same-policy enrollment ranges
+cannot overlap, including retained ended history; re-evaluation creates a new
+effective enrollment rather than replacing its policy version. Admission locks
+the period before the policy and rechecks their revisions and admission states.
+
+An active Balance enrollment and its zero-funded account commit together using
+a deferred database constraint. A tenant/mode/unit composite reference prohibits
+Unpaid accounts. Account creation cannot inject an opening quantity, last posting
+or advanced revision. Entitlements require the separately governed grant/accrual
+command; a created account alone is not a funded or completed enrollment journey.
+Runtime lifecycle and quantity mutation privileges remain withheld until the
+corresponding obligation/ledger commands are installed.
+
+The grant ledger adapter is an internal port for already-authorized source
+commands, not a public funding API. Each positive exact grant retains its
+enrollment/unit, grant type, effective/expiry dates, original actor, source
+reference, input digest and business key. A grant and exactly one matching
+posting must commit together. The posting quantity, date, unit, actor and digest
+must equal the source. Period-before-account locks serialize close, retry and
+sequence allocation; database triggers compute sequence/running quantity and
+update the account projection from the immutable ledger. Direct projection
+edits cannot create entitlement. Same-key replay returns the original result;
+changed input conflicts. Grant/transaction rows deny update/delete, including
+through owner SQL. Accrual, reservation, debit, cancellation and adjustment
+effects require their own typed source references before their transaction kinds
+are admitted; the first ledger migration supports Grant only. Worker attribution
+is not replaced with a fabricated human account.
+
+Technical review, 2026-10-03, under the existing finalization delegation: this
+mapping preserves Business Rules 2, 4, 6, 24 and 28, the published-version-first
+eligibility order and the Unpaid exception. No period dates, entitlement amounts,
+statutory source, authorization or opening grant are supplied as implicit defaults.
+
 Owning tables/read projections: enrollment, account/ledger/reservation/allocation, accrual runs/items, adjustment, leave period/case/slot.
 Use physical names and admitted table exclusions in
 [SQL TABLES](../../architecture/TDD-HCM-3-DATA-MODEL.md#tables), plus the owning

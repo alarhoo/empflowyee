@@ -8,6 +8,7 @@ import { loadSqlMigrations, migrateHcmDatabase } from '@empflowyee/hcm-api-datab
 import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
 import {
 	HcmRuntimeApplication,
+	requireAuthenticatedAccount,
 	type AuthenticatedHcmContext,
 } from '@empflowyee/hcm-api-runtime-application'
 import {
@@ -21,6 +22,9 @@ import { LeavePolicyCommands } from '@empflowyee/hcm-api-leave-application'
 import { KyselyLeavePolicyUnit } from './policy-unit'
 import { readLeavePolicyDraft, type LeavePolicyDraft } from '@empflowyee/hcm-leave-contract'
 import { KyselyLeavePolicyRepository } from './hcm-api-leave-infrastructure'
+import { KyselyLeaveEnrollmentRepository } from './enrollment-repository'
+import { KyselyLeaveGrantLedger } from './grant-ledger'
+import type { LeaveEnrollmentAdmission } from '@empflowyee/hcm-api-leave-application'
 
 const tenant = 'local-dunder-mifflin',
 	account = 'dunder-mifflin/account/david'
@@ -39,6 +43,480 @@ let accessDatabase: HcmAccessDatabase,
 	commands: LeavePolicyCommands,
 	employee: AuthenticatedHcmContext
 
+const enrollmentCipher = new LocalFieldCipher(randomBytes(32))
+
+it('persists enrollment with an empty account and encrypted immutable eligibility', /** Reload proves admission does not manufacture entitlement and private evidence stays encrypted. */ async () => {
+	const input = await enrollmentFixture()
+	const saved = await database.transaction(
+		actor,
+		/** Atomically persist the admitted enrollment and its account. */ (tx) =>
+			enrollmentStore(tx).insert(input),
+	)
+	expect(saved).toMatchObject({
+		id: input.id,
+		state: 'Active',
+		trackingMode: 'Balance',
+		revision: 1,
+	})
+	expect(saved.accountId).toBeTruthy()
+	const reloaded = await database.transaction(
+		actor,
+		/** Reload through the purpose-built projection. */ (tx) => enrollmentStore(tx).read(input.id),
+	)
+	expect(reloaded).toEqual(saved)
+	expect(reloaded).not.toHaveProperty('eligibility_digest')
+	const stored = await admin.query(
+		'SELECT posted_units::text,reserved_units::text,available_units::text FROM hcm.leave_balance_account WHERE id=$1',
+		[saved.accountId],
+	)
+	expect(stored.rows[0]).toEqual({
+		['posted_units']: '0.000000',
+		['reserved_units']: '0.000000',
+		['available_units']: '0.000000',
+	})
+	const sealed = (
+		await admin.query(
+			'SELECT encrypted_eligibility_snapshot,eligibility_key_version FROM hcm.leave_enrollment WHERE id=$1',
+			[input.id],
+		)
+	).rows[0]
+	expect(sealed.encrypted_eligibility_snapshot.toString()).not.toContain(input.employmentId)
+	await database.transaction(
+		actor,
+		/** Verify the snapshot is bound to this actual row identity. */ async (tx) => {
+			const cipher = enrollmentCipher.bind(tx, tenant)
+			const value = {
+				ciphertext: sealed.encrypted_eligibility_snapshot,
+				keyVersion: sealed.eligibility_key_version,
+			}
+			const target = {
+				table: 'leave_enrollment',
+				column: 'encrypted_eligibility_snapshot',
+				rowId: input.id,
+			}
+			expect(JSON.parse(await cipher.decrypt(target, value))).toEqual(input)
+			await expect(cipher.decrypt({ ...target, rowId: randomUUID() }, value)).rejects.toThrow()
+		},
+	)
+	await expect(
+		runtime.query('UPDATE hcm.leave_balance_account SET posted_units=10 WHERE id=$1', [
+			saved.accountId,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		runtime.query('UPDATE hcm.leave_enrollment SET revision=revision+1 WHERE id=$1', [input.id]),
+	).rejects.toMatchObject({ code: '23514' })
+})
+
+it('never creates or accepts an account for Unpaid enrollment', /** A forged Balance account is denied by the tenant, mode and unit composite reference. */ async () => {
+	const input = await enrollmentFixture(true)
+	const saved = await database.transaction(
+		actor,
+		/** Persist request-only tracking without a balance row. */ (tx) =>
+			enrollmentStore(tx).insert(input),
+	)
+	expect(saved.trackingMode).toBe('Unpaid')
+	expect(saved).not.toHaveProperty('accountId')
+	await expect(
+		runtime.query(
+			"INSERT INTO hcm.leave_balance_account(tenant_id,id,enrollment_id,unit) VALUES($1,$2,$3,'Day')",
+			[tenant, randomUUID(), input.id],
+		),
+	).rejects.toMatchObject({ code: '23503' })
+})
+
+it('rejects unpublished, out-of-period and mismatched-unit enrollment atomically', /** SQL checks cannot be bypassed by a faulty application adapter. */ async () => {
+	const input = await enrollmentFixture()
+	await expect(
+		database.transaction(
+			actor,
+			/** Dates cannot silently cross the configured period. */ (tx) =>
+				enrollmentStore(tx).insert({ ...input, effectiveTo: '2027-01-01' }),
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		database.transaction(
+			actor,
+			/** Account units cannot disagree with the policy type. */ (tx) =>
+				enrollmentStore(tx).insert({ ...input, unit: 'Hour' }),
+		),
+	).rejects.toMatchObject({ code: '23503' })
+	const unpublished = await create()
+	await expect(
+		database.transaction(
+			actor,
+			/** Draft policies do not authorize enrollment. */ (tx) =>
+				enrollmentStore(tx).insert({
+					...input,
+					policyId: unpublished.id,
+					policyVersionId: unpublished.versionId,
+					basis: { ...input.basis, policyRevision: 1 },
+				}),
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_enrollment WHERE id=$1', [input.id])).rowCount,
+	).toBe(0)
+})
+
+it('serializes concurrent overlapping enrollment and rolls back incomplete activation', /** Exactly one competing admission commits and a missing account cannot survive commit. */ async () => {
+	const input = await enrollmentFixture()
+	const results = await Promise.allSettled(
+		[input, { ...input, id: randomUUID() }].map(
+			/** Race separate transactions for the same employment and policy range. */ (candidate) =>
+				database.transaction(
+					actor,
+					/** Commit only a complete enrollment aggregate. */ (tx) =>
+						enrollmentStore(tx).insert(candidate),
+				),
+		),
+	)
+	expect(
+		results.filter(/** Count committed admissions. */ (result) => result.status === 'fulfilled'),
+	).toHaveLength(1)
+	expect(
+		results.filter(
+			/** The competing overlap must fail closed. */ (result) => result.status === 'rejected',
+		),
+	).toHaveLength(1)
+	const incomplete = await enrollmentFixture()
+	await expect(
+		database.transaction(
+			actor,
+			/** Attempt a lower-level write omitting the required account. */ async (tx) => {
+				await sql`INSERT INTO hcm.leave_enrollment(tenant_id,id,employment_id,policy_id,policy_version_id,period_id,tracking_mode,unit,source,state,effective_from,effective_to,eligibility_digest,encrypted_eligibility_snapshot,eligibility_key_version,created_by_account_id)
+      VALUES(${tenant},${incomplete.id},${incomplete.employmentId},${incomplete.policyId},${incomplete.policyVersionId},${incomplete.periodId},'Balance','Day','Eligibility','Active','2026-01-01','2026-12-31',repeat('a',64),decode('aa','hex'),1,${account})`.execute(
+			tx,
+		)
+			},
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_enrollment WHERE id=$1', [incomplete.id]))
+			.rowCount,
+	).toBe(0)
+})
+
+it('keeps period absence honest and denies foreign enrollment access', /** Row policies protect even unfiltered SQL while the repository also rejects tenant rebinding. */ async () => {
+	const input = await enrollmentFixture(true)
+	await expect(
+		database.transaction(
+			actor,
+			/** The reviewed period revision is part of the immutable admission basis. */ (tx) =>
+				enrollmentStore(tx).insert({ ...input, basis: { ...input.basis, periodRevision: 1 } }),
+		),
+	).rejects.toMatchObject({ code: 'revision-conflict' })
+	await database.transaction(
+		actor,
+		/** Create one current-tenant enrollment to challenge isolation. */ (tx) =>
+			enrollmentStore(tx).insert(input),
+	)
+	await database.transaction(
+		actor,
+		/** Missing periods do not acquire default dates or Open status. */ async (tx) => {
+			expect(await enrollmentStore(tx).periodAt('2025-12-31')).toBeNull()
+			expect(await enrollmentStore(tx).periodAt('2026-03-01')).toMatchObject({
+				id: input.periodId,
+				state: 'Open',
+				revision: 2,
+			})
+			await expect(enrollmentStore(tx, 'foreign').read(input.id)).rejects.toThrow('forbidden')
+			await sql`SELECT set_config('hcm.tenant_id','foreign',true)`.execute(tx)
+			expect((await sql`SELECT id FROM hcm.leave_enrollment`.execute(tx)).rows).toHaveLength(0)
+			expect((await sql`SELECT id FROM hcm.leave_period`.execute(tx)).rows).toHaveLength(0)
+			expect((await sql`SELECT id FROM hcm.leave_balance_account`.execute(tx)).rows).toHaveLength(0)
+		},
+	)
+	await expect(
+		database.transaction(
+			actor,
+			/** A foreign employment cannot be referenced through the local tenant. */ (tx) =>
+				enrollmentStore(tx).insert({
+					...input,
+					id: randomUUID(),
+					employmentId: 'foreign/employment',
+				}),
+		),
+	).rejects.toMatchObject({ code: '23503' })
+})
+
+it('posts exact grant evidence and account projection once across concurrent retries', /** Internal source fixtures exercise the ledger, not an unimplemented approval or production funding command. */ async () => {
+	const enrollment = await enrollmentFixture()
+	const account = await database.transaction(
+		actor,
+		/** Create the prerequisite unfunded account. */ (tx) => enrollmentStore(tx).insert(enrollment),
+	)
+	if (!account.accountId) throw new Error('Balance account required by fixture')
+	const input = {
+		accountId: account.accountId,
+		grantId: randomUUID(),
+		grantType: 'Event' as const,
+		units: '2.000001',
+		effectiveDate: '2026-04-01',
+		sourceReference: 'test-source-grant',
+		idempotencyKey: randomUUID(),
+	}
+	const results = await Promise.all(
+		[0, 1].map(
+			/** Race one immutable source key through separate connections. */ () =>
+				database.transaction(
+					actor,
+					/** The source command has already established authority in this protocol fixture. */ (
+						tx,
+					) =>
+						new KyselyLeaveGrantLedger(tx, tenant, requireAuthenticatedAccount(actor)).postGrant(
+							input,
+						),
+				),
+		),
+	)
+	expect(results[0]).toEqual(results[1])
+	expect(results[0]).toMatchObject({ sequence: '1', units: '2.000001', runningUnits: '2.000001' })
+	await expect(
+		database.transaction(
+			actor,
+			/** A repeated key cannot change the credited quantity. */ (tx) =>
+				new KyselyLeaveGrantLedger(tx, tenant, requireAuthenticatedAccount(actor)).postGrant({
+					...input,
+					units: '3',
+				}),
+		),
+	).rejects.toMatchObject({ code: 'idempotency-conflict' })
+	const next = await database.transaction(
+		actor,
+		/** Add one millionth without binary floating point. */ (tx) =>
+			new KyselyLeaveGrantLedger(tx, tenant, requireAuthenticatedAccount(actor)).postGrant({
+				...input,
+				grantId: randomUUID(),
+				idempotencyKey: randomUUID(),
+				units: '0.000001',
+			}),
+	)
+	expect(next).toMatchObject({ sequence: '2', runningUnits: '2.000002' })
+	expect(
+		(
+			await admin.query(
+				'SELECT posted_units::text,available_units::text,revision FROM hcm.leave_balance_account WHERE id=$1',
+				[account.accountId],
+			)
+		).rows[0],
+	).toEqual({ ['posted_units']: '2.000002', ['available_units']: '2.000002', revision: 3 })
+	expect(
+		(
+			await admin.query('SELECT id FROM hcm.leave_entitlement_grant WHERE enrollment_id=$1', [
+				enrollment.id,
+			])
+		).rowCount,
+	).toBe(2)
+	const parallel = await Promise.all(
+		['0.000001', '0.000002'].map(
+			/** Different source effects must serialize on the same account without losing units. */ (
+				units,
+			) =>
+				database.transaction(
+					actor,
+					/** Each grant remains a separate immutable business key. */ (tx) =>
+						new KyselyLeaveGrantLedger(tx, tenant, requireAuthenticatedAccount(actor)).postGrant({
+							...input,
+							grantId: randomUUID(),
+							idempotencyKey: randomUUID(),
+							units,
+						}),
+				),
+		),
+	)
+	expect(
+		parallel
+			.map(/** Database sequences identify both committed effects. */ (row) => row.sequence)
+			.sort(),
+	).toEqual(['3', '4'])
+	expect(
+		(
+			await admin.query('SELECT posted_units::text FROM hcm.leave_balance_account WHERE id=$1', [
+				account.accountId,
+			])
+		).rows[0].posted_units,
+	).toBe('2.000005')
+	await expect(
+		runtime.query('UPDATE hcm.leave_balance_transaction SET units_delta=10 WHERE id=$1', [
+			next.transactionId,
+		]),
+	).rejects.toMatchObject({ code: '42501' })
+	await expect(
+		admin.query('UPDATE hcm.leave_balance_transaction SET units_delta=10 WHERE id=$1', [
+			next.transactionId,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		runtime.query(
+			'UPDATE hcm.leave_balance_account SET posted_units=10,revision=revision+1 WHERE id=$1',
+			[account.accountId],
+		),
+	).rejects.toMatchObject({ code: '23514' })
+})
+
+it('rolls grant, posting and account projection back with a failed source command', /** No partial grant or balance survives an error after the database triggers execute. */ async () => {
+	const enrollment = await enrollmentFixture()
+	const account = await database.transaction(
+		actor,
+		/** Establish a distinct account for rollback isolation. */ (tx) =>
+			enrollmentStore(tx).insert(enrollment),
+	)
+	if (!account.accountId) throw new Error('Balance account required by fixture')
+	const input = {
+		accountId: account.accountId,
+		grantId: randomUUID(),
+		grantType: 'Event' as const,
+		units: '1',
+		effectiveDate: '2026-04-01',
+		sourceReference: 'test-source-grant',
+		idempotencyKey: randomUUID(),
+	}
+	await expect(
+		database.transaction(
+			actor,
+			/** A source failure must undo every nested ledger effect. */ async (tx) => {
+				await new KyselyLeaveGrantLedger(tx, tenant, requireAuthenticatedAccount(actor)).postGrant(
+					input,
+				)
+				throw new Error('source failed')
+			},
+		),
+	).rejects.toThrow('source failed')
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_entitlement_grant WHERE id=$1', [input.grantId]))
+			.rowCount,
+	).toBe(0)
+	expect(
+		(
+			await admin.query('SELECT id FROM hcm.leave_balance_transaction WHERE account_id=$1', [
+				account.accountId,
+			])
+		).rowCount,
+	).toBe(0)
+	expect(
+		(
+			await admin.query(
+				'SELECT posted_units::text,revision FROM hcm.leave_balance_account WHERE id=$1',
+				[account.accountId],
+			)
+		).rows[0],
+	).toEqual({ ['posted_units']: '0.000000', revision: 1 })
+	await expect(
+		database.transaction(
+			actor,
+			/** The same account is inaccessible through a mismatched tenant binder. */ (tx) =>
+				new KyselyLeaveGrantLedger(tx, 'foreign', requireAuthenticatedAccount(actor)).postGrant(
+					input,
+				),
+		),
+	).rejects.toThrow('forbidden')
+	await expect(
+		database.transaction(
+			actor,
+			/** Effective dates cannot escape the enrollment's explicit period. */ (tx) =>
+				new KyselyLeaveGrantLedger(tx, tenant, requireAuthenticatedAccount(actor)).postGrant({
+					...input,
+					effectiveDate: '2027-01-01',
+				}),
+		),
+	).rejects.toMatchObject({ code: '23514' })
+})
+
+it('requires every grant to commit with its matching immutable posting', /** Low-level SQL cannot leave a funded source without a ledger effect or substitute its quantity. */ async () => {
+	const enrollment = await enrollmentFixture()
+	const saved = await database.transaction(
+		actor,
+		/** Start from a real empty Balance account. */ (tx) => enrollmentStore(tx).insert(enrollment),
+	)
+	const grantId = randomUUID(),
+		key = randomUUID()
+	/** Insert test source evidence only; the deferred constraint demands its matching posting. */
+	const insert = async (tx: Kysely<unknown>) => {
+		await sql`INSERT INTO hcm.leave_entitlement_grant(tenant_id,id,enrollment_id,unit,grant_type,granted_units,grant_date,source_reference,input_digest,idempotency_key,created_by_account_id)
+      VALUES(${tenant},${grantId},${enrollment.id},'Day','Event',1,'2026-04-01','test-source',repeat('a',64),${key}::uuid,${account})`.execute(
+			tx,
+		)
+	}
+	await expect(database.transaction(actor, insert)).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		database.transaction(
+			actor,
+			/** A posting cannot credit more than the exact source grant. */ async (tx) => {
+				await insert(tx)
+				await sql`INSERT INTO hcm.leave_balance_transaction(tenant_id,id,account_id,unit,transaction_type,units_delta,effective_date,entitlement_grant_id,idempotency_key,input_digest,posted_by_account_id)
+      VALUES(${tenant},${randomUUID()},${saved.accountId},'Day','Grant',2,'2026-04-01',${grantId},${key}::uuid,repeat('a',64),${account})`.execute(
+			tx,
+		)
+			},
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_entitlement_grant WHERE id=$1', [grantId]))
+			.rowCount,
+	).toBe(0)
+	await database.transaction(
+		actor,
+		/** RLS protects grant and ledger tables even without a tenant predicate. */ async (tx) => {
+			await sql`SELECT set_config('hcm.tenant_id','foreign',true)`.execute(tx)
+			expect((await sql`SELECT id FROM hcm.leave_entitlement_grant`.execute(tx)).rows).toHaveLength(
+				0,
+			)
+			expect(
+				(await sql`SELECT id FROM hcm.leave_balance_transaction`.execute(tx)).rows,
+			).toHaveLength(0)
+		},
+	)
+})
+
+/** Establish explicit published policy and period fixtures without claiming a production publication command. */
+async function enrollmentFixture(unpaid = false): Promise<LeaveEnrollmentAdmission> {
+	const input = draft()
+	if (unpaid) {
+		input.trackingMode = 'Unpaid'
+		input.accrual = { enabled: false }
+	}
+	const policy = await create(input)
+	await admin.query(
+		"UPDATE hcm.leave_policy_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id=$2,publication_digest=repeat('a',64) WHERE id=$1",
+		[policy.versionId, account],
+	)
+	await admin.query(
+		"INSERT INTO hcm.leave_period(tenant_id,id,code,name,start_date,end_date,created_by_account_id) VALUES($1,'test-leave-period','TEST_PERIOD','Explicit test period','2026-01-01','2026-12-31',$2) ON CONFLICT(tenant_id,code) DO NOTHING",
+		[tenant, account],
+	)
+	await admin.query(
+		"UPDATE hcm.leave_period SET state='Open',revision=revision+1 WHERE id='test-leave-period' AND state='Planned'",
+	)
+	return {
+		id: randomUUID(),
+		employmentId: 'dunder-mifflin/employment/jim',
+		policyId: policy.id,
+		policyVersionId: policy.versionId,
+		periodId: 'test-leave-period',
+		effectiveFrom: '2026-01-01',
+		effectiveTo: '2026-12-31',
+		trackingMode: input.trackingMode,
+		unit: input.unit,
+		basis: {
+			schemaVersion: 1,
+			policyRevision: 2,
+			periodRevision: 2,
+			workforceDates: [{ workDate: '2026-01-01', inputDigest: 'a'.repeat(64) }],
+			matchingRuleIds: ['eligible'],
+		},
+	}
+}
+
+/** Bind the enrollment store to the same verified transaction as its policy dependencies. */
+function enrollmentStore(tx: Kysely<unknown>, tenantId = tenant) {
+	return new KyselyLeaveEnrollmentRepository(
+		tx,
+		tenantId,
+		account,
+		enrollmentCipher.bind(tx, tenantId),
+	)
+}
 /** Restrict every test connection to the disposable harness configuration. */
 function connection(role: string): string {
 	const value = process.env[`HCM_TEST_${role}`]
@@ -176,9 +654,7 @@ beforeAll(
 			[tenant],
 		)
 		accessDatabase = new HcmAccessDatabase(connection('RUNTIME'))
-		commands = new LeavePolicyCommands(
-			new KyselyLeavePolicyUnit(accessDatabase, new LocalFieldCipher(randomBytes(32))),
-		)
+		commands = new LeavePolicyCommands(new KyselyLeavePolicyUnit(accessDatabase, enrollmentCipher))
 	},
 )
 afterAll(
