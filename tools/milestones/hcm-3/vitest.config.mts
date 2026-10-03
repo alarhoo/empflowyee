@@ -10,6 +10,7 @@ export default mergeConfig(
 				'libs/hcm/web/attendance/**/schedule-form.spec.ts',
 				'libs/hcm/web/attendance/**/shift-form.spec.ts',
 				'libs/hcm/web/attendance/**/policy-form.spec.ts',
+				'libs/hcm/web/attendance/**/override-form.spec.ts',
 				'libs/hcm/web/attendance/**/holiday-form.spec.ts',
 				'libs/hcm/api/audit/application/**/*.spec.ts',
 				'libs/hcm/contracts/attendance/**/*.spec.ts',

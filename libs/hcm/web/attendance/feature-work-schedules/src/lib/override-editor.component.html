@@ -1,0 +1,252 @@
+<ef-hcm-object-page
+	[title]="source() ? 'Dated override' : 'Create dated override'"
+	summary="Review a replacement against the published workday and the following shift"
+	[state]="state()"
+	[errorMessage]="message()"
+	[showFooter]="true"
+	(retry)="load()">
+	<ui5-form
+		hcmHeader
+		accessibleName="Override context"
+		layout="S1 M2 L3 XL3"
+		labelSpan="S12 M12 L12 XL12">
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Employment</ui5-label>
+			<ui5-text>{{ source()?.employmentId ?? basis()?.employmentId }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Work date</ui5-label>
+			<ui5-text>{{ source()?.workDate ?? basis()?.workDate ?? '' | hcmDate: 'date' }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Published workday revision</ui5-label>
+			<ui5-text>{{ source()?.workdayRevision ?? basis()?.revision }}</ui5-text>
+		</ui5-form-item>
+		<ui5-form-item>
+			<ui5-label slot="labelContent">Status</ui5-label>
+			<span
+				fd-object-status
+				[inverted]="true"
+				[status]="status()"
+				[label]="
+					source()?.approval?.state === 'Pending'
+						? 'Pending approval'
+						: (source()?.state ?? 'Unsaved draft')
+				"></span>
+		</ui5-form-item>
+	</ui5-form>
+	<ng-template
+		efHcmObjectSection="replacement"
+		label="Replacement">
+		@if (message()) {
+			<ui5-message-strip
+				design="Negative"
+				[hideCloseButton]="true">
+				{{ message() }}
+			</ui5-message-strip>
+		}
+		@if (uncertain()) {
+			<ui5-message-strip
+				design="Critical"
+				[hideCloseButton]="true">
+				The last command is unconfirmed. Retry the same action to recover its original result before
+				editing or leaving.
+			</ui5-message-strip>
+		}
+		<ui5-form
+			accessibleName="Override replacement"
+			accessibleMode="Edit"
+			layout="S1 M2 L3 XL3"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Replacement type</ui5-label>
+				<ui5-select
+					accessibleName="Replacement type"
+					[formField]="fields.kind"
+					[valueState]="error('kind') ? 'Negative' : 'None'"
+					[accessibleDescription]="error('kind')">
+					<ui5-option value="">Choose replacement</ui5-option>
+					<ui5-option value="Work">Custom working intervals</ui5-option>
+					<ui5-option value="Rest">Nonworking date</ui5-option>
+				</ui5-select>
+				<ui5-text>{{ error('kind') }}</ui5-text>
+			</ui5-form-item>
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Timezone</ui5-label>
+				<ui5-combobox
+					accessibleName="Override timezone"
+					[formField]="fields.zone"
+					[valueState]="error('zone') ? 'Negative' : 'None'">
+					<ui5-text slot="valueStateMessage">{{ error('zone') }}</ui5-text>
+					@for (zone of zones; track zone) {
+						<ui5-cb-item [text]="zone"></ui5-cb-item>
+					}
+				</ui5-combobox>
+				<ui5-text>{{ error('zone') }}</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+		@if (model().kind === 'Work') {
+			@if (error('segments')) {
+				<ui5-message-strip
+					design="Negative"
+					[hideCloseButton]="true">
+					{{ error('segments') }}
+				</ui5-message-strip>
+			}
+			@for (segment of fields.segments; track $index; let i = $index) {
+				<ef-hcm-attendance-segment-fields
+					[fields]="segment"
+					[label]="'Override interval ' + (i + 1)"
+					[removeLabel]="'Remove interval ' + (i + 1)"
+					[timeFormat]="timeFormat()"
+					[errors]="segmentErrors(i)"
+					[disabled]="!!source() || draft.saving() || uncertain()"
+					(removed)="removeSegment(i)"></ef-hcm-attendance-segment-fields>
+			}
+			@if (!source()) {
+				<ui5-button
+					#addInterval
+					[disabled]="draft.saving() || uncertain()"
+					(click)="addSegment()">
+					Add interval
+				</ui5-button>
+			}
+		} @else if (model().kind === 'Rest') {
+			<ui5-text>
+				This proposal makes the selected date nonworking. It does not change any workday until the
+				required review and approval complete.
+			</ui5-text>
+		}
+		<ui5-form
+			accessibleName="Override reason"
+			accessibleMode="Edit"
+			layout="S1 M1 L1 XL1"
+			labelSpan="S12 M12 L12 XL12">
+			<ui5-form-item>
+				<ui5-label slot="labelContent">Reason</ui5-label>
+				<ui5-textarea
+					accessibleName="Override reason"
+					[formField]="fields.reason"
+					[maxlength]="2000"
+					[valueState]="error('reason') ? 'Negative' : 'None'"
+					[accessibleDescription]="error('reason')"></ui5-textarea>
+				<ui5-text>{{ error('reason') }}</ui5-text>
+			</ui5-form-item>
+		</ui5-form>
+		<ui5-text>
+			Reasons are retained privately with each command. Document attachment is not available yet.
+		</ui5-text>
+	</ng-template>
+	<ng-template
+		efHcmObjectSection="review"
+		label="Impact and approval">
+		@if (review(); as value) {
+			<ui5-form
+				accessibleName="Override impact"
+				layout="S1 M2 L3 XL3"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Reviewed through</ui5-label>
+					<ui5-text>
+						{{ value.reviewedThrough ?? source()?.workDate ?? '' | hcmDate: 'date' }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Scheduled duration</ui5-label>
+					<ui5-text>{{ duration(value.scheduledMilliseconds) }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Expected work duration</ui5-label>
+					<ui5-text>{{ duration(value.expectedMilliseconds) }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Review expires</ui5-label>
+					<ui5-text>{{ value.expiresAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			@for (warning of value.restWarnings ?? []; track warning.workDate + warning.source) {
+				<ui5-message-strip
+					design="Critical"
+					[hideCloseButton]="true">
+					{{ warning.workDate | hcmDate: 'date' }}: {{ warning.source }} requires
+					{{ warning.minimumMinutes }} minutes of rest; this proposal leaves
+					{{ duration(warning.elapsedMilliseconds) }}.
+				</ui5-message-strip>
+			}
+			@if (!value.approvalRequired) {
+				<ui5-message-strip
+					design="Information"
+					[hideCloseButton]="true">
+					The selected policy requires no independent override approval. Applying this proposal is
+					not available yet.
+				</ui5-message-strip>
+			}
+		} @else {
+			<ui5-text>
+				Save the draft, enter a review reason, then review its current dated impact.
+			</ui5-text>
+		}
+		@if (source()?.approval; as approval) {
+			<span
+				fd-object-status
+				[inverted]="true"
+				[status]="status()"
+				[label]="approval.state"></span>
+			<ui5-text>
+				{{ approval.pendingSlots }} of {{ approval.requiredSlots }} required approval slots remain
+				pending. Source changes are not applied while approval is pending.
+			</ui5-text>
+		}
+		@if (source()) {
+			<ui5-button
+				[disabled]="draft.saving() || uncertain() || draft.dirty()"
+				(click)="load()">
+				Refresh approval progress
+			</ui5-button>
+		}
+	</ng-template>
+	@if (!source()) {
+		<ui5-button
+			hcmFooter
+			design="Emphasized"
+			[disabled]="draft.saving() || state() !== 'content'"
+			(click)="act('create')">
+			Save override draft
+		</ui5-button>
+	}
+	@if (source()?.state === 'Draft' && allowed('preview')) {
+		<ui5-button
+			hcmFooter
+			[disabled]="
+				draft.saving() || state() !== 'content' || (uncertain() && retryOperation() !== 'preview')
+			"
+			(click)="act('preview')">
+			Review override
+		</ui5-button>
+	}
+	@if (
+		source()?.state === 'Draft' &&
+		!source()?.approval &&
+		review()?.approvalRequired &&
+		allowed('manage')
+	) {
+		<ui5-button
+			hcmFooter
+			design="Emphasized"
+			[disabled]="
+				draft.saving() || state() !== 'content' || (uncertain() && retryOperation() !== 'submit')
+			"
+			(click)="act('submit')">
+			Submit for independent approval
+		</ui5-button>
+	}
+	<ui5-button
+		hcmFooter
+		[disabled]="draft.saving() || uncertain()"
+		(click)="back()">
+		Back to Work Schedules
+	</ui5-button>
+</ef-hcm-object-page>
+<ef-hcm-discard-dialog
+	[open]="draft.confirmOpen()"
+	(decided)="draft.decide($event)"></ef-hcm-discard-dialog>

@@ -454,8 +454,8 @@ approval-progress projection but retains all source intervals, source/workday
 revisions, period, policy and resolution inputs. An actor-bound result expires after 15 minutes
 and binds source, exact prior workday revision, period, policy and resolution.
 It reports exact scheduled/expected milliseconds and whether policy has an
-Override approval route. This is dated resolution review only; Leave and subsequent
-workday impact, evidence upload/admission, submit/approval and native override UI
+Override approval route. The following-workday review and native editor refinements
+are specified below. Full Leave impact, evidence admission and source decisions
 remain acceptance requirements.
 
 The pure source decision evaluator implements the existing Attendance ApprovalCase
@@ -464,6 +464,45 @@ checks, configured independence/distinct actors, all required slots in each stag
 and rejection terminating the case. It does not provide a persistence adapter,
 Workflow dispatch or an authorized HTTP decision route. No Workflow task or static
 candidate snapshot can manufacture source authority.
+
+## OVERRIDE-NATIVE-EDITOR
+
+The stored-workday inspector links each authorized Published date to
+`/attendance/work-schedules/override/new?employmentId=...&workDate=...`.
+The editor rereads the exact current workday; query parameters never establish
+authority or supply its revision. Successful creation navigates to
+`/attendance/work-schedules/override/:overrideId`, whose safe GET survives reload.
+These specific routes precede the generic configuration detail route.
+
+This complex editor uses `UX-FP-OBJECT-PAGE` / `COMPOSED`, through the maintained
+HcmObjectPage and HcmObjectSection, with Replacement and Impact/approval sections
+and native footer actions. It reuses the existing schedule-pattern library's
+interval fields: UI5 Form, FormItem, Select, TimePicker, Button and Text. The same
+component serves weekly patterns and reusable shifts without changing their
+owning Signal Forms or validation. ComboBox supplies explicit IANA timezone entry;
+its installed wrapper exposes `valueStateMessage`, not `accessibleDescription`.
+TextArea retains the exact bounded command reason. ObjectStatus communicates
+approved, rejected/invalidated, pending and inactive source outcomes semantically.
+There is no feature CSS or new floorplan implementation.
+
+New drafts require an explicit Work/Rest choice. Work requires nonempty exact
+intervals; Rest intentionally submits an empty interval array. Time controls
+retain milliseconds, explicit 0/1 rollover and independent Earlier/Later choices.
+The universal override parser remains authoritative; missing or malformed fields
+cannot become implicit defaults. Validation reveals the Replacement section and
+focuses the first invalid control (Add interval for an empty Work proposal).
+Saved source evidence is read-only. Each subsequent command requires its own
+nonblank 1–2,000-character reason; safe reload never returns old private narrative.
+
+Create, review and required-approval submit use real existing API commands with
+stable body-bound retry keys. Unconfirmed writes freeze input and permit only
+the original operation's recovery. Dirty navigation uses the shared native discard
+dialog; verified tenant/persona changes cancel requests and clear private state.
+Review displays the real horizon, exact durations and separate rest warnings.
+Submit displays persisted Pending progress and does not claim workday application.
+No-approval application and document admission remain explicitly unavailable until
+their owning backend dependencies are complete. The catalogue remains Planned;
+this editor implementation is not complete-app browser acceptance.
 
 ## OVERRIDE-SOURCE-CASE-STORAGE
 
@@ -510,6 +549,6 @@ remain explicit exceptions. See the [internal integration record](../../testing/
 This is pending-approval admission, not complete override delivery. The
 no-approval publication path still returns unavailable pending full impact and
 publication delivery. Source decisions, dispatch/timer/reconciliation, evidence,
-Leave/subsequent-workday impact and native override UI/browser acceptance remain
+full Leave impact and complete native override browser acceptance remain
 required. Migration 55 corrects Workflow identity storage to the already approved
 opaque text mapping without editing migration 54 or discarding rows.
