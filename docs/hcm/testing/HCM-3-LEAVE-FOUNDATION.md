@@ -185,3 +185,45 @@ Planned; its full API, reservations, approvals and native UI still require deliv
 Affected ESLint, Leave/Attendance module TypeScript, hcm-api build, architecture,
 documentation/catalogue and Apply Leave readiness passed. No SQL migration or
 seed changed in this calculation slice, and the local running UI is unchanged.
+
+## Calculated request drafts
+
+The self-service POST/GET `/api/v1/leave/me/requests` now create and reload a
+calculated Draft. Full and explicit Hourly rows use current Attendance workdays,
+explicit enrollment/policy/period bounds and current dated eligibility. Hourly
+wall endpoints retain day offsets and per-endpoint DST evidence. Gaps, missing
+repeated-hour choices and mismatches reject. Reasons and private basis evidence
+are encrypted. Safe reads omit narrative and eligibility facts.
+
+Migration 65 adds tenant-owned request/day/interval evidence with forced RLS,
+tenant-composite source references, immutable evidence and deferred completeness.
+It also extends existing source receipts. `access.leave@2` grants only implemented
+self read/draft operations; server ownership checks still apply to administrators
+and HR. No account funding, reservation, Workflow intake or approval is created.
+Nonempty document references reject until governed evidence admission is wired.
+Half-day rounding remains pending; no disputed behavior is silently selected.
+
+On 2026-10-03 the Leave/seed PostgreSQL run passed 42 tests in four suites,
+including six request API cases. It exercises concurrent duplicate Draft creation,
+safe reload, encrypted reason, current read revocation, self/foreign tenant denial,
+exact Hourly rows, invalid/missing sources, immutable/deferred storage and Unpaid
+units without an account. Published policy and period prerequisites are explicit
+disposable fixtures; they do not prove publication UI acceptance. The focused
+Leave contract/domain/application run passed 39 tests in nine suites, including
+DST, fractional local times and nested validation field paths. Affected ESLint and
+Leave module TypeScript passed. Persistent local PostgreSQL remains at migration
+64 and Leave access seed 1; this migration/seed has only run in disposable tests.
+The hcm-api build, architecture, documentation/catalogue and Apply Leave readiness
+checks also passed. No native UI changed and no new browser acceptance is claimed.
+An additional broad Audit run passed 16 of 19 tests. Three existing app cases
+(`audit-log`, `my-activity`, `data-export-log`) failed when their prerequisite role
+creation returned 503 instead of 201. The focused Attendance audit sanitizer cases
+passed. The broader Audit run is not counted as passing; its role-command harness
+needs separate diagnosis before broad regression acceptance.
+
+Codex reviewed the concrete request fields and storage design under existing
+delegated technical authority, including owner ports, exact self scope, current
+source checks, row-bound encryption, complete transaction evidence and retry
+authorization. The review does not claim fresh human approval or acceptance of
+Apply Leave. Preview, edits, notice/overlap/bridge validation, document admission,
+submission, approvals and the native UI remain outstanding.

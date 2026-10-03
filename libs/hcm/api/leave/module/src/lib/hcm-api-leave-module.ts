@@ -8,27 +8,80 @@ import {
 	LeavePolicyUnit,
 	LeaveEnrollmentCommands,
 	LeaveEnrollmentUnit,
+	LeaveRequestDraftUnit,
+	LeaveRequestDraftCommands,
 } from '@empflowyee/hcm-api-leave-application'
 import {
 	KyselyLeavePolicyUnit,
 	KyselyLeaveEnrollmentUnit,
+	KyselyLeaveRequestDraftUnit,
 } from '@empflowyee/hcm-api-leave-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
 import {
 	WorkforceTimeContextBinder,
 	WorkforceLeaveEligibilityBinder,
+	WorkforceApprovalRoutingBinder,
 } from '@empflowyee/hcm-api-workforce-foundation-application'
 import {
 	LeavePoliciesController,
 	LeavePolicyOptionsController,
 	LeaveEnrollmentsController,
+	LeaveRequestsController,
 } from '@empflowyee/hcm-api-leave-transport'
+import { HcmAttendanceModule } from '@empflowyee/hcm-api-attendance-module'
+import { AttendancePublishedWorkdayBinder } from '@empflowyee/hcm-api-attendance-application'
 
 /** Compose Leave's source-owned commands without API scheduling loops or implicit migrations. */
 @Module({
-	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
-	controllers: [LeavePoliciesController, LeavePolicyOptionsController, LeaveEnrollmentsController],
+	imports: [
+		HcmRuntimeModule,
+		HcmAccessControlModule,
+		HcmWorkforceFoundationModule,
+		HcmAttendanceModule,
+	],
+	controllers: [
+		LeavePoliciesController,
+		LeavePolicyOptionsController,
+		LeaveEnrollmentsController,
+		LeaveRequestsController,
+	],
 	providers: [
+		{
+			provide: LeaveRequestDraftUnit,
+			inject: [
+				HcmAccessDatabase,
+				FieldCipher,
+				WorkforceTimeContextBinder,
+				WorkforceApprovalRoutingBinder,
+				WorkforceLeaveEligibilityBinder,
+				AttendancePublishedWorkdayBinder,
+			],
+			useFactory:
+			/** Reuse current authority, Workforce self/eligibility and published Attendance source ports. */ (
+				database: HcmAccessDatabase | null,
+				cipher: FieldCipher,
+				workforce: WorkforceTimeContextBinder,
+				ownership: WorkforceApprovalRoutingBinder,
+				eligibility: WorkforceLeaveEligibilityBinder,
+				workdays: AttendancePublishedWorkdayBinder,
+			) =>
+				new KyselyLeaveRequestDraftUnit(
+					database,
+					cipher,
+					workforce,
+					ownership,
+					eligibility,
+					workdays,
+				),
+		},
+		{
+			provide: LeaveRequestDraftCommands,
+			inject: [LeaveRequestDraftUnit],
+			useFactory:
+			/** Compose self-service Draft commands without API scheduling or funding side effects. */ (
+				unit: LeaveRequestDraftUnit,
+			) => new LeaveRequestDraftCommands(unit),
+		},
 		{
 			provide: LeaveEnrollmentUnit,
 			inject: [

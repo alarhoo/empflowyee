@@ -33,12 +33,11 @@ export type LeaveWorkdayCalculation =
 	| { state: 'Available'; units: LeaveUnits; digest: string; days: LeaveCalculatedWorkday[] }
 	| { state: 'Unavailable'; days: LeaveCalculatedWorkday[] }
 
-/** Calculate source-backed quantity rows inside an already authorized transaction; this is not submission, eligibility, overlap or evidence admission. */
-export async function calculateLeaveWorkdays(
-	workdays: AttendancePublishedWorkdayPort,
+/** Require one active enrollment, open period and published policy range before reading another owner's dated facts. */
+export function requireLeaveCalculationRange(
 	admission: LeaveCalculationAdmission,
-	days: readonly LeaveResolvedRequestDay[],
-): Promise<LeaveWorkdayCalculation> {
+	days: readonly { workDate: string }[],
+): { employmentId: string; from: string; to: string } {
 	if (days.length === 0 || days.length > 366) invalidField('days')
 	const { enrollment, period, policy } = admission
 	if (enrollment.state !== 'Active' || period.state !== 'Open' || policy.state !== 'Published')
@@ -68,7 +67,19 @@ export async function calculateLeaveWorkdays(
 		(policy.effectiveTo !== undefined && to > policy.effectiveTo)
 	)
 		invalidField('days', 'cross-period-or-version')
-	const page = await workdays.read({ employmentId: enrollment.employmentId, from, to })
+	return { employmentId: enrollment.employmentId, from, to }
+}
+
+/** Calculate exact rows from an already authorized current owner port after validating one period/version range. */
+export async function calculateLeaveWorkdays(
+	workdays: AttendancePublishedWorkdayPort,
+	admission: LeaveCalculationAdmission,
+	days: readonly LeaveResolvedRequestDay[],
+): Promise<LeaveWorkdayCalculation> {
+	const query = requireLeaveCalculationRange(admission, days)
+	const { enrollment, period, policy } = admission
+	const { from, to } = query
+	const page = await workdays.read(query)
 	const sources = new Map(
 		page.items.map(
 			/** Index only the exact source owner's dated result. */ (day) => [day.workDate, day],

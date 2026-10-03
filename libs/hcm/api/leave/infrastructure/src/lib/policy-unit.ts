@@ -39,6 +39,7 @@ export class SqlLeavePolicyReceipts implements LeavePolicyReceipts {
 		if (this.evidence) throw new Error('Leave command evidence already established')
 		idValue(evidence.versionId, 'versionId')
 		if (evidence.enrollmentId !== undefined) idValue(evidence.enrollmentId, 'enrollmentId')
+		if (evidence.requestId !== undefined) idValue(evidence.requestId, 'requestId')
 		revisionValue(evidence.revision, 'revision')
 		if (evidence.reason !== null) preservedTextValue(evidence.reason, 'reason', 2000)
 		this.evidence = { ...evidence }
@@ -69,8 +70,8 @@ export class SqlLeavePolicyReceipts implements LeavePolicyReceipts {
 					{ table: 'leave_command_receipt', column: 'encrypted_reason', rowId: id },
 					evidence.reason,
 				)
-		await sql`INSERT INTO hcm.leave_command_receipt(tenant_id,id,actor_account_id,operation,idempotency_key,request_hash,policy_version_id,enrollment_id,source_revision,response,encrypted_reason,reason_key_version)
-VALUES(${this.tenantId},${id},${this.accountId},${operation},${key}::uuid,${receipt.requestHash},${evidence.versionId},${evidence.enrollmentId ?? null},${evidence.revision},${JSON.stringify(receipt.response)}::jsonb,${sealed?.ciphertext ?? null},${sealed?.keyVersion ?? null})`.execute(
+		await sql`INSERT INTO hcm.leave_command_receipt(tenant_id,id,actor_account_id,operation,idempotency_key,request_hash,policy_version_id,enrollment_id,request_id,source_revision,response,encrypted_reason,reason_key_version)
+VALUES(${this.tenantId},${id},${this.accountId},${operation},${key}::uuid,${receipt.requestHash},${evidence.versionId},${evidence.enrollmentId ?? null},${evidence.requestId ?? null},${evidence.revision},${JSON.stringify(receipt.response)}::jsonb,${sealed?.ciphertext ?? null},${sealed?.keyVersion ?? null})`.execute(
 	this.transaction,
 )
 	}

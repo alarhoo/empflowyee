@@ -11,6 +11,7 @@ export const HCM3_AUDIT_ACTIONS = [
 	'workflow.action-requested',
 	'leave.policy-created',
 	'leave.enrollment-created',
+	'leave.request-drafted',
 	'leave.policy-updated',
 	'leave.policy-versioned',
 ] as const
