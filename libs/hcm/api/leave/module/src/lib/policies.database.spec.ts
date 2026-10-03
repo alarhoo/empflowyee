@@ -147,14 +147,6 @@ beforeAll(
 			"INSERT INTO hcm.leave_type(tenant_id,id,code,name,category,unit,is_paid,is_sensitive,is_active) VALUES($1,'http-vac','HTTP_VAC','HTTP fixture','Annual','Day',true,false,true)",
 			[tenant],
 		)
-		await admin.query(
-			"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.leave.leave-policies.read','Read policies','business-operation'),($1,'hcm.leave.leave-policies.draft','Draft policies','business-operation')",
-			[tenant],
-		)
-		await admin.query(
-			"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator','hcm.leave.leave-policies.read'),($1,'tenant-administrator','hcm.leave.leave-policies.draft')",
-			[tenant],
-		)
 		const store = new HcmRuntimeStore(runtime)
 		const compiled = await Test.createTestingModule({ imports: [HcmLeaveModule] })
 			.overrideProvider(FieldCipher)
@@ -219,6 +211,7 @@ it('saves, reloads and updates a real policy with safe retries and stale revisio
 
 it('rejects missing operation grants, cross-origin writes and hidden tenant or state fields', /** A discoverable route cannot bypass independent backend authority and validation. */ async () => {
 	expect((await send('jim', 'POST', '', input())).status).toBe(403)
+	expect((await send('toby', 'POST', '', input())).status).toBe(403)
 	expect(
 		(await send('david', 'POST', '', input(), { origin: 'https://foreign.invalid' })).status,
 	).toBe(403)
@@ -295,14 +288,6 @@ async function enrollmentPolicy(unpaid = false, excludeLater = false) {
 }
 
 it('enrolls through real HTTP with complete eligibility, encrypted receipts and no fabricated funding', /** Assert persisted effects, concurrent replay, current authority and whole-range eligibility rather than status alone. */ async () => {
-	await admin.query(
-		"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.leave.leave-administration.read','Read enrollments','business-operation'),($1,'hcm.leave.leave-administration.manage','Manage enrollments','business-operation')",
-		[tenant],
-	)
-	await admin.query(
-		"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator','hcm.leave.leave-administration.read'),($1,'tenant-administrator','hcm.leave.leave-administration.manage')",
-		[tenant],
-	)
 	const policy = await enrollmentPolicy(),
 		key = randomUUID()
 	const body = {
@@ -441,7 +426,7 @@ it('admits Unpaid enrollment without accounts and bounds omitted end dates by ex
 		effectiveFrom: '2026-10-05',
 		reason: 'Explicit Unpaid eligibility',
 	}
-	const created = await send('david', 'POST', '', body, {}, 'enrollments')
+	const created = await send('toby', 'POST', '', body, {}, 'enrollments')
 	expect(created.status, JSON.stringify(created.body)).toBe(201)
 	expect(created.body).toMatchObject({
 		state: 'Active',

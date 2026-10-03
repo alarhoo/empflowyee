@@ -68,7 +68,8 @@ receipt reconciliation still require delivery. See the Work Schedules
 [integration record](../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) for executed
 tests and remaining command, approval, Leave-impact and browser work. It has not
 passed complete-app acceptance and its tile remains unavailable. After a verified
-backup, local PostgreSQL has migrations through 55 and Attendance seed version 4.
+backup, local PostgreSQL has migrations through 64, Attendance seed version 4 and
+Leave access seed version 1. The original field-encryption key was preserved.
 The rebuilt API is ready and the worker runs AttendanceResolve and WorkflowPlan;
 source decisions and the remaining Workflow lanes are still unavailable.
 
@@ -80,7 +81,8 @@ ports are tested prerequisites, not complete entitlement or request journeys.
 See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
 This does not complete a Leave app or milestone; publication, entitlement funding,
 source journeys and the native UIs remain pending. Local PostgreSQL remains at
-migration 55; the new migrations have not been applied to the persistent database.
+migration 64; liveness/readiness and the tenant-host web entry point returned 200
+after rebuilding and restarting the task-owned API and worker on 2026-10-03.
 
 | Slice                                             | State                                     | Evidence                                                           |
 | ------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |

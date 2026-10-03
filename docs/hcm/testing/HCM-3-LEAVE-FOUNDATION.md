@@ -105,9 +105,9 @@ decision. The exact quantity implementation does not choose either behavior.
 Initial local Leave period dates have been raised for product configuration; no
 calendar-year or financial-year default has been silently seeded.
 
-Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–64
-have been exercised only in disposable test databases. Back up the persistent
-database and preserve its encryption key before explicit migration.
+At the initial enrollment-command review, local PostgreSQL remained at migration
+55 and Attendance seed 4; migrations 56–64 had only been exercised in disposable
+databases. The later explicit local preparation is recorded below.
 
 ## Enrollment command integration
 
@@ -129,3 +129,36 @@ Published policies and period dates in these tests are explicit disposable
 prerequisite fixtures, not evidence of policy publication or seeded local UI.
 The audit regression passed two tests; affected lint and the Leave module type
 check passed. No native UI/browser acceptance is established by these tests.
+
+## Canonical access and current local runtime
+
+Versioned `access.leave@1` seeds only the implemented policy read/draft and
+administration read/manage permissions. David's existing Tenant Administrator
+grant receives those four operations; Toby's HR Operations role receives the
+two enrollment operations. Employment scope is still checked by the API. No
+publication/decision grant, policy entitlement, period date or balance is invented.
+Reset refuses retained Leave command/enrollment evidence or other roles using
+the new permissions. The app catalogue remains Planned.
+
+The canonical seed and Leave PostgreSQL/HTTP run passed 36 tests in three suites.
+Test-only operation grants were removed: the API tests now use the versioned
+permissions, including Toby enrollment success and policy drafting denial. The
+first seed regression failed because its CLI test expected an obsolete hardcoded
+module count of 30; it now compares apply/reset counts with the reviewed manifest
+(34 versions), and the full run passed. No failed run is counted as acceptance.
+
+On 2026-10-03 explicit local preparation applied nine forward migrations, through
+64, and Leave access seed 1 after a verified 1,352,835-byte custom-format backup.
+The backup inventory included the tenant table and the original field-encryption
+key hash was unchanged. Only task-owned API/worker processes were restarted.
+The current API and shared worker builds passed; the worker still admits only
+AttendanceResolve and WorkflowPlan. API liveness/readiness and the tenant-host
+web entry point returned 200. These health checks do not establish UI acceptance.
+
+Current broader admission is 59 of 61 ready. My Profile and Org Chart still have
+stale FDD/TDD/traceability approval hashes; no unrelated approvals were refreshed.
+The seed-projection check (`pnpm hcm:db:seed:check`) failed at the unchanged
+`access.discovery.1.apply.sql` projection. Neither that immutable applied seed,
+its generator nor its catalogue inputs changed in this slice; forward Leave seed
+apply/reset tests passed. The projection check is not reported as passing and
+the historical seed was not rewritten.

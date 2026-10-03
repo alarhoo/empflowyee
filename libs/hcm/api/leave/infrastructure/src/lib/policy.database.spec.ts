@@ -640,15 +640,6 @@ beforeAll(
 			undefined,
 			{ tenantId: tenant, peerAddress: '127.0.0.1', developmentPersona: 'jim' },
 		)
-		// Test grants exercise command authorization; production grants use versioned seed tooling.
-		await admin.query(
-			"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.leave.leave-policies.read','Read policies','business-operation'),($1,'hcm.leave.leave-policies.draft','Draft policies','business-operation')",
-			[tenant],
-		)
-		await admin.query(
-			"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'tenant-administrator','hcm.leave.leave-policies.read'),($1,'tenant-administrator','hcm.leave.leave-policies.draft')",
-			[tenant],
-		)
 		await admin.query(
 			"INSERT INTO hcm.tenant_entitlement(tenant_id,code,enabled) VALUES($1,'hcm.leave',true) ON CONFLICT(tenant_id,code) DO UPDATE SET enabled=true",
 			[tenant],
