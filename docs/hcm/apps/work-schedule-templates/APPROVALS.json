@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "b924f91144b0b22bbca162a83227eb9556a4742a1a610aa384832ea0b438cc39",
+			"sha256": "58f33e446ce214fdb98f6873a42d3931d81de5c3bfe766e738585f677141144a",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md; reviewed source-family, typed preview context, shared UI boundary and editor integration; no fresh human approval or full Work Schedules acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "af6ec7d11c62aed17a1c942beb29a4f644200e7f19fcddc942374a36d279bb23",
+			"sha256": "8cba48d6a585e5ab4e26295bd1178a985d569e478b5daac0dd4b68a85120186d",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-TEMPLATE-UI-VALIDATION.md; Codex technical review of native bindings, source-contract alignment and executed local acceptance under existing delegated authority; no new business decision, separate human approval or production deployment claimed."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md; reviewed source-family, typed preview context, shared UI boundary and editor integration; no fresh human approval or full Work Schedules acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",
@@ -164,11 +164,11 @@
 		},
 		{
 			"document": "BLUEPRINT",
-			"sha256": "4637c1bf0addd73b4147ccd4a9c2a33281da8b3364d6741b8d99ea1e53993438",
+			"sha256": "795c356553793470dcb54936b68b2125d60a0ed369447c6c4a287aefad64201f",
 			"decision": "approved",
-			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-28",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-RESOLUTION-DECISION-REVIEW.md; explicit product-owner answers for DEC-HCM3-022/023, Codex technical integration under existing delegated authority; no separate human review of authored bytes claimed."
+			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md; reviewed source-family, typed preview context, shared UI boundary and editor integration; no fresh human approval or full Work Schedules acceptance claimed."
 		}
 	]
 }

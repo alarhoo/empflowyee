@@ -25,7 +25,7 @@ import { HcmDynamicPage, type HcmPageState } from '@empflowyee/hcm-web-ux-floorp
 import { HcmDiscardDialog } from '@empflowyee/hcm-web-ux-forms'
 import { HcmRuntimeStore } from '@empflowyee/hcm-web-runtime-context'
 import {
-	ScheduleTemplatesApi,
+	WorkSchedulesApi,
 	attendanceErrorMessage,
 	attendanceReadState,
 } from '@empflowyee/hcm-web-attendance-data-access'
@@ -35,19 +35,19 @@ import {
 	formFromDefaults,
 	formFromVersion,
 	scheduleFromForm,
-	TEMPLATE_ROUTE,
-	TEMPLATE_PERMISSION,
+	SCHEDULE_ROUTE,
+	SCHEDULE_PERMISSION,
 } from './schedule-form'
 
-/** Routed complete-pattern editor; no incomplete proposal can become a reusable template. */
+/** Routed complete-pattern editor; no incomplete proposal can become a reusable schedule. */
 @Component({
-	selector: 'ef-hcm-schedule-template-editor',
+	selector: 'ef-hcm-work-schedule-editor',
 	imports: [Button, MessageStrip, HcmDynamicPage, HcmDiscardDialog, SchedulePatternFields],
 	templateUrl: './editor.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ScheduleTemplateEditor extends SchedulePatternState {
-	private readonly api = inject(ScheduleTemplatesApi)
+export class WorkScheduleEditor extends SchedulePatternState {
+	private readonly api = inject(WorkSchedulesApi)
 	private readonly route = inject(ActivatedRoute)
 	private readonly router = inject(Router)
 	private readonly destroy = inject(DestroyRef)
@@ -68,6 +68,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 	/** Clear private draft state and cancel pending callbacks whenever verified context changes. */
 	constructor() {
 		super()
+		this.isTemplate.set(false)
 		effect(
 			/** Context changes invalidate loaded source and private form state. */ () => {
 				const context = this.runtime.context()
@@ -104,7 +105,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 		this.read?.unsubscribe()
 		this.state.set('loading')
 		this.message.set('')
-		if (!this.runtime.context()?.access.permissions.includes(`${TEMPLATE_PERMISSION}draft`)) {
+		if (!this.runtime.context()?.access.permissions.includes(`${SCHEDULE_PERMISSION}draft`)) {
 			this.state.set('denied')
 			return
 		}
@@ -112,7 +113,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 			const version = this.route.snapshot.queryParamMap.get('version')
 			if (!version) {
 				this.state.set('unavailable')
-				this.message.set('Select an exact draft version from the template detail.')
+				this.message.set('Select an exact draft version from the schedule detail.')
 				return
 			}
 			this.read = this.api
@@ -175,7 +176,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 				)
 			},
 			action: /** Persist or report an unconfirmed command. */ async () => {
-				const body = scheduleFromForm(this.model()),
+				const body = scheduleFromForm(this.model(), false),
 					source = this.source()
 				const key = this.draft.key({ source, body })
 				const call = source ? this.api.update(source, body, key) : this.api.create(body, key)
@@ -198,14 +199,14 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 		})
 		if (!saved || generation !== this.contextGeneration || this.destroy.destroyed) return
 		this.draft.markClean()
-		await this.router.navigate([TEMPLATE_ROUTE, saved.id], {
+		await this.router.navigate([SCHEDULE_ROUTE, saved.id], {
 			queryParams: { version: saved.versionId },
 		})
 	}
 
 	/** Leave through the route guard, which owns the single discard confirmation. */
 	cancel(): void {
-		void this.router.navigateByUrl(TEMPLATE_ROUTE)
+		void this.router.navigateByUrl(SCHEDULE_ROUTE)
 	}
 	/** Preserve a dirty editor or an in-flight write during route navigation. */
 	canLeave(): Promise<boolean> {

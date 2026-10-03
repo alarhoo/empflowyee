@@ -350,6 +350,12 @@
 			"@empflowyee/hcm-web-ux-hierarchy-chart": ["./libs/hcm/web/ux/hierarchy-chart/src/index.ts"],
 			"@empflowyee/hcm-web-attendance-feature-holiday-calendars": [
 				"./libs/hcm/web/attendance/feature-holiday-calendars/src/index.ts"
+			],
+			"@empflowyee/hcm-web-attendance-ui-schedule-pattern": [
+				"./libs/hcm/web/attendance/ui-schedule-pattern/src/index.ts"
+			],
+			"@empflowyee/hcm-web-attendance-feature-work-schedules": [
+				"./libs/hcm/web/attendance/feature-work-schedules/src/index.ts"
 			]
 		}
 	},

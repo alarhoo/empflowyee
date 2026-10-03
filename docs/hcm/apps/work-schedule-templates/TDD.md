@@ -269,3 +269,18 @@ current dated Workforce assignment/location facts; never use display preferences
 or first-row selection. The source resolver returns unavailable for missing or
 ambiguous authority facts. The approval update records the product owner's two
 explicit Step-2 answers and Codex's technical integration review.
+
+## SHARED-PATTERN-EDITOR
+
+The existing form model, Signal Form validation and native fields are maintained
+in `libs/hcm/web/attendance/ui-schedule-pattern` (`type:ui`, `domain:attendance`).
+The Templates feature retains its page, queries, source revision, cancellation,
+retry key, dirty navigation and route orchestration. The shared UI receives state
+and date/time formats; it imports neither runtime data access nor floorplans.
+Ordinary schedule consumers explicitly select `isTemplate=false`; Templates
+retains its default true value and separate permissions. Native numeric focus is
+delegated to the rendered fields component. Dates use shared `HcmDateField`.
+
+The production build and both real PostgreSQL-backed Templates browser journeys
+were rerun after extraction on 2026-10-03. This is regression evidence for Templates,
+not Work Schedules application acceptance.

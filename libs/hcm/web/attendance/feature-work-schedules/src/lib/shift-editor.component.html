@@ -1,6 +1,6 @@
 <ef-hcm-dynamic-page
-	[title]="id ? 'Edit schedule template' : 'Create schedule template'"
-	summary="Complete one continuous shift per workday; all times are local to the selected timezone policy"
+	[title]="id ? 'Edit shift' : 'Create shift'"
+	summary="Complete one continuous reusable shift; all times are local to the selected timezone policy"
 	[state]="state()"
 	[errorMessage]="message()"
 	[showFooter]="true"
@@ -17,7 +17,7 @@
 			[editor]="this"
 			[dateFormat]="runtime.preferences().dateFormat"
 			[timeFormat]="timeFormat()"
-			propertiesLabel="Template properties"></ef-hcm-schedule-pattern-fields>
+			propertiesLabel="Shift properties"></ef-hcm-schedule-pattern-fields>
 	}
 	<ui5-button
 		hcmFooter

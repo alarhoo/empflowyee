@@ -25,29 +25,28 @@ import { HcmDynamicPage, type HcmPageState } from '@empflowyee/hcm-web-ux-floorp
 import { HcmDiscardDialog } from '@empflowyee/hcm-web-ux-forms'
 import { HcmRuntimeStore } from '@empflowyee/hcm-web-runtime-context'
 import {
-	ScheduleTemplatesApi,
+	WorkSchedulesApi,
 	attendanceErrorMessage,
 	attendanceReadState,
 } from '@empflowyee/hcm-web-attendance-data-access'
-import type { ScheduleVersionView } from '@empflowyee/hcm-attendance-contract'
+import type { ShiftVersionView } from '@empflowyee/hcm-attendance-contract'
 import {
-	emptyScheduleForm,
-	formFromDefaults,
-	formFromVersion,
-	scheduleFromForm,
-	TEMPLATE_ROUTE,
-	TEMPLATE_PERMISSION,
+	emptyShiftForm,
+	formFromShift,
+	shiftFromForm,
+	SCHEDULE_ROUTE,
+	SCHEDULE_PERMISSION,
 } from './schedule-form'
 
-/** Routed complete-pattern editor; no incomplete proposal can become a reusable template. */
+/** Routed complete-pattern editor; no incomplete proposal can become a reusable shift. */
 @Component({
-	selector: 'ef-hcm-schedule-template-editor',
+	selector: 'ef-hcm-work-shift-editor',
 	imports: [Button, MessageStrip, HcmDynamicPage, HcmDiscardDialog, SchedulePatternFields],
-	templateUrl: './editor.component.html',
+	templateUrl: './shift-editor.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ScheduleTemplateEditor extends SchedulePatternState {
-	private readonly api = inject(ScheduleTemplatesApi)
+export class WorkShiftEditor extends SchedulePatternState {
+	private readonly api = inject(WorkSchedulesApi)
 	private readonly route = inject(ActivatedRoute)
 	private readonly router = inject(Router)
 	private readonly destroy = inject(DestroyRef)
@@ -56,7 +55,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 	private readonly contextChanged = new Subject<void>()
 	private contextGeneration = 0
 	private readonly pattern = viewChild(SchedulePatternFields)
-	readonly source = signal<ScheduleVersionView | null>(null)
+	readonly source = signal<ShiftVersionView | null>(null)
 	readonly state = signal<HcmPageState>('loading')
 	readonly message = signal('')
 	readonly id = this.route.snapshot.paramMap.get('id')
@@ -68,6 +67,8 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 	/** Clear private draft state and cancel pending callbacks whenever verified context changes. */
 	constructor() {
 		super()
+		this.isTemplate.set(false)
+		this.singleShift.set(true)
 		effect(
 			/** Context changes invalidate loaded source and private form state. */ () => {
 				const context = this.runtime.context()
@@ -77,7 +78,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 						this.contextGeneration++
 						this.contextChanged.next()
 						this.source.set(null)
-						this.model.set(emptyScheduleForm())
+						this.model.set(emptyShiftForm())
 						this.serverErrors.set([])
 						this.submitted.set(false)
 						this.draft.saving.set(false)
@@ -104,7 +105,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 		this.read?.unsubscribe()
 		this.state.set('loading')
 		this.message.set('')
-		if (!this.runtime.context()?.access.permissions.includes(`${TEMPLATE_PERMISSION}draft`)) {
+		if (!this.runtime.context()?.access.permissions.includes(`${SCHEDULE_PERMISSION}draft`)) {
 			this.state.set('denied')
 			return
 		}
@@ -112,11 +113,11 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 			const version = this.route.snapshot.queryParamMap.get('version')
 			if (!version) {
 				this.state.set('unavailable')
-				this.message.set('Select an exact draft version from the template detail.')
+				this.message.set('Select an exact draft version from the shift detail.')
 				return
 			}
 			this.read = this.api
-				.detail(this.id, version)
+				.detail(this.id, version, 'Shift')
 				.pipe(takeUntilDestroyed(this.destroy))
 				.subscribe({
 					next: /** Only editable drafts enter this route's form. */ (source) => {
@@ -128,28 +129,17 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 							return
 						}
 						this.source.set(source)
-						this.model.set(formFromVersion(source))
+						this.model.set(formFromShift(source))
 						this.draft.markClean()
 						this.state.set('content')
 					},
 					error: /** Keep the read failure explicit. */ (error) => this.failRead(error),
 				})
-		} else
-			this.read = this.api
-				.defaults()
-				.pipe(takeUntilDestroyed(this.destroy))
-				.subscribe({
-					next: /** Keep unpaid targets unplaced until the user completes the pattern. */ (
-						defaults,
-					) => {
-						this.model.set(formFromDefaults(defaults))
-						this.draft.markClean()
-						this.state.set('content')
-					},
-					error: /** Missing configuration blocks creation rather than inventing values. */ (
-						error,
-					) => this.failRead(error),
-				})
+		} else {
+			this.model.set(emptyShiftForm())
+			this.draft.markClean()
+			this.state.set('content')
+		}
 	}
 
 	/** Classify a failed initial read. */
@@ -164,7 +154,7 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 		this.submitted.set(true)
 		this.serverErrors.set([])
 		this.draft.error.set('')
-		let saved: ScheduleVersionView | undefined
+		let saved: ShiftVersionView | undefined
 		const generation = this.contextGeneration
 		await submit(this.fields, {
 			onInvalid: /** Focus the first contract field and keep a persistent explanation. */ () => {
@@ -175,10 +165,12 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 				)
 			},
 			action: /** Persist or report an unconfirmed command. */ async () => {
-				const body = scheduleFromForm(this.model()),
+				const body = shiftFromForm(this.model()),
 					source = this.source()
 				const key = this.draft.key({ source, body })
-				const call = source ? this.api.update(source, body, key) : this.api.create(body, key)
+				const call = source
+					? this.api.update(source, body, key, 'Shift')
+					: this.api.create(body, key, 'Shift')
 				this.draft.saving.set(true)
 				try {
 					saved = await firstValueFrom(
@@ -198,14 +190,14 @@ export class ScheduleTemplateEditor extends SchedulePatternState {
 		})
 		if (!saved || generation !== this.contextGeneration || this.destroy.destroyed) return
 		this.draft.markClean()
-		await this.router.navigate([TEMPLATE_ROUTE, saved.id], {
-			queryParams: { version: saved.versionId },
+		await this.router.navigate([SCHEDULE_ROUTE, saved.id], {
+			queryParams: { family: 'Shift', version: saved.versionId },
 		})
 	}
 
 	/** Leave through the route guard, which owns the single discard confirmation. */
 	cancel(): void {
-		void this.router.navigateByUrl(TEMPLATE_ROUTE)
+		void this.router.navigate([SCHEDULE_ROUTE], { queryParams: { family: 'Shift' } })
 	}
 	/** Preserve a dirty editor or an in-flight write during route navigation. */
 	canLeave(): Promise<boolean> {

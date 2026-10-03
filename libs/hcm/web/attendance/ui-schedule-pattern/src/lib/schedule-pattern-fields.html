@@ -1,0 +1,273 @@
+<ui5-message-strip
+	[hidden]="editor().singleShift()"
+	design="Information"
+	[hideCloseButton]="true">
+	Proposed unpaid minutes need explicit interval placement. Changing the minutes changes the
+	proposal. These are local pattern minutes; actual elapsed time is calculated for each dated
+	schedule.
+</ui5-message-strip>
+<ui5-form
+	[accessibleName]="propertiesLabel()"
+	accessibleMode="Edit"
+	layout="S1 M2 L3 XL3"
+	labelSpan="S12 M12 L12 XL12">
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Code</ui5-label>
+		<ui5-input
+			accessibleName="Code"
+			[formField]="editor().fields.code"
+			[maxlength]="40"
+			[readonly]="!!editor().id"
+			[valueState]="editor().fieldError('code') ? 'Negative' : 'None'"></ui5-input>
+		<ui5-text>{{ editor().fieldError('code') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Name</ui5-label>
+		<ui5-input
+			accessibleName="Name"
+			[formField]="editor().fields.name"
+			[maxlength]="120"
+			[valueState]="editor().fieldError('name') ? 'Negative' : 'None'"></ui5-input>
+		<ui5-text>{{ editor().fieldError('name') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Description</ui5-label>
+		<ui5-textarea
+			accessibleName="Description"
+			[formField]="editor().fields.description"
+			[maxlength]="2000"></ui5-textarea>
+		<ui5-text>{{ editor().fieldError('description') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Effective from</ui5-label>
+		<ui5-date-picker
+			hcmDateField
+			accessibleName="Effective from"
+			[formField]="editor().fields.effectiveFrom"
+			valueFormat="yyyy-MM-dd"
+			[displayFormat]="dateFormat()"
+			[valueState]="editor().fieldError('effectiveFrom') ? 'Negative' : 'None'"></ui5-date-picker>
+		<ui5-text>{{ editor().fieldError('effectiveFrom') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Effective to (optional)</ui5-label>
+		<ui5-date-picker
+			hcmDateField
+			accessibleName="Effective to (optional)"
+			[formField]="editor().fields.effectiveTo"
+			valueFormat="yyyy-MM-dd"
+			[displayFormat]="dateFormat()"
+			[valueState]="editor().fieldError('effectiveTo') ? 'Negative' : 'None'"></ui5-date-picker>
+		<ui5-text>{{ editor().fieldError('effectiveTo') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Timezone policy</ui5-label>
+		<ui5-select
+			accessibleName="Timezone policy"
+			[formField]="editor().fields.timezoneMode">
+			<ui5-option value="">Choose timezone policy</ui5-option>
+			<ui5-option value="Employment">Employment timezone</ui5-option>
+			<ui5-option value="Location">Location timezone</ui5-option>
+			<ui5-option value="Fixed">Fixed IANA timezone</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ editor().fieldError('timezoneMode') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item [hidden]="!(editor().model().timezoneMode === 'Fixed')">
+		<ui5-label slot="labelContent">Fixed timezone</ui5-label>
+		<ui5-combobox
+			accessibleName="Fixed timezone"
+			[formField]="editor().fields.fixedZone"
+			[valueState]="editor().fieldError('fixedZone') ? 'Negative' : 'None'">
+			@for (zone of zones; track zone) {
+			<ui5-cb-item [text]="zone"></ui5-cb-item>
+			}
+		</ui5-combobox>
+		<ui5-text>{{ editor().fieldError('fixedZone') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item [hidden]="editor().singleShift()">
+		<ui5-label slot="labelContent">Week starts on</ui5-label>
+		<ui5-select
+			accessibleName="Week starts on"
+			[formField]="editor().fields.weekStartsOn">
+			<ui5-option value="1">Monday</ui5-option>
+			<ui5-option value="2">Tuesday</ui5-option>
+			<ui5-option value="3">Wednesday</ui5-option>
+			<ui5-option value="4">Thursday</ui5-option>
+			<ui5-option value="5">Friday</ui5-option>
+			<ui5-option value="6">Saturday</ui5-option>
+			<ui5-option value="7">Sunday</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ editor().fieldError('weekStartsOn') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Minimum rest</ui5-label>
+		<ui5-checkbox
+			text="Configure minimum-rest validation"
+			[formField]="editor().fields.minimumRestEnabled"></ui5-checkbox>
+	</ui5-form-item>
+	<ui5-form-item [hidden]="!editor().model().minimumRestEnabled">
+		<ui5-label slot="labelContent">Minimum rest minutes</ui5-label>
+		<ui5-step-input
+			id="schedule-minimum-rest"
+			accessibleName="Minimum rest minutes"
+			[value]="editor().fields.minimumRestMinutes().value()"
+			[disabled]="editor().draft.saving()"
+			(ui5Input)="editor().fields.minimumRestMinutes().value.set(editor().numericValue($event.target))"
+			(ui5Change)="
+					editor().fields.minimumRestMinutes().value.set(editor().numericValue($event.target));
+					editor().fields.minimumRestMinutes().markAsTouched()
+				"
+			[min]="0"
+			[step]="1"></ui5-step-input>
+		<ui5-text>{{ editor().fieldError('minimumRestMinutes') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item [hidden]="!editor().model().minimumRestEnabled">
+		<ui5-label slot="labelContent">Minimum-rest action</ui5-label>
+		<ui5-select
+			accessibleName="Minimum-rest action"
+			[formField]="editor().fields.minimumRestMode">
+			<ui5-option value="">Choose action</ui5-option>
+			<ui5-option value="Warn">Warn</ui5-option>
+			<ui5-option value="Block">Block</ui5-option>
+		</ui5-select>
+		<ui5-text>{{ editor().fieldError('minimumRestMode') }}</ui5-text>
+	</ui5-form-item>
+</ui5-form>
+<ui5-button
+	[hidden]="editor().singleShift()"
+	(click)="editor().copyFirstDay()"
+	[disabled]="editor().draft.saving() || editor().model().days[0]?.kind !== 'Work'">
+	Copy Monday pattern to other work days
+</ui5-button>
+@for (day of editor().fields.days; track $index; let d = $index) {
+<ui5-title level="H2">
+	{{ editor().singleShift() ? 'Shift intervals' : weekdays[editor().model().days[d].weekday - 1] }}
+</ui5-title>
+<ui5-form
+	[accessibleName]="editor().singleShift() ? 'Shift pattern' : weekdays[editor().model().days[d].weekday - 1] + ' pattern'"
+	accessibleMode="Edit"
+	layout="S1 M2 L3 XL3"
+	labelSpan="S12 M12 L12 XL12">
+	<ui5-form-item [hidden]="editor().singleShift()">
+		<ui5-label slot="labelContent">Day type</ui5-label>
+		<ui5-select
+			accessibleName="Day type"
+			[formField]="day.kind">
+			<ui5-option value="Work">Work</ui5-option>
+			<ui5-option value="Rest">Rest</ui5-option>
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item
+		[hidden]="!(editor().model().days[d].kind === 'Work' && editor().model().days[d].proposalPending)">
+		<ui5-label slot="labelContent">Proposed unpaid minutes</ui5-label>
+		<ui5-step-input
+			[id]="'schedule-unpaid-' + d"
+			accessibleName="Proposed unpaid minutes"
+			[value]="day.unpaidMinutes().value()"
+			[disabled]="editor().draft.saving()"
+			[valuePrecision]="9"
+			(ui5Input)="day.unpaidMinutes().value.set(editor().numericValue($event.target))"
+			(ui5Change)="
+						day.unpaidMinutes().value.set(editor().numericValue($event.target));
+						day.unpaidMinutes().markAsTouched()
+					"
+			[min]="0"
+			[step]="1"
+			[valueState]="
+						editor().fieldError('days.' + d + '.unpaidMinutes') ? 'Negative' : 'None'
+					"></ui5-step-input>
+		<ui5-text>{{ editor().fieldError('days.' + d + '.unpaidMinutes') }}</ui5-text>
+	</ui5-form-item>
+</ui5-form>
+@if (editor().model().days[d].kind === 'Work') { @if (editor().fieldError('days.' + d +
+'.segments')) {
+<ui5-message-strip
+	design="Negative"
+	[hideCloseButton]="true">
+	{{ editor().fieldError('days.' + d + '.segments') }}
+</ui5-message-strip>
+} @for (segment of day.segments; track $index; let i = $index) {
+<ui5-form
+	[accessibleName]="(editor().singleShift() ? 'Shift' : weekdays[editor().model().days[d].weekday - 1]) + ' segment ' + (i + 1)"
+	accessibleMode="Edit"
+	layout="S1 M2 L3 XL3"
+	labelSpan="S12 M12 L12 XL12">
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Interval type</ui5-label>
+		<ui5-select
+			accessibleName="Interval type"
+			[formField]="segment.kind">
+			<ui5-option value="Work">Work</ui5-option>
+			<ui5-option value="UnpaidBreak">Unpaid break</ui5-option>
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Start time</ui5-label>
+		<ui5-time-picker
+			accessibleName="Start time"
+			[formField]="segment.startTime"
+			valueFormat="HH:mm:ss.SSS"
+			[displayFormat]="timeFormat()"
+			[valueState]="
+								editor().fieldError('days.' + d + '.segments.' + i + '.startTime') ? 'Negative' : 'None'
+							"></ui5-time-picker>
+		<ui5-text>{{ editor().fieldError('days.' + d + '.segments.' + i + '.startTime') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">End time</ui5-label>
+		<ui5-time-picker
+			accessibleName="End time"
+			[formField]="segment.endTime"
+			valueFormat="HH:mm:ss.SSS"
+			[displayFormat]="timeFormat()"
+			[valueState]="
+								editor().fieldError('days.' + d + '.segments.' + i + '.endTime') ? 'Negative' : 'None'
+							"></ui5-time-picker>
+		<ui5-text>{{ editor().fieldError('days.' + d + '.segments.' + i + '.endTime') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">End day</ui5-label>
+		<ui5-select
+			accessibleName="End day"
+			[formField]="segment.endDayOffset">
+			<ui5-option value="0">Start work date</ui5-option>
+			<ui5-option value="1">Following date</ui5-option>
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Ambiguous start</ui5-label>
+		<ui5-select
+			accessibleName="Ambiguous start"
+			[formField]="segment.startOverlap">
+			<ui5-option value="">Require an unambiguous time</ui5-option>
+			<ui5-option value="Earlier">Earlier occurrence</ui5-option>
+			<ui5-option value="Later">Later occurrence</ui5-option>
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Ambiguous end</ui5-label>
+		<ui5-select
+			accessibleName="Ambiguous end"
+			[formField]="segment.endOverlap">
+			<ui5-option value="">Require an unambiguous time</ui5-option>
+			<ui5-option value="Earlier">Earlier occurrence</ui5-option>
+			<ui5-option value="Later">Later occurrence</ui5-option>
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Interval actions</ui5-label>
+		<ui5-button
+			design="Transparent"
+			(click)="editor().removeSegment(d, i)"
+			[disabled]="editor().draft.saving()">
+			Remove interval {{ i + 1 }}
+		</ui5-button>
+	</ui5-form-item>
+</ui5-form>
+}
+<ui5-button
+	(click)="editor().addSegment(d)"
+	[disabled]="editor().draft.saving()">
+	Add interval
+</ui5-button>
+} }
