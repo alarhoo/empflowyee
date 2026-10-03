@@ -146,3 +146,26 @@ Affected lint, TypeScript (`--allowImportingTsExtensions` for existing seed impo
 and architecture checks pass. This adds no UI or source decision endpoint.
 Migration 56 is verified on disposable SQL; the persistent local database remains
 at 55 until the next explicit backed-up migration operation.
+
+## Action admission and dispatch protocol
+
+Migration 57 adds immutable action identity, encrypted reason, original retry key,
+Runtime authority reference, source/task/slot revisions and receipt-backed task
+transitions. Admission rechecks the source's online authorization and current
+candidate port. Concurrent identical browser retries recover one operation;
+changed input cannot reuse the key. An intent is ActionPending, not a decision.
+
+The fixed dispatch adapter verifies the stored canonical intent, queries the
+original source receipt first, and only then asks the source to decide under its
+original Runtime authority reference. Only a matching Accepted source receipt
+can complete a task. Decision reason never appears in outbox payloads or safe
+audit. Attempt recovery uses fresh source read authority, including after completion.
+A reconciliation intent is queued after each source outcome; its handler and real
+Attendance decision adapter are still required before enabling this lane locally.
+
+The focused planner/action PostgreSQL run passed 2 suites / 13 tests. The explicit
+test source proves adapter protocol behavior, concurrent admission, encrypted
+storage, immutable expiry, rejected manufactured completion, original-key receipt
+recovery after a lost acknowledgement, and one source decision across retry. This
+is not Attendance decision or UI acceptance. SQL remains at migration 55 in the
+persistent local environment; 56 and 57 have only been applied to disposable tests.

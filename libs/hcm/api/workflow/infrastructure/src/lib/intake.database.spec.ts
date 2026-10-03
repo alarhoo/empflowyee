@@ -328,12 +328,12 @@ it('plans exact source stages through a leased worker and retains elapsed UTC ti
 				tx,
 			) => {
 				await sql`SELECT set_config('hcm.tenant_id',${tenant},true)`.execute(tx)
-				await sql`UPDATE hcm.workflow_task SET state='Completed' WHERE id=${tasks[0].id}`.execute(
+				await sql`UPDATE hcm.workflow_task SET state='Completed',revision=revision+1 WHERE id=${tasks[0].id}`.execute(
 					tx,
 				)
 			},
 		),
-	).rejects.toMatchObject({ code: '42501' })
+	).rejects.toMatchObject({ code: '23514' })
 })
 
 it('records no-candidate exceptions without substituting an administrator or scheduling notifications', /** Missing routing remains an explicit recoverable coordination failure. */ async () => {

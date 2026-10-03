@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, it, expect, vi } from 'vitest'
 import { Client } from 'pg'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, randomBytes } from 'node:crypto'
 import { resolve } from 'node:path'
 import { sql, type Transaction } from 'kysely'
 import { HcmTenantDatabase } from '@empflowyee/hcm-api-database-kysely'
@@ -12,6 +12,7 @@ import {
 	HcmActionAuthorityResolver,
 	requireAuthenticatedScope,
 	requireHcmActionAuthority,
+	requireWorkloadScope,
 	type AuthenticatedHcmContext,
 	type HcmWorkloadContext,
 	type HcmActionBinding,
@@ -21,11 +22,30 @@ import {
 	createTenantDirectory,
 	createSessionReader,
 	KyselyHcmActionAuthorizationBinder,
+	LocalFieldCipher,
+	HcmDurableWorkStore,
+	HcmTransactionalWorkerLane,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
 	TransactionalActionAccessPolicy,
+	TransactionalAccessPolicy,
 	type AccessTables,
 } from '@empflowyee/hcm-api-access-control-infrastructure'
+import {
+	WorkflowSourceBinder,
+	WorkflowSourceActionBinder,
+	type WorkflowSourceActionIntent,
+	type WorkflowSourceActionReceipt,
+} from '@empflowyee/hcm-api-workflow-application'
+import type {
+	DomainApprovalManifest,
+	WorkflowSource,
+	WorkflowActionCommand,
+} from '@empflowyee/hcm-workflow-contract'
+import { KyselyWorkflowActionBinder } from './action-intake'
+import { KyselyWorkflowDispatchHandler } from './action-dispatch'
+import { KyselyWorkflowIntakeBinder } from './hcm-api-workflow-infrastructure'
+import { KyselyWorkflowPlanHandler } from './plan-worker'
 
 const tenant = 'local-dunder-mifflin'
 const account = 'dunder-mifflin/account/david'
@@ -45,6 +65,182 @@ let application: HcmRuntimeApplication
 let actor: AuthenticatedHcmContext
 let dispatch: HcmWorkloadContext
 let issuer: HcmWorkloadIssuer
+
+const actionManifests = new Map<string, DomainApprovalManifest>()
+const sourceReceipts = new Map<string, WorkflowSourceActionReceipt>()
+const sourceDecisions = new Map<string, number>()
+let loseNextResponse = false
+const actionCipher = new LocalFieldCipher(randomBytes(32))
+
+/** Explicit test source for dispatch protocol acceptance; this fixture is not Attendance business acceptance. */
+class ActionTestProjection extends WorkflowSourceBinder {
+	/** Keep all test projections within the real seeded tenant. */
+	bind(_transaction: unknown, tenantId: string, source: WorkflowSource) {
+		if (tenantId !== tenant || source !== 'Attendance') throw new Error('Unexpected fixture source')
+		return {
+			/** Return a safe controlled manifest to the real planner. */ async manifest(caseId: string) {
+				return actionManifests.get(caseId) ?? null
+			},
+			/** Return the actual seeded account as this protocol fixture's independent candidate. */ async candidates() {
+				return { accountIds: [account], digest: 'c'.repeat(64) }
+			},
+		}
+	}
+}
+
+/** Simulate fixed-adapter accepted receipts and lost acknowledgements, while using real Runtime and Access checks. */
+class ActionTestSource extends WorkflowSourceActionBinder {
+	/** Bind both online and worker actor checks to the same restricted SQL transaction. */
+	bind(transaction: unknown, tenantId: string, source: WorkflowSource) {
+		if (tenantId !== tenant || source !== 'Attendance') throw new Error('Unexpected fixture source')
+		const tx = transaction as Transaction<AccessTables>
+		return {
+			/** Read recovery requires a current ordinary source read grant. */ async authorizeRead(
+				context: AuthenticatedHcmContext,
+			) {
+				await new TransactionalAccessPolicy(tx, context).require({
+					permission: 'hcm.attendance.work-schedules.read',
+					entitlement: 'hcm.attendance',
+				})
+			},
+			/** Admit only a currently authorized account, never the manifest's discovery fields. */ async authorize(
+				context: AuthenticatedHcmContext,
+			) {
+				await new TransactionalAccessPolicy(tx, context).require({
+					permission,
+					entitlement: 'hcm.attendance',
+				})
+				return { permission, scopeReference: 'a'.repeat(64) }
+			},
+			/** The test receipt survives a deliberately lost transport response, modeling an independently committed source. */ async query(
+				context: HcmWorkloadContext,
+				intent: WorkflowSourceActionIntent,
+			) {
+				const scope = requireWorkloadScope(context, 'WorkflowDispatch')
+				if (scope.tenantId !== tenantId) throw new Error('Foreign dispatch')
+				return sourceReceipts.get(intent.dispatchKey) ?? null
+			},
+			/** Use real human authority, then retain one test-owned source decision for the original key. */ async decide(
+				context: HcmWorkloadContext,
+				reference: string,
+				intent: WorkflowSourceActionIntent,
+			) {
+				const authority = await new HcmActionAuthorityResolver(binder.bind(tx, tenant)).resolve(
+					context,
+					reference,
+					{ permission, scopeReference: 'a'.repeat(64), intentDigest: intent.intentDigest },
+				)
+				await new TransactionalActionAccessPolicy(tx, authority, 'a'.repeat(64)).require({
+					permission,
+					entitlement: 'hcm.attendance',
+				})
+				const receipt: WorkflowSourceActionReceipt = {
+					id: randomUUID(),
+					dispatchKey: intent.dispatchKey,
+					intentDigest: intent.intentDigest,
+					caseId: intent.caseId,
+					slotId: intent.slotId,
+					actorAccountId: intent.actorAccountId,
+					generation: intent.generation,
+					outcome: 'Accepted',
+					caseRevision: intent.expectedCaseRevision + 1,
+					subjectRevision: intent.expectedSubjectRevision,
+					decisionId: randomUUID(),
+					safeFailureCode: null,
+				}
+				sourceReceipts.set(intent.dispatchKey, receipt)
+				sourceDecisions.set(intent.caseId, (sourceDecisions.get(intent.caseId) ?? 0) + 1)
+				if (loseNextResponse) {
+					loseNextResponse = false
+					throw new Error('Source acknowledgement lost')
+				}
+				return receipt
+			},
+		}
+	}
+}
+
+/** Materialize a unique test source through the actual durable planner and return its persisted ready task. */
+async function readyTask() {
+	const caseId = randomUUID(),
+		slotId = randomUUID()
+	const manifest: DomainApprovalManifest = {
+		schemaVersion: 1,
+		registryVersion: 1,
+		source: 'Attendance',
+		caseId,
+		caseRevision: 1,
+		subjectId: randomUUID(),
+		subjectRevision: 1,
+		generation: 1,
+		completion: 'AllRequiredAnyReject',
+		allowedActions: ['Approve', 'Reject'],
+		registeredRouteCode: 'WORK_SCHEDULES',
+		safeFacts: {
+			subjectType: 'Override',
+			dateFrom: '2027-02-03',
+			dateTo: '2027-02-03',
+			legalEntityId: 'fixture-entity',
+			sourceState: 'Pending',
+		},
+		slots: [
+			{
+				id: slotId,
+				revision: 1,
+				state: 'Pending',
+				stage: 1,
+				ordinal: 1,
+				independent: true,
+				distinctActors: false,
+				candidateRuleCode: 'fixture-rule',
+			},
+		],
+	}
+	actionManifests.set(caseId, manifest)
+	await database.transaction(
+		actor,
+		/** Queue the protocol fixture exactly like a source's atomic case admission. */ (tx) =>
+			new KyselyWorkflowIntakeBinder().bind(tx, tenant).enqueue(manifest),
+	)
+	const planner = await issuer.issue(tenant, 'WorkflowPlan', randomUUID(), 60000)
+	const lane = new HcmTransactionalWorkerLane(
+		'WorkflowPlan',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[new KyselyWorkflowPlanHandler(new ActionTestProjection())],
+	)
+	const job = await lane.claim(planner)
+	if (!job) throw new Error('Expected planner job')
+	await lane.complete(planner, job)
+	const row = (
+		await admin.query(
+			'SELECT t.id,t.revision FROM hcm.workflow_task t JOIN hcm.workflow_instance i ON i.tenant_id=t.tenant_id AND i.id=t.instance_id WHERE i.source_case_id=$1',
+			[caseId],
+		)
+	).rows[0]
+	return { caseId, taskId: String(row.id), revision: Number(row.revision) }
+}
+
+/** Use real cipher, current source checks, runtime reference storage and durable Workflow outbox. */
+function actions(tx: Transaction<AccessTables>) {
+	return new KyselyWorkflowActionBinder(
+		actionCipher,
+		binder,
+		new ActionTestProjection(),
+		new ActionTestSource(),
+	).bind(tx, tenant)
+}
+
+/** Each scenario requests an explicit decision with bounded narrative and exact source/task revisions. */
+function actionCommand(): WorkflowActionCommand {
+	return {
+		expectedRevision: 1,
+		expectedSourceRevision: 1,
+		expectedSubjectRevision: 1,
+		generation: 1,
+		action: 'Approve',
+		reason: 'Reviewed private source detail',
+	}
+}
 
 /** Use only the ephemeral database injected by the integration harness. */
 function connection(role: string): string {
@@ -399,4 +595,132 @@ it('denies expired human authority and rolls back effects when it expires before
 	expect(
 		(await admin.query("SELECT id FROM hcm.access_role WHERE id='expired-action-effect'")).rows,
 	).toEqual([])
+})
+
+it('queues one encrypted action under concurrent retries and accepts only a source-backed receipt', /** Planner, intake, Runtime authority, dispatch and receipt persistence all use real restricted PostgreSQL. */ async () => {
+	const task = await readyTask(),
+		key = randomUUID(),
+		input = actionCommand()
+	const requests = await Promise.all(
+		[0, 1].map(
+			/** Race the same browser identity through separate database transactions. */ () =>
+				database.transaction(
+					actor,
+					/** Retain the caller's real session in the admission boundary. */ (tx) =>
+						actions(tx).submit(actor, task.taskId, key, input),
+				),
+		),
+	)
+	expect(requests[0]).toEqual(requests[1])
+	const result = requests[0]
+	await expect(
+		database.transaction(
+			actor,
+			/** A changed reason cannot reuse an existing browser retry identity. */ (tx) =>
+				actions(tx).submit(actor, task.taskId, key, { ...input, reason: 'Changed' }),
+		),
+	).rejects.toMatchObject({ code: 'revision-conflict' })
+	const stored = (
+		await admin.query(
+			'SELECT a.state,a.encrypted_reason,o.payload FROM hcm.workflow_action_attempt a JOIN hcm.workflow_outbox o ON o.tenant_id=a.tenant_id AND o.id=a.outbox_id WHERE a.id=$1',
+			[result.attemptId],
+		)
+	).rows[0]
+	expect(stored.state).toBe('Pending')
+	expect(stored.encrypted_reason.toString('utf8')).not.toContain(input.reason)
+	expect(stored.payload).toEqual({
+		attemptId: result.attemptId,
+		intentDigest: expect.stringMatching(/^[a-f0-9]{64}$/),
+	})
+	await expect(
+		runtime.query(
+			"UPDATE hcm.workflow_task SET state='Completed',revision=revision+1 WHERE id=$1",
+			[task.taskId],
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	const lane = new HcmTransactionalWorkerLane(
+		'WorkflowDispatch',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[new KyselyWorkflowDispatchHandler(new ActionTestSource(), actionCipher, binder)],
+	)
+	const job = await lane.claim(dispatch)
+	if (!job) throw new Error('Expected dispatch')
+	expect(job.id).toBe(result.operationId)
+	await lane.complete(dispatch, job)
+	const recovered = await database.transaction(
+		actor,
+		/** Accepted results remain readable without pretending the old task is actionable. */ (tx) =>
+			actions(tx).read(actor, result.attemptId),
+	)
+	expect(recovered).toMatchObject({
+		id: result.attemptId,
+		taskId: task.taskId,
+		state: 'Accepted',
+		sourceRevision: 2,
+	})
+	expect(
+		(await admin.query('SELECT state FROM hcm.workflow_task WHERE id=$1', [task.taskId])).rows[0]
+			.state,
+	).toBe('Completed')
+	expect(sourceDecisions.get(task.caseId)).toBe(1)
+	expect(
+		(
+			await admin.query(
+				'SELECT count(*)::int AS count FROM hcm.workflow_action_attempt WHERE task_id=$1',
+				[task.taskId],
+			)
+		).rows[0].count,
+	).toBe(1)
+	expect(
+		await database.transaction(
+			actor,
+			/** A lost browser response recovers the original accepted-intent response, not a second decision. */ (
+				tx,
+			) => actions(tx).submit(actor, task.taskId, key, input),
+		),
+	).toEqual(result)
+})
+
+it('queries the original source receipt after a lost acknowledgement before any redispatch', /** The explicit test source commits independently to exercise the unknown-delivery protocol; no Attendance success is claimed here. */ async () => {
+	const task = await readyTask()
+	const result = await database.transaction(
+		actor,
+		/** Admit an ordinary action before injecting response loss. */ (tx) =>
+			actions(tx).submit(actor, task.taskId, randomUUID(), actionCommand()),
+	)
+	const lane = new HcmTransactionalWorkerLane(
+		'WorkflowDispatch',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[new KyselyWorkflowDispatchHandler(new ActionTestSource(), actionCipher, binder)],
+	)
+	const job = await lane.claim(dispatch)
+	if (!job) throw new Error('Expected dispatch')
+	loseNextResponse = true
+	await expect(lane.complete(dispatch, job)).rejects.toThrow('Source acknowledgement lost')
+	expect(
+		(await admin.query('SELECT state FROM hcm.workflow_task WHERE id=$1', [task.taskId])).rows[0]
+			.state,
+	).toBe('ActionPending')
+	expect(
+		(
+			await admin.query('SELECT attempt_id FROM hcm.workflow_action_receipt WHERE attempt_id=$1', [
+				result.attemptId,
+			])
+		).rows,
+	).toEqual([])
+	await lane.fail(dispatch, job, 0)
+	const retry = await lane.claim(dispatch)
+	if (!retry) throw new Error('Expected original dispatch retry')
+	expect(retry.id).toBe(job.id)
+	await lane.complete(dispatch, retry)
+	expect(sourceDecisions.get(task.caseId)).toBe(1)
+	expect(
+		(
+			await database.transaction(
+				actor,
+				/** Recovery follows the persisted source receipt. */ (tx) =>
+					actions(tx).read(actor, result.attemptId),
+			)
+		).state,
+	).toBe('Accepted')
 })
