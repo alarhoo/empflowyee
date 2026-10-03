@@ -356,6 +356,13 @@
 			],
 			"@empflowyee/hcm-web-attendance-feature-work-schedules": [
 				"./libs/hcm/web/attendance/feature-work-schedules/src/index.ts"
+			],
+			"@empflowyee/hcm-workflow-contract": ["./libs/hcm/contracts/workflow/src/index.ts"],
+			"@empflowyee/hcm-api-workflow-application": [
+				"./libs/hcm/api/workflow/application/src/index.ts"
+			],
+			"@empflowyee/hcm-api-workflow-infrastructure": [
+				"./libs/hcm/api/workflow/infrastructure/src/index.ts"
 			]
 		}
 	},

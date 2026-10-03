@@ -61,6 +61,8 @@ Work Schedules, My Schedule and the requested Leave apps remain in progress.
 The [Work Schedules integration record](docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md)
 distinguishes implemented editors, assignment review and workday inspection from
 remaining approval, Leave-impact and browser acceptance. Its tile is not yet Available.
+The internal [Workflow integration record](docs/hcm/testing/HCM-3-WORKFLOW-INTEGRATION.md)
+tracks tested intake/planning separately from pending source composition and dispatch.
 
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with
