@@ -5,6 +5,7 @@ import {
 	KyselyWorkforceTimeContextBinder,
 	KyselyWorkforceTimeSubjectsBinder,
 	KyselyWorkforceApprovalRoutingBinder,
+	KyselyWorkforceLeaveEligibilityBinder,
 } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import type {
 	WorkforceTimeContextPort,
@@ -19,6 +20,42 @@ let runtime: Kysely<unknown>
 const employmentId = 'dunder-mifflin/employment/jim'
 const workDate = '2026-09-28'
 class Rollback extends Error {}
+
+it('exports private eligibility facts only through the dedicated owner port', /** Person changes invalidate Leave evidence without putting gender into general schedule projections. */ async () => {
+	await readWithin(
+		/** Exercise the real tenant-bound projection and roll back the test person revision. */ async (
+			time,
+			tx,
+		) => {
+			const binder = new KyselyWorkforceLeaveEligibilityBinder(
+				new KyselyWorkforceTimeContextBinder(),
+			)
+			const port = binder.bind(tx, HCM_TEST_TENANT)
+			const first = await port.read(employmentId, workDate)
+			if (first.state !== 'Available') throw new Error('Expected seeded eligibility facts')
+			expect(first.context.workforce.employmentId).toBe(employmentId)
+			expect(first.context.personRevision).toBeGreaterThan(0)
+			expect(first.context).toHaveProperty('genderCode')
+			expect(JSON.stringify(first)).not.toMatch(/displayName|birthDate|email|reason|document/)
+			expect(available(await time.read(employmentId, workDate))).not.toHaveProperty('genderCode')
+			expect(await port.read(employmentId, workDate)).toEqual(first)
+			await sql`UPDATE hcm.person SET revision=revision+1 WHERE tenant_id=${HCM_TEST_TENANT} AND id='dunder-mifflin/person/jim'`.execute(
+				tx,
+			)
+			const next = await port.read(employmentId, workDate)
+			if (next.state !== 'Available') throw new Error('Expected revised eligibility facts')
+			expect(next.context.inputDigest).not.toBe(first.context.inputDigest)
+			expect(next.context.workforce.inputDigest).toBe(first.context.workforce.inputDigest)
+			await expect(binder.bind(tx, 'foreign').read(employmentId, workDate)).rejects.toThrow(
+				'forbidden',
+			)
+			expect(await port.read('missing-employment', workDate)).toMatchObject({
+				state: 'Unavailable',
+				reason: 'employment-unavailable',
+			})
+		},
+	)
+})
 
 /** Keep scenario changes isolated while exercising the real restricted SQL role and tenant RLS. */
 async function readWithin<Result>(

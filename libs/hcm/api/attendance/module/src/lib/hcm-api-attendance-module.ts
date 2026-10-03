@@ -23,6 +23,7 @@ import {
 	AttendanceWorkConfigurationDrafts,
 	AttendanceWorkReferences,
 	AttendanceWorkdayReadPort,
+	AttendancePublishedWorkdayBinder,
 	AttendanceWorkdayQueries,
 	AttendanceWorkAssignmentUnit,
 	AttendanceWorkAssignments,
@@ -48,6 +49,7 @@ import {
 	KyselyAttendanceScheduleUnit,
 	KyselyWorkConfigurationUnit,
 	KyselyAttendanceWorkdayQueries,
+	KyselyAttendancePublishedWorkdayBinder,
 	KyselyWorkAssignmentUnit,
 	KyselyDatedPublicationUnit,
 	KyselyAttendanceHolidayUnit,
@@ -81,7 +83,11 @@ import {
 		HolidayCalendarsController,
 		HolidayAssignmentsController,
 	],
-	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
+	exports: [
+		AttendanceConfigurationInputBinder,
+		AttendancePeriodFenceBinder,
+		AttendancePublishedWorkdayBinder,
+	],
 	providers: [
 		{
 			provide: WorkflowIntakeBinder,
@@ -246,6 +252,14 @@ import {
 			useFactory: /** Compose owner ports without reciprocal persistence dependencies. */ (
 				workforce: WorkforceTimeContextBinder,
 			) => new KyselyAttendanceConfigurationInputBinder(workforce),
+		},
+		{
+			provide: AttendancePublishedWorkdayBinder,
+			inject: [AttendanceConfigurationInputBinder],
+			useFactory:
+			/** Give approved consumers current immutable evidence through the Attendance owner. */ (
+				inputs: AttendanceConfigurationInputBinder,
+			) => new KyselyAttendancePublishedWorkdayBinder(inputs),
 		},
 		{
 			provide: AttendanceHolidayUnitOfWork,

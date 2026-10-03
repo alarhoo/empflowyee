@@ -20,6 +20,7 @@ import {
 	KyselyAttendanceResolveHandler,
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyScheduleRepository,
+	KyselyAttendancePublishedWorkdayBinder,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
 import { HcmAttendanceModule } from './hcm-api-attendance-module'
@@ -40,6 +41,81 @@ const employment = 'dunder-mifflin/employment/jim',
 	actor = 'dunder-mifflin/account/david'
 const binder = new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder())
 const handler = new KyselyAttendanceResolveHandler(binder)
+
+it('exports current published evidence to source consumers and refuses stale or absent workdays', /** The internal owner port reuses real stored intervals without minting workdays, queue entries or human authority. */ async () => {
+	const date = '2026-10-20'
+	const reader = new KyselyAttendancePublishedWorkdayBinder(binder)
+	await database.workloadTransaction(
+		context,
+		'AttendanceResolve',
+		/** No persisted workday means unavailable even when configuration could resolve. */ async (
+			tx,
+		) => {
+			const page = await reader
+				.bind(tx, tenant)
+				.read({ employmentId: employment, from: date, to: date })
+			expect(page.items[0]).toMatchObject({ state: 'Unavailable', unavailableCode: 'NotResolved' })
+			await expect(
+				reader.bind(tx, 'foreign').read({ employmentId: employment, from: date, to: date }),
+			).rejects.toThrow('forbidden')
+		},
+	)
+	await enqueue(date, await basis(date))
+	await lane.complete(context, await claim())
+	await database.workloadTransaction(
+		context,
+		'AttendanceResolve',
+		/** Verify exact source-backed data and no queue mutation while reading. */ async (tx) => {
+			const before = (
+				await sql<{
+					count: string
+				}>`SELECT count(*)::text AS count FROM hcm.attendance_outbox`.execute(tx)
+			).rows[0].count
+			const page = await reader
+				.bind(tx, tenant)
+				.read({ employmentId: employment, from: date, to: date })
+			expect(page.items[0]).toMatchObject({
+				state: 'Published',
+				employmentId: employment,
+				workDate: date,
+				scheduledMilliseconds: '28800250',
+			})
+			expect(JSON.stringify(page)).not.toMatch(/input_digest|workforceDigest|accountId/)
+			expect(
+				(
+					await sql<{
+						count: string
+					}>`SELECT count(*)::text AS count FROM hcm.attendance_outbox`.execute(tx)
+				).rows[0].count,
+			).toBe(before)
+		},
+	)
+	await expect(
+		database.workloadTransaction(
+			context,
+			'AttendanceResolve',
+			/** Roll back a Workforce revision change after proving the old workday is rejected. */ async (
+				tx,
+			) => {
+				const facts = await new KyselyWorkforceTimeContextBinder()
+					.bind(tx, tenant)
+					.read(employment, date)
+				if (facts.state !== 'Available') throw new Error('Fixture workforce missing')
+				await sql`UPDATE hcm.location SET revision=revision+1 WHERE tenant_id=${tenant} AND id=${facts.context.assignments[0].locationId}`.execute(
+					tx,
+				)
+				const page = await reader
+					.bind(tx, tenant)
+					.read({ employmentId: employment, from: date, to: date })
+				expect(page.items[0]).toMatchObject({
+					state: 'Unavailable',
+					unavailableCode: 'SourceChanged',
+				})
+				throw new Error('rollback source fixture')
+			},
+		),
+	).rejects.toThrow('rollback source fixture')
+})
 
 /** Read the producer's actual current resolver digest through the same maintained source ports. */
 async function basis(workDate: string): Promise<string> {
