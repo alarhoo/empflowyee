@@ -173,6 +173,21 @@
 					{{ duration(warning.elapsedMilliseconds) }}.
 				</ui5-message-strip>
 			}
+			@if (value.leaveImpact; as impact) {
+				<ui5-text>
+					Leave requests reviewed: {{ impact.affectedRequestCount }}. Requests with changed
+					calculation inputs or quantities: {{ impact.changedRequestCount }}. Existing request
+					quantities and history are preserved.
+				</ui5-text>
+				@if (impact.unavailableRequestCount) {
+					<ui5-message-strip
+						design="Critical"
+						[hideCloseButton]="true">
+						Leave impact is unavailable for {{ impact.unavailableRequestCount }} requests. Resolve
+						the missing inputs before submitting this override.
+					</ui5-message-strip>
+				}
+			}
 			@if (!value.approvalRequired) {
 				<ui5-message-strip
 					design="Information"

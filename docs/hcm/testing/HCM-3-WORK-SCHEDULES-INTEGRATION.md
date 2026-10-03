@@ -247,3 +247,27 @@ seven suites, preserving Template and Holiday journeys after extracting their
 interval controls. These results do not prove Work Schedules acceptance. The
 remaining source decision, full impact, evidence and production dependencies
 still prevent declaring this app Complete or enabling its tile.
+
+## Override Leave-impact review
+
+On 2026-10-03 Codex reviewed the owner boundary and quantity-only proposal under
+the existing technical delegation. Attendance passes exact proposed workday
+intervals through its application port; Leave reads and calculates its own stored
+request evidence. Only safe counts and an opaque digest return to Attendance.
+The existing tenant authority lock serializes current API writers; immutable
+request tables retain their SELECT/INSERT-only runtime privileges. No new schema,
+tenant isolation rule, human approval or request recalculation side effect is added.
+
+The real PostgreSQL/API command passed 21 tests across the Attendance work
+configuration and Leave request suites. An actual Rest override reviews three
+existing Balance/Unpaid requests, identifies two changed calculations and leaves
+all stored quantities/digests intact. The unchanged following-day hourly request
+does not count as changed. A new request makes the original submit digest stale;
+fresh review includes it. A fifteen-minute proposed interval makes the explicit
+thirty-minute hourly rule unavailable. A foreign tenant binder is denied.
+Forty-eight focused pure tests passed. Affected lint, API TypeScript, strict
+Angular compilation, hcm-api/hcm-web builds, architecture, page structure,
+documentation/catalogue and Work Schedules readiness checks passed.
+This covers the admitted Draft lifecycle;
+full pending/approved impact, other configuration producers and final application
+are still required. No additional app or browser journey is accepted by this work.

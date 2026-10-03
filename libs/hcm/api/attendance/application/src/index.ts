@@ -16,6 +16,7 @@ export * from './lib/work-configuration-drafts'
 export * from './lib/policy-publication'
 export * from './lib/work-assignments'
 export * from './lib/dated-impact'
+export * from './lib/leave-impact'
 export * from './lib/dated-publication-ports'
 export * from './lib/dated-publication'
 

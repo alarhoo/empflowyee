@@ -76,6 +76,17 @@ export interface WorkdayPage {
 	nextCursor: null
 }
 
+/** Exact quantity inputs shared by persisted workdays and explicitly proposed impact calculations. */
+export type WorkdayQuantityBasis = Pick<
+	Extract<WorkdayView, { state: 'Published' }>,
+	'kind' | 'scheduledMilliseconds' | 'elapsedMilliseconds'
+> & {
+	segments: Pick<
+		WorkdaySegmentView,
+		'kind' | 'startInstant' | 'endInstant' | 'elapsedMilliseconds'
+	>[]
+}
+
 /** A bounded single-employment agenda is date-ordered on the server and never silently picks an employment. */
 export function parseWorkdayQuery(params: URLSearchParams): AttendanceWorkdayQuery {
 	for (const key of params.keys()) {

@@ -16,6 +16,7 @@ import { HcmDomainError, dateValue } from '@empflowyee/hcm-runtime-contract'
 import { wallMilliseconds, type AttendanceOverrideView } from '@empflowyee/hcm-attendance-contract'
 import {
 	AttendanceOverrideUnit,
+	type AttendanceLeaveImpactBinder,
 	type AttendanceOverrideTarget,
 	type AttendanceOverrideWork,
 } from '@empflowyee/hcm-api-attendance-application'
@@ -58,6 +59,7 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 		private readonly routing: WorkforceApprovalRoutingBinder,
 		private readonly workflowSources: WorkflowSourceBinder,
 		private readonly workflowIntake: WorkflowIntakeBinder,
+		private readonly leaveImpact: AttendanceLeaveImpactBinder,
 	) {
 		super()
 	}
@@ -115,6 +117,7 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 						})
 					}
 					return work({
+						leaveImpact: this.leaveImpact.bind(tx, tenant),
 						requireImpactDate: /** Keep resolver reads behind complete dated operation scope. */ (
 							date,
 						) => requireDate(date, operation),

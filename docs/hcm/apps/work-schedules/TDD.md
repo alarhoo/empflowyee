@@ -158,6 +158,35 @@ current schedule cannot narrow the scope of previously stored evidence. No
 future workday is written by preview. Final application still requires reviewed
 Leave impact, source decisions and durable production for the affected dates.
 
+## OVERRIDE-LEAVE-IMPACT
+
+Override review delegates proposed exact quantities to Leave through the
+Attendance application's bounded transaction port. The universal quantity basis
+contains only kind, scheduled/expected milliseconds and exact UTC intervals; a
+proposal never fabricates a Published workday ID or revision. Leave reuses its
+Full/Hourly calculator and resolves each stored local hourly request against the
+proposed zone, retaining explicit offset choices and increment restrictions.
+
+The Leave-owned adapter reads its real request/day/interval and immutable policy
+rows under the caller's verified tenant and complete dated operation scope. It
+returns only affected/changed/unavailable request counts and an opaque digest;
+request identities, type, narrative and quantities do not enter the Attendance
+response. Changed means units, denominator, consumed duration, zone or exact
+consumed intervals differ. Both Balance and Unpaid drafts participate. Request
+rows, reservations and ledger history are never rewritten by an impact preview.
+
+`OverrideImpact:4` includes the Leave digest, so a new request invalidates an old
+preview even if the schedule itself is unchanged. Current API writers serialize
+under the existing tenant authority lock; the impact port does not introduce a
+new lock regime or request UPDATE grant. It reads immutable request rows and
+locks only the existing policy relation. Recovery returns the original receipt
+after the existing current dated read checks; fresh review recomputes impact.
+Unavailable calculations are displayed and prevent submission. Only the currently
+admitted Draft lifecycle is supported; a later non-Draft lifecycle requires its
+own disposition before this adapter can report available impact. Full pending/
+approved Leave handling, other configuration producers and final application
+remain separate acceptance obligations.
+
 ## PROJECTS
 
 Planned projects, generated only when this slice needs them (reuse shared domain
