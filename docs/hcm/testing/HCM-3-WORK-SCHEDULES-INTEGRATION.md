@@ -378,3 +378,33 @@ the new Override evidence screen or complete Work Schedules. The final evidence
 and Work Schedules database rerun passed 21 tests after adding purpose-specific
 metadata filtering. The restarted API/worker use the current build; liveness,
 readiness and the tenant-host web entry point returned HTTP 200.
+
+
+## Configuration Leave-impact review
+
+On 2026-10-03, Codex technically reviewed the narrow configuration integration
+under the existing product-owner delegation. This is not a separate human approval
+or complete-app acceptance. The existing Leave owner now evaluates proposed
+Schedule/Shift publication and Schedule/Policy assignments, including unavailable
+dates. Distinct request counts and opaque digests bind real retained calculations
+into review and commit. Migration 68 stores immutable dated-preview evidence with
+forced RLS and tenant-composite ownership.
+
+Executed validation:
+
+- Disposable PostgreSQL/API: 23 tests across Work Schedules and Leave requests
+  passed. The final isolated Leave rerun passed 9/9 after adding negative RLS reads
+  and a foreign-context insert. The insert is rejected by the parent preview guard
+  before RLS insertion; no foreign evidence is returned or written.
+- New tests exercise a real worker-completed Schedule review, safe changed counts,
+  Policy assignment preview, new-request invalidation of both commands, concurrent
+  same-key assignment, unchanged Leave history and immutable impact evidence.
+- Pure HCM-3 tests: 181/181 across 37 suites. Strict API TypeScript and native
+  Angular template compilation passed. API, web and worker production builds passed.
+- A verified 1,574,277-byte persistent database backup preceded explicit migration
+  68. No seed version or encryption key was replaced.
+
+Native review sections now display Leave counts, but browser acceptance of these
+controls remains outstanding. This bounded integration does not yet cover stored
+requests outside the explicit assignment execution window, later Leave lifecycle
+states or complete Work Schedules delivery.

@@ -400,9 +400,9 @@ evidence and resolution results. Commit rechecks current manage authority, actor
 exact input hash, expiry and the recomputed digest under the tenant write lock.
 Only then can coverage, receipt, audit and exact workday intents commit together.
 Missing prerequisites remain explicit; time conflicts and locked periods reject
-review or commit. The review does not yet claim Leave calculation impact or future
-dates outside its explicit execution window. Those full-FDD requirements remain
-delivery work. The native assignment form clears review eligibility on every edit,
+review or commit. The explicit window and boundary review includes the source-owned Leave impact
+described below. Existing Leave request dates outside that window still require
+coverage before full-FDD acceptance. The native assignment form clears review eligibility on every edit,
 protects dirty navigation, and retains an uncertain submission's retry identity.
 
 `GET /api/v1/attendance/workdays` accepts only required `employmentId`, `from` and
@@ -705,3 +705,39 @@ file, class and key and require recovery. Account/source changes cancel reads an
 clear private file state. Reloaded references use separately authorized download
 requests; the browser's temporary Blob download primitive follows the existing
 Documents implementation. No custom business CSS or public file URL is introduced.
+
+
+## CONFIGURATION-LEAVE-IMPACT
+
+Dated Schedule/Shift publication and Schedule/Policy assignment reviews reuse
+`AttendanceLeaveImpactBinder` with the actual authorized tenant transaction. The
+Leave owner recalculates its retained requests using the proposed exact workday
+intervals and immutable policy inputs. Attendance sees only an opaque digest and
+distinct affected, changed and unavailable request counts. No request narrative,
+identity or medical content crosses this port. Existing request calculations,
+reservations and ledger rows are not rewritten.
+
+Assignment review groups every candidate date by employment before calling the
+owner, preventing duplicate counts for requests spanning dates. Missing candidate
+configuration carries explicit unavailable dates, so matching requests cannot be
+omitted as zero impact. A bounded 366-day execution window may also include its
+two coverage boundaries. Every request calculation and source revision enters the
+review digest. Commit recomputes under the existing tenant write lock; a new or
+changed request makes the old review stale. Unavailable Leave impact prevents
+assignment even when Attendance itself would otherwise admit missing prerequisites.
+
+The shared worker calculates dated publication impact through the same owner
+port. Migration 68 adds `attendance_configuration_leave_impact`, an immutable
+tenant-owned one-to-one child of the dated preview context, with forced RLS,
+composite foreign key and bounded count/digest constraints. Evidence inserts only
+while the parent is Running. API reads return counts only after calculation;
+failed/ready results retain their original evidence. Publication consumption
+recalculates the Leave digest before the existing lifecycle transition. Older
+preview results remain historical and cannot authorize a new mismatched digest.
+
+Native publication and assignment reviews display the source-owned counts. An
+unavailable calculation blocks assignment and requires a new review. Policy Draft
+publication remains structural: unassigned policy drafts have no live dated impact;
+their dated assignment command performs this calculation. Currently admitted
+request storage is Draft only. Later request lifecycles and stored request dates
+outside the explicit assignment review window remain delivery obligations.

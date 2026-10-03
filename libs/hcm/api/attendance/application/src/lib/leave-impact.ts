@@ -4,6 +4,8 @@ import type { AssignedWorkdayResult } from './assigned-workday'
 export interface AttendanceLeaveImpactProposal {
 	employmentId: string
 	days: { workDate: string; zone: string; basis: WorkdayQuantityBasis }[]
+	/** Dated candidates without a calculable basis must still discover affected Leave requests. */
+	unavailableDates?: string[]
 }
 export interface AttendanceLeaveImpact {
 	digest: string
@@ -25,40 +27,49 @@ export function leaveImpactProposal(
 	employmentId: string,
 	days: readonly {
 		workDate: string
-		result: Extract<AssignedWorkdayResult, { state: 'Available' }>
+		result: AssignedWorkdayResult
 	}[],
 ): AttendanceLeaveImpactProposal {
 	return {
 		employmentId,
-		days: days.map(
+		unavailableDates: days
+			.filter(
+				/** Retain missing candidate dates rather than reporting false zero impact. */ (day) =>
+					day.result.state === 'Unavailable',
+			)
+			.map(/** Expose only the bounded local date to the Leave owner. */ (day) => day.workDate),
+		days: days.flatMap(
 			/** Preserve exact scheduled denominator and holiday-subtracted expected work on every reviewed date. */ (
 				day,
 			) => {
+				if (day.result.state !== 'Available') return []
 				const value = day.result.resolution
-				return {
-					workDate: day.workDate,
-					zone: value.zone,
-					basis: {
-						kind: value.scheduleKind,
-						scheduledMilliseconds: value.scheduledWorkMilliseconds,
-						elapsedMilliseconds: value.expectedWorkMilliseconds,
-						segments: [
-							...value.scheduledSegments,
-							...value.expectedWorkIntervals.map(
-								/** Expected intervals are already exact results from the Attendance owner. */ (
-									interval,
-								) => ({
-									kind: 'ExpectedWork' as const,
-									startInstant: new Date(interval.startMilliseconds).toISOString(),
-									endInstant: new Date(interval.endMilliseconds).toISOString(),
-									elapsedMilliseconds: String(
-										interval.endMilliseconds - interval.startMilliseconds,
-									),
-								}),
-							),
-						],
+				return [
+					{
+						workDate: day.workDate,
+						zone: value.zone,
+						basis: {
+							kind: value.scheduleKind,
+							scheduledMilliseconds: value.scheduledWorkMilliseconds,
+							elapsedMilliseconds: value.expectedWorkMilliseconds,
+							segments: [
+								...value.scheduledSegments,
+								...value.expectedWorkIntervals.map(
+									/** Expected intervals are already exact results from the Attendance owner. */ (
+										interval,
+									) => ({
+										kind: 'ExpectedWork' as const,
+										startInstant: new Date(interval.startMilliseconds).toISOString(),
+										endInstant: new Date(interval.endMilliseconds).toISOString(),
+										elapsedMilliseconds: String(
+											interval.endMilliseconds - interval.startMilliseconds,
+										),
+									}),
+								),
+							],
+						},
 					},
-				}
+				]
 			},
 		),
 	}

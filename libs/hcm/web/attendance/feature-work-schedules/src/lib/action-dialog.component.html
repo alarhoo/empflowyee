@@ -110,6 +110,13 @@
 				{{ failure()
 				}}{{ evidence.lockedImpact ? ' Locked period impact blocks publication.' : '' }}
 			</ui5-text>
+			@if ('leaveImpact' in evidence && evidence.leaveImpact; as leave) {
+				<ui5-text>
+					Leave impact: {{ leave.affectedRequestCount }} requests reviewed;
+					{{ leave.changedRequestCount }} have changed calculations;
+					{{ leave.unavailableRequestCount }} cannot be calculated.
+				</ui5-text>
+			}
 			<ui5-button
 				[disabled]="draft.saving() || family() === 'Policy'"
 				(click)="refreshReview()">

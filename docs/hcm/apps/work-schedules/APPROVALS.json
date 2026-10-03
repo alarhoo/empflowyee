@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "00470769d610fb12376e4a4b8a6e5cea0c9d0a64e627a28b03fcca81c8770e09",
+			"sha256": "d7159ec2b0456d0629b9491e2b30d8727d1d4d313904d869262392e29ddc1cb1",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-evidence-review; Codex technical review of purpose/subject/classification/uploader binding, current field permissions, native file controls, immutable source attachment and real PostgreSQL/API evidence; no new human approval or complete-app browser acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#configuration-leave-impact-review; Codex technical review under existing delegation of actual Leave quantities, unavailable dates, immutable tenant-owned evidence and stale command rejection. Full-range assignment impact and complete-app browser acceptance remain outstanding; no new human approval claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "91d40100937e0d807303e4d296bcd35addb892ceb3ef3c5361e86be469fcc43b",
+			"sha256": "041aa6b42a566ec235a0f4e5c98cc9b5492ea966ba510887fc984145cb03e8c8",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-evidence-review; Codex technical review of purpose/subject/classification/uploader binding, current field permissions, native file controls, immutable source attachment and real PostgreSQL/API evidence; no new human approval or complete-app browser acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#configuration-leave-impact-review; Codex technical review under existing delegation of actual Leave quantities, unavailable dates, immutable tenant-owned evidence and stale command rejection. Full-range assignment impact and complete-app browser acceptance remain outstanding; no new human approval claimed."
 		},
 		{
 			"document": "DECISIONS",

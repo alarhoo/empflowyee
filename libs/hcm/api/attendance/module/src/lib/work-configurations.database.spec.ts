@@ -1,4 +1,5 @@
 import { uploadEvidence } from './evidence-http-test'
+import { KyselyLeaveWorkdayImpactBinder } from '@empflowyee/hcm-api-leave-infrastructure'
 import {
 	LocalDocumentFiles,
 	provisionDocumentRoot,
@@ -289,7 +290,10 @@ async function resolveAssignedDays(): Promise<void> {
 			'AttendanceResolve',
 			new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
 			[
-				new KyselyDatedConfigurationPreviewHandler(new KyselyWorkforceTimeContextBinder()),
+				new KyselyDatedConfigurationPreviewHandler(
+					new KyselyWorkforceTimeContextBinder(),
+					new KyselyLeaveWorkdayImpactBinder(),
+				),
 				new KyselyAttendanceResolveHandler(
 					new KyselyAttendanceConfigurationInputBinder(new KyselyWorkforceTimeContextBinder()),
 				),

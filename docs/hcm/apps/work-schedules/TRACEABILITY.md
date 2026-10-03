@@ -162,3 +162,12 @@ classification/uploader/subject, concurrent retry and tenant isolation. The exis
 `work-configurations.database.spec.ts` additionally creates a real Override with
 clean evidence and rejects reuse by a different source. Complete-app browser
 acceptance remains outstanding; these tests alone do not enable the app.
+
+
+The [configuration Leave-impact design](TDD.md#configuration-leave-impact) and
+[request integration suite](../../../../libs/hcm/api/leave/module/src/lib/requests.database.spec.ts)
+now cover real Schedule publication and Policy assignment impact, new-request
+staleness, concurrent commit recovery, retained Leave history, unavailable dates
+and immutable/RLS-protected preview evidence (003/005/007, partial). The native
+review fields build successfully; complete-app browser acceptance and requests
+outside the explicit assignment review window remain outstanding.
