@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "ac92492a24f59f6c0709ac7ec6cfabefd491f4ca0e92c25d9db25988e777168a",
+			"sha256": "64d8c55cd03d73ed1111f6687e03c612b34ffd4fa10eb30c32994827dfe6477b",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-draft-technical-review; actual additive route, transaction, validation and traceability review; no independent human approval or full application acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-case-storage-technical-review; reviewed required slot, structural decision and traceability integration under existing delegation; no independent human approval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "f82208772d084efc0f7c4110a2088224f6fb945a78bc900a95ea33098ce49eba",
+			"sha256": "95555820a7ce2782b7dba98dde1dd5d6fb140016a5b7569e99e709f54f182f06",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-draft-technical-review; actual additive route, transaction, validation and traceability review; no independent human approval or full application acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-case-storage-technical-review; reviewed required slot, structural decision and traceability integration under existing delegation; no independent human approval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

@@ -6,6 +6,7 @@ export interface AttendanceSourceApproval {
 	subjectRevision: number
 	state: 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Invalidated'
 	makerAccountId: string
+	requesterAccountId: string
 	beneficiaryAccountIds: readonly string[]
 	slots: readonly AttendanceSourceApprovalSlot[]
 }
@@ -94,6 +95,7 @@ export function evaluateAttendanceSourceDecision(
 	if (
 		slot.independent &&
 		(approval.makerAccountId === authority.accountId ||
+			approval.requesterAccountId === authority.accountId ||
 			approval.beneficiaryAccountIds.includes(authority.accountId))
 	)
 		return { outcome: 'Denied', reason: 'IndependentActorRequired' }

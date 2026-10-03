@@ -120,6 +120,7 @@ it('rejects scripts, selector ambiguity, duplicated slots and skipped approval s
 	}
 	for (const approvalRules of [
 		[{ ...rule, independent: false }],
+		[{ ...rule, subjectType: 'Override', independent: false }],
 		[{ ...rule, stage: 2 }],
 		[rule, rule],
 		[{ ...rule, candidateRule: { source: 'Script', script: 'allow()' } }],

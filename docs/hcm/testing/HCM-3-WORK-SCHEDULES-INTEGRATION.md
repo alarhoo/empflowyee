@@ -139,3 +139,24 @@ Migration 52 has only been run against disposable PostgreSQL. The persistent loc
 database remains at migration 49 / Attendance seed 4. The override UI, governed
 evidence, submit/source-case persistence, Workflow and complete impact handling are
 still required. Work Schedules and all three requested milestones remain incomplete.
+
+## Override source-case storage technical review
+
+On 2026-10-03 Codex reviewed migration 53 and source evaluator alignment under the
+existing delegation. Review covered typed same-policy/subject references, complete
+required slot creation at commit, stage ordering, requester/maker and distinct-slot
+checks, decision-plus-progression atomicity, terminal/payload immutability, pending
+interval protection, RLS and restricted mutation grants. The configured Override
+independence constraint corrects the parser/storage to the existing owning TDD;
+it introduces no new approval-policy choice and rewrites no policy row.
+
+The focused PostgreSQL/API suite passed 13 tests. The added storage journey creates
+policy and override through real APIs, arranges source-case fixtures, rejects an
+incomplete case, early final approval, pending subject/interval edits, skipped stage,
+maker decision, decision without progression, stale case revision and reused checker.
+Two independently attributed SQL decisions then complete their required stages.
+A second runtime tenant sees none of the case/slot/decision rows; runtime decision
+updates and slot deletion are denied. These are structural database tests, not a
+claim of production case submission or Workflow integration. Four pure evaluator
+tests also passed after aligning requester exclusion. Migration 53 remains limited
+to disposable PostgreSQL until explicit persistent migration orchestration.

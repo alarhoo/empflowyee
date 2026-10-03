@@ -150,9 +150,14 @@ export function parseAttendancePolicyDraft(value: unknown): AttendancePolicyDraf
 			])
 			const independent = boolValue(rule['independent'], `${field}.independent`)
 			if (
-				['Correction', 'Adjustment', 'Overtime', 'AnomalyWaiver', 'PeriodReopen'].includes(
-					subjectType,
-				) &&
+				[
+					'Correction',
+					'Adjustment',
+					'Overtime',
+					'Override',
+					'AnomalyWaiver',
+					'PeriodReopen',
+				].includes(subjectType) &&
 				!independent
 			)
 				invalidField(`${field}.independent`, 'independent-approval-required')

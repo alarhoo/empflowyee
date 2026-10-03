@@ -18,7 +18,9 @@ encrypted reasons, stale workdays and rolled-back proposed resolution; submit,
 evidence admission and approval acceptance remain open (002).
 The [source decision evaluator tests](../../../../libs/hcm/api/attendance/domain/src/lib/source-approval.spec.ts)
 cover staged all-required/any-reject rules and current-authority guards in isolation;
-case persistence and Workflow integration are not claimed by those tests.
+SQL fixture tests additionally cover complete source-case storage, stage guards,
+immutable decisions and restricted runtime access. Production source-case commands
+and Workflow integration remain required.
 The [dated selection tests](../../../../libs/hcm/api/attendance/domain/src/lib/dated-source-selection.spec.ts)
 cover precedence, ties and inactive sources. Existing exact-time/rest tests remain
 the calculation evidence. Shared schedule/shift and policy form conversion tests

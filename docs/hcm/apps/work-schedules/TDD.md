@@ -438,3 +438,26 @@ checks, configured independence/distinct actors, all required slots in each stag
 and rejection terminating the case. It does not provide a persistence adapter,
 Workflow dispatch or an authorized HTTP decision route. No Workflow task or static
 candidate snapshot can manufacture source authority.
+
+## OVERRIDE-SOURCE-CASE-STORAGE
+
+Migration 53 adds Attendance-owned case, required slot and immutable decision
+storage for the first admitted subject, Override. Each case binds the exact Draft
+revision, employment/date, published dated policy, monotonically increasing
+generation, review/routing digests and requester. Every configured Override rule
+must have one typed same-policy slot before the creation transaction can commit.
+Slots retain their configured stage and ordinal. Decisions advance one case
+revision and the exact slot atomically; all-required/any-reject stage semantics,
+maker/requester exclusion and configured distinct actors are enforced structurally
+in SQL as well as in the pure source evaluator. Current candidate, beneficiary,
+session, permission and whole-grant scope checks remain owning application duties;
+SQL storage and Workflow assignment never confer that authority.
+
+Pending case payload, override parent and interval children cannot be edited.
+Terminal cases and decided slots cannot be rewritten, required slots cannot be
+deleted, and runtime grants provide no decision update/delete operation. Forced RLS
+and tenant-composite subject/policy/rule/actor references cover every new table.
+Configured Override approval independence is mandatory under the already approved
+owning TDD OverrideDraft contract; the parser and a forward SQL constraint enforce
+it without rewriting any existing policy. These storage guards do not themselves
+implement submit, source decision transport or Workflow coordination.

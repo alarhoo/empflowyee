@@ -15,6 +15,7 @@ function approval(): AttendanceSourceApproval {
 		subjectRevision: 4,
 		state: 'Pending',
 		makerAccountId: 'maker',
+		requesterAccountId: 'requester',
 		beneficiaryAccountIds: ['employee'],
 		slots: ['first', 'second', 'last'].map(
 			/** Each slot begins independently undecided. */ (id, index) => ({
@@ -70,7 +71,7 @@ it('requires all current-stage slots and never skips directly to a future stage'
 	).toMatchObject({ outcome: 'Accepted', caseState: 'Pending', nextStage: 2 })
 })
 it('rejects maker, beneficiary, revoked candidates, expired sessions and distinct-slot reuse', /** Previously assigned tasks confer no source decision authority. */ () => {
-	for (const accountId of ['maker', 'employee'])
+	for (const accountId of ['maker', 'requester', 'employee'])
 		expect(
 			evaluateAttendanceSourceDecision(approval(), decision(), {
 				...authority(),

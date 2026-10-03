@@ -1117,6 +1117,232 @@ it('creates and previews real override drafts without approving or materializing
 	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before)
 })
 
+it('persists complete independent source slots and rejects skipped or unaccompanied decisions', /** Restricted SQL preserves source-case history; these fixtures do not claim a production submit or Workflow integration. */ async () => {
+	const source = (
+		await api.send<AttendancePolicyVersionView>('david', 'POST', 'attendance/policies', {
+			...policy('OVERRIDE_CASE_POLICY'),
+			approvalRules: [
+				{
+					subjectType: 'Override',
+					stage: 1,
+					independent: true,
+					candidateRule: { source: 'NamedUser', accountId: 'dunder-mifflin/account/michael' },
+				},
+				{
+					subjectType: 'Override',
+					stage: 2,
+					independent: true,
+					candidateRule: { source: 'NamedUser', accountId: 'dunder-mifflin/account/toby' },
+				},
+			],
+		})
+	).body
+	await expect(
+		api.admin.query(
+			"INSERT INTO hcm.attendance_approval_rule(tenant_id,id,version_id,ordinal,subject_type,stage,independent,candidate_source,account_id) VALUES($1,'non-independent-override',$2,3,'Override',1,false,'NamedUser','dunder-mifflin/account/david')",
+			[tenant, source.versionId],
+		),
+	).rejects.toMatchObject({ code: '23514', constraint: 'attendance_override_independent' })
+
+	const policyPath = `attendance/policies/${source.id}/versions/${source.versionId}`
+	const review = (
+		await api.send<ConfigurationPreviewView<'Policy'>>('david', 'POST', policyPath + '/preview', {
+			expectedRevision: 1,
+			effectiveFrom: '2027-02-03',
+		})
+	).body
+	expect(
+		(
+			await api.send('david', 'POST', policyPath + '/publish', {
+				expectedRevision: 1,
+				previewId: review.previewId,
+				digest: review.digest,
+				reason: 'Publish independent override source rules',
+			})
+		).status,
+	).toBe(200)
+	const draft = (
+		await api.send<import('@empflowyee/hcm-attendance-contract').AttendanceOverrideView>(
+			'david',
+			'POST',
+			'attendance/overrides',
+			{
+				employmentId: 'dunder-mifflin/employment/jim',
+				workDate: '2027-02-03',
+				workdayRevision: 1,
+				zone: 'America/New_York',
+				segments: [{ kind: 'Work', startTime: '09:00', endTime: '17:00', endDayOffset: 0 }],
+				reason: 'Independent review fixture',
+				evidenceIds: [],
+			},
+		)
+	).body
+	const createCase =
+		"INSERT INTO hcm.attendance_approval_case(tenant_id,id,subject_type,schedule_override_id,employment_id,work_date,attendance_policy_version_id,subject_revision,generation,input_digest,routing_digest,requested_by_account_id) VALUES($1,'override-case','Override',$2,'dunder-mifflin/employment/jim','2027-02-03',$3,1,1,repeat('a',64),repeat('b',64),'dunder-mifflin/account/david')"
+	await expect(
+		api.admin.query(createCase, [tenant, draft.id, source.versionId]),
+	).rejects.toMatchObject({ code: '23514' })
+	await api.admin.query('BEGIN')
+	try {
+		await api.admin.query(createCase, [tenant, draft.id, source.versionId])
+		await api.admin.query(
+			"INSERT INTO hcm.attendance_approval_slot(tenant_id,id,case_id,attendance_policy_version_id,rule_id,stage,ordinal,independent,distinct_actors) SELECT tenant_id,'override-slot-'||stage,'override-case',version_id,id,stage,ordinal,true,true FROM hcm.attendance_approval_rule WHERE tenant_id=$1 AND version_id=$2",
+			[tenant, source.versionId],
+		)
+		await api.admin.query('COMMIT')
+	} catch (error) {
+		await api.admin.query('ROLLBACK')
+		throw error
+	}
+	await expect(
+		api.admin.query(
+			"UPDATE hcm.attendance_approval_case SET state='Approved',revision=revision+1 WHERE tenant_id=$1 AND id='override-case'",
+			[tenant],
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		api.admin.query(
+			'DELETE FROM hcm.schedule_override_segment WHERE tenant_id=$1 AND override_id=$2',
+			[tenant, draft.id],
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		api.admin.query(
+			"UPDATE hcm.schedule_override SET zone='Europe/London',revision=revision+1 WHERE tenant_id=$1 AND id=$2",
+			[tenant, draft.id],
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	const insertDecision =
+		"INSERT INTO hcm.attendance_decision(tenant_id,id,case_id,slot_id,actor_account_id,action,case_revision,slot_revision,subject_revision,generation,command_key,input_digest,encrypted_reason,reason_key_version) VALUES($1,$2,'override-case',$3,$4,'Approve',$5,1,1,1,$6,repeat('c',64),$7,1)"
+	const reason = Buffer.alloc(48, 2)
+	await expect(
+		api.admin.query(insertDecision, [
+			tenant,
+			'skip-stage',
+			'override-slot-2',
+			'dunder-mifflin/account/toby',
+			1,
+			randomUUID(),
+			reason,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		api.admin.query(insertDecision, [
+			tenant,
+			'maker',
+			'override-slot-1',
+			'dunder-mifflin/account/david',
+			1,
+			randomUUID(),
+			reason,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		api.admin.query(insertDecision, [
+			tenant,
+			'decision-alone',
+			'override-slot-1',
+			'dunder-mifflin/account/michael',
+			1,
+			randomUUID(),
+			reason,
+		]),
+	).rejects.toMatchObject({ code: '23514' })
+	for (const stage of [1, 2]) {
+		const actor = 'dunder-mifflin/account/' + (stage === 1 ? 'michael' : 'toby')
+		await api.admin.query('BEGIN')
+		try {
+			await api.admin.query(insertDecision, [
+				tenant,
+				'accepted-' + stage,
+				'override-slot-' + stage,
+				actor,
+				stage,
+				randomUUID(),
+				reason,
+			])
+			await api.admin.query(
+				"UPDATE hcm.attendance_approval_slot SET state='Approved',revision=revision+1,decided_by_account_id=$3,decided_at=now() WHERE tenant_id=$1 AND id=$2",
+				[tenant, 'override-slot-' + stage, actor],
+			)
+			await api.admin.query(
+				"UPDATE hcm.attendance_approval_case SET state=$2,revision=revision+1 WHERE tenant_id=$1 AND id='override-case'",
+				[tenant, stage === 1 ? 'Pending' : 'Approved'],
+			)
+			await api.admin.query('COMMIT')
+		} catch (error) {
+			await api.admin.query('ROLLBACK')
+			throw error
+		}
+		if (stage === 1) {
+			await expect(
+				api.admin.query(insertDecision, [
+					tenant,
+					'reuse-checker',
+					'override-slot-2',
+					actor,
+					2,
+					randomUUID(),
+					reason,
+				]),
+			).rejects.toMatchObject({ code: '23514' })
+			await expect(
+				api.admin.query(insertDecision, [
+					tenant,
+					'stale-case',
+					'override-slot-2',
+					'dunder-mifflin/account/toby',
+					1,
+					randomUUID(),
+					reason,
+				]),
+			).rejects.toMatchObject({ code: '23514' })
+		}
+	}
+	expect(
+		(
+			await api.admin.query(
+				"SELECT state,revision FROM hcm.attendance_approval_case WHERE tenant_id=$1 AND id='override-case'",
+				[tenant],
+			)
+		).rows[0],
+	).toEqual({ state: 'Approved', revision: 3 })
+	expect(
+		(
+			await api.admin.query(
+				"SELECT count(*)::int AS count FROM hcm.attendance_decision WHERE tenant_id=$1 AND case_id='override-case'",
+				[tenant],
+			)
+		).rows[0].count,
+	).toBe(2)
+	const connectionString = process.env['HCM_TEST_RUNTIME']
+	if (!connectionString) throw new Error('Disposable runtime required')
+	const restricted = new Client({ connectionString })
+	await restricted.connect()
+	try {
+		await restricted.query("SELECT set_config('hcm.tenant_id',$1,false)", ['work-config-foreign'])
+		for (const table of [
+			'attendance_approval_case',
+			'attendance_approval_slot',
+			'attendance_decision',
+		])
+			expect(
+				(await restricted.query(`SELECT count(*)::int AS count FROM hcm.${table}`)).rows[0].count,
+			).toBe(0)
+		await restricted.query("SELECT set_config('hcm.tenant_id',$1,false)", [tenant])
+		await expect(
+			restricted.query("UPDATE hcm.attendance_decision SET action='Reject' WHERE tenant_id=$1", [
+				tenant,
+			]),
+		).rejects.toMatchObject({ code: '42501' })
+		await expect(
+			restricted.query('DELETE FROM hcm.attendance_approval_slot WHERE tenant_id=$1', [tenant]),
+		).rejects.toMatchObject({ code: '42501' })
+	} finally {
+		await restricted.end()
+	}
+})
+
 it('resolves published roster then approved override with typed immutable workday references', /** Real SQL selection, precedence and worker publication preserve history without fabricating schedule identities. */ async () => {
 	const employment = 'dunder-mifflin/employment/jim',
 		actor = 'dunder-mifflin/account/david'
