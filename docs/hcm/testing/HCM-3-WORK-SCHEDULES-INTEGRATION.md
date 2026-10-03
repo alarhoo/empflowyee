@@ -299,3 +299,42 @@ outstanding. No additional app or milestone is accepted by these checks.
 Architecture, documentation, catalogue, page structure and target Work Schedules
 readiness checks passed. The fresh broader admitted-app gate remains 59/61:
 My Profile and Org Chart retain unrelated stale design approvals.
+
+
+## Override source decision review
+
+On 2026-10-03 Codex reviewed the internal Override decision routes, immutable
+source proofs and worker composition against the existing Attendance state,
+access and approval rules and Workflow authority contract. Read-only permission
+remains independent from candidate eligibility. New decisions require current
+whole-grant scope, an independent candidate and Runtime's original unextended
+human authority. Reject closes the case while retaining an inactive Draft source.
+Material source drift invalidates the case. Final approval, proof, audit and dated
+resolution intents are atomic. Migration 66 adds forced-RLS immutable receipts;
+Attendance seed 5 explicitly grants manager/HR source operations without enabling
+any Planned app. The existing tenant mutation lock is acquired before dispatch
+work to avoid concurrent shared-lock upgrades. No new business rule, authentication
+boundary, human approval or complete-app acceptance is claimed.
+
+The real PostgreSQL/API run passed 33 tests across three suites: Attendance work
+configuration, Runtime action authority and Leave request Drafts. Coverage includes
+concurrent HTTP admission, original-key recovery after task advancement, required
+stage sequencing, independent manager/HR approval, rejection, revoked decision
+access, stale input invalidation, immutable accepted proofs, cross-tenant denial,
+queue-failure rollback and actual leased-worker publication of the override and
+following Work date. Sixty-nine pure tests across eighteen suites passed. Affected
+TypeScript, API/worker production builds and lint passed; lint reported nine
+camelcase warnings and zero errors. No new browser acceptance was executed in this
+slice. Governed evidence, remaining impact producers and the full native journey
+remain necessary before Work Schedules can become Available.
+
+
+Architecture, documentation, catalogue, page structure and Work Schedules design
+readiness passed after this review. The broader admitted gate was freshly run
+before this slice at 59/61, with unrelated My Profile/Org Chart stale approvals;
+it is not complete-app acceptance. A verified 1,526,301-byte local PostgreSQL
+backup preceded explicit application of migrations 65–66 and Attendance access 5 /
+Leave access 2. The existing encryption key matched its pre-migration digest.
+The rebuilt API and four documented worker lanes were restarted; liveness,
+readiness and the tenant-host web entry point returned HTTP 200. No browser
+business journey is inferred from these operational checks.

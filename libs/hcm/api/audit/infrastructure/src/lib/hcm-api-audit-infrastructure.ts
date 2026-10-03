@@ -9,6 +9,8 @@ import {
 	requireAuthenticatedTenant,
 	requireAuthenticatedAccount,
 	type AuthenticatedHcmContext,
+	requireHcmActionAuthority,
+	type HcmActionAuthority,
 } from '@empflowyee/hcm-api-runtime-application'
 
 export interface AuditTables {
@@ -34,11 +36,20 @@ export class TransactionalAudit implements AppendAudit {
 	/** Bind to the caller's existing transaction; this adapter never opens or commits its own transaction. */
 	constructor(
 		private readonly transaction: Kysely<AuditTables>,
-		private readonly context: AuthenticatedHcmContext,
+		private readonly context: AuthenticatedHcmContext | HcmActionAuthority,
 	) {}
+	/** Derive the real human from a private online session or the existing verified durable-action capability. */
+	private actor() {
+		if ('referenceId' in this.context) return requireHcmActionAuthority(this.context)
+		return {
+			tenantId: requireAuthenticatedTenant(this.context),
+			accountId: requireAuthenticatedAccount(this.context),
+		}
+	}
 	/** Validate the action-specific safe schema and append exactly one authoritative actor event. */
 	async append(event: AccessAuditEvent): Promise<string> {
 		validateAccessAudit(event)
+		const actor = this.actor()
 		const id = randomUUID()
 		const download = 'relatedEventId' in event ? event : null
 		const hcm2 = 'category' in event ? event : null
@@ -71,9 +82,9 @@ export class TransactionalAudit implements AppendAudit {
 		await this.transaction
 			.insertInto('hcm.audit_event')
 			.values({
-				tenant_id: requireAuthenticatedTenant(this.context),
+				tenant_id: actor.tenantId,
 				id,
-				actor_account_id: requireAuthenticatedAccount(this.context),
+				actor_account_id: actor.accountId,
 				action: event.action,
 				target_type: targetType,
 				target_id: event.targetId,
@@ -84,6 +95,7 @@ export class TransactionalAudit implements AppendAudit {
 				related_event_id: download?.relatedEventId ?? null,
 			})
 			.execute()
+		this.actor()
 		return id
 	}
 }

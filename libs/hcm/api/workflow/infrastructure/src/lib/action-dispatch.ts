@@ -99,6 +99,8 @@ export class KyselyWorkflowDispatchHandler implements HcmWorkHandler<WorkloadAud
 			throw new HcmWorkError('invalid-work')
 		const payload = readBody(work.payload, ['attemptId', 'intentDigest'])
 		const attemptId = idValue(payload['attemptId'], 'attemptId')
+		// Source writes and online commands share tenant-before-case lock ordering.
+		await sql`SELECT pg_advisory_xact_lock(hashtextextended(${tenantId},0))`.execute(tx)
 		const row = (
 			await sql<DispatchRow>`SELECT id,task_id AS "taskId",state,dispatch_key::text AS "dispatchKey",intent_digest AS "intentDigest",authority_reference AS "authorityReference",
 			source,case_id AS "caseId",slot_id AS "slotId",actor_account_id AS "actorAccountId",expected_case_revision AS "expectedCaseRevision",expected_slot_revision AS "expectedSlotRevision",expected_subject_revision AS "expectedSubjectRevision",generation,action,encrypted_reason AS "encryptedReason",reason_key_version AS "reasonKeyVersion"

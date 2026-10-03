@@ -300,6 +300,15 @@
 			"reset": "access.attendance.4.reset.sql"
 		},
 		{
+			"id": "access.attendance",
+			"domain": "access-control",
+			"version": 5,
+			"dependsOn": ["access.attendance@4"],
+			"requiresMigrations": ["000066_attendance_decision_receipts.sql"],
+			"apply": "access.attendance.5.apply.sql",
+			"reset": "access.attendance.5.reset.sql"
+		},
+		{
 			"id": "access.leave",
 			"domain": "access-control",
 			"version": 1,

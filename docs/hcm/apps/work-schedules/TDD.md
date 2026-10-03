@@ -576,10 +576,9 @@ Attendance's source adapter. WorkflowPlan rereads this adapter and creates the
 required staged coordination work under Runtime's lease fence. Missing candidates
 remain explicit exceptions. See the [internal integration record](../../testing/HCM-3-WORKFLOW-INTEGRATION.md).
 
-This is pending-approval admission, not complete override delivery.
-Independent source decisions, dispatch/timer/reconciliation, evidence,
-full Leave impact and complete native override browser acceptance remain
-required. Migration 55 corrects Workflow identity storage to the already approved
+This admission path is completed by OVERRIDE-INDEPENDENT-DECISIONS below.
+Notification timers, governed evidence, full Leave impact and complete native
+override browser acceptance remain required. Migration 55 corrects Workflow identity storage to the already approved
 opaque text mapping without editing migration 54 or discarding rows.
 
 ## OVERRIDE-NO-REQUIRED-SLOT-APPLICATION
@@ -607,3 +606,50 @@ produce equal evidence despite JSONB key ordering. Old dated-source reviews and
 materialized evidence need fresh review/resolution; no stored digest is rewritten.
 This application path is limited by the currently admitted Leave lifecycle impact
 adapter. It does not implement independent source decisions or evidence admission.
+
+## OVERRIDE-INDEPENDENT-DECISIONS
+
+The required internal source routes are implemented without enabling the broader
+Approve Attendance or Workflow UI apps. `GET /attendance/approval-cases/{id}`
+returns a safe Override case with captured source revision, generation, work date,
+required slot revisions/stages/states and current allowed actions. It requires
+`hcm.attendance.approve-attendance.read` over the actual dated employment. Private
+reason, evidence and candidate identities are excluded. Read-only grants remain
+independent from decision eligibility.
+
+`POST /attendance/approval-cases/{id}/slots/{slotId}/decisions` takes the owning
+DecisionCommand (`expectedRevision` means case revision, plus subject revision,
+generation, Approve/Reject and required reason up to 2000 characters). Current
+`hcm.attendance.approve-attendance.decide`, read scope, stage and independent
+candidate are mandatory. Workflow resolves its task internally through its owner
+port. HTTP 202 returns the actual ActionPending attempt and operation identity;
+it never claims a decision. `GET /attendance/decision-receipts/{key}` recovers the
+original actor's safe attempt under fresh source read scope. Same-key retry keeps
+the originally accepted task revision even after the task advances.
+
+The fixed Attendance dispatch adapter restores Runtime's original human authority
+without creating a session or extending expiry. It rechecks current Access,
+candidate, whole dated impact scope, period/workday basis, exact Leave impact and
+the routing digest captured at submission. Source slot/case progression uses the
+existing independent approval evaluator and SQL guards. Every accepted slot has
+an immutable encrypted decision and safe human audit. Only all required approvals
+advance the override and queue actual resolution through the following Work date.
+Reject closes the case while the override remains inactive Draft. Material input
+drift invalidates the case and returns Stale proof; it applies no workday change.
+
+Migration 66 adds tenant-owned immutable decision receipts with composite source
+references and exact accepted-decision proof checks. Receipts bind original intent,
+actor, case, slot, generation and safe result. Source effects, source receipt,
+Workflow receipt and reconciliation intent share the lease-fenced transaction.
+Queue failure rolls back the final approval. Duplicate dispatch queries original
+proof before considering new authority. Current read is still required for HTTP
+recovery. Canonical Attendance access seed 5 grants manager/HR source read/decide
+operations; case routing and whole-grant scope independently restrict decisions.
+
+WorkflowDispatch takes the existing exclusive tenant mutation/revocation lock at
+transaction entry, before outbox/case locks. This avoids upgrading two shared
+holders and serializes against current Leave/configuration writers. Other workload
+transactions retain their existing shared authority lock. No tenant policy or
+database ownership changes. The shared worker now composes real Attendance dispatch
+and source-driven reconciliation; dispatch requires the API's existing local field
+key. Timers and other source adapters remain separate delivery obligations.

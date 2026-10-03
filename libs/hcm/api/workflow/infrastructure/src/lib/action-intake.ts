@@ -22,6 +22,7 @@ import {
 	type WorkflowActionResult,
 	type WorkflowAttemptView,
 	type WorkflowSource,
+	type WorkflowActionCommand,
 } from '@empflowyee/hcm-workflow-contract'
 import { HcmDomainError, idValue } from '@empflowyee/hcm-runtime-contract'
 
@@ -59,6 +60,65 @@ class SqlWorkflowActions implements WorkflowActionPort {
 		private readonly projections: WorkflowSourceBinder,
 		private readonly sources: WorkflowSourceActionBinder,
 	) {}
+	/** Resolve one source slot to its current task, retaining the original task revision when recovering the same command. */
+	async submitSlot(
+		context: AuthenticatedHcmContext,
+		source: WorkflowSource,
+		caseId: string,
+		slotId: string,
+		key: string,
+		input: Omit<WorkflowActionCommand, 'expectedRevision'>,
+	): Promise<WorkflowActionResult> {
+		idValue(caseId, 'caseId')
+		idValue(slotId, 'slotId')
+		requireIdempotencyKey(key)
+		const actor = await this.actor(context)
+		await this.sources.bind(this.tx, this.tenant, source).authorizeRead(context, caseId)
+		const prior = (
+			await sql<{
+				taskId: string
+				revision: number
+				source: WorkflowSource
+				caseId: string
+				slotId: string
+			}>`SELECT task_id AS "taskId",expected_task_revision AS revision,source,case_id AS "caseId",slot_id AS "slotId" FROM hcm.workflow_action_attempt WHERE tenant_id=${this.tenant} AND actor_account_id=${actor.accountId} AND idempotency_key=${key}::uuid`.execute(
+				this.tx,
+			)
+		).rows[0]
+		if (prior && (prior.source !== source || prior.caseId !== caseId || prior.slotId !== slotId))
+			throw new HcmDomainError('revision-conflict')
+		const task =
+			prior ??
+			(
+				await sql<{
+					taskId: string
+					revision: number
+				}>`SELECT t.id AS "taskId",t.revision FROM hcm.workflow_task t JOIN hcm.workflow_instance i ON i.tenant_id=t.tenant_id AND i.id=t.instance_id WHERE i.tenant_id=${this.tenant} AND i.source=${source} AND i.source_case_id=${caseId} AND i.generation=${input.generation} AND t.source_slot_id=${slotId}`.execute(
+					this.tx,
+				)
+			).rows[0]
+		if (!task) throw new HcmDomainError('record-incomplete')
+		return this.submit(context, task.taskId, key, { ...input, expectedRevision: task.revision })
+	}
+	/** Recover only the original actor/source key; private intent and task data stay behind the Workflow owner. */
+	async readKey(
+		context: AuthenticatedHcmContext,
+		source: WorkflowSource,
+		key: string,
+	): Promise<{ caseId: string; attempt: WorkflowAttemptView }> {
+		requireIdempotencyKey(key)
+		const actor = await this.actor(context)
+		const row = (
+			await sql<{
+				id: string
+				caseId: string
+			}>`SELECT id,case_id AS "caseId" FROM hcm.workflow_action_attempt WHERE tenant_id=${this.tenant} AND actor_account_id=${actor.accountId} AND source=${source} AND idempotency_key=${key}::uuid`.execute(
+				this.tx,
+			)
+		).rows[0]
+		if (!row) throw new HcmDomainError('not-found')
+		return { caseId: row.caseId, attempt: await this.read(context, row.id) }
+	}
 	/** Require a real matching transaction and current original human before any attempt lookup. */
 	private async actor(context: AuthenticatedHcmContext) {
 		const actor = requireAuthenticatedScope(context)

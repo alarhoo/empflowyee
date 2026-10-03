@@ -8,6 +8,8 @@ export const HCM3_AUDIT_ACTIONS = [
 	'attendance.configuration-retired',
 	'attendance.configuration-assigned',
 	'attendance.override-submitted',
+	'attendance.override-decided',
+	'attendance.override-invalidated',
 	'workflow.action-requested',
 	'leave.policy-created',
 	'leave.enrollment-created',

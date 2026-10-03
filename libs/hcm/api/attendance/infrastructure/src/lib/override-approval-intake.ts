@@ -31,39 +31,14 @@ export class SqlOverrideApprovalIntake {
 		inputDigest: string,
 		workforceDigest: string,
 	): Promise<AttendanceOverrideSubmission> {
-		const rules = (
-			await sql<{
-				id: string
-				ordinal: number
-				stage: number
-				independent: boolean
-				candidateSource: string
-				managerLevel: number | null
-				accountId: string | null
-				functionCode: string | null
-			}>`SELECT id,ordinal,stage,independent,candidate_source AS "candidateSource",manager_level AS "managerLevel",account_id AS "accountId",function_code AS "functionCode" FROM hcm.attendance_approval_rule WHERE tenant_id=${this.tenantId} AND version_id=${policyVersionId} AND subject_type='Override' ORDER BY ordinal`.execute(
-				this.tx,
-			)
-		).rows
-		if (!rules.length) throw new HcmDomainError('record-incomplete')
-		const asOf = Temporal.Now.instant().toZonedDateTimeISO(source.zone).toPlainDate().toString()
-		const routing = []
-		for (const rule of rules) {
-			let level: number | null = null
-			if (rule.candidateSource === 'LineManager') level = 1
-			if (rule.candidateSource === 'ManagerLevel') level = rule.managerLevel
-			routing.push({
-				rule,
-				routing: await this.routing
-					.bind(this.tx, this.tenantId)
-					.read(source.employmentId, asOf, level),
-			})
-		}
-		const routingDigest = commandHash('OverrideApprovalRouting:1', {
+		const { rules, digest: routingDigest } = await overrideApprovalRouting(
+			this.tx,
+			this.tenantId,
+			this.routing,
+			source,
 			policyVersionId,
 			workforceDigest,
-			routing,
-		})
+		)
 		const generation = (
 			await sql<{
 				generation: number
@@ -92,4 +67,47 @@ export class SqlOverrideApprovalIntake {
 			operationId: work.operationId,
 		}
 	}
+}
+
+/** Recompute the exact policy and current reporting basis used when opening source obligations. */
+export async function overrideApprovalRouting(
+	tx: Kysely<unknown>,
+	tenantId: string,
+	routingBinder: WorkforceApprovalRoutingBinder,
+	source: AttendanceOverrideView,
+	policyVersionId: string,
+	workforceDigest: string,
+) {
+	const rules = (
+		await sql<{
+			id: string
+			ordinal: number
+			stage: number
+			independent: boolean
+			candidateSource: string
+			managerLevel: number | null
+			accountId: string | null
+			functionCode: string | null
+		}>`SELECT id,ordinal,stage,independent,candidate_source AS "candidateSource",manager_level AS "managerLevel",account_id AS "accountId",function_code AS "functionCode" FROM hcm.attendance_approval_rule WHERE tenant_id=${tenantId} AND version_id=${policyVersionId} AND subject_type='Override' ORDER BY ordinal`.execute(
+			tx,
+		)
+	).rows
+	if (!rules.length) throw new HcmDomainError('record-incomplete')
+	const asOf = Temporal.Now.instant().toZonedDateTimeISO(source.zone).toPlainDate().toString()
+	const routing = []
+	for (const rule of rules) {
+		let level: number | null = null
+		if (rule.candidateSource === 'LineManager') level = 1
+		if (rule.candidateSource === 'ManagerLevel') level = rule.managerLevel
+		routing.push({
+			rule,
+			routing: await routingBinder.bind(tx, tenantId).read(source.employmentId, asOf, level),
+		})
+	}
+	const digest = commandHash('OverrideApprovalRouting:1', {
+		policyVersionId,
+		workforceDigest,
+		routing,
+	})
+	return { rules, digest }
 }

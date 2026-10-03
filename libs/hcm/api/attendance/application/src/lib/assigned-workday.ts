@@ -18,7 +18,7 @@ import type {
 import { workdayLocation, workdayZone } from './workday-location'
 import type { AttendanceResolvedPattern, WorkdaySourceReferences } from './dated-pattern'
 
-interface ResolutionDependency {
+export interface ResolutionDependency {
 	family: 'Schedule' | 'Policy' | 'Holiday' | 'Roster' | 'Override'
 	date: string
 	digest: string

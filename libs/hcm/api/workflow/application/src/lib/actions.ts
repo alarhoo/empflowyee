@@ -70,6 +70,21 @@ export abstract class WorkflowSourceActionBinder {
 	): WorkflowSourceActionPort
 }
 export interface WorkflowActionPort {
+	/** Admit an owning app's source-slot action without exposing Workflow persistence or accepting a browser task identity. */
+	submitSlot(
+		context: AuthenticatedHcmContext,
+		source: WorkflowSource,
+		caseId: string,
+		slotId: string,
+		key: string,
+		input: Omit<WorkflowActionCommand, 'expectedRevision'>,
+	): Promise<WorkflowActionResult>
+	/** Recover this actor's attempt by the original source-app command key under fresh source visibility. */
+	readKey(
+		context: AuthenticatedHcmContext,
+		source: WorkflowSource,
+		key: string,
+	): Promise<{ caseId: string; attempt: WorkflowAttemptView }>
 	/** Admit a source-authorized action and durable dispatch; this result never claims the source has approved. */
 	submit(
 		context: AuthenticatedHcmContext,
