@@ -56,6 +56,13 @@ and original-key recovery after materialization (002/003/004/005/007, partial).
 Configured independent approvals still remain pending; their final decisions are
 not covered by this path. Browser acceptance remains outstanding.
 
+`override-decision-test.ts`, invoked from the real configuration API suite,
+exercises required independent stages through HTTP and the leased dispatch and
+reconciliation handlers (002/003/005/007, partial). It covers original-key recovery,
+rejection, revoked authority, stale input invalidation, atomic final-queue rollback,
+source receipt integrity and tenant isolation. These internal dependencies do not
+deliver Approve Attendance UI or Work Schedules browser acceptance.
+
 | Requirement                                             | Design                          | Planned test                                        |
 | ------------------------------------------------------- | ------------------------------- | --------------------------------------------------- |
 | [REQ-WORK-SCHEDULES-001](FDD.md#req-work-schedules-001) | [DESIGN-001](TDD.md#design-001) | [TEST-WORK-SCHEDULES-001](#test-work-schedules-001) |

@@ -64,7 +64,11 @@ export abstract class AttendanceOverrideUnit {
 }
 
 /** Refuse ordinary changes under an active month close, lock or controlled reopen. */
-async function requireOpen(work: AttendanceOverrideWork, date: string, through = date) {
+async function requireOpen(
+	work: Pick<AttendanceOverrideWork, 'periods'>,
+	date: string,
+	through = date,
+) {
 	const period = await work.periods.fence(date, through)
 	if (
 		period.months.some(
@@ -159,7 +163,7 @@ export class AttendanceOverrides {
 					input,
 					/** Proposed approval exists only inside the rollback boundary and creates no work intent. */ async () => {
 						const { source, policy, resolved, digest, reviewedThrough, restWarnings, leaveImpact } =
-							await this.review(work, id, input.expectedRevision)
+							await reviewAttendanceOverride(work, id, input.expectedRevision)
 						const result: AttendanceOverrideReview = {
 							previewId: key.toLowerCase(),
 							sourceRevision: source.revision,
@@ -223,7 +227,7 @@ export class AttendanceOverrides {
 						)
 							throw new HcmDomainError('revision-conflict')
 						const { source, policy, digest, leaveImpact, reviewedThrough, days } =
-							await this.review(work, id, input.expectedRevision)
+							await reviewAttendanceOverride(work, id, input.expectedRevision)
 						if (digest !== input.digest) throw new HcmDomainError('revision-conflict')
 						if (leaveImpact.unavailableRequestCount) throw new HcmDomainError('record-incomplete')
 						if (source.approval) throw new HcmDomainError('invalid-state')
@@ -292,66 +296,6 @@ export class AttendanceOverrides {
 				),
 		)
 	}
-	/** Reuse identical current-source validation for preview and consumption, with period locks acquired before dated workday locks. */
-	private async review(work: AttendanceOverrideWork, id: string, expectedRevision: number) {
-		const source = await work.read(id)
-		if (!source) throw new HcmDomainError('not-found')
-		if (source.revision !== expectedRevision) throw new HcmDomainError('revision-conflict')
-		if (source.state !== 'Draft') throw new HcmDomainError('invalid-state')
-		const policy = await work.inputs.read('Policy', source.employmentId, source.workDate)
-		if (policy.state !== 'Available') throw new HcmDomainError('record-incomplete')
-		const days = await evaluateOverrideWorkdayImpact(
-			work.proposedInputs(source),
-			source.employmentId,
-			source.workDate,
-			/** Each future source needs complete current dated authority before inspection. */ (date) =>
-				work.requireImpactDate(date),
-		)
-		const reviewedThrough = days[days.length - 1].workDate
-		const period = await requireOpen(work, source.workDate, reviewedThrough)
-		await work.requireBasis(source.employmentId, source.workDate, source.workdayRevision)
-		const resolved = days[0].result
-		const leaveImpact = await work.leaveImpact.review(
-			leaveImpactProposal(source.employmentId, days),
-		)
-		const restWarnings: NonNullable<AttendanceOverrideReview['restWarnings']> = []
-		for (const day of days)
-			if (day.result.rest.state === 'Compared') {
-				for (const outcome of day.result.rest.outcomes)
-					if (outcome.result.state === 'Warn' && outcome.minutes !== null)
-						restWarnings.push({
-							workDate: day.workDate,
-							source: outcome.source,
-							minimumMinutes: outcome.minutes,
-							elapsedMilliseconds: outcome.result.elapsedMilliseconds,
-						})
-			}
-		return {
-			source,
-			policy,
-			resolved,
-			days,
-			reviewedThrough,
-			restWarnings,
-			leaveImpact,
-			digest: commandHash('OverrideImpact:4', {
-				source: {
-					id: source.id,
-					revision: source.revision,
-					state: source.state,
-					employmentId: source.employmentId,
-					workDate: source.workDate,
-					workdayRevision: source.workdayRevision,
-					zone: source.zone,
-					segments: source.segments,
-				},
-				period,
-				policy,
-				days,
-				leaveImpact,
-			}),
-		}
-	}
 
 	/** Seal narrative in the receipt while safe shared audit contains only source identity and lifecycle. */
 	private async record(
@@ -376,5 +320,77 @@ export class AttendanceOverrides {
 			requestId: key,
 			summary: { reason: null, changedFields: ['configuration'], fromState, toState: source.state },
 		})
+	}
+}
+
+/** Reuse identical current-source validation for preview and consumption, with period locks acquired before dated workday locks. */
+export async function reviewAttendanceOverride(
+	work: Pick<
+		AttendanceOverrideWork,
+		| 'read'
+		| 'inputs'
+		| 'proposedInputs'
+		| 'periods'
+		| 'requireBasis'
+		| 'requireImpactDate'
+		| 'leaveImpact'
+	>,
+	id: string,
+	expectedRevision: number,
+) {
+	const source = await work.read(id)
+	if (!source) throw new HcmDomainError('not-found')
+	if (source.revision !== expectedRevision) throw new HcmDomainError('revision-conflict')
+	if (source.state !== 'Draft') throw new HcmDomainError('invalid-state')
+	const policy = await work.inputs.read('Policy', source.employmentId, source.workDate)
+	if (policy.state !== 'Available') throw new HcmDomainError('record-incomplete')
+	const days = await evaluateOverrideWorkdayImpact(
+		work.proposedInputs(source),
+		source.employmentId,
+		source.workDate,
+		/** Each future source needs complete current dated authority before inspection. */ (date) =>
+			work.requireImpactDate(date),
+	)
+	const reviewedThrough = days[days.length - 1].workDate
+	const period = await requireOpen(work, source.workDate, reviewedThrough)
+	await work.requireBasis(source.employmentId, source.workDate, source.workdayRevision)
+	const resolved = days[0].result
+	const leaveImpact = await work.leaveImpact.review(leaveImpactProposal(source.employmentId, days))
+	const restWarnings: NonNullable<AttendanceOverrideReview['restWarnings']> = []
+	for (const day of days)
+		if (day.result.rest.state === 'Compared') {
+			for (const outcome of day.result.rest.outcomes)
+				if (outcome.result.state === 'Warn' && outcome.minutes !== null)
+					restWarnings.push({
+						workDate: day.workDate,
+						source: outcome.source,
+						minimumMinutes: outcome.minutes,
+						elapsedMilliseconds: outcome.result.elapsedMilliseconds,
+					})
+		}
+	return {
+		source,
+		policy,
+		resolved,
+		days,
+		reviewedThrough,
+		restWarnings,
+		leaveImpact,
+		digest: commandHash('OverrideImpact:4', {
+			source: {
+				id: source.id,
+				revision: source.revision,
+				state: source.state,
+				employmentId: source.employmentId,
+				workDate: source.workDate,
+				workdayRevision: source.workdayRevision,
+				zone: source.zone,
+				segments: source.segments,
+			},
+			period,
+			policy,
+			days,
+			leaveImpact,
+		}),
 	}
 }

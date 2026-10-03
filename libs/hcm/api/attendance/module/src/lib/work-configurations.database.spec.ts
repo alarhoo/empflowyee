@@ -1,3 +1,4 @@
+import { verifyOverrideDecisions } from './override-decision-test'
 import { AssignedWorkdayResolver } from '@empflowyee/hcm-api-attendance-application'
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
@@ -108,6 +109,11 @@ async function verifyOverrideCoordination() {
 			randomUUID(),
 			600000,
 		)
+		await api.admin.query(
+			"DELETE FROM hcm.role_permission WHERE tenant_id=$1 AND role_id='manager' AND permission_code='hcm.attendance.approve-attendance.decide'",
+			[tenant],
+		)
+
 		const before = await database.workloadTransaction(
 			context,
 			'WorkflowPlan',
@@ -116,7 +122,7 @@ async function verifyOverrideCoordination() {
 		)
 		expect(before.accountIds).toEqual([])
 		await api.admin.query(
-			"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.attendance.approve-attendance.decide','Approval test operation','business-operation')",
+			"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.attendance.approve-attendance.decide','Approval test operation','business-operation') ON CONFLICT DO NOTHING",
 			[tenant],
 		)
 		await api.admin.query(
@@ -1828,6 +1834,24 @@ it('submits a reviewed override through HTTP with atomic source obligations and 
 		pendingSlots: 2,
 	})
 	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before)
+	await verifyOverrideDecisions(api, submitted.caseId, draft.body.id)
+	await resolveAssignedDays()
+	const applied = await api.send<import('@empflowyee/hcm-attendance-contract').WorkdayPage>(
+		'david',
+		'GET',
+		`attendance/workdays?employmentId=${encodeURIComponent(employmentId)}&from=${date}&to=2027-02-18`,
+	)
+	expect(applied.status).toBe(200)
+	expect(applied.body.items).toMatchObject([
+		{
+			state: 'Published',
+			workDate: date,
+			kind: 'NonWorkingOverride',
+			revision: basis.revision + 1,
+			datedSources: [{ family: 'Override', id: draft.body.id, revision: 2 }],
+		},
+		{ state: 'Published', workDate: '2027-02-18', kind: 'Work' },
+	])
 })
 
 it('validates shifts in the real worker and invalidates reviewed publication when policy inputs change', /** A ready response is evidence to recheck, never permission to publish against retired inputs. */ async () => {

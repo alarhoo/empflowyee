@@ -1,3 +1,4 @@
+import { KyselyHcmActionAuthorizationBinder } from '@empflowyee/hcm-api-runtime-infrastructure'
 import { HcmWorkforceFoundationModule } from '@empflowyee/hcm-api-workforce-foundation-module'
 import {
 	WorkforceTimeContextBinder,
@@ -12,9 +13,17 @@ import { FieldCipher } from '@empflowyee/hcm-api-runtime-application'
 import { HcmAccessControlModule } from '@empflowyee/hcm-api-access-control-module'
 import { HcmAccessDatabase } from '@empflowyee/hcm-api-access-control-infrastructure'
 import { ApprovalCandidateBinder } from '@empflowyee/hcm-api-access-control-application'
-import { WorkflowIntakeBinder } from '@empflowyee/hcm-api-workflow-application'
-import { KyselyWorkflowIntakeBinder } from '@empflowyee/hcm-api-workflow-infrastructure'
 import {
+	WorkflowIntakeBinder,
+	WorkflowActionBinder,
+} from '@empflowyee/hcm-api-workflow-application'
+import {
+	KyselyWorkflowIntakeBinder,
+	KyselyWorkflowActionBinder,
+} from '@empflowyee/hcm-api-workflow-infrastructure'
+import {
+	AttendanceApprovalPort,
+	AttendanceApprovalDecisions,
 	AttendanceOverrideUnit,
 	AttendanceOverrides,
 	AttendancePeriodFenceBinder,
@@ -43,6 +52,8 @@ import {
 	AttendanceTemplatePublication,
 } from '@empflowyee/hcm-api-attendance-application'
 import {
+	KyselyAttendanceApprovalPort,
+	KyselyAttendanceWorkflowActionBinder,
 	KyselyAttendanceOverrideUnit,
 	KyselyAttendanceWorkflowSourceBinder,
 	KyselyAttendancePeriodFenceBinder,
@@ -57,6 +68,7 @@ import {
 	KyselyHolidayAssignmentUnit,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
 import {
+	AttendanceApprovalDecisionsController,
 	AttendanceOverridesController,
 	ScheduleTemplatesController,
 	WorkConfigurationsController,
@@ -73,6 +85,7 @@ import {
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
 	controllers: [
+		AttendanceApprovalDecisionsController,
 		AttendanceOverridesController,
 		AttendanceWorkdaysController,
 		DatedPublicationController,
@@ -90,6 +103,71 @@ import {
 		AttendancePublishedWorkdayBinder,
 	],
 	providers: [
+		{
+			provide: KyselyAttendanceWorkflowActionBinder,
+			inject: [
+				WorkforceTimeContextBinder,
+				WorkforceApprovalRoutingBinder,
+				KyselyAttendanceWorkflowSourceBinder,
+				FieldCipher,
+			],
+			useFactory:
+			/** Register the concrete source decision owner behind the existing Runtime authority boundary. */ (
+				workforce: WorkforceTimeContextBinder,
+				routing: WorkforceApprovalRoutingBinder,
+				sources: KyselyAttendanceWorkflowSourceBinder,
+				cipher: FieldCipher,
+			) =>
+				new KyselyAttendanceWorkflowActionBinder(
+					workforce,
+					routing,
+					sources,
+					new KyselyHcmActionAuthorizationBinder(),
+					cipher,
+					new KyselyLeaveWorkdayImpactBinder(),
+				),
+		},
+		{
+			provide: WorkflowActionBinder,
+			inject: [
+				FieldCipher,
+				KyselyAttendanceWorkflowSourceBinder,
+				KyselyAttendanceWorkflowActionBinder,
+			],
+			useFactory: /** Reuse durable action admission without running workers in the API. */ (
+				cipher: FieldCipher,
+				sources: KyselyAttendanceWorkflowSourceBinder,
+				actions: KyselyAttendanceWorkflowActionBinder,
+			) =>
+				new KyselyWorkflowActionBinder(
+					cipher,
+					new KyselyHcmActionAuthorizationBinder(),
+					sources,
+					actions,
+				),
+		},
+		{
+			provide: AttendanceApprovalPort,
+			inject: [
+				HcmAccessDatabase,
+				WorkforceTimeContextBinder,
+				KyselyAttendanceWorkflowSourceBinder,
+				WorkflowActionBinder,
+			],
+			useFactory: /** Bind source HTTP commands to dated Access and owner coordination ports. */ (
+				database: HcmAccessDatabase | null,
+				workforce: WorkforceTimeContextBinder,
+				sources: KyselyAttendanceWorkflowSourceBinder,
+				actions: WorkflowActionBinder,
+			) => new KyselyAttendanceApprovalPort(database, workforce, sources, actions),
+		},
+		{
+			provide: AttendanceApprovalDecisions,
+			inject: [AttendanceApprovalPort],
+			useFactory: /** Keep source command validation in its application layer. */ (
+				port: AttendanceApprovalPort,
+			) => new AttendanceApprovalDecisions(port),
+		},
 		{
 			provide: WorkflowIntakeBinder,
 			useFactory:

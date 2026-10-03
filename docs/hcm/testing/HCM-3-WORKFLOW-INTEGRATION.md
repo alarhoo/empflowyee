@@ -187,3 +187,25 @@ The focused real PostgreSQL planner/action/reconciliation run passed 2 suites /
 fixtures in this suite prove coordination only; the Attendance/Leave business
 adapters, notification timer delivery and full UI journeys remain outstanding.
 Migrations 56–58 are not yet applied to the persistent local database at 55.
+
+
+## Attendance source dispatch integration
+
+On 2026-10-03 the real Attendance Override source adapter was integrated with
+Workflow action admission, dispatch and reconciliation. Source routes resolve
+Workflow task identity through the owner port; they do not query Workflow tables.
+The dispatch lane restores the original Runtime authority, checks source receipts
+before attempting a decision, and uses current Access and dated source rules.
+Source effects, immutable source proof, Workflow receipt and reconciliation intent
+commit together. Stage reconciliation follows actual accepted source decisions.
+The worker now composes these lanes using the API's existing field encryption key;
+see the [worker runbook](../operations/WORKER.md). Notification timers and Leave
+source decisions remain pending. No broader Workflow or Attendance approval UI is
+introduced by this dependency.
+
+The focused real PostgreSQL run passed 33 tests across Attendance work configuration,
+Runtime action authority and Leave requests, including actual two-stage source
+approval, rejection, revocation, stale-source invalidation, concurrent admission,
+receipt recovery, final-decision rollback and dated workday publication. API and
+worker builds and affected type/lint checks passed. This is source integration
+evidence, not browser or complete-app acceptance.

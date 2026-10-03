@@ -36,6 +36,8 @@ export interface HcmReply<T> {
 	cache: string | undefined
 }
 export interface HcmTestApi {
+	/** Reuse the test API's actual field cipher when exercising its durable encrypted worker intents. */
+	cipher: FieldCipher
 	/** Loopback origin used only by real-browser integration tests. */
 	origin: string
 	/** Send one real HTTP request as a persisted development persona. */
@@ -75,9 +77,10 @@ export async function startHcmTestApi(
 	})
 	await admin.query("SELECT set_config('hcm.tenant_id',$1,false)", [HCM_TEST_TENANT])
 	const store = new HcmRuntimeStore(runtime)
+	const cipher = new LocalFieldCipher(randomBytes(32))
 	const compiled = await Test.createTestingModule({ imports: [module as never] })
 		.overrideProvider(FieldCipher)
-		.useValue(new LocalFieldCipher(randomBytes(32)))
+		.useValue(cipher)
 		.overrideProvider(HcmRuntimeStore)
 		.useValue(store)
 		.overrideProvider(TenantDirectory)
@@ -94,6 +97,7 @@ export async function startHcmTestApi(
 	await app.listen(0, '127.0.0.1')
 	const origin = await app.getUrl()
 	return {
+		cipher,
 		origin,
 		admin,
 		/** Send one request with browser-like same-origin write headers. */

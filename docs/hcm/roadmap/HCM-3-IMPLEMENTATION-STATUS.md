@@ -60,24 +60,25 @@ dated publication, reviewed schedule/policy assignments, stored-workday inspecti
 and typed roster/override resolution. Override Draft/read/preview commands now
 retain encrypted reasons and exact reviewed workday bases; independent approval
 evaluation and required case/slot/decision storage have focused tests; production
-source decisions remain pending. Required-approval Override submission now creates
+source decisions now pass real HTTP and leased-worker integration checks. Required-approval Override submission now creates
 its case, slots and real Workflow intake atomically and returns safe reload progress.
 The routed override editor reuses native interval fields for Draft/review/submission;
 it has form and compile checks but no complete-app browser acceptance.
 Override review now includes actual stored Leave Draft calculations. The explicit
 no-required-slot policy path approves once and queues real dated materialization;
-independent final decisions, other Leave lifecycle impact and full browser
+governed evidence admission, other Leave lifecycle impact and full browser
 acceptance remain outstanding. Internal
 [Workflow intake and initial DomainManifest planning](../testing/HCM-3-WORKFLOW-INTEGRATION.md)
-now have real leased-worker/PostgreSQL tests with Attendance source adapters; dispatch, timers and
-receipt reconciliation still require delivery. See the Work Schedules
+now have real leased-worker/PostgreSQL tests with Attendance source adapters,
+independent decisions, dispatch and receipt reconciliation. Notification timers
+and Leave source decisions still require delivery. See the Work Schedules
 [integration record](../testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md) for executed
 tests and remaining command, approval, Leave-impact and browser work. It has not
 passed complete-app acceptance and its tile remains unavailable. After a verified
-backup, local PostgreSQL has migrations through 64, Attendance seed version 4 and
-Leave access seed version 1. The original field-encryption key was preserved.
-The rebuilt API is ready and the worker runs AttendanceResolve and WorkflowPlan;
-source decisions and the remaining Workflow lanes are still unavailable.
+backup, local PostgreSQL has migrations through 66, Attendance seed version 5 and
+Leave access seed version 2. The original field-encryption key was preserved.
+The rebuilt API is ready and the worker runs AttendanceResolve, WorkflowPlan,
+WorkflowDispatch and WorkflowReconcile. Notification timers remain unavailable.
 
 Leave now has exact quantities, typed policy persistence and authenticated draft,
 version, list, type-option and dated enrollment APIs, verified against disposable
@@ -89,12 +90,12 @@ with exact per-row totals, period/version bounds and source fingerprints; half-d
 rounding and full request admission remain pending. Calculated self Draft create/read
 APIs now persist encrypted evidence and immutable day/interval rows with current
 scope and source checks. Unpaid records units without an account. Migration 65 and
-Leave access seed 2 are verified only in disposable PostgreSQL so far. These APIs
+Leave access seed 2 are now applied to backed-up persistent PostgreSQL. These APIs
 do not expose a Leave preview or submit UI.
 See the [Leave prerequisite record](../testing/HCM-3-LEAVE-FOUNDATION.md).
 This does not complete a Leave app or milestone; publication, entitlement funding,
 source journeys and the native UIs remain pending. Local PostgreSQL remains at
-migration 64; liveness/readiness and the tenant-host web entry point returned 200
+migration 66; liveness/readiness and the tenant-host web entry point returned 200
 after rebuilding and restarting the task-owned API and worker on 2026-10-03.
 
 | Slice                                             | State                                     | Evidence                                                           |

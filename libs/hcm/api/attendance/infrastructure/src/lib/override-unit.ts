@@ -35,7 +35,7 @@ import { KyselyAttendancePeriodFenceBinder } from './period-fences'
 import { SqlAttendanceCommandReceipts } from './command-receipts'
 
 /** Project only dated intervals and source lifecycle; encrypted receipt narrative never enters this read representation. */
-async function readOverride(
+export async function readOverride(
 	tx: Kysely<unknown>,
 	tenant: string,
 	id: string,

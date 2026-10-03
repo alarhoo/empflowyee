@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "a44580e416a64481a5221858fc42bf89794ad315c446517ff8e8038dbee8d904",
+			"sha256": "e53e2f7a3ac7d0833abbf13d70caeec870a87ade0b2d5e87f1fa05b24fd91392",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-application-review; reviewed explicit no-required-slot application, atomic rollback and real dated materialization, canonical JSONB evidence and retained history; no new human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-decision-review; Codex technical review of actual source authority, independent staged decisions, immutable proofs, rollback, dispatch/reconciliation and dated materialization; no new human approval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "2be13ec57a6e73b843c4ec2b4c01c81c8edc5cb68b75952c7721e2ca3cc3804a",
+			"sha256": "7026ff986db0b284d7f508f8983aece4f6ab114dd9fa4153888a0b14d7099484",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-application-review; reviewed explicit no-required-slot application, atomic rollback and real dated materialization, canonical JSONB evidence and retained history; no new human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-source-decision-review; Codex technical review of actual source authority, independent staged decisions, immutable proofs, rollback, dispatch/reconciliation and dated materialization; no new human approval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

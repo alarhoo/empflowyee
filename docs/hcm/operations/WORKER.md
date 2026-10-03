@@ -19,8 +19,11 @@ shift publication previews. WorkflowPlan now registers `workflow.source.intake`
 (schema 1) for Attendance's required-approval Override submissions. It reloads the
 source manifest and current candidates, stores all required stages/tasks and timer
 instants, and retains explicit stale/unavailable/no-candidate outcomes. Planning
-does not decide the source or execute timers. Leave accrual/expiry, Attendance
-calculation/reconciliation, Workflow dispatch/timers/reconciliation and recovery
+does not decide the source or execute timers. WorkflowDispatch now registers
+`workflow.action.dispatch` for Attendance Override source decisions, and
+WorkflowReconcile registers `workflow.source.reconcile` for receipt-backed source
+progress. Leave accrual/expiry, Attendance
+calculation/reconciliation, Workflow timers and broader recovery
 commands are still being delivered; unregistered workloads fail startup.
 See [worker validation](../testing/HCM-3-RESOLVE-WORKER-VALIDATION.md) and
 [implementation status](../roadmap/HCM-3-IMPLEMENTATION-STATUS.md).
@@ -64,8 +67,13 @@ the composition; an approved code alone is insufficient to enable processing.
 
 For workday resolution set `HCM_WORKER_WORKLOADS=AttendanceResolve`. To additionally
 plan admitted pending Override cases after migrations through 55, set
-`HCM_WORKER_WORKLOADS=AttendanceResolve,WorkflowPlan`. This does not enable source
-decisions, notifications or timer delivery. See the [Workflow integration record](../testing/HCM-3-WORKFLOW-INTEGRATION.md).
+`HCM_WORKER_WORKLOADS=AttendanceResolve,WorkflowPlan`. After migrations through 66,
+the implemented Override decision lanes can be selected with
+`HCM_WORKER_WORKLOADS=AttendanceResolve,WorkflowPlan,WorkflowDispatch,WorkflowReconcile`.
+Dispatch also requires the existing API `HCM_LOCAL_FIELD_KEY`, supplied privately;
+never generate a replacement key for existing data. Source routes produce real
+intents; do not insert them manually. This does not enable notifications or timer
+delivery. See the [Workflow integration record](../testing/HCM-3-WORKFLOW-INTEGRATION.md).
 A schema-1
 resolution intent is source-owned evidence; do not manually insert or modify its
 payload in ordinary development. The Holiday preview API produces its own intent;

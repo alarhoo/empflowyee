@@ -66,9 +66,16 @@ export class HcmTenantDatabase<Database> {
 			) => {
 				await assertHcmRuntimeRole(transaction)
 				const initial = requireWorkloadScope(context, workload)
-				await sql`SELECT pg_advisory_xact_lock_shared(hashtextextended(${initial.tenantId},0))`.execute(
-					transaction,
-				)
+				// Decision dispatch writes source facts. Acquire its exclusive authority lock
+				// before any case/outbox locks, never upgrade concurrent shared holders.
+				if (workload === 'WorkflowDispatch')
+					await sql`SELECT pg_advisory_xact_lock(hashtextextended(${initial.tenantId},0))`.execute(
+						transaction,
+					)
+				else
+					await sql`SELECT pg_advisory_xact_lock_shared(hashtextextended(${initial.tenantId},0))`.execute(
+						transaction,
+					)
 				const scope = requireWorkloadScope(context, workload)
 				await sql`SELECT set_config('hcm.tenant_id', ${scope.tenantId}, true)`.execute(transaction)
 				const tenant = await sql<{
