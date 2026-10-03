@@ -138,6 +138,26 @@ Use the [accepted worker](../../adr/ADR-HCM-BACKGROUND-WORK.md) and current
 owner contracts; no API scheduling loop. Notifications are safe inbox intents
 after commit. Recovery rechecks current authority and cannot fabricate source truth.
 
+## OVERRIDE-FOLLOWING-WORKDAY
+
+A single-date override review includes the changed date, intervening scheduled
+rest dates and the first following scheduled Work date. It reuses the proposed
+input adapter and real assigned resolver, so both independent minimum-rest rules
+are checked against the changed prior shift. Warn outcomes retain their source,
+configured minutes and exact elapsed milliseconds; either Block prevents review.
+Missing future configuration or exhaustion of the existing 366-date execution
+bound is unavailable, never assumed rest. This bound is not a new policy default.
+
+The API checks one complete current grant over the accumulated dated Workforce
+scope before reading each date's resolver inputs. The period fence covers the
+whole review before the source workday lock. `OverrideImpact:3` binds every dated
+result and dependency, invalidating older or changed-source previews. Optional
+`reviewedThrough` and `restWarnings` extend the safe preview DTO. Retry recovery
+rechecks current read authority across the original stored review range; a shorter
+current schedule cannot narrow the scope of previously stored evidence. No
+future workday is written by preview. Final application still requires reviewed
+Leave impact, source decisions and durable production for the affected dates.
+
 ## PROJECTS
 
 Planned projects, generated only when this slice needs them (reuse shared domain

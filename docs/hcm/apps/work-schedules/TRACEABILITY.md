@@ -18,6 +18,12 @@ encrypted reasons, stale workdays and rolled-back proposed resolution. Reviewed
 required-approval submission now covers concurrent duplicate recovery, persisted
 case/slots/intake, encrypted reason, safe reload progress and current manage denial.
 Evidence admission, decisions and full override acceptance remain open (002).
+Override review also includes the first following scheduled workday, intervening
+rest dates, independent rest outcomes, accumulated dated scope and the complete
+period fence. The real API suite verifies the returned review horizon; the
+[resolver tests](../../../../libs/hcm/api/attendance/application/src/lib/workday-location.spec.ts)
+cover following-day blocks/warnings, intervening rest and unavailable/denied inputs
+(003/004/005, partial). No new Work Schedules browser acceptance is claimed.
 The [source decision evaluator tests](../../../../libs/hcm/api/attendance/domain/src/lib/source-approval.spec.ts)
 cover staged all-required/any-reject rules and current-authority guards in isolation;
 SQL fixture tests additionally cover complete source-case storage, stage guards,

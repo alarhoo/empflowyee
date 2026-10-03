@@ -1228,6 +1228,7 @@ it('creates and previews real override drafts without approving or materializing
 		scheduledMilliseconds: '0',
 		expectedMilliseconds: '0',
 		approvalRequired: false,
+		reviewedThrough: '2027-02-04',
 	})
 	expect(
 		(await api.send('david', 'POST', path + '/preview', command, { 'idempotency-key': previewKey }))

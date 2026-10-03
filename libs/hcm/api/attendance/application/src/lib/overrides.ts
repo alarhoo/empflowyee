@@ -15,7 +15,7 @@ import type { AppendAudit } from '@empflowyee/hcm-api-audit-application'
 import type { AttendanceCommandReceiptStore } from './configuration-evidence'
 import type { AttendanceConfigurationInputPort } from './configuration-inputs'
 import type { AttendancePeriodFencePort } from './period-fences'
-import { AssignedWorkdayResolver } from './assigned-workday'
+import { evaluateOverrideWorkdayImpact } from './override-impact'
 import { replaySafe } from './schedule-commands'
 
 export interface AttendanceOverrideWork {
@@ -40,8 +40,10 @@ export interface AttendanceOverrideWork {
 	): Promise<AttendanceOverrideSubmission>
 	/** Supply a private candidate to the normal resolver without mutating approval state or hiding competing sources. */
 	proposedInputs(source: AttendanceOverrideView): AttendanceConfigurationInputPort
+	/** Require one complete current operation grant over every reviewed date before its resolver inputs are read. */
+	requireImpactDate(date: string): Promise<void>
 	/** Require current read permission even when a command result is recovered by its original key. */
-	requireRead(): Promise<void>
+	requireRead(response?: unknown): Promise<void>
 }
 export type AttendanceOverrideTarget = { id: string } | { employmentId: string; workDate: string }
 export abstract class AttendanceOverrideUnit {
@@ -55,8 +57,8 @@ export abstract class AttendanceOverrideUnit {
 }
 
 /** Refuse ordinary changes under an active month close, lock or controlled reopen. */
-async function requireOpen(work: AttendanceOverrideWork, date: string) {
-	const period = await work.periods.fence(date, date)
+async function requireOpen(work: AttendanceOverrideWork, date: string, through = date) {
+	const period = await work.periods.fence(date, through)
 	if (
 		period.months.some(
 			/** All touched months must admit ordinary workday changes. */ (item) =>
@@ -149,15 +151,14 @@ export class AttendanceOverrides {
 					id,
 					input,
 					/** Proposed approval exists only inside the rollback boundary and creates no work intent. */ async () => {
-						const { source, policy, resolved, digest } = await this.review(
-							work,
-							id,
-							input.expectedRevision,
-						)
+						const { source, policy, resolved, digest, reviewedThrough, restWarnings } =
+							await this.review(work, id, input.expectedRevision)
 						const result: AttendanceOverrideReview = {
 							previewId: key.toLowerCase(),
 							sourceRevision: source.revision,
 							workdayRevision: source.workdayRevision,
+							reviewedThrough,
+							restWarnings,
 							digest,
 							expiresAt: new Date(Date.now() + 900000).toISOString(),
 							scheduledMilliseconds: resolved.resolution.scheduledWorkMilliseconds,
@@ -248,20 +249,38 @@ export class AttendanceOverrides {
 		if (!source) throw new HcmDomainError('not-found')
 		if (source.revision !== expectedRevision) throw new HcmDomainError('revision-conflict')
 		if (source.state !== 'Draft') throw new HcmDomainError('invalid-state')
-		const period = await requireOpen(work, source.workDate)
-		await work.requireBasis(source.employmentId, source.workDate, source.workdayRevision)
 		const policy = await work.inputs.read('Policy', source.employmentId, source.workDate)
 		if (policy.state !== 'Available') throw new HcmDomainError('record-incomplete')
-		const resolved = await new AssignedWorkdayResolver(work.proposedInputs(source), 366).resolve(
+		const days = await evaluateOverrideWorkdayImpact(
+			work.proposedInputs(source),
 			source.employmentId,
 			source.workDate,
+			/** Each future source needs complete current dated authority before inspection. */ (date) =>
+				work.requireImpactDate(date),
 		)
-		if (resolved.state !== 'Available') throw new HcmDomainError('invalid-state')
+		const reviewedThrough = days[days.length - 1].workDate
+		const period = await requireOpen(work, source.workDate, reviewedThrough)
+		await work.requireBasis(source.employmentId, source.workDate, source.workdayRevision)
+		const resolved = days[0].result
+		const restWarnings: NonNullable<AttendanceOverrideReview['restWarnings']> = []
+		for (const day of days)
+			if (day.result.rest.state === 'Compared') {
+				for (const outcome of day.result.rest.outcomes)
+					if (outcome.result.state === 'Warn' && outcome.minutes !== null)
+						restWarnings.push({
+							workDate: day.workDate,
+							source: outcome.source,
+							minimumMinutes: outcome.minutes,
+							elapsedMilliseconds: outcome.result.elapsedMilliseconds,
+						})
+			}
 		return {
 			source,
 			policy,
 			resolved,
-			digest: commandHash('OverrideImpact:2', {
+			reviewedThrough,
+			restWarnings,
+			digest: commandHash('OverrideImpact:3', {
 				source: {
 					id: source.id,
 					revision: source.revision,
@@ -274,7 +293,7 @@ export class AttendanceOverrides {
 				},
 				period,
 				policy,
-				resolved,
+				days,
 			}),
 		}
 	}

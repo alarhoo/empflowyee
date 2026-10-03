@@ -205,3 +205,27 @@ They remain local test drafts until the app's remaining dependencies are deliver
 the catalogue and guard were not weakened. No additional app or milestone is
 complete. Persistent local migration state remains 55; migrations through 63 have
 only been exercised by the disposable database harness at this point.
+
+## Following-workday override impact
+
+On 2026-10-03 override review was extended through the first following scheduled
+Work date, retaining intervening Rest dates. This closes the case where an
+extended or removed shift changes the following shift's minimum-rest comparison.
+The existing resolver retains both schedule and policy Warn/Block rules. Safe
+preview responses include the reviewed-through date and separate warning rows.
+Missing future inputs remain unavailable; the bounded scan never invents rest.
+Current authorization covers the whole dated range, including replay of stored
+review evidence, and the period fence covers all reviewed months before the
+source workday lock. Preview does not publish or enqueue workdays.
+
+The focused real PostgreSQL/API suite passed all 14 tests, including the persisted
+review horizon and unchanged pending-case digest. Twelve focused tests passed,
+including intervening rest, a following-shift Block, independent Warn outcomes and
+missing/denied future inputs. Affected lint and Attendance module TypeScript passed.
+The hcm-api build, architecture, documentation/catalogue and Work Schedules
+readiness checks passed. No browser acceptance was added by this API refinement.
+Codex reviewed the concrete impact/range/recovery refinement under existing
+technical delegation. No independent human approval or app completion is claimed.
+Override native editing, complete Leave impact, final source decisions, evidence
+admission and affected-date production remain outstanding. No migration or seed
+changed in this refinement; persistent local PostgreSQL remains at migration 64.

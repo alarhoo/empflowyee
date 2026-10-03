@@ -57,8 +57,8 @@ export interface AttendanceScheduleWork {
 	queries: ScheduleQueryRepository
 	receipts: AttendanceCommandReceiptStore
 	audit: AppendAudit
-	/** Reauthorize the read permission before returning a stored response to a retry. */
-	requireRead(): Promise<void>
+	/** Reauthorize read permission, including any response-specific dated impact, before returning stored evidence to a retry. */
+	requireRead(response?: unknown): Promise<void>
 }
 export abstract class AttendanceScheduleUnitOfWork {
 	/** Establish one current tenant-wide operation grant, revocation lock and transaction for global configuration roots. */
@@ -94,7 +94,7 @@ export async function replaySafe<T>(
 				key,
 			) => {
 				const prior = await work.receipts.get(operation, key)
-				if (prior) await work.requireRead()
+				if (prior) await work.requireRead(prior.response)
 				return prior
 			},
 			save: /** Persist the exact response alongside the same business transaction. */ (

@@ -2,6 +2,8 @@ import { expect, it } from 'vitest'
 import type { WorkforceTimeContext } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { workdayLocation, workdayZone } from './workday-location'
 import { AssignedWorkdayResolver } from './assigned-workday'
+import { evaluateOverrideWorkdayImpact } from './override-impact'
+import { HcmDomainError } from '@empflowyee/hcm-runtime-contract'
 import {
 	AttendanceConfigurationInputs,
 	type AttendanceConfigurationFamily,
@@ -192,6 +194,83 @@ function resolverFixture() {
 		port,
 	}
 }
+
+it('retains following workday impact across intervening rest dates', /** The first future scheduled shift completes a single-date override review even after a weekend. */ async () => {
+	const f = resolverFixture(),
+		authorized: string[] = []
+	f.versions.Schedule.days = f.versions.Schedule.days.map(
+		/** Explicit rest rows remain dependencies rather than ending the forward review. */ (day) =>
+			day.weekday >= 6 ? { ...day, kind: 'Rest', segments: [] } : day,
+	)
+	const days = await evaluateOverrideWorkdayImpact(
+		f.port,
+		'employment',
+		'2026-10-30',
+		/** Observe the required dated authorization before each source read. */ async (date) => {
+			authorized.push(date)
+		},
+	)
+	expect(days.map(/** Read reviewed local dates. */ (day) => day.workDate)).toEqual([
+		'2026-10-30',
+		'2026-10-31',
+		'2026-11-01',
+		'2026-11-02',
+	])
+	expect(authorized).toEqual(
+		days.map(/** Retain the same scope as the evidence. */ (day) => day.workDate),
+	)
+})
+it('blocks next-shift rest violations and preserves independent warning outcomes', /** Extending the prior shift can invalidate the following day even though its own start has adequate prior rest. */ async () => {
+	const f = resolverFixture()
+	f.versions.Schedule.days[4].segments = [
+		{ kind: 'Work', startTime: '22:00', endTime: '15:00', endDayOffset: 1 },
+	]
+	f.versions.Schedule.minimumRestMinutes = 480
+	f.versions.Schedule.minimumRestMode = 'Warn'
+	f.versions.Policy.minimumRestMinutes = 660
+	f.versions.Policy.minimumRestMode = 'Block'
+	/** This pure algorithm test supplies an already authorized fixture scope. */
+	const allow = async () => undefined
+	expect((await f.resolver.resolve('employment', '2026-10-30')).state).toBe('Available')
+	await expect(
+		evaluateOverrideWorkdayImpact(f.port, 'employment', '2026-10-30', allow),
+	).rejects.toMatchObject({ code: 'invalid-state' })
+	f.versions.Policy.minimumRestMode = 'Warn'
+	const days = await evaluateOverrideWorkdayImpact(f.port, 'employment', '2026-10-30', allow)
+	expect(days[1].result.rest).toMatchObject({
+		state: 'Compared',
+		previousWorkDate: '2026-10-30',
+		outcomes: [
+			{ source: 'Schedule', result: { state: 'Warn' } },
+			{ source: 'Policy', result: { state: 'Warn' } },
+		],
+	})
+})
+it('refuses missing or unauthorized following-day inputs', /** Neither absent future configuration nor a dated grant gap is treated as harmless rest. */ async () => {
+	const f = resolverFixture()
+	f.missing.add('Schedule:2026-10-31')
+	await expect(
+		evaluateOverrideWorkdayImpact(
+			f.port,
+			'employment',
+			'2026-10-30',
+			/** The missing-source case begins with complete test authority. */ async () => undefined,
+		),
+	).rejects.toMatchObject({ code: 'record-incomplete' })
+	f.missing.clear()
+	f.reads.length = 0
+	await expect(
+		evaluateOverrideWorkdayImpact(
+			f.port,
+			'employment',
+			'2026-10-30',
+			/** Reject the future date before any source inspection for that shift. */ async (date) => {
+				if (date === '2026-10-31') throw new HcmDomainError('forbidden')
+			},
+		),
+	).rejects.toMatchObject({ code: 'forbidden' })
+	expect(f.reads).not.toContain('Policy:2026-10-31')
+})
 
 it('resolves overnight DST work with each civil date’s selected calendar and exact source IDs', /** A next-date version switch must not apply the old calendar's next-date holiday or duplicate entries. */ async () => {
 	const f = resolverFixture()
