@@ -423,9 +423,15 @@ Migration 52 adds a typed override reference to existing immutable Attendance
 receipts and keeps their at-most-one-source invariant. Reasons use the existing
 row-bound cipher. Creation checks the latest stored workday under monthly,
 dated-source and workday fences; current whole-grant scope covers all actual dated
-assignment dimensions. No stored workday changes. Review temporarily evaluates
-Approved selection in an always-rolled-back savepoint, retaining Draft state and
-creating no workday or outbox row. Its actor-bound result expires after 15 minutes
+assignment dimensions. No stored workday changes. Review supplies one exact Draft
+revision as a private proposed Approved candidate to the existing dated-source
+resolver. The adapter verifies the stored Draft identity/date/revision, preserves
+all actual competing sources and applies normal tie rejection. It never updates
+the override, bypasses a pending-case guard or creates a workday/outbox row. Other
+dates use actual sources, including prior-date rest dependencies. Review remains
+valid while approval is pending; the calculation digest excludes the read-only
+approval-progress projection but retains all source intervals, source/workday
+revisions, period, policy and resolution inputs. An actor-bound result expires after 15 minutes
 and binds source, exact prior workday revision, period, policy and resolution.
 It reports exact scheduled/expected milliseconds and whether policy has an
 Override approval route. This is dated resolution review only; Leave and subsequent

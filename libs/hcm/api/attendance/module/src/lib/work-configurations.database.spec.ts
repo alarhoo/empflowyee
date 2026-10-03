@@ -1751,6 +1751,15 @@ it('submits a reviewed override through HTTP with atomic source obligations and 
 	expect(replies[1].body).toEqual(replies[0].body)
 	const submitted = replies[0].body
 	expect(submitted.state).toBe('PendingApproval')
+	const pendingReview = await api.send<
+		import('@empflowyee/hcm-attendance-contract').AttendanceOverrideReview
+	>('david', 'POST', path + '/preview', {
+		expectedRevision: 1,
+		reason: 'Recheck pending proposal without approving it',
+	})
+	expect(pendingReview.status).toBe(200)
+	expect(pendingReview.body.digest).toBe(review.body.digest)
+	expect(pendingReview.body.scheduledMilliseconds).toBe('0')
 	expect(
 		(
 			await api.admin.query(

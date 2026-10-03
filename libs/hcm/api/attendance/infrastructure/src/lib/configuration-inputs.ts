@@ -7,6 +7,7 @@ import {
 	type AttendanceConfigurationInputPort,
 	type AttendanceConfigurationInputRepository,
 	type AttendanceConfigurationVersions,
+	type AttendanceOverrideProposal,
 } from '@empflowyee/hcm-api-attendance-application'
 import type { WorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-application'
 import { KyselyAttendanceAssignmentReader } from './configuration-assignments'
@@ -69,8 +70,12 @@ export class KyselyAttendanceConfigurationInputBinder extends AttendanceConfigur
 	constructor(private readonly workforce: WorkforceTimeContextBinder) {
 		super()
 	}
-	/** Refuse pool executors and bind both owners to the same transaction-local tenant. */
-	bind(transaction: unknown, tenantId: string): AttendanceConfigurationInputPort {
+	/** Refuse pool executors and bind both owners to one tenant; an internal exact Draft proposal affects resolver inputs only. */
+	bind(
+		transaction: unknown,
+		tenantId: string,
+		proposal?: AttendanceOverrideProposal,
+	): AttendanceConfigurationInputPort {
 		idValue(tenantId, 'tenantId')
 		const executor = transaction as Kysely<unknown>
 		if (!executor?.isTransaction) throw new Error('Attendance inputs require a tenant transaction')
@@ -82,6 +87,7 @@ export class KyselyAttendanceConfigurationInputBinder extends AttendanceConfigur
 				executor,
 				tenantId,
 				this.workforce.bind(transaction, tenantId),
+				proposal,
 			),
 		)
 	}

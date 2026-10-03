@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "c05d503b1603fca88f0a692e4120ee59d548c15b86b54e55dd1a65517d490596",
+			"sha256": "dd02ed15084a95f911208716192d19adcbd1e21a7ec3ebdd8c70f790f1f69a85",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-submission-technical-review; reviewed pending source submission, owner ports, atomic Workflow intake and traceability under existing delegation; no independent human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#pending-override-review; reviewed exact private proposal, current source selection and stable pending calculation evidence under existing delegation; no new human approval or app acceptance."
 		},
 		{
 			"document": "TRACE",

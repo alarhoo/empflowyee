@@ -38,8 +38,8 @@ export interface AttendanceOverrideWork {
 		inputDigest: string,
 		workforceDigest: string,
 	): Promise<AttendanceOverrideSubmission>
-	/** Resolve a proposed approved state inside an always-rolled-back savepoint, without granting or retaining approval. */
-	simulate<T>(id: string, revision: number, review: () => Promise<T>): Promise<T>
+	/** Supply a private candidate to the normal resolver without mutating approval state or hiding competing sources. */
+	proposedInputs(source: AttendanceOverrideView): AttendanceConfigurationInputPort
 	/** Require current read permission even when a command result is recovered by its original key. */
 	requireRead(): Promise<void>
 }
@@ -252,18 +252,30 @@ export class AttendanceOverrides {
 		await work.requireBasis(source.employmentId, source.workDate, source.workdayRevision)
 		const policy = await work.inputs.read('Policy', source.employmentId, source.workDate)
 		if (policy.state !== 'Available') throw new HcmDomainError('record-incomplete')
-		const resolved = await work.simulate(
-			id,
-			source.revision,
-			/** Invoke exact production source selection inside the rollback-only proposal. */ () =>
-				new AssignedWorkdayResolver(work.inputs, 366).resolve(source.employmentId, source.workDate),
+		const resolved = await new AssignedWorkdayResolver(work.proposedInputs(source), 366).resolve(
+			source.employmentId,
+			source.workDate,
 		)
 		if (resolved.state !== 'Available') throw new HcmDomainError('invalid-state')
 		return {
 			source,
 			policy,
 			resolved,
-			digest: commandHash('OverrideImpact', { source, period, policy, resolved }),
+			digest: commandHash('OverrideImpact:2', {
+				source: {
+					id: source.id,
+					revision: source.revision,
+					state: source.state,
+					employmentId: source.employmentId,
+					workDate: source.workDate,
+					workdayRevision: source.workdayRevision,
+					zone: source.zone,
+					segments: source.segments,
+				},
+				period,
+				policy,
+				resolved,
+			}),
 		}
 	}
 

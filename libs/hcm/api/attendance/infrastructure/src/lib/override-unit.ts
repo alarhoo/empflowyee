@@ -167,22 +167,15 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 						) => {
 							if (draft.evidenceIds.length) throw new HcmDomainError('record-incomplete')
 						},
-						/** Roll back the proposed lifecycle state even on resolver failure, leaving no approval or outbox intent. */
-						async simulate<T>(id: string, revision: number, review: () => Promise<T>): Promise<T> {
-							await sql`SAVEPOINT attendance_override_review`.execute(tx)
-							try {
-								const changed = await sql<{
-									id: string
-								}>`UPDATE hcm.schedule_override SET state='Approved',revision=revision+1,approval_digest=repeat('0',64),approved_at=clock_timestamp(),approved_by_account_id=${accountId} WHERE tenant_id=${tenant} AND id=${id} AND state='Draft' AND revision=${revision} RETURNING id`.execute(
-									tx,
-								)
-								if (!changed.rows.length) throw new HcmDomainError('revision-conflict')
-								return await review()
-							} finally {
-								await sql`ROLLBACK TO SAVEPOINT attendance_override_review`.execute(tx)
-								await sql`RELEASE SAVEPOINT attendance_override_review`.execute(tx)
-							}
-						},
+						proposedInputs:
+						/** Preserve production tie detection and exact stored intervals without writing temporary approval state. */ (
+							source,
+						) =>
+							new KyselyAttendanceConfigurationInputBinder(this.workforce).bind(
+								tx,
+								tenant,
+								source,
+							),
 					})
 				},
 				/** Resolve private source coordinates only after Access verifies the independent operation and entitlement. */ async (
