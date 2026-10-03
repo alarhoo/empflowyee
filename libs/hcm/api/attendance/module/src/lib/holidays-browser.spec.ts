@@ -1,4 +1,5 @@
 import { HcmAttendanceModule } from './hcm-api-attendance-module'
+import { settleNativeBrowserControls } from './native-browser-test-harness'
 import { HcmNotificationsModule } from '@empflowyee/hcm-api-notifications-module'
 import { afterAll, beforeAll, expect, it } from 'vitest'
 import { chromium, expect as browserExpect, type Browser, type Page } from '@playwright/test'
@@ -36,6 +37,7 @@ const root = resolve(process.env['HCM_HOLIDAY_BROWSER_ROOT'] ?? 'dist/apps/hcm/w
 
 /** Isolate recorded native Form/FCL and inverted-status findings from feature accessibility regressions. */
 async function accessibility(page: Page, selector: string): Promise<void> {
+	await settleNativeBrowserControls(page)
 	const result = await new AxeBuilder({ page }).include(selector).analyze()
 	const violations = result.violations.flatMap(
 		/** Preserve every feature finding and unrelated native-control finding. */ (item) =>
@@ -253,6 +255,7 @@ it('creates an explicit holiday, obtains durable publication evidence and preser
 			await editor.getByRole('textbox', { name, exact: true }).press('Tab')
 		}
 		await editor.getByRole('button', { name: 'Add holiday', exact: true }).click()
+		await settleNativeBrowserControls(page)
 		await editor
 			.getByRole('textbox', { name: 'Holiday name', exact: true })
 			.fill('Explicit company day')
@@ -368,13 +371,23 @@ it('creates an explicit holiday, obtains durable publication evidence and preser
 			name: 'Supersede this assignment from the selected start date',
 			exact: true,
 		})
+		await browserExpect(supersede).toBeVisible()
+		await settleNativeBrowserControls(page)
 		await supersede.focus()
 		await supersede.press('Space')
 		await browserExpect(supersede).toBeChecked()
 		await assignment
 			.getByRole('textbox', { name: 'Assignment reason', exact: true })
 			.fill('Supersede explicit dated coverage')
+		const replacementRequest = page.waitForRequest(
+			/** Observe the actual submitted supersession identity without intercepting or replacing the API. */ (
+				request,
+			) =>
+				request.method() === 'POST' &&
+				new URL(request.url()).pathname === '/api/v1/attendance/holiday-calendar-assignments',
+		)
 		await assignment.getByRole('button', { name: 'Assign calendar', exact: true }).click()
+		expect((await replacementRequest).postDataJSON()).toHaveProperty('supersedes')
 		await browserExpect(
 			assignment.getByText(/Assignment saved. 0 workdays queued; 1 unavailable/),
 		).toBeVisible()

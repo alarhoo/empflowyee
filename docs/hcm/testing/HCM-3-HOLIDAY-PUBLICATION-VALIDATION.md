@@ -95,6 +95,25 @@ and were not rewritten to clear this gate.
 
 ## Local journey and reproduction
 
+### Native control readiness regression, 2026-10-03
+
+The combined Templates/Holiday browser run exposed intermittent rapid date-entry,
+assignment-checkbox and transition-time contrast failures. The installed native
+form adapter initializes listeners on an animation frame. Browser checks now wait
+for fonts, two rendered frames and running finite transitions before newly mounted
+date/checkbox interactions and accessibility measurement. The helper does not
+alter controls, API responses, business assertions or accessibility exclusions.
+Angular UI5 host tags are not all registered custom elements, so waiting for every
+prefixed tag's `customElements.whenDefined` is invalid and was removed after a
+failed diagnostic run. Paused and infinite effects are excluded from transition
+waiting. Assignment acceptance additionally asserts that the real submitted POST
+contains the selected supersession reference.
+
+Two consecutive combined regressions each passed 62 tests across seven suites on the existing
+production web build and fresh PostgreSQL/API composition. Earlier diagnostic
+failures remain failed evidence; this result does not accept Work Schedules or
+any Leave UI. No production component, policy rule or catalogue status changed.
+
 Open `http://acme.localhost:4302/attendance/holiday-calendars` as David Wallace
 (Tenant Administrator), or Administration → Reference Data and Policies → Process
 and Time → Holiday Calendars. HR Operations retains its existing placement for

@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, expect, it } from 'vitest'
+import { settleNativeBrowserControls } from './native-browser-test-harness'
 import { chromium, expect as browserExpect, type Browser, type Page } from '@playwright/test'
 import { createServer, request, type Server } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
@@ -16,6 +17,7 @@ const root = resolve('dist/apps/hcm/web/browser')
 
 /** Isolate recorded native Form/FCL and inverted-status findings from feature accessibility regressions. */
 async function accessibility(page: Page, selector: string): Promise<void> {
+	await settleNativeBrowserControls(page)
 	const result = await new AxeBuilder({ page }).include(selector).analyze()
 	const violations = result.violations.flatMap(
 		/** Preserve every feature finding and unrelated native-control finding. */ (item) =>
