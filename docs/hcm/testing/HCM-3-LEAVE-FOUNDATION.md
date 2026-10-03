@@ -28,6 +28,14 @@ and the Leave app journeys can be accepted.
 - Real Access transactions independently require operation permission and Leave
   entitlement, serialize revocation with effects, and reauthorize private receipt
   replay. API composition starts no durable loop and runs no migration.
+- Migration 62 and the enrollment repository persist explicit periods, encrypted
+  eligibility evidence and immutable dated enrollment identity. Balance accounts
+  start empty and commit with activation; Unpaid cannot have an account. Period
+  and policy state/range/revision checks, overlap exclusion and forced RLS defend
+  admission. No enrollment HTTP endpoint or grant command is claimed yet.
+- Pure eligibility evaluation preserves version/assignment/rule precedence,
+  Exclude ties and whole-assignment matching. Missing facts and unknown statutory
+  floors are unavailable; empty selectors do not grant universal eligibility.
 
 ## Verification
 
@@ -49,11 +57,19 @@ libs/hcm/api/leave/domain libs/hcm/contracts/workflow/src/lib/actions.spec.ts`.
 - API composition build (`pnpm nx build hcm-api`), Leave module type check and
   affected implementation lint passed. The focused Leave contract/domain and
   audit regression run passed 10 tests in 3 suites after API integration.
+- Enrollment follow-up: the same Leave database/HTTP command passed 17 tests in
+  2 suites. Added checks cover zero-funded atomic account creation, encrypted
+  row-bound evidence, Unpaid account rejection, policy/date/unit/revision guards,
+  concurrent overlap, missing-account rollback and negative tenant access.
+  Enrollment contract and eligibility tests passed 5 tests in 2 suites through
+  `tools/milestones/hcm-3/vitest.config.mts`. Affected lint, Leave module/domain
+  type checks and architecture checks passed. The API build above predates this
+  internal follow-up; no new browser acceptance is claimed.
 
 ## Remaining
 
 Further owner reference checks, policy impact review and publication,
-enrollment/accounts/ledger, accrual/expiry handlers,
+authorized enrollment commands and ledger posting, accrual/expiry handlers,
 source approvals and all requested Leave native UI/browser journeys remain to be
 delivered. No balance has been manufactured by this foundation.
 
@@ -61,6 +77,9 @@ The half-day rounding conflict between Leave Business Rules 25 and the owning
 technical design's independent per-row rounding has been raised for a product
 decision. The exact quantity implementation does not choose either behavior.
 
-Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–61
+Initial local Leave period dates have been raised for product configuration; no
+calendar-year or financial-year default has been silently seeded.
+
+Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–62
 have been exercised only in disposable test databases. Back up the persistent
 database and preserve its encryption key before explicit migration.

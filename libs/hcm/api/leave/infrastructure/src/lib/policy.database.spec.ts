@@ -21,6 +21,8 @@ import { LeavePolicyCommands } from '@empflowyee/hcm-api-leave-application'
 import { KyselyLeavePolicyUnit } from './policy-unit'
 import { readLeavePolicyDraft, type LeavePolicyDraft } from '@empflowyee/hcm-leave-contract'
 import { KyselyLeavePolicyRepository } from './hcm-api-leave-infrastructure'
+import { KyselyLeaveEnrollmentRepository } from './enrollment-repository'
+import type { LeaveEnrollmentAdmission } from '@empflowyee/hcm-api-leave-application'
 
 const tenant = 'local-dunder-mifflin',
 	account = 'dunder-mifflin/account/david'
@@ -39,6 +41,251 @@ let accessDatabase: HcmAccessDatabase,
 	commands: LeavePolicyCommands,
 	employee: AuthenticatedHcmContext
 
+const enrollmentCipher = new LocalFieldCipher(randomBytes(32))
+
+it('persists enrollment with an empty account and encrypted immutable eligibility', /** Reload proves admission does not manufacture entitlement and private evidence stays encrypted. */ async () => {
+	const input = await enrollmentFixture()
+	const saved = await database.transaction(
+		actor,
+		/** Atomically persist the admitted enrollment and its account. */ (tx) =>
+			enrollmentStore(tx).insert(input),
+	)
+	expect(saved).toMatchObject({
+		id: input.id,
+		state: 'Active',
+		trackingMode: 'Balance',
+		revision: 1,
+	})
+	expect(saved.accountId).toBeTruthy()
+	const reloaded = await database.transaction(
+		actor,
+		/** Reload through the purpose-built projection. */ (tx) => enrollmentStore(tx).read(input.id),
+	)
+	expect(reloaded).toEqual(saved)
+	expect(reloaded).not.toHaveProperty('eligibility_digest')
+	const stored = await admin.query(
+		'SELECT posted_units::text,reserved_units::text,available_units::text FROM hcm.leave_balance_account WHERE id=$1',
+		[saved.accountId],
+	)
+	expect(stored.rows[0]).toEqual({
+		['posted_units']: '0.000000',
+		['reserved_units']: '0.000000',
+		['available_units']: '0.000000',
+	})
+	const sealed = (
+		await admin.query(
+			'SELECT encrypted_eligibility_snapshot,eligibility_key_version FROM hcm.leave_enrollment WHERE id=$1',
+			[input.id],
+		)
+	).rows[0]
+	expect(sealed.encrypted_eligibility_snapshot.toString()).not.toContain(input.employmentId)
+	await database.transaction(
+		actor,
+		/** Verify the snapshot is bound to this actual row identity. */ async (tx) => {
+			const cipher = enrollmentCipher.bind(tx, tenant)
+			const value = {
+				ciphertext: sealed.encrypted_eligibility_snapshot,
+				keyVersion: sealed.eligibility_key_version,
+			}
+			const target = {
+				table: 'leave_enrollment',
+				column: 'encrypted_eligibility_snapshot',
+				rowId: input.id,
+			}
+			expect(JSON.parse(await cipher.decrypt(target, value))).toEqual(input)
+			await expect(cipher.decrypt({ ...target, rowId: randomUUID() }, value)).rejects.toThrow()
+		},
+	)
+	await expect(
+		runtime.query('UPDATE hcm.leave_balance_account SET posted_units=10 WHERE id=$1', [
+			saved.accountId,
+		]),
+	).rejects.toMatchObject({ code: '42501' })
+	await expect(
+		runtime.query('UPDATE hcm.leave_enrollment SET revision=revision+1 WHERE id=$1', [input.id]),
+	).rejects.toMatchObject({ code: '23514' })
+})
+
+it('never creates or accepts an account for Unpaid enrollment', /** A forged Balance account is denied by the tenant, mode and unit composite reference. */ async () => {
+	const input = await enrollmentFixture(true)
+	const saved = await database.transaction(
+		actor,
+		/** Persist request-only tracking without a balance row. */ (tx) =>
+			enrollmentStore(tx).insert(input),
+	)
+	expect(saved.trackingMode).toBe('Unpaid')
+	expect(saved).not.toHaveProperty('accountId')
+	await expect(
+		runtime.query(
+			"INSERT INTO hcm.leave_balance_account(tenant_id,id,enrollment_id,unit) VALUES($1,$2,$3,'Day')",
+			[tenant, randomUUID(), input.id],
+		),
+	).rejects.toMatchObject({ code: '23503' })
+})
+
+it('rejects unpublished, out-of-period and mismatched-unit enrollment atomically', /** SQL checks cannot be bypassed by a faulty application adapter. */ async () => {
+	const input = await enrollmentFixture()
+	await expect(
+		database.transaction(
+			actor,
+			/** Dates cannot silently cross the configured period. */ (tx) =>
+				enrollmentStore(tx).insert({ ...input, effectiveTo: '2027-01-01' }),
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	await expect(
+		database.transaction(
+			actor,
+			/** Account units cannot disagree with the policy type. */ (tx) =>
+				enrollmentStore(tx).insert({ ...input, unit: 'Hour' }),
+		),
+	).rejects.toMatchObject({ code: '23503' })
+	const unpublished = await create()
+	await expect(
+		database.transaction(
+			actor,
+			/** Draft policies do not authorize enrollment. */ (tx) =>
+				enrollmentStore(tx).insert({
+					...input,
+					policyId: unpublished.id,
+					policyVersionId: unpublished.versionId,
+					basis: { ...input.basis, policyRevision: 1 },
+				}),
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_enrollment WHERE id=$1', [input.id])).rowCount,
+	).toBe(0)
+})
+
+it('serializes concurrent overlapping enrollment and rolls back incomplete activation', /** Exactly one competing admission commits and a missing account cannot survive commit. */ async () => {
+	const input = await enrollmentFixture()
+	const results = await Promise.allSettled(
+		[input, { ...input, id: randomUUID() }].map(
+			/** Race separate transactions for the same employment and policy range. */ (candidate) =>
+				database.transaction(
+					actor,
+					/** Commit only a complete enrollment aggregate. */ (tx) =>
+						enrollmentStore(tx).insert(candidate),
+				),
+		),
+	)
+	expect(
+		results.filter(/** Count committed admissions. */ (result) => result.status === 'fulfilled'),
+	).toHaveLength(1)
+	expect(
+		results.filter(
+			/** The competing overlap must fail closed. */ (result) => result.status === 'rejected',
+		),
+	).toHaveLength(1)
+	const incomplete = await enrollmentFixture()
+	await expect(
+		database.transaction(
+			actor,
+			/** Attempt a lower-level write omitting the required account. */ async (tx) => {
+				await sql`INSERT INTO hcm.leave_enrollment(tenant_id,id,employment_id,policy_id,policy_version_id,period_id,tracking_mode,unit,source,state,effective_from,effective_to,eligibility_digest,encrypted_eligibility_snapshot,eligibility_key_version,created_by_account_id)
+      VALUES(${tenant},${incomplete.id},${incomplete.employmentId},${incomplete.policyId},${incomplete.policyVersionId},${incomplete.periodId},'Balance','Day','Eligibility','Active','2026-01-01','2026-12-31',repeat('a',64),decode('aa','hex'),1,${account})`.execute(
+			tx,
+		)
+			},
+		),
+	).rejects.toMatchObject({ code: '23514' })
+	expect(
+		(await admin.query('SELECT id FROM hcm.leave_enrollment WHERE id=$1', [incomplete.id]))
+			.rowCount,
+	).toBe(0)
+})
+
+it('keeps period absence honest and denies foreign enrollment access', /** Row policies protect even unfiltered SQL while the repository also rejects tenant rebinding. */ async () => {
+	const input = await enrollmentFixture(true)
+	await expect(
+		database.transaction(
+			actor,
+			/** The reviewed period revision is part of the immutable admission basis. */ (tx) =>
+				enrollmentStore(tx).insert({ ...input, basis: { ...input.basis, periodRevision: 1 } }),
+		),
+	).rejects.toMatchObject({ code: 'revision-conflict' })
+	await database.transaction(
+		actor,
+		/** Create one current-tenant enrollment to challenge isolation. */ (tx) =>
+			enrollmentStore(tx).insert(input),
+	)
+	await database.transaction(
+		actor,
+		/** Missing periods do not acquire default dates or Open status. */ async (tx) => {
+			expect(await enrollmentStore(tx).periodAt('2025-12-31')).toBeNull()
+			expect(await enrollmentStore(tx).periodAt('2026-03-01')).toMatchObject({
+				id: input.periodId,
+				state: 'Open',
+				revision: 2,
+			})
+			await expect(enrollmentStore(tx, 'foreign').read(input.id)).rejects.toThrow('forbidden')
+			await sql`SELECT set_config('hcm.tenant_id','foreign',true)`.execute(tx)
+			expect((await sql`SELECT id FROM hcm.leave_enrollment`.execute(tx)).rows).toHaveLength(0)
+			expect((await sql`SELECT id FROM hcm.leave_period`.execute(tx)).rows).toHaveLength(0)
+			expect((await sql`SELECT id FROM hcm.leave_balance_account`.execute(tx)).rows).toHaveLength(0)
+		},
+	)
+	await expect(
+		database.transaction(
+			actor,
+			/** A foreign employment cannot be referenced through the local tenant. */ (tx) =>
+				enrollmentStore(tx).insert({
+					...input,
+					id: randomUUID(),
+					employmentId: 'foreign/employment',
+				}),
+		),
+	).rejects.toMatchObject({ code: '23503' })
+})
+
+/** Establish explicit published policy and period fixtures without claiming a production publication command. */
+async function enrollmentFixture(unpaid = false): Promise<LeaveEnrollmentAdmission> {
+	const input = draft()
+	if (unpaid) {
+		input.trackingMode = 'Unpaid'
+		input.accrual = { enabled: false }
+	}
+	const policy = await create(input)
+	await admin.query(
+		"UPDATE hcm.leave_policy_version SET state='Published',revision=revision+1,published_at=now(),published_by_account_id=$2,publication_digest=repeat('a',64) WHERE id=$1",
+		[policy.versionId, account],
+	)
+	await admin.query(
+		"INSERT INTO hcm.leave_period(tenant_id,id,code,name,start_date,end_date,created_by_account_id) VALUES($1,'test-leave-period','TEST_PERIOD','Explicit test period','2026-01-01','2026-12-31',$2) ON CONFLICT(tenant_id,code) DO NOTHING",
+		[tenant, account],
+	)
+	await admin.query(
+		"UPDATE hcm.leave_period SET state='Open',revision=revision+1 WHERE id='test-leave-period' AND state='Planned'",
+	)
+	return {
+		id: randomUUID(),
+		employmentId: 'dunder-mifflin/employment/jim',
+		policyId: policy.id,
+		policyVersionId: policy.versionId,
+		periodId: 'test-leave-period',
+		effectiveFrom: '2026-01-01',
+		effectiveTo: '2026-12-31',
+		trackingMode: input.trackingMode,
+		unit: input.unit,
+		basis: {
+			schemaVersion: 1,
+			policyRevision: 2,
+			periodRevision: 2,
+			workforceDates: [{ workDate: '2026-01-01', inputDigest: 'a'.repeat(64) }],
+			matchingRuleIds: ['eligible'],
+		},
+	}
+}
+
+/** Bind the enrollment store to the same verified transaction as its policy dependencies. */
+function enrollmentStore(tx: Kysely<unknown>, tenantId = tenant) {
+	return new KyselyLeaveEnrollmentRepository(
+		tx,
+		tenantId,
+		account,
+		enrollmentCipher.bind(tx, tenantId),
+	)
+}
 /** Restrict every test connection to the disposable harness configuration. */
 function connection(role: string): string {
 	const value = process.env[`HCM_TEST_${role}`]
@@ -176,9 +423,7 @@ beforeAll(
 			[tenant],
 		)
 		accessDatabase = new HcmAccessDatabase(connection('RUNTIME'))
-		commands = new LeavePolicyCommands(
-			new KyselyLeavePolicyUnit(accessDatabase, new LocalFieldCipher(randomBytes(32))),
-		)
+		commands = new LeavePolicyCommands(new KyselyLeavePolicyUnit(accessDatabase, enrollmentCipher))
 	},
 )
 afterAll(

@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "56d019d54bff00fc3cd8f36c5d42346375faa33bd456067448e6eb0b79052f2f",
+			"sha256": "c9fb1c655da8bd7272465112d37de07395cd06019eaa4f17ac48e434aae098c5",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under explicit product-owner finalization delegation",
-			"reviewedAt": "2026-09-27",
-			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; product-owner decisions and delegated technical finalization, not separate human review of subsequently authored bytes. reviewedAt is the actual UTC date; document date is Asia/Calcutta. See #review and owning TDD/traceability. Historical HCM-0 records are reviewed prerequisite evidence, not newly executed tests."
+			"reviewedAt": "2026-10-03",
+			"reviewEvidence": "docs/hcm/roadmap/HCM-3-DESIGN-APPROVAL.md#authority; Codex technical review of actual enrollment admission/persistence refinement in TDD#data: explicit period configuration, eligibility precedence, encrypted evidence, atomic empty Balance accounts, no Unpaid account or implicit grant. Existing delegated finalization, not a new human approval; implementation checks are recorded in docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md."
 		},
 		{
 			"document": "TRACE",
