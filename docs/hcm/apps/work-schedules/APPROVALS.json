@@ -12,19 +12,19 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "dd02ed15084a95f911208716192d19adcbd1e21a7ec3ebdd8c70f790f1f69a85",
+			"sha256": "d83654e86c8f5a191a1cedc0b050d77abe744c077ebc91a4bc6396db4a758cc0",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#pending-override-review; reviewed exact private proposal, current source selection and stable pending calculation evidence under existing delegation; no new human approval or app acceptance."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#following-workday-override-impact; reviewed real following-shift resolution, independent rest outcomes, whole dated authority, original retry scope and complete period fences; no new human approval or app acceptance claimed."
 		},
 		{
 			"document": "TRACE",
-			"sha256": "527642f3e3cce236b30c8dfda4532509e5a70783b479ca163ae89bc2a09d4c2c",
+			"sha256": "147dfcf2ba5102031ce38e1b80dcf9c290ff336236ef364ca1086bac2d5756d7",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#override-submission-technical-review; reviewed pending source submission, owner ports, atomic Workflow intake and traceability under existing delegation; no independent human approval or app acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#following-workday-override-impact; reviewed real following-shift resolution, independent rest outcomes, whole dated authority, original retry scope and complete period fences; no new human approval or app acceptance claimed."
 		},
 		{
 			"document": "DECISIONS",

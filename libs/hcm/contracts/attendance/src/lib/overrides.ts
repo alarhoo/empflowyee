@@ -41,6 +41,15 @@ export interface AttendanceOverrideView {
 	}
 }
 export interface AttendanceOverrideReview {
+	/** Last date whose following-shift rest and period inputs were included in this review. */
+	reviewedThrough?: string
+	/** Configured Warn outcomes from the changed and following workdays; both rule sources remain distinct. */
+	restWarnings?: {
+		workDate: string
+		source: 'Schedule' | 'Policy'
+		minimumMinutes: number
+		elapsedMilliseconds: string
+	}[]
 	previewId: string
 	digest: string
 	expiresAt: string

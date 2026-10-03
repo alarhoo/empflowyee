@@ -1,5 +1,6 @@
 import type { HcmScopeSubject } from '@empflowyee/hcm-api-access-control-application'
 import { randomUUID } from 'node:crypto'
+import { Temporal } from '@js-temporal/polyfill'
 import { sql, type Kysely } from 'kysely'
 import {
 	HcmAccessDatabase,
@@ -11,7 +12,7 @@ import {
 	type AuthenticatedHcmContext,
 	type FieldCipher,
 } from '@empflowyee/hcm-api-runtime-application'
-import { HcmDomainError } from '@empflowyee/hcm-runtime-contract'
+import { HcmDomainError, dateValue } from '@empflowyee/hcm-runtime-contract'
 import { wallMilliseconds, type AttendanceOverrideView } from '@empflowyee/hcm-attendance-contract'
 import {
 	AttendanceOverrideUnit,
@@ -84,7 +85,39 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 					if (missingFacts) throw new HcmDomainError('record-incomplete')
 					const tx = access.transaction as unknown as Kysely<unknown>
 					const { accountId } = access.actor
+					const sourceDate = dated.workDate,
+						employmentId = dated.employmentId
+					const checkedDates = new Set([sourceDate])
+					/** Add a future date's minimal Workforce scope, requiring one grant over the entire accumulated review. */
+					const requireDate = async (date: string, permission: string) => {
+						dateValue(date, 'workDate')
+						if (date < sourceDate || Temporal.PlainDate.from(sourceDate).until(date).days > 365)
+							throw new HcmDomainError('record-incomplete')
+						if (!checkedDates.has(date)) {
+							const facts = await this.workforce.bind(tx, tenant).read(employmentId, date)
+							if (facts.state !== 'Available' || !facts.context.assignments.length)
+								throw new HcmDomainError('record-incomplete')
+							for (const assignment of facts.context.assignments)
+								scopes.push({
+									employmentId,
+									legalEntityId: facts.context.legalEntityId,
+									assignmentId: assignment.id,
+									orgUnitId: assignment.orgUnitId,
+									locationId: assignment.locationId,
+									...(assignment.departmentId ? { departmentId: assignment.departmentId } : {}),
+								})
+							checkedDates.add(date)
+						}
+						await new TransactionalAccessPolicy(access.transaction, context).require({
+							permission: 'hcm.attendance.work-schedules.' + permission,
+							entitlement: 'hcm.attendance',
+							subjects: scopes,
+						})
+					}
 					return work({
+						requireImpactDate: /** Keep resolver reads behind complete dated operation scope. */ (
+							date,
+						) => requireDate(date, operation),
 						inputs: new KyselyAttendanceConfigurationInputBinder(this.workforce).bind(tx, tenant),
 						periods: new KyselyAttendancePeriodFenceBinder().bind(tx, tenant),
 						receipts: new SqlAttendanceCommandReceipts(
@@ -112,7 +145,28 @@ export class KyselyAttendanceOverrideUnit extends AttendanceOverrideUnit {
 								this.routing,
 							).request(source, policyVersionId, inputDigest, workforceDigest),
 						requireRead:
-						/** Recovery does not reuse a formerly valid operation grant. */ async () => {
+						/** Recovery rechecks every date retained by the original review, even when the current next shift has changed. */ async (
+							response,
+						) => {
+							if (
+								response &&
+									typeof response === 'object' &&
+									'reviewedThrough' in response &&
+									response.reviewedThrough !== undefined
+							) {
+								const through = dateValue(response.reviewedThrough, 'reviewedThrough')
+								if (
+									through < sourceDate ||
+										Temporal.PlainDate.from(sourceDate).until(through).days > 365
+								)
+									throw new HcmDomainError('record-incomplete')
+								for (
+									let date = Temporal.PlainDate.from(sourceDate);
+									Temporal.PlainDate.compare(date, through) <= 0;
+									date = date.add({ days: 1 })
+								)
+									await requireDate(date.toString(), 'read')
+							}
 							await new TransactionalAccessPolicy(access.transaction, context).require({
 								permission: 'hcm.attendance.work-schedules.read',
 								entitlement: 'hcm.attendance',
