@@ -63,13 +63,15 @@ distinguishes implemented editors, assignment review and workday inspection from
 remaining approval, Leave-impact and browser acceptance. Its tile is not yet Available.
 The internal [Workflow integration record](docs/hcm/testing/HCM-3-WORKFLOW-INTEGRATION.md)
 tracks tested source submission/intake/planning separately from pending decisions
-and dispatch. Local preparation now applies migrations through 55; the worker can
+and dispatch. Local preparation now applies migrations through 64; the worker can
 run AttendanceResolve and WorkflowPlan using the explicit allowlist in its runbook.
 The [Leave prerequisite record](docs/hcm/testing/HCM-3-LEAVE-FOUNDATION.md) covers
 exact quantities, typed policy persistence, authenticated policy draft and dated
 enrollment APIs, and internal ledger/accrual work tested in disposable PostgreSQL.
 Enrollment creates no entitlement funding. Leave publication, remaining business
-commands and browser journeys remain pending.
+commands and browser journeys remain pending. Versioned Leave access seed 1 gives
+David policy draft/enrollment operations and Toby enrollment operations; existing
+scope checks remain authoritative and Planned tiles remain unavailable.
 
 Local prerequisites and safe finite/poll worker operation are documented in the
 [worker runbook](docs/hcm/operations/WORKER.md). Build the shared runtime with

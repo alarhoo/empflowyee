@@ -298,6 +298,15 @@
 			"requiresMigrations": ["000048_attendance_work_configuration_cursors.sql"],
 			"apply": "access.attendance.4.apply.sql",
 			"reset": "access.attendance.4.reset.sql"
+		},
+		{
+			"id": "access.leave",
+			"domain": "access-control",
+			"version": 1,
+			"dependsOn": ["access.business@1", "workforce.foundation@5"],
+			"requiresMigrations": ["000064_leave_enrollment_commands.sql"],
+			"apply": "access.leave.1.apply.sql",
+			"reset": "access.leave.1.reset.sql"
 		}
 	]
 }
