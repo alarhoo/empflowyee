@@ -15,8 +15,17 @@ import {
 	KyselyDatedConfigurationPreviewHandler,
 	KyselyAttendanceResolveHandler,
 	KyselyAttendanceConfigurationInputBinder,
+	KyselyAttendanceWorkflowSourceBinder,
 } from '@empflowyee/hcm-api-attendance-infrastructure'
-import { KyselyWorkforceTimeContextBinder } from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import {
+	KyselyWorkforceTimeContextBinder,
+	KyselyWorkforceApprovalRoutingBinder,
+} from '@empflowyee/hcm-api-workforce-foundation-infrastructure'
+import { KyselyApprovalCandidateBinder } from '@empflowyee/hcm-api-access-control-infrastructure'
+import {
+	KyselyWorkflowIntakeBinder,
+	KyselyWorkflowPlanHandler,
+} from '@empflowyee/hcm-api-workflow-infrastructure'
 import type {
 	DatedConfigurationPreviewView,
 	WorkAssignmentResult,
@@ -41,6 +50,113 @@ import {
 } from './attendance-test-harness'
 
 let api: HcmTestApi
+
+/** Test the real owner adapters and leased planner against a SQL-created pending source case; this is not production submission acceptance. */
+async function verifyOverrideCoordination() {
+	const connectionString = process.env['HCM_TEST_RUNTIME']
+	if (!connectionString) throw new Error('Disposable database required')
+	const database = new HcmTenantDatabase<WorkloadAuditTables>({
+			connectionString,
+			maxConnections: 2,
+		}),
+		directory = new HcmRuntimeStore(connectionString)
+	const sources = new KyselyAttendanceWorkflowSourceBinder(
+		new KyselyWorkforceTimeContextBinder(),
+		new KyselyWorkforceApprovalRoutingBinder(),
+		new KyselyApprovalCandidateBinder(),
+	)
+	try {
+		const context = await new HcmWorkloadIssuer(directory, ['WorkflowPlan']).issue(
+			tenant,
+			'WorkflowPlan',
+			randomUUID(),
+			600000,
+		)
+		const before = await database.workloadTransaction(
+			context,
+			'WorkflowPlan',
+			/** Read source-owned candidates before any decision grant exists. */ async (tx) =>
+				sources.bind(tx, tenant, 'Attendance').candidates('override-case', 'override-slot-1'),
+		)
+		expect(before.accountIds).toEqual([])
+		await api.admin.query(
+			"INSERT INTO hcm.access_permission(tenant_id,code,description,kind) VALUES($1,'hcm.attendance.approve-attendance.decide','Approval test operation','business-operation')",
+			[tenant],
+		)
+		await api.admin.query(
+			"INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES($1,'manager','hcm.attendance.approve-attendance.decide')",
+			[tenant],
+		)
+		const queued = await database.workloadTransaction(
+			context,
+			'WorkflowPlan',
+			/** Intake uses the exact authoritative source graph and current candidate grants. */ async (
+				tx,
+			) => {
+				const source = sources.bind(tx, tenant, 'Attendance'),
+					manifest = await source.manifest('override-case')
+				if (!manifest) throw new Error('Expected pending override manifest')
+				expect(
+					manifest.slots.map(
+						/** Each stage has its own contiguous slot ordering. */ (slot) => [
+							slot.stage,
+							slot.ordinal,
+						],
+					),
+				).toEqual([
+					[1, 1],
+					[2, 1],
+				])
+				expect(JSON.stringify(manifest)).not.toMatch(/reason|evidence|makerAccountId|personId/)
+				expect((await source.candidates('override-case', 'override-slot-1')).accountIds).toEqual([
+					'dunder-mifflin/account/michael',
+				])
+				expect(await sources.bind(tx, 'foreign', 'Attendance').manifest('override-case')).toBeNull()
+				return new KyselyWorkflowIntakeBinder().bind(tx, tenant).enqueue(manifest)
+			},
+		)
+		await api.admin.query(
+			"UPDATE hcm.user_account SET enabled=false WHERE tenant_id=$1 AND id='dunder-mifflin/account/michael'",
+			[tenant],
+		)
+		expect(
+			(
+				await database.workloadTransaction(
+					context,
+					'WorkflowPlan',
+					/** Revoked accounts disappear from current routing before any action. */ async (tx) =>
+						sources.bind(tx, tenant, 'Attendance').candidates('override-case', 'override-slot-1'),
+				)
+			).accountIds,
+		).toEqual([])
+		await api.admin.query(
+			"UPDATE hcm.user_account SET enabled=true WHERE tenant_id=$1 AND id='dunder-mifflin/account/michael'",
+			[tenant],
+		)
+		const lane = new HcmTransactionalWorkerLane(
+			'WorkflowPlan',
+			new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+			[new KyselyWorkflowPlanHandler(sources)],
+		)
+		const work = await lane.claim(context)
+		expect(work?.id).toBe(queued.operationId)
+		if (!work) throw new Error('Expected source intake claim')
+		await lane.complete(context, work)
+		const tasks = (
+			await api.admin.query(
+				'SELECT t.state,t.stage,c.account_id AS candidate FROM hcm.workflow_task t JOIN hcm.workflow_planning_receipt r ON r.tenant_id=t.tenant_id AND r.instance_id=t.instance_id LEFT JOIN hcm.workflow_task_candidate c ON c.tenant_id=t.tenant_id AND c.task_id=t.id WHERE r.outbox_id=$1 ORDER BY t.stage',
+				[queued.operationId],
+			)
+		).rows
+		expect(tasks).toEqual([
+			{ state: 'Ready', stage: 1, candidate: 'dunder-mifflin/account/michael' },
+			{ state: 'Blocked', stage: 2, candidate: null },
+		])
+	} finally {
+		await database.destroy()
+		await directory.onApplicationShutdown()
+	}
+}
 
 /** Obtain real source-owned review evidence and prove previews do not leave candidate assignments or work intents. */
 async function reviewAssignment(
@@ -1215,6 +1331,7 @@ it('persists complete independent source slots and rejects skipped or unaccompan
 	const insertDecision =
 		"INSERT INTO hcm.attendance_decision(tenant_id,id,case_id,slot_id,actor_account_id,action,case_revision,slot_revision,subject_revision,generation,command_key,input_digest,encrypted_reason,reason_key_version) VALUES($1,$2,'override-case',$3,$4,'Approve',$5,1,1,1,$6,repeat('c',64),$7,1)"
 	const reason = Buffer.alloc(48, 2)
+	await verifyOverrideCoordination()
 	await expect(
 		api.admin.query(insertDecision, [
 			tenant,

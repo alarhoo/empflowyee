@@ -50,9 +50,45 @@ pnpm hcm:db:test libs/hcm/api/workflow/infrastructure/src/lib/intake.database.sp
 
 ## Remaining delivery
 
-Production source adapters and submit commands, current candidate discovery,
+Source adapter composition and submit commands,
 action authority/dispatch, immutable source receipt reconciliation, timer execution
 and notifications remain required. This initial planner schema does not grant
 runtime transition or delete privileges. It is not registered in the running local
 worker yet. Migration 54 has been applied only to disposable test databases.
 Work Schedules remains incomplete and no requested milestone is complete.
+
+## Attendance source and candidate review
+
+Codex reviewed the source-owner integration on 2026-10-03 under the same delegation.
+Attendance now implements the source projection for stored Override cases and exact
+published policy rules. It locks the source case while reading its required slots,
+retains source revisions and returns only registry-approved safe fields. The SQL
+rule's global ordinal is converted to a contiguous per-stage Workflow ordinal;
+source slot and policy-rule identity are preserved. Foreign and changed pending
+sources remain unavailable.
+
+Two narrow owner ports reuse the existing Access and Workforce libraries. Workforce
+returns the selected employment's beneficiary and unique primary reporting chain
+at the current civil date in the override's explicit timezone. It follows the
+existing active-chart employment statuses and primary reporting semantics, never
+selects another employment, and terminates missing or cyclic chains without a
+hierarchy fallback. Access resolves linked beneficiary accounts and discovers
+enabled accounts with current entitlement, business operation and one complete
+grant across every source-resolved scope member. It does not issue a human session.
+Attendance applies its policy selector, maker/requester/beneficiary independence
+and prior distinct-actor exclusions. The approved logical function
+ATTENDANCE_APPROVAL_ACT maps to the exact Attendance decision permission; unknown
+function codes return no candidates.
+
+The Access/Workforce PostgreSQL suites passed 17 tests. The Attendance configuration
+suite passed 13 tests, including stored source cases composed with the real owner
+ports and leased Workflow planner. That scenario verifies missing decision grants,
+account revocation, tenant isolation, safe projection, exact slots and a ready first
+task with a blocked second stage. Source-case insertion and temporary decision
+grants are explicit test fixtures; production submission and browser acceptance are
+still pending. No applied migration or canonical seed was rewritten.
+
+```sh
+pnpm hcm:db:test libs/hcm/api/access-control/infrastructure/src/lib/grant-scope.database.spec.ts libs/hcm/api/workforce-foundation/module/src/lib/workforce-time-context.database.spec.ts
+pnpm hcm:db:test libs/hcm/api/attendance/module/src/lib/work-configurations.database.spec.ts
+```

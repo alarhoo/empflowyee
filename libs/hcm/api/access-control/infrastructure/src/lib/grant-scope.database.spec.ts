@@ -1,6 +1,8 @@
 import { beforeAll, afterAll, it, expect } from 'vitest'
 import { Client } from 'pg'
 import { resolve } from 'node:path'
+import { sql } from 'kysely'
+import { KyselyApprovalCandidateBinder } from './approval-candidates'
 import { migrateHcmDatabase, loadSqlMigrations } from '@empflowyee/hcm-api-database-migrations'
 import { runDevelopmentSeeds } from '@empflowyee/hcm-api-database-seed'
 import {
@@ -130,6 +132,66 @@ afterAll(
 		await admin?.end()
 	},
 )
+
+it('discovers only current complete candidate grants and respects routing, independence and revocation', /** Candidate discovery supplies no synthetic session and never pools grants across subjects. */ async () => {
+	const jim = { employmentId: jimEmployment, departmentId: departments[0] },
+		pam = { employmentId: pamEmployment, departmentId: departments[1] }
+	await database.execute(
+		context,
+		{ permission, entitlement: 'hcm.access-control', subject: jim },
+		false,
+		/** Bind discovery to the actual authorized transaction. */ async (scope) => {
+			const port = new KyselyApprovalCandidateBinder().bind(scope.transaction, tenant)
+			const query = {
+				permission,
+				entitlement: 'hcm.access-control',
+				subjects: [jim],
+				accountIds: ['dunder-mifflin/account/jim'],
+				excludedAccountIds: [],
+			}
+			const first = await port.discover(query)
+			expect(first.accountIds).toEqual(query.accountIds)
+			expect(await port.discover(query)).toEqual(first)
+			expect((await port.discover({ ...query, subjects: [jim, pam] })).accountIds).toEqual([])
+			expect(
+				(
+					await port.discover({
+						...query,
+						subjects: [{ employmentId: jimEmployment, departmentId: departments[1] }],
+					})
+				).accountIds,
+			).toEqual([])
+			expect(
+				(await port.discover({ ...query, personIds: ['dunder-mifflin/person/pam'] })).accountIds,
+			).toEqual([])
+			expect(
+				(await port.discover({ ...query, excludedAccountIds: query.accountIds })).accountIds,
+			).toEqual([])
+			expect(await port.accountsForPerson('dunder-mifflin/person/jim')).toEqual(query.accountIds)
+			expect(
+				(await port.discover({ ...query, permission: 'hcm.catalogue.WORK_SCHEDULES.discover' }))
+					.accountIds,
+			).toEqual([])
+			await sql`UPDATE hcm.user_account SET enabled=false WHERE tenant_id=${tenant} AND id='dunder-mifflin/account/jim'`.execute(
+				scope.transaction,
+			)
+			expect((await port.discover(query)).accountIds).toEqual([])
+			await sql`UPDATE hcm.user_account SET enabled=true WHERE tenant_id=${tenant} AND id='dunder-mifflin/account/jim'`.execute(
+				scope.transaction,
+			)
+			await sql`DELETE FROM hcm.role_permission WHERE tenant_id=${tenant} AND role_id='scope-role-0' AND permission_code=${permission}`.execute(
+				scope.transaction,
+			)
+			expect((await port.discover(query)).accountIds).toEqual([])
+			await sql`INSERT INTO hcm.role_permission(tenant_id,role_id,permission_code) VALUES(${tenant},'scope-role-0',${permission})`.execute(
+				scope.transaction,
+			)
+			await expect(
+				new KyselyApprovalCandidateBinder().bind(scope.transaction, 'scope-other').discover(query),
+			).rejects.toThrow('tenant mismatch')
+		},
+	)
+})
 
 it('requires one complete grant and refuses unscoped access from restricted grants', /** The accepted grant must cover both dimensions; a second grant cannot donate a missing predicate. */ async () => {
 	await expect(
