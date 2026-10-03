@@ -20,3 +20,4 @@ export * from './lib/dated-publication-ports'
 export * from './lib/dated-publication'
 
 export * from './lib/work-references'
+export * from './lib/workday-queries'

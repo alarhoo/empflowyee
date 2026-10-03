@@ -40,6 +40,27 @@ import {
 
 let api: HcmTestApi
 
+/** Obtain real source-owned review evidence and prove previews do not leave candidate assignments or work intents. */
+async function reviewAssignment(
+	path: string,
+	command: import('@empflowyee/hcm-attendance-contract').WorkAssignmentCommand,
+) {
+	const counts =
+		'SELECT (SELECT count(*) FROM hcm.work_schedule_assignment WHERE tenant_id=$1)::int AS schedules,(SELECT count(*) FROM hcm.attendance_policy_assignment WHERE tenant_id=$1)::int AS policies,(SELECT count(*) FROM hcm.attendance_outbox WHERE tenant_id=$1)::int AS work'
+	const before = await api.admin.query(counts, [tenant])
+	const key = randomUUID()
+	const response = await api.send<
+		import('@empflowyee/hcm-attendance-contract').WorkAssignmentReview
+	>('david', 'POST', path + '/preview', command, { 'idempotency-key': key })
+	expect(response.status).toBe(200)
+	expect((await api.admin.query(counts, [tenant])).rows).toEqual(before.rows)
+	expect(
+		(await api.send('david', 'POST', path + '/preview', command, { 'idempotency-key': key })).body,
+	).toEqual(response.body)
+	expect((await api.send('jim', 'POST', path + '/preview', command)).status).toBe(403)
+	return { ...command, previewId: response.body.previewId, digest: response.body.digest }
+}
+
 it('exposes only minimal authorized dated Workforce references under Work Schedules read authority', /** Calendar access is not an implicit dependency of this picker. */ async () => {
 	const response = await api.send<{ items: { id: string; code: string; name: string }[] }>(
 		'david',
@@ -678,7 +699,7 @@ it('assigns explicit policies and ordinary schedules and commits real durable wo
 			})
 		).status,
 	).toBe(200)
-	const command = {
+	const assignmentInput = {
 		versionId: source.versionId,
 		expectedRevision: 2,
 		employmentId,
@@ -688,6 +709,31 @@ it('assigns explicit policies and ordinary schedules and commits real durable wo
 		resolutionTo: '2027-02-03',
 		reason: 'Assign policy before completing schedule configuration',
 	}
+	const staleCommand = await reviewAssignment('attendance/policy-assignments', assignmentInput)
+	await api.admin.query(
+		"INSERT INTO hcm.attendance_period(tenant_id,id,month_start) VALUES($1,'assignment-review-period','2027-02-01')",
+		[tenant],
+	)
+	expect(
+		(await api.send('david', 'POST', 'attendance/policy-assignments', staleCommand)).status,
+	).toBe(409)
+	expect(
+		(
+			await api.admin.query(
+				'SELECT count(*)::int AS count FROM hcm.attendance_policy_assignment WHERE tenant_id=$1 AND version_id=$2',
+				[tenant, source.versionId],
+			)
+		).rows[0].count,
+	).toBe(0)
+	const command = await reviewAssignment('attendance/policy-assignments', assignmentInput)
+	expect(
+		(
+			await api.send('david', 'POST', 'attendance/policy-assignments', {
+				...command,
+				digest: '0'.repeat(64),
+			})
+		).status,
+	).toBe(409)
 	const key = randomUUID()
 	const assigned = await api.send<WorkAssignmentResult>(
 		'david',
@@ -791,11 +837,11 @@ it('assigns explicit policies and ordinary schedules and commits real durable wo
 		'david',
 		'POST',
 		'attendance/schedule-assignments',
-		{
-			...command,
+		await reviewAssignment('attendance/schedule-assignments', {
+			...assignmentInput,
 			versionId: schedule.body.versionId,
 			reason: 'Produce the explicit three day window',
-		},
+		}),
 	)
 	expect(production.status).toBe(201)
 	expect(production.body).toMatchObject({
@@ -813,6 +859,69 @@ it('assigns explicit policies and ordinary schedules and commits real durable wo
 		{ date: '2027-02-02', zone: 'America/New_York', planned: '28800000' },
 		{ date: '2027-02-03', zone: 'America/New_York', planned: '28800000' },
 	])
+	const inspectPath =
+		'attendance/workdays?employmentId=' +
+		encodeURIComponent(employmentId) +
+		'&from=2027-02-01&to=2027-02-04'
+	const beforeRead = await api.admin.query(
+		'SELECT count(*)::int AS count FROM hcm.attendance_outbox WHERE tenant_id=$1',
+		[tenant],
+	)
+	const inspected = await api.send<import('@empflowyee/hcm-attendance-contract').WorkdayPage>(
+		'david',
+		'GET',
+		inspectPath,
+	)
+	expect(inspected.status).toBe(200)
+	expect(inspected.body.items).toHaveLength(4)
+	expect(inspected.body.items[0]).toMatchObject({
+		state: 'Published',
+		workDate: '2027-02-01',
+		zone: 'America/New_York',
+		elapsedMilliseconds: '28800000',
+		scheduledMilliseconds: '28800000',
+		kind: 'Work',
+	})
+	const first = inspected.body.items[0]
+	if (first.state !== 'Published') throw new Error('Expected stored workday')
+	expect(
+		first.sourceVersions
+			.map(/** Verify each stored source family is explained. */ (source) => source.family)
+			.sort(),
+	).toEqual(['Holiday', 'Policy', 'Schedule'])
+	expect(first.segments[0]).toMatchObject({
+		kind: 'Work',
+		startLocal: '2027-02-01T09:00:00.000',
+		startInstant: '2027-02-01T14:00:00.000Z',
+		startOffsetSeconds: -18000,
+		elapsedMilliseconds: '28800000',
+	})
+	expect(first.rest?.state).toBe('NotRequired')
+	expect(inspected.body.items[3]).toEqual({
+		state: 'Unavailable',
+		employmentId,
+		workDate: '2027-02-04',
+		unavailableCode: 'NotResolved',
+	})
+	expect(
+		(
+			await api.admin.query(
+				'SELECT count(*)::int AS count FROM hcm.attendance_outbox WHERE tenant_id=$1',
+				[tenant],
+			)
+		).rows,
+	).toEqual(beforeRead.rows)
+	expect((await api.send('jim', 'GET', inspectPath)).status).toBe(403)
+	expect((await api.send('david', 'GET', inspectPath + '&tenantId=foreign')).status).toBe(400)
+	expect(
+		(
+			await api.send(
+				'david',
+				'GET',
+				'attendance/workdays?employmentId=foreign-employment&from=2027-02-01&to=2027-02-01',
+			)
+		).status,
+	).toBe(404)
 	const next = {
 		...command,
 		effectiveFrom: '2027-02-15',
@@ -834,10 +943,18 @@ it('assigns explicit policies and ordinary schedules and commits real durable wo
 	).toBe(assigned.body.id)
 	expect(
 		(
-			await api.send('david', 'POST', 'attendance/policy-assignments', {
-				...next,
-				supersedes: { id: assigned.body.id, expectedRevision: 1 },
-			})
+			await api.send(
+				'david',
+				'POST',
+				'attendance/policy-assignments',
+				await reviewAssignment('attendance/policy-assignments', {
+					...assignmentInput,
+					effectiveFrom: next.effectiveFrom,
+					resolutionFrom: next.resolutionFrom,
+					resolutionTo: next.resolutionTo,
+					supersedes: { id: assigned.body.id, expectedRevision: 1 },
+				}),
+			)
 		).status,
 	).toBe(201)
 })

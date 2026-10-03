@@ -269,8 +269,8 @@ execution window does not shorten business coverage. Reads at
 for the target and all dated subjects, period fences and atomic supersession.
 Available workdays enqueue the existing exact-digest resolver intent; incomplete
 prerequisites are counted as unavailable rather than stored as zero work.
-Assignment impact review, Leave integration and override acceptance remain part
-of the full app delivery; these implemented commands alone do not satisfy them.
+Leave integration and override acceptance remain part of the full app delivery;
+these implemented commands alone do not satisfy them.
 
 The Attendance-owned `hcm-web-attendance-ui-schedule-pattern` library has tags
 `product:hcm,runtime:web,domain:attendance,type:ui`. It extracts the existing
@@ -325,6 +325,45 @@ its independent read permission, projecting only ID/name into the control. Denia
 is explicit and does not enable free-text account IDs. Existing loaded references
 remain distinguishable when outside the current search page.
 
-These editor integrations do not establish full application acceptance. Assignment
-impact review, override precedence, workday inspection and browser journeys remain
-required by the FDD before catalogue availability changes to Complete.
+These editor integrations do not establish full application acceptance. Leave
+impact, override precedence and browser journeys remain required by the FDD before
+catalogue availability changes to Complete.
+
+## ASSIGNMENT-REVIEW-AND-INSPECTION
+
+The unreleased schedule/policy assignment commands complete their review contract
+with `previewId` and a 64-character lowercase SHA-256 `digest`. The original closed
+assignment fields are the input to
+`POST /api/v1/attendance/{schedule-assignments|policy-assignments}/preview`, protected
+by current `hcm.attendance.work-schedules.preview` and the complete dated scope.
+The caller supplies a stable UUID idempotency key. The API evaluates the explicit
+bounded resolution window and coverage boundaries with the existing SQL constraints,
+period fences, selection and exact resolver. A transaction savepoint rolls back
+all proposed coverage, including predecessor shortening. Preview creates no durable
+assignment, workday or outbox intent. Existing Attendance command receipts retain
+the actor-bound result, source reference and encrypted reason; no new infrastructure
+framework or persistence owner is introduced.
+
+The result contains preview identity, digest, 15-minute expiry, affected employment
+and date-check counts, resolvable workdays and unavailable workdays. It binds the
+source, parsed command, dated Workforce facts, all selected family inputs, period
+evidence and resolution results. Commit rechecks current manage authority, actor,
+exact input hash, expiry and the recomputed digest under the tenant write lock.
+Only then can coverage, receipt, audit and exact workday intents commit together.
+Missing prerequisites remain explicit; time conflicts and locked periods reject
+review or commit. The review does not yet claim Leave calculation impact or future
+dates outside its explicit execution window. Those full-FDD requirements remain
+delivery work. The native assignment form clears review eligibility on every edit,
+protects dirty navigation, and retains an uncertain submission's retry identity.
+
+`GET /api/v1/attendance/workdays` accepts only required `employmentId`, `from` and
+`to`, with one value each and at most 366 inclusive dates. It returns a server-owned
+date-ascending `{items,nextCursor:null}` projection. Current Work Schedules read
+authority must cover every dated subject through one complete grant before any
+row/count is returned. Each date is Published or explicitly Unavailable, including
+pending/failed resolution and missing materialization. Published rows expose exact
+stored revision, source versions, timezone, start-date ownership, source-local and
+UTC intervals, offset seconds, exact elapsed-millisecond strings and safe rest
+evidence. Narrative receipt data and persistence rows are never returned. The native
+ObjectPage inspector requires explicit employment and range and never resolves or
+queues work as a side effect of reading.

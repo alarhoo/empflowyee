@@ -26,6 +26,8 @@ import type {
 	WorkAssignmentCommand,
 	WorkAssignmentResult,
 	WorkAssignmentView,
+	AttendanceWorkdayQuery,
+	WorkdayPage,
 } from '@empflowyee/hcm-attendance-contract'
 
 export interface WorkConfigurationViews {
@@ -46,6 +48,17 @@ const paths = { Schedule: 'work-schedules', Shift: 'shifts', Policy: 'policies' 
 @Injectable({ providedIn: 'root' })
 export class WorkSchedulesApi {
 	private readonly http = inject(HttpClient)
+	/** Inspect only stored dated evidence; this GET never starts resolution. */
+	workdays(query: AttendanceWorkdayQuery) {
+		return this.http
+			.get<WorkdayPage>('/api/v1/attendance/workdays', {
+				params: new HttpParams()
+					.set('employmentId', query.employmentId)
+					.set('from', query.from)
+					.set('to', query.to),
+			})
+			.pipe(timeout(15000))
+	}
 	/** Preserve one closed family-to-route mapping for every source operation. */
 	private base(family: WorkConfigurationKind): string {
 		return `/api/v1/attendance/${paths[family]}`
@@ -248,10 +261,24 @@ export class WorkSchedulesApi {
 			.pipe(timeout(15000))
 	}
 	/** Submit the explicit dated assignment and expose queued resolution separately from its result. */
-	assign(body: WorkAssignmentCommand, key: string, family: 'Schedule' | 'Policy' = 'Schedule') {
+	assign(
+		body: import('@empflowyee/hcm-attendance-contract').ReviewedWorkAssignmentCommand,
+		key: string,
+		family: 'Schedule' | 'Policy' = 'Schedule',
+	) {
 		return this.http
 			.post<WorkAssignmentResult>(
 				`/api/v1/attendance/${family === 'Schedule' ? 'schedule' : 'policy'}-assignments`,
+				body,
+				{ headers: { 'Idempotency-Key': key } },
+			)
+			.pipe(timeout(30000))
+	}
+	/** Review an explicit assignment without persisting candidate coverage or workday intents. */
+	previewAssignment(body: WorkAssignmentCommand, key: string, family: 'Schedule' | 'Policy') {
+		return this.http
+			.post<import('@empflowyee/hcm-attendance-contract').WorkAssignmentReview>(
+				`/api/v1/attendance/${family === 'Schedule' ? 'schedule' : 'policy'}-assignments/preview`,
 				body,
 				{ headers: { 'Idempotency-Key': key } },
 			)

@@ -56,9 +56,32 @@ The app remains in development and has no new Available tile.
 
 ## Remaining acceptance
 
-Work Schedules is not Complete. Required work includes reviewed assignment impact,
-Leave impact integration, override/roster precedence dependencies, the stored-workday
-inspector, real-browser business journeys and the affected final gates. Milestone 1
+Work Schedules is not Complete. Required work includes complete Leave impact
+integration, override/roster precedence dependencies, real-browser business journeys
+and the affected final gates. Milestone 1
 also requires My Schedule and the administrator-to-employee journey. Milestones 2
 and 3 remain outstanding. No status in this record constitutes acceptance of those
 undelivered operations.
+
+## Assignment review and stored inspector technical review
+
+Reviewed on 2026-10-03 by Codex as technical author/reviewer under the existing
+delegation; no fresh human approval or application acceptance is claimed. The
+[bounded assignment review and inspector design](../apps/work-schedules/TDD.md#assignment-review-and-inspection)
+reuses the existing tenant transaction, command receipt, source parser, exact
+resolver and native ObjectPage. Review savepoints restore proposed predecessor
+and successor writes. Current preview/manage/read permissions remain separate;
+the result is actor-bound and commit recomputes dependency evidence. SQL receipts
+retain private reasons through the existing cipher. Inspection projects only
+stored public fields and never produces work. No architecture, ownership, RLS,
+authentication or cross-product boundary changes are introduced. These assignment
+endpoints are still unreleased implementation work, not a published external API.
+
+Ten PostgreSQL/API tests passed after adding review and inspector coverage. The
+assignment journey now proves preview replay, denied preview, unchanged assignment
+and outbox counts after review, stale period evidence rejection with no committed
+coverage, tampered digest rejection, successful reviewed assignment, supersession,
+idempotent retry and real worker materialization. The stored inspector checks exact
+local/UTC intervals, source families, missing-day status, forbidden access, closed
+queries and unchanged queue count. The production web build passed with both native
+sections; Work Schedules browser acceptance remains outstanding.

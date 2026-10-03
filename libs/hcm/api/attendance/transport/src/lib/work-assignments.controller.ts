@@ -12,9 +12,9 @@ import { invalidField } from '@empflowyee/hcm-runtime-contract'
 
 /** Select only the two admitted assignment families from the matched resource URL. */
 function family(request: RoleRequest): 'Schedule' | 'Policy' {
-	return new URL(request.originalUrl, 'http://local.invalid').pathname.endsWith(
-		'/schedule-assignments',
-	)
+	return new URL(request.originalUrl, 'http://local.invalid').pathname
+		.split('/')
+		.includes('schedule-assignments')
 		? 'Schedule'
 		: 'Policy'
 }
@@ -43,6 +43,31 @@ export class WorkAssignmentsController {
 					family(request),
 					new URL(request.originalUrl, 'http://local.invalid').searchParams,
 				),
+		)
+	}
+	/** Review the proposed dated assignment without leaving candidate coverage or resolution intents. */
+	@Post('preview')
+	@HttpCode(200)
+	preview(
+		@Body() body: unknown,
+		@Req() request: RoleRequest,
+		@Res({ passthrough: true }) response: RoleResponse,
+	) {
+		return runAccessRequest(
+			this.context,
+			this.logger,
+			response,
+			/** Require the same trusted write origin and a stable actor-bound review key. */ (
+				context,
+			) => {
+				if (new URL(request.originalUrl, 'http://local.invalid').search) invalidField('query')
+				return this.assignments.preview(
+					context,
+					family(request),
+					accessWriteKey(request, this.origin, this.context.requestId),
+					body,
+				)
+			},
 		)
 	}
 	/** Return the committed assignment and honest queued/unavailable workday counts. */

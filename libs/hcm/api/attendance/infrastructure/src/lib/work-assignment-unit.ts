@@ -70,17 +70,20 @@ export class KyselyWorkAssignmentUnit extends AttendanceWorkAssignmentUnit {
 		context: AuthenticatedHcmContext,
 		family: WorkAssignmentFamily,
 		target: AttendanceScopeTarget,
-		write: boolean,
+		write: boolean | 'preview',
 		work: (scope: WorkAssignmentWork) => Promise<T>,
 	): Promise<T> {
 		if (!this.database) throw new HcmDomainError('record-incomplete')
-		const permission = 'hcm.attendance.work-schedules.' + (write ? 'manage' : 'read'),
+		let operation = 'read'
+		if (write === true) operation = 'manage'
+		if (write === 'preview') operation = 'preview'
+		const permission = 'hcm.attendance.work-schedules.' + operation,
 			entitlement = 'hcm.attendance'
 		try {
 			return await this.database.execute(
 				context,
 				{ permission, entitlement, subject: holidayTargetSubject(target) },
-				write,
+				!!write,
 				/** Every repository, owner port and receipt shares the verified transaction. */ async (
 					access,
 				) => {
@@ -97,6 +100,16 @@ export class KyselyWorkAssignmentUnit extends AttendanceWorkAssignmentUnit {
 					)
 					const owner = sql.ref(family === 'Schedule' ? 'schedule_id' : 'policy_id')
 					const result = await work({
+						/** SQL constraints and owner readers see the proposed state, then all candidate writes are rolled back. */
+						async simulate<T>(review: () => Promise<T>): Promise<T> {
+							await sql`SAVEPOINT attendance_assignment_review`.execute(tx)
+							try {
+								return await review()
+							} finally {
+								await sql`ROLLBACK TO SAVEPOINT attendance_assignment_review`.execute(tx)
+								await sql`RELEASE SAVEPOINT attendance_assignment_review`.execute(tx)
+							}
+						},
 						workforce: this.workforce.bind(tx, tenantId),
 						subjects: this.subjects.bind(tx, tenantId),
 						inputs: new KyselyAttendanceConfigurationInputBinder(this.workforce).bind(tx, tenantId),

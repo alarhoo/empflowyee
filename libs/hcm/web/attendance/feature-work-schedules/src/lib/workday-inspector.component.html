@@ -1,0 +1,230 @@
+<ui5-text>
+	Inspect published workdays for an explicit employment. This view never starts resolution; refresh
+	after queued work completes.
+</ui5-text>
+<ui5-form
+	accessibleName="Workday inspection filters"
+	accessibleMode="Edit"
+	layout="S1 M2 L3 XL3"
+	labelSpan="S12 M12 L12 XL12">
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Find worker</ui5-label>
+		<ui5-input
+			#query
+			accessibleName="Inspector worker search"
+			[maxlength]="120"
+			(ui5Input)="search.set(query.value() ?? '')"></ui5-input>
+		<ui5-button (click)="findWorkers()">Find inspection worker</ui5-button>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Worker</ui5-label>
+		<ui5-select
+			accessibleName="Inspection worker"
+			(ui5Change)="selectWorker($event.detail.selectedOption.value ?? '')">
+			<ui5-option value="">Choose worker</ui5-option>
+			@for (worker of workers(); track worker.id) {
+				<ui5-option [value]="worker.id">{{ worker.name }} ({{ worker.code }})</ui5-option>
+			}
+		</ui5-select>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Employment</ui5-label>
+		<ui5-select
+			accessibleName="Inspection employment"
+			[formField]="fields.employmentId"
+			[valueState]="error('employmentId') ? 'Negative' : 'None'">
+			<ui5-option value="">Choose employment</ui5-option>
+			@for (employment of context()?.employments ?? []; track employment.employmentId) {
+				<ui5-option [value]="employment.employmentId">
+					{{ employment.legalEntityName ?? 'Employment' }} — {{ employment.employmentId }}
+				</ui5-option>
+			}
+		</ui5-select>
+		<ui5-text>{{ error('employmentId') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">From</ui5-label>
+		<ui5-date-picker
+			hcmDateField
+			accessibleName="Inspect from"
+			[formField]="fields.from"
+			valueFormat="yyyy-MM-dd"
+			[displayFormat]="runtime.preferences().dateFormat"
+			[valueState]="error('from') ? 'Negative' : 'None'"></ui5-date-picker>
+		<ui5-text>{{ error('from') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Through</ui5-label>
+		<ui5-date-picker
+			hcmDateField
+			accessibleName="Inspect through"
+			[formField]="fields.to"
+			valueFormat="yyyy-MM-dd"
+			[displayFormat]="runtime.preferences().dateFormat"
+			[valueState]="error('to') ? 'Negative' : 'None'"></ui5-date-picker>
+		<ui5-text>{{ error('to') }}</ui5-text>
+	</ui5-form-item>
+	<ui5-form-item>
+		<ui5-label slot="labelContent">Actions</ui5-label>
+		<ui5-button
+			[disabled]="pending()"
+			(click)="inspect()">
+			Inspect workdays
+		</ui5-button>
+	</ui5-form-item>
+</ui5-form>
+@if (lookupMessage()) {
+	<ui5-message-strip
+		design="Information"
+		[hideCloseButton]="true">
+		{{ lookupMessage() }}
+	</ui5-message-strip>
+}
+@if (message()) {
+	<ui5-message-strip
+		design="Negative"
+		[hideCloseButton]="true">
+		{{ message() }}
+	</ui5-message-strip>
+	<ui5-button (click)="inspect()">Retry workday read</ui5-button>
+}
+@if (pending()) {
+	<ui5-text>Loading stored workday evidence…</ui5-text>
+}
+@if (loaded() && !current()) {
+	<ui5-text>The selection changed. Inspect the new range to display its evidence.</ui5-text>
+}
+@if (loaded() && current()) {
+	@for (day of items(); track day.workDate) {
+		<ui5-title level="H2">{{ day.workDate | hcmDate: 'date' }}</ui5-title>
+		@if (day.state === 'Unavailable') {
+			<span
+				fd-object-status
+				[inverted]="true"
+				status="critical"
+				label="Unavailable"></span>
+			<ui5-text>{{ unavailable(day.unavailableCode) }}</ui5-text>
+		} @else {
+			<ui5-form
+				[accessibleName]="'Published workday ' + day.workDate"
+				layout="S1 M2 L3 XL3"
+				labelSpan="S12 M12 L12 XL12">
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Classification</ui5-label>
+					<span
+						fd-object-status
+						[inverted]="true"
+						status="informative"
+						[label]="day.kind"></span>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Timezone</ui5-label>
+					<ui5-text>{{ day.zone }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Expected work</ui5-label>
+					<ui5-text>{{ duration(day.elapsedMilliseconds) }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Scheduled work / unpaid break</ui5-label>
+					<ui5-text>
+						{{ duration(day.scheduledMilliseconds) }} / {{ duration(day.breakMilliseconds) }}
+					</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Published revision</ui5-label>
+					<ui5-text>{{ day.revision }} — {{ day.resolvedAt | hcmDate }}</ui5-text>
+				</ui5-form-item>
+				<ui5-form-item>
+					<ui5-label slot="labelContent">Change reference</ui5-label>
+					<ui5-text>{{ day.supersedesId ?? 'Initial published revision' }}</ui5-text>
+				</ui5-form-item>
+			</ui5-form>
+			@for (source of day.sourceVersions; track source.family + source.versionId) {
+				<ui5-text>
+					{{ source.family }}: {{ source.name }}, version {{ source.versionNumber }} ({{
+						source.versionId
+					}}).
+				</ui5-text>
+			}
+			<ui5-table
+				[accessibleName]="'Workday intervals ' + day.workDate"
+				overflowMode="Popin"
+				noDataText="This published date has no intervals.">
+				<ui5-table-header-row slot="headerRow">
+					<ui5-table-header-cell
+						[importance]="100"
+						minWidth="8rem"
+						popinText="Interval">
+						Interval
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="90"
+						minWidth="12rem"
+						popinText="Local start">
+						Local start
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="80"
+						minWidth="12rem"
+						popinText="Local end">
+						Local end
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="60"
+						minWidth="8rem"
+						popinText="Elapsed">
+						Elapsed
+					</ui5-table-header-cell>
+					<ui5-table-header-cell
+						[importance]="40"
+						minWidth="10rem"
+						popinText="UTC offsets">
+						UTC offsets
+					</ui5-table-header-cell>
+				</ui5-table-header-row>
+				@for (segment of day.segments; track $index) {
+					<ui5-table-row>
+						<ui5-table-cell>{{ segment.kind }} {{ segment.holidayName ?? '' }}</ui5-table-cell>
+						<ui5-table-cell>{{ local(segment.startLocal) }}</ui5-table-cell>
+						<ui5-table-cell>{{ local(segment.endLocal) }}</ui5-table-cell>
+						<ui5-table-cell>{{ duration(segment.elapsedMilliseconds) }}</ui5-table-cell>
+						<ui5-table-cell>
+							{{ segment.startOffsetSeconds }} / {{ segment.endOffsetSeconds }} seconds
+						</ui5-table-cell>
+					</ui5-table-row>
+				}
+			</ui5-table>
+			@if (day.rest; as rest) {
+				<ui5-title level="H3">Minimum-rest evidence</ui5-title>
+				<ui5-text>
+					{{
+						rest.state === 'NotRequired'
+							? 'No active rest comparison was required.'
+							: rest.state === 'NoPriorEmploymentWork'
+								? 'No prior employment work required a comparison.'
+								: 'Compared with the preceding published input.'
+					}}
+				</ui5-text>
+				@if (rest.previousWorkDate) {
+					<ui5-text>Previous work date: {{ rest.previousWorkDate | hcmDate: 'date' }}.</ui5-text>
+				}
+				@for (rule of rest.rules; track rule.source) {
+					<ui5-text>
+						{{ rule.source }}:
+						{{
+							rule.minutes === null ? 'Not configured' : rule.minutes + ' minutes; ' + rule.mode
+						}}. {{ rule.outcome ?? ''
+						}}{{
+							rule.elapsedMilliseconds ? '; actual gap ' + duration(rule.elapsedMilliseconds) : ''
+						}}.
+					</ui5-text>
+				}
+			} @else {
+				<ui5-text>Rest evidence is unavailable for this stored revision.</ui5-text>
+			}
+		}
+	} @empty {
+		<ui5-text>No workday evidence was returned for this range.</ui5-text>
+	}
+}

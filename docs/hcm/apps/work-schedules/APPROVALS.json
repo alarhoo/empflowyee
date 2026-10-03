@@ -12,11 +12,11 @@
 		},
 		{
 			"document": "TDD",
-			"sha256": "71939bc971ac81e32e623c70f6df4af3f6b29ea9a5f5adb191f75f33296fdd42",
+			"sha256": "ef6c0d5f561990137e3f3a8f1c79c79cd6ccbb09fcdb67e9e381a6dffe29fe33",
 			"decision": "approved",
 			"reviewer": "Codex technical author/reviewer under existing product-owner delegation",
 			"reviewedAt": "2026-10-03",
-			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md; reviewed source-family, typed preview context, shared UI boundary and editor integration; no fresh human approval or full Work Schedules acceptance claimed."
+			"reviewEvidence": "docs/hcm/testing/HCM-3-WORK-SCHEDULES-INTEGRATION.md#assignment-review-and-stored-inspector-technical-review; actual scoped review; no human or full app acceptance claimed."
 		},
 		{
 			"document": "TRACE",

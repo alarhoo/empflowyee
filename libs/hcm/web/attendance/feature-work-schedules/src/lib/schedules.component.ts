@@ -57,6 +57,8 @@ import type {
 	AttendancePolicyVersionView,
 } from '@empflowyee/hcm-attendance-contract'
 import { ScheduleActionDialog, type ScheduleAction } from './action-dialog.component'
+import { WorkdayInspector } from './workday-inspector.component'
+import { WorkAssignmentSection } from './assignment-section.component'
 import { SCHEDULE_ROUTE, SCHEDULE_PERMISSION, WEEKDAYS } from './schedule-form'
 
 /** Server-owned schedule list and native page-backed FCL detail, selected by deep route. */
@@ -89,6 +91,8 @@ import { SCHEDULE_ROUTE, SCHEDULE_PERMISSION, WEEKDAYS } from './schedule-form'
 		HcmViewSettings,
 		HcmDatePipe,
 		ScheduleActionDialog,
+		WorkdayInspector,
+		WorkAssignmentSection,
 	],
 	templateUrl: './schedules.component.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -103,6 +107,13 @@ export class WorkSchedules {
 	private listRequest?: Subscription
 	private detailRequest?: Subscription
 	private readonly dialog = viewChild(ScheduleActionDialog)
+	private readonly assignments = viewChild(WorkAssignmentSection)
+	readonly canManage = computed(
+		/** Check the independent assignment command grant. */ () => this.can('manage'),
+	)
+	readonly canPreview = computed(
+		/** Review is independently authorized from assignment management. */ () => this.can('preview'),
+	)
 	private readonly tableRows = viewChildren(TableRow)
 	readonly selected = toSignal(
 		this.router.events.pipe(
@@ -400,8 +411,9 @@ export class WorkSchedules {
 			)
 	}
 	/** Consult the active reason dialog before leaving this feature or switching selection. */
-	canLeave(): Promise<boolean> {
-		return this.dialog()?.canLeave() ?? Promise.resolve(true)
+	async canLeave(): Promise<boolean> {
+		if (!(await (this.dialog()?.canLeave() ?? Promise.resolve(true)))) return false
+		return this.assignments()?.canLeave() ?? Promise.resolve(true)
 	}
 	/** Switch the server-owned collection only after preserving any pending private action. */
 	async changeFamily(value: string): Promise<void> {

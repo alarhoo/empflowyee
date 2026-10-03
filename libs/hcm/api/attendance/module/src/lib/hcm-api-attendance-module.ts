@@ -16,6 +16,8 @@ import {
 	WorkConfigurationUnitOfWork,
 	AttendanceWorkConfigurationDrafts,
 	AttendanceWorkReferences,
+	AttendanceWorkdayReadPort,
+	AttendanceWorkdayQueries,
 	AttendanceWorkAssignmentUnit,
 	AttendanceWorkAssignments,
 	AttendanceDatedPublicationUnit,
@@ -37,6 +39,7 @@ import {
 	KyselyAttendanceConfigurationInputBinder,
 	KyselyAttendanceScheduleUnit,
 	KyselyWorkConfigurationUnit,
+	KyselyAttendanceWorkdayQueries,
 	KyselyWorkAssignmentUnit,
 	KyselyDatedPublicationUnit,
 	KyselyAttendanceHolidayUnit,
@@ -46,6 +49,7 @@ import {
 	ScheduleTemplatesController,
 	WorkConfigurationsController,
 	WorkSchedulesController,
+	AttendanceWorkdaysController,
 	WorkAssignmentsController,
 	DatedPublicationController,
 	PolicyPublicationController,
@@ -57,6 +61,7 @@ import {
 @Module({
 	imports: [HcmRuntimeModule, HcmAccessControlModule, HcmWorkforceFoundationModule],
 	controllers: [
+		AttendanceWorkdaysController,
 		DatedPublicationController,
 		WorkAssignmentsController,
 		PolicyPublicationController,
@@ -68,6 +73,21 @@ import {
 	],
 	exports: [AttendanceConfigurationInputBinder, AttendancePeriodFenceBinder],
 	providers: [
+		{
+			provide: AttendanceWorkdayReadPort,
+			inject: [HcmAccessDatabase, WorkforceTimeContextBinder],
+			useFactory: /** Reuse dated Workforce scope authorization before stored evidence is read. */ (
+				database: HcmAccessDatabase | null,
+				workforce: WorkforceTimeContextBinder,
+			) => new KyselyAttendanceWorkdayQueries(database, workforce),
+		},
+		{
+			provide: AttendanceWorkdayQueries,
+			inject: [AttendanceWorkdayReadPort],
+			useFactory: /** Keep query validation in the owning application layer. */ (
+				reads: AttendanceWorkdayReadPort,
+			) => new AttendanceWorkdayQueries(reads),
+		},
 		{
 			provide: AttendanceDatedPublicationUnit,
 			inject: [HcmAccessDatabase, FieldCipher, WorkforceTimeContextBinder],

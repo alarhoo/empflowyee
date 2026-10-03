@@ -86,11 +86,11 @@
 			[fields]="sortFields"
 			(sortChange)="sortChanged($event)"></ef-hcm-view-settings>
 		<ui5-table
-			accessibleName="Schedule schedules"
+			accessibleName="Work configurations"
 			overflowMode="Popin"
 			[rowActionCount]="1"
 			[loading]="state() === 'loading'"
-			noDataText="No schedules match these filters. Create a draft to complete a reusable pattern."
+			noDataText="No configurations match these filters."
 			(ui5RowClick)="open($event.detail.row.rowKey)">
 			<ui5-table-header-row slot="headerRow">
 				<ui5-table-header-cell
@@ -350,6 +350,25 @@
 					} @empty {
 						<ui5-text>No approval rules configured.</ui5-text>
 					}
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="assignments"
+				label="Dated assignments">
+				@if (schedule() ?? policy(); as item) {
+					<ef-hcm-work-assignments
+						[source]="item"
+						[editable]="canManage()"
+						[previewable]="canPreview()"></ef-hcm-work-assignments>
+				} @else {
+					<ui5-text>Shifts are selected by dated rosters or approved overrides.</ui5-text>
+				}
+			</ng-template>
+			<ng-template
+				efHcmObjectSection="workdays"
+				label="Stored workday inspector">
+				@if (source(); as item) {
+					<ef-hcm-workday-inspector [from]="item.effectiveFrom"></ef-hcm-workday-inspector>
 				}
 			</ng-template>
 		</ef-hcm-object-page>
