@@ -16,6 +16,7 @@ import {
 	runHcmWorker,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
 import { AssignedWorkdayResolver } from '@empflowyee/hcm-api-attendance-application'
+import { calculateLeaveDayQuantity } from '@empflowyee/hcm-api-leave-domain'
 import {
 	KyselyAttendanceResolveHandler,
 	KyselyAttendanceConfigurationInputBinder,
@@ -82,6 +83,18 @@ it('exports current published evidence to source consumers and refuses stale or 
 			})
 			expect(JSON.stringify(page)).not.toMatch(/input_digest|workforceDigest|accountId/)
 			expect(
+				calculateLeaveDayQuantity(
+					page.items[0],
+					{ portion: 'Full' },
+					{ unit: 'Day', rounding: { scale: 6, mode: 'Nearest' } },
+				),
+			).toMatchObject({
+				state: 'Available',
+				units: '1',
+				scheduledMilliseconds: '28800250',
+				requestedMilliseconds: '28800250',
+			})
+			expect(
 				(
 					await sql<{
 						count: string
@@ -111,6 +124,13 @@ it('exports current published evidence to source consumers and refuses stale or 
 					state: 'Unavailable',
 					unavailableCode: 'SourceChanged',
 				})
+				expect(
+					calculateLeaveDayQuantity(
+						page.items[0],
+						{ portion: 'Full' },
+						{ unit: 'Day', rounding: { scale: 6, mode: 'Nearest' } },
+					),
+				).toEqual({ state: 'Unavailable', reason: 'WorkdayUnavailable' })
 				throw new Error('rollback source fixture')
 			},
 		),

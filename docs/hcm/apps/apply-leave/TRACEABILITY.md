@@ -1,8 +1,17 @@
 # Apply Leave — requirement traceability
 
-Status: reviewed design/test plan, 2026-09-28. No business tests have run because
-implementation has not begun. Each scenario below is an implementation acceptance
-obligation linked to the approved FDD and concrete technical design.
+Status: partial calculation prerequisite, 2026-10-03. Full/Hourly quantity and
+owner-port orchestration tests have run; the API and native app remain Planned.
+Each scenario below remains an implementation acceptance obligation.
+
+REQ-APPLY-LEAVE-001 now maps to the internal
+[day calculator](../../../../libs/hcm/api/leave/domain/src/lib/day-quantity.ts),
+[owner-port orchestration](../../../../libs/hcm/api/leave/application/src/lib/workday-calculation.ts)
+and their colocated unit suites. The actual persisted interval/revision integration
+is exercised in `resolve-worker.database.spec.ts`. See the
+[executed evidence and limits](../../testing/HCM-3-LEAVE-FOUNDATION.md#current-workday-calculation).
+This covers only the current workday quantity prerequisite; it does not satisfy
+the full preview, submit or UI acceptance requirement.
 
 | Requirement                                       | Design                          | Planned test                                  |
 | ------------------------------------------------- | ------------------------------- | --------------------------------------------- |

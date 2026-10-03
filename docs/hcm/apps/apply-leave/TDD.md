@@ -186,6 +186,32 @@ Acceptance target: Commands retain durable result/audit/receipt and required out
 
 ## DELIVERY
 
+### Current workday calculation prerequisite
+
+The internal Leave application calculator consumes the transaction-bound
+`AttendancePublishedWorkdayPort`. Its caller must first authorize the complete
+dated employment and lock the explicit enrollment, period and policy. It admits
+one Active enrollment in one Open period and one Published policy version;
+cross-range/version inputs reject before reading Attendance. At most 366 distinct
+dates within a 366-day window use the existing bounded owner projection. Missing,
+pending, stale or inconsistent evidence produces Unavailable with no partial
+request total or consumable digest. This is an execution bound, not a Leave rule.
+
+Full rows consume ExpectedWork intervals. Resolved Hourly rows intersect their
+explicit UTC window with those intervals; net chargeable duration must be a whole
+multiple of the configured hourly increment. Day quantities divide by scheduled
+Work duration, Hour quantities by one elapsed hour. Integer millisecond arithmetic
+preserves cross-midnight and DST durations; the published decimal mode rounds
+each row once. Exact totals sum those rows. Read evidence binds policy, enrollment,
+period and actual workday revisions/digests, even when replacement sources yield
+the same units. No caller-submitted source projection enters a public endpoint.
+
+Hourly local-time/offset admission, half-day apportionment, legitimate-unscheduled
+fallback, bridge rules, notice/evidence/overlap validation, request persistence and
+submission remain required. Half-day rounding awaits the already raised product
+decision. This private prerequisite exposes no preview endpoint, grants no
+entitlement and does not constitute app acceptance.
+
 Branch `codex/hcm-3-apply-leave`. Prerequisite foundations must be merged before app
 delivery; follow the [ordered foundation plan](../../roadmap/HCM-3-FOUNDATION-DESIGN.md#order).
 Planned coherent commits:
