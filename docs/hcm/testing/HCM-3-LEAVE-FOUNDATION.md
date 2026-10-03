@@ -36,6 +36,11 @@ and the Leave app journeys can be accepted.
 - Pure eligibility evaluation preserves version/assignment/rule precedence,
   Exclude ties and whole-assignment matching. Missing facts and unknown statutory
   floors are unavailable; empty selectors do not grant universal eligibility.
+- Migration 63 and the internal grant ledger port append immutable source grants
+  and matching exact postings, serialize account sequence/balance updates and
+  preserve same-key results. Source commands still own permission, evidence,
+  independent approval where required, audit and command receipts. No public
+  grant endpoint, opening seed balance or completed accrual handler is implied.
 
 ## Verification
 
@@ -65,6 +70,11 @@ libs/hcm/api/leave/domain libs/hcm/contracts/workflow/src/lib/actions.spec.ts`.
   `tools/milestones/hcm-3/vitest.config.mts`. Affected lint, Leave module/domain
   type checks and architecture checks passed. The API build above predates this
   internal follow-up; no new browser acceptance is claimed.
+- Grant-ledger follow-up: the Leave PostgreSQL/HTTP run passed 20 tests in 2
+  suites, including simultaneous same-key and different-key postings, exact
+  millionth-unit totals, immutable evidence, direct-balance-edit denial, full
+  rollback after source failure, unmatched grant/posting rejection and RLS.
+  Affected lint and Leave module type check passed.
 
 ## Remaining
 
@@ -80,6 +90,6 @@ decision. The exact quantity implementation does not choose either behavior.
 Initial local Leave period dates have been raised for product configuration; no
 calendar-year or financial-year default has been silently seeded.
 
-Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–62
+Local PostgreSQL remains at migration 55 and Attendance seed 4; migrations 56–63
 have been exercised only in disposable test databases. Back up the persistent
 database and preserve its encryption key before explicit migration.

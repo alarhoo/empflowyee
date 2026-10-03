@@ -138,6 +138,21 @@ command; a created account alone is not a funded or completed enrollment journey
 Runtime lifecycle and quantity mutation privileges remain withheld until the
 corresponding obligation/ledger commands are installed.
 
+The grant ledger adapter is an internal port for already-authorized source
+commands, not a public funding API. Each positive exact grant retains its
+enrollment/unit, grant type, effective/expiry dates, original actor, source
+reference, input digest and business key. A grant and exactly one matching
+posting must commit together. The posting quantity, date, unit, actor and digest
+must equal the source. Period-before-account locks serialize close, retry and
+sequence allocation; database triggers compute sequence/running quantity and
+update the account projection from the immutable ledger. Direct projection
+edits cannot create entitlement. Same-key replay returns the original result;
+changed input conflicts. Grant/transaction rows deny update/delete, including
+through owner SQL. Accrual, reservation, debit, cancellation and adjustment
+effects require their own typed source references before their transaction kinds
+are admitted; the first ledger migration supports Grant only. Worker attribution
+is not replaced with a fabricated human account.
+
 Technical review, 2026-10-03, under the existing finalization delegation: this
 mapping preserves Business Rules 2, 4, 6, 24 and 28, the published-version-first
 eligibility order and the Unpaid exception. No period dates, entitlement amounts,
