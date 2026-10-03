@@ -169,3 +169,21 @@ storage, immutable expiry, rejected manufactured completion, original-key receip
 recovery after a lost acknowledgement, and one source decision across retry. This
 is not Attendance decision or UI acceptance. SQL remains at migration 55 in the
 persistent local environment; 56 and 57 have only been applied to disposable tests.
+
+## Source-driven stage reconciliation
+
+Migration 58 and the WorkflowReconcile handler retain current source graph
+identity, accepted receipt proofs, stage progress, candidate refresh, exception
+state and immutable reconciliation outcomes. An accepted first stage activates
+only the next required stage and its elapsed-time timers. Accepted rejection
+cancels later requirements; source Rejected is never represented as source Approved.
+Terminal reconciliation cancels remaining pending timers. A projection claiming
+approval without its matching accepted decision proof becomes SourceProofMissing.
+Missing or changed sources disable new task actions while retaining in-flight intent
+identity for receipt recovery. No reconciliation code calls the decision port.
+
+The focused real PostgreSQL planner/action/reconciliation run passed 2 suites /
+16 tests. Affected lint, TypeScript and architecture checks passed. Source adapter
+fixtures in this suite prove coordination only; the Attendance/Leave business
+adapters, notification timer delivery and full UI journeys remain outstanding.
+Migrations 56–58 are not yet applied to the persistent local database at 55.

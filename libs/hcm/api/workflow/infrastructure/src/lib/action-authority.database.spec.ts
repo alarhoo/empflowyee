@@ -25,6 +25,7 @@ import {
 	LocalFieldCipher,
 	HcmDurableWorkStore,
 	HcmTransactionalWorkerLane,
+	enqueueHcmWork,
 } from '@empflowyee/hcm-api-runtime-infrastructure'
 import {
 	TransactionalActionAccessPolicy,
@@ -46,6 +47,7 @@ import { KyselyWorkflowActionBinder } from './action-intake'
 import { KyselyWorkflowDispatchHandler } from './action-dispatch'
 import { KyselyWorkflowIntakeBinder } from './hcm-api-workflow-infrastructure'
 import { KyselyWorkflowPlanHandler } from './plan-worker'
+import { KyselyWorkflowReconcileHandler } from './reconcile-worker'
 
 const tenant = 'local-dunder-mifflin'
 const account = 'dunder-mifflin/account/david'
@@ -150,6 +152,22 @@ class ActionTestSource extends WorkflowSourceActionBinder {
 				}
 				sourceReceipts.set(intent.dispatchKey, receipt)
 				sourceDecisions.set(intent.caseId, (sourceDecisions.get(intent.caseId) ?? 0) + 1)
+				const manifest = actionManifests.get(intent.caseId)
+				if (!manifest) throw new Error('Missing fixture manifest')
+				manifest.caseRevision = receipt.caseRevision
+				for (const slot of manifest.slots)
+					if (slot.id === intent.slotId) {
+						slot.state = intent.action === 'Approve' ? 'Approved' : 'Rejected'
+						slot.revision++
+					}
+				if (intent.action === 'Reject') manifest.safeFacts.sourceState = 'Rejected'
+				else if (
+					manifest.slots.every(
+						/** The fixture retains the all-required source invariant. */ (slot) =>
+							slot.state === 'Approved',
+					)
+				)
+					manifest.safeFacts.sourceState = 'Approved'
 				if (loseNextResponse) {
 					loseNextResponse = false
 					throw new Error('Source acknowledgement lost')
@@ -161,7 +179,7 @@ class ActionTestSource extends WorkflowSourceActionBinder {
 }
 
 /** Materialize a unique test source through the actual durable planner and return its persisted ready task. */
-async function readyTask() {
+async function readyTask(stages = 1) {
 	const caseId = randomUUID(),
 		slotId = randomUUID()
 	const manifest: DomainApprovalManifest = {
@@ -196,6 +214,7 @@ async function readyTask() {
 			},
 		],
 	}
+	if (stages === 2) manifest.slots.push({ ...manifest.slots[0], id: randomUUID(), stage: 2 })
 	actionManifests.set(caseId, manifest)
 	await database.transaction(
 		actor,
@@ -213,7 +232,7 @@ async function readyTask() {
 	await lane.complete(planner, job)
 	const row = (
 		await admin.query(
-			'SELECT t.id,t.revision FROM hcm.workflow_task t JOIN hcm.workflow_instance i ON i.tenant_id=t.tenant_id AND i.id=t.instance_id WHERE i.source_case_id=$1',
+			'SELECT t.id,t.revision FROM hcm.workflow_task t JOIN hcm.workflow_instance i ON i.tenant_id=t.tenant_id AND i.id=t.instance_id WHERE i.source_case_id=$1 ORDER BY t.stage',
 			[caseId],
 		)
 	).rows[0]
@@ -331,7 +350,11 @@ beforeAll(
 		)
 		actor = await authenticate()
 		expect(requireAuthenticatedScope(actor).accountId).toBe(account)
-		issuer = new HcmWorkloadIssuer(directory, ['WorkflowDispatch', 'WorkflowPlan'])
+		issuer = new HcmWorkloadIssuer(directory, [
+			'WorkflowDispatch',
+			'WorkflowPlan',
+			'WorkflowReconcile',
+		])
 		dispatch = await issuer.issue(tenant, 'WorkflowDispatch', randomUUID(), 300000)
 	},
 )
@@ -723,4 +746,163 @@ it('queries the original source receipt after a lost acknowledgement before any 
 			)
 		).state,
 	).toBe('Accepted')
+})
+
+/** Drain only source reconciliation jobs and persist their real Runtime completion fences. */
+async function reconcileSources() {
+	const context = await issuer.issue(tenant, 'WorkflowReconcile', randomUUID(), 60000)
+	const lane = new HcmTransactionalWorkerLane(
+		'WorkflowReconcile',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[new KyselyWorkflowReconcileHandler(new ActionTestProjection())],
+	)
+	for (;;) {
+		const job = await lane.claim(context)
+		if (!job) break
+		await lane.complete(context, job)
+	}
+}
+
+it('advances only the next required stage and closes a fully receipt-backed case', /** Current source progress activates later slots while terminal reconciliation cancels pending reminders. */ async () => {
+	const task = await readyTask(2)
+	const lane = new HcmTransactionalWorkerLane(
+		'WorkflowDispatch',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[new KyselyWorkflowDispatchHandler(new ActionTestSource(), actionCipher, binder)],
+	)
+	await database.transaction(
+		actor,
+		/** Admit the first required stage only. */ (tx) =>
+			actions(tx).submit(actor, task.taskId, randomUUID(), actionCommand()),
+	)
+	const first = await lane.claim(dispatch)
+	if (!first) throw new Error('Expected stage one action')
+	await lane.complete(dispatch, first)
+	await reconcileSources()
+	const tasks = (
+		await admin.query(
+			'SELECT t.* FROM hcm.workflow_task t JOIN hcm.workflow_instance i ON i.tenant_id=t.tenant_id AND i.id=t.instance_id WHERE i.source_case_id=$1 ORDER BY t.stage',
+			[task.caseId],
+		)
+	).rows
+	expect(
+		tasks.map(
+			/** Compare source-backed stage activation after the first decision. */ (row) => row.state,
+		),
+	).toEqual(['Completed', 'Ready'])
+	expect(tasks[1].expected_case_revision).toBe(2)
+	expect(
+		(
+			await admin.query(
+				"SELECT count(*)::int AS count FROM hcm.workflow_task_timer WHERE task_id=$1 AND state='Pending'",
+				[tasks[1].id],
+			)
+		).rows[0].count,
+	).toBe(5)
+	await database.transaction(
+		actor,
+		/** A later-stage decision uses the newly reconciled revisions. */ (tx) =>
+			actions(tx).submit(actor, tasks[1].id, randomUUID(), {
+				...actionCommand(),
+				expectedRevision: tasks[1].revision,
+				expectedSourceRevision: 2,
+			}),
+	)
+	const second = await lane.claim(dispatch)
+	if (!second) throw new Error('Expected stage two action')
+	await lane.complete(dispatch, second)
+	await reconcileSources()
+	expect(
+		(
+			await admin.query('SELECT state FROM hcm.workflow_instance WHERE source_case_id=$1', [
+				task.caseId,
+			])
+		).rows[0].state,
+	).toBe('Completed')
+	expect(
+		(
+			await admin.query(
+				"SELECT count(*)::int AS count FROM hcm.workflow_task_timer r JOIN hcm.workflow_task t ON t.tenant_id=r.tenant_id AND t.id=r.task_id WHERE t.instance_id=$1 AND r.state='Pending'",
+				[tasks[0].instance_id],
+			)
+		).rows[0].count,
+	).toBe(0)
+	expect(sourceDecisions.get(task.caseId)).toBe(2)
+})
+
+it('refuses a source status projection as a replacement for accepted decision proof', /** A decided slot without its authentic receipt becomes a named reconciliation exception, never Completed. */ async () => {
+	const task = await readyTask()
+	const manifest = actionManifests.get(task.caseId)
+	if (!manifest) throw new Error('Missing fixture manifest')
+	manifest.caseRevision++
+	manifest.slots[0].state = 'Approved'
+	manifest.slots[0].revision++
+	manifest.safeFacts.sourceState = 'Approved'
+	await database.transaction(
+		actor,
+		/** Queue a source change notification without creating any decision receipt. */ (tx) =>
+			enqueueHcmWork(tx, tenant, {
+				workload: 'WorkflowReconcile',
+				kind: 'workflow.source.reconcile',
+				schemaVersion: 1,
+				businessKey: randomUUID(),
+				payload: { source: 'Attendance', caseId: task.caseId, generation: 1 },
+			}),
+	)
+	await reconcileSources()
+	expect(
+		(await admin.query('SELECT state FROM hcm.workflow_task WHERE id=$1', [task.taskId])).rows[0]
+			.state,
+	).toBe('Failed')
+	expect(
+		(
+			await admin.query('SELECT code FROM hcm.workflow_reconciliation_exception WHERE task_id=$1', [
+				task.taskId,
+			])
+		).rows[0].code,
+	).toBe('SourceProofMissing')
+	expect(
+		(
+			await admin.query('SELECT state FROM hcm.workflow_instance WHERE source_case_id=$1', [
+				task.caseId,
+			])
+		).rows[0].state,
+	).toBe('Open')
+})
+
+it('cancels remaining source obligations after a receipt-backed rejection', /** Workflow completion here means coordination closed; the source remains Rejected, never Approved. */ async () => {
+	const task = await readyTask(2)
+	await database.transaction(
+		actor,
+		/** An explicit rejection is admitted with the same current source authority requirements. */ (
+			tx,
+		) =>
+			actions(tx).submit(actor, task.taskId, randomUUID(), {
+				...actionCommand(),
+				action: 'Reject',
+			}),
+	)
+	const lane = new HcmTransactionalWorkerLane(
+		'WorkflowDispatch',
+		new HcmDurableWorkStore(database, { leaseMilliseconds: 60000, maximumAttempts: 3 }),
+		[new KyselyWorkflowDispatchHandler(new ActionTestSource(), actionCipher, binder)],
+	)
+	const job = await lane.claim(dispatch)
+	if (!job) throw new Error('Expected rejection dispatch')
+	await lane.complete(dispatch, job)
+	await reconcileSources()
+	const rows = (
+		await admin.query(
+			'SELECT t.state FROM hcm.workflow_task t JOIN hcm.workflow_instance i ON i.tenant_id=t.tenant_id AND i.id=t.instance_id WHERE i.source_case_id=$1 ORDER BY t.stage',
+			[task.caseId],
+		)
+	).rows
+	expect(
+		rows.map(
+			/** A source rejection closes the decided slot and cancels later requirements. */ (row) =>
+				row.state,
+		),
+	).toEqual(['Completed', 'Cancelled'])
+	expect(actionManifests.get(task.caseId)?.safeFacts.sourceState).toBe('Rejected')
+	expect(sourceDecisions.get(task.caseId)).toBe(1)
 })
